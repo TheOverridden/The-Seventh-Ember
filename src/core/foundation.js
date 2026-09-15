@@ -20,7 +20,8 @@ const hide = id => T(id).classList.remove('open');
 
 /* ---------------- SAVE / META PROGRESSION ---------------- */
 const SAVE_KEY='voidfall_save_v1';
-const DEF_SAVE = ()=>({v:1, essence:0, nodes:{}, bestFloor:0, bestLevel:0, totalRuns:0, totalKills:0, totalEssence:0, victories:0, guardians:0, tut:0, music:1, sfx:1, motion:0, touch:0, quality:"full", resume:null});
+const SAVE_PROGRESSION_EPOCH=2;
+const DEF_SAVE = ()=>({v:1, progressionEpoch:SAVE_PROGRESSION_EPOCH, essence:0, nodes:{}, bestFloor:0, bestLevel:0, totalRuns:0, totalKills:0, totalEssence:0, victories:0, guardians:0, tut:0, music:1, sfx:1, motion:0, touch:0, quality:"full", resume:null});
 let save = DEF_SAVE();
 let saveDirty=false, saveTimer=0;
 function loadSave(){

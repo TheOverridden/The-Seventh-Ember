@@ -1,7 +1,9 @@
 /* ============================================================================
    Chunk C: game flow · stats · level-ups · per-frame updates
 ============================================================================ */
-const needXP = l => Math.floor(12 + 10*l + Math.pow(l,1.45)*3);
+// Early choices arrive quickly; later ranks take long enough that the build
+// keeps developing through the campaign and well into Endless.
+const needXP = l => Math.floor(14 + 11*l + 3.2*Math.pow(l,1.48) + .65*Math.pow(Math.max(0,l-12),2));
 function setState(s){
   G.state=s;
   if(s!=='playing') clearInput();

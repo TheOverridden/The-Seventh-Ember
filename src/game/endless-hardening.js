@@ -18,7 +18,7 @@ function endlessBossTarget(b,f=G.floor){
 function applyEndlessEntityDifficulty(e,preserveHealth=false){
  if(!e||e.dead||!G.run?.infinite||G.floor<=50)return e;const q=endlessDifficulty(),ratio=preserveHealth?clamp(e.hp/Math.max(1,e.max),0,1):1,mutation=endlessMutation(G.floor).key,iron=mutation==='iron'?1.18:1,motion=Math.pow(1.1,oathRank('motion'));
  if(e.lateBoss){const cfg=LATE_BOSSES[e.type],target=endlessBossTarget(e);e.max=target;e.hp=Math.max(1,Math.round(target*ratio));e.dmg=Math.max(1,Math.round((ENDGAME_DAMAGE[e.bossKey]||e.dmg)*q.enemyDmg));if(cfg)e.spd=cfg.spd*q.speed*motion;e.endlessDamageCeiling=.035;}
- else{const c=LATE_ENEMIES[e.type]||ETYPES[e.type],mapped=authoredDepth(),d=Math.max(0,mapped-11);if(c){const elite=e.elite?1.7:1,target=Math.max(1,Math.min(8e15,Math.round(c.hp*depthHealth(mapped)*elite*q.enemyHp*iron)));e.max=target;e.hp=Math.max(1,Math.round(target*ratio));e.dmg=Math.max(1,Math.min(1e12,Math.round(c.dmg*(1+d*.025)*q.enemyDmg)));e.spd=c.spd*(1+Math.min(.25,d*.006))*q.speed*(mutation==='relentless'?1.08:1)*motion*(e.specialQuarry?1.08:1);}}
+ else{const c=LATE_ENEMIES[e.type]||ETYPES[e.type],mapped=authoredDepth(),d=Math.max(0,mapped-11);if(c){const elite=e.elite?1.7:1,target=Math.max(1,Math.min(8e15,Math.round(c.hp*depthHealth(mapped)*elite*q.enemyHp*iron)));e.max=target;e.hp=Math.max(1,Math.round(target*ratio));e.dmg=Math.max(1,Math.min(1e12,Math.round(c.dmg*(1+d*.029)*q.enemyDmg)));e.spd=c.spd*(1+Math.min(.25,d*.006))*q.speed*(mutation==='relentless'?1.08:1)*motion*(e.specialQuarry?1.08:1);}}
  e.endlessScaled=true;e.endlessDifficultyVersion=ENDLESS_DIFFICULTY_VERSION;return e;
 }
 function scaleEndlessMechanism(e){

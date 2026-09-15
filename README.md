@@ -1,6 +1,6 @@
 # VoidFall
 
-VoidFall is now maintained as a modular browser game. The current save key and save format remain compatible with the earlier single-file release.
+VoidFall is maintained as a modular browser game. The September 2026 progression rebuild begins a new save epoch; older exported saves are intentionally rejected so retired balance data cannot return.
 
 ## Project map
 
@@ -26,3 +26,7 @@ Open `index.html` in a modern browser or serve this directory with any static we
 ## Release direction
 
 Keep editable source in a private repository before commercial release. A later build step can bundle and minify these files for the public web version and package the same build as a desktop application for Steam.
+
+## Publishing a player update
+
+Every published update must add one immutable entry to `src/core/changelog.js` with a version number higher than the previous entry. Players automatically see only entries newer than the newest one they have dismissed. Keep older entries unchanged so returning players never receive the same notes twice.

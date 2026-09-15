@@ -1,3 +1,5 @@
 installGuardianModes();
 
 init();
+
+showVoidFallUpdates();

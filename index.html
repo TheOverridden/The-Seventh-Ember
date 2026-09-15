@@ -7,6 +7,7 @@
 <title>VoidFall</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="description" content="A dungeon roguelike with fifty floors, permanent progression, ten guardians, and an endless descent.">
+<meta name="voidfall-build" content="progression-rebuild-2026-09-14">
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/hud.css">
 <link rel="stylesheet" href="styles/overlays.css">
@@ -14,6 +15,7 @@
 <link rel="stylesheet" href="styles/boss-adaptation.css?v=1">
 <link rel="stylesheet" href="styles/campaign.css">
 <link rel="stylesheet" href="styles/story.css">
+<link rel="stylesheet" href="styles/changelog.css?v=1">
 </head>
 <body>
 
@@ -77,6 +79,21 @@
   </div>
 </div>
 
+<!-- ================= WHAT'S NEW ================= -->
+<div id="changelog" class="ov" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
+  <section class="changelog-shell">
+    <div class="changelog-sigil" aria-hidden="true"><i></i><b>◆</b><i></i></div>
+    <div class="changelog-kicker">VOIDFALL HAS CHANGED</div>
+    <h2 id="changelogTitle">What’s New</h2>
+    <div id="resetNotice" class="reset-notice" hidden>
+      <strong>A fresh descent was required.</strong>
+      <p>Sorry—your progress had to be reset. This update rebuilt the game’s progression, and old saves no longer matched the intended difficulty. This reset will only happen once.</p>
+    </div>
+    <div id="changelogEntries" class="changelog-entries"></div>
+    <button class="btn primary" id="changelogClose">BEGIN AGAIN</button>
+  </section>
+</div>
+
 
 <div id="finale" class="ov" role="dialog" aria-modal="true" aria-labelledby="endingTitle">
  <div class="finale-shell"><p class="ending-kicker">VOIDFALL · THE END OF THE DESCENT</p><canvas id="endingCanvas" width="720" height="280" aria-label="The archive opens, releasing its people into the dawn."></canvas><h2 id="endingTitle"></h2>
@@ -95,7 +112,7 @@
       <div class="k"><kbd>SPACE</kbd></div><div>Dash — grants brief invulnerability</div>
       <div class="k"><kbd>E</kbd></div><div>Enter the portal · restores 15% health on floors 1–10, then 8%</div>
       <div class="k"><kbd>ESC</kbd>/<kbd>P</kbd></div><div>Pause</div>
-      <div class="k"><kbd>J</kbd></div><div>Cast Ember Bolts at the nearest enemy · Rekindles when empty</div><div class="k"><kbd>F</kbd></div><div>Toggle automatic aim + fire (helpful on a trackpad)</div><div class="k"><kbd>K</kbd> / right click</div><div>Flare — 2.25× Ember Bolt damage · usable while Rekindling</div><div class="k"><kbd>R</kbd></div><div>Rekindle six charges · empty wells Rekindle automatically</div><div class="k"><kbd>M</kbd></div><div>Toggle music</div>
+      <div class="k"><kbd>J</kbd></div><div>Cast Ember Bolts at the nearest enemy · Rekindles when empty</div><div class="k"><kbd>K</kbd> / right click</div><div>Flare — 2.25× Ember Bolt damage · usable while Rekindling</div><div class="k"><kbd>R</kbd></div><div>Rekindle six charges · empty wells Rekindle automatically</div><div class="k"><kbd>M</kbd></div><div>Toggle music</div>
       <div class="k"><kbd>TOUCH</kbd></div><div>Left stick moves · hold the right stick to aim and fire · four buttons use Flare, Dash, Rekindle, and nearby objects</div>
     </div>
     <div class="how-tips">Walk up to a chest to open it. Cyan XP and violet essence are separate.<br>
@@ -169,7 +186,7 @@
       </div>
     </div>
     <div class="tree-layout"><div class="tree-map"><div id="treeWrap"><canvas id="treeCv" width="1240" height="980" aria-hidden="true"></canvas><div id="treeNodes" aria-label="Permanent skill tree"></div></div></div><aside class="tree-inspector"><div class="eyebrow">PERMANENT SIGIL</div><h3 id="nodeTitle">Awakening</h3><p id="nodeDesc"></p><div class="price" id="nodePrice"></div><div class="node-status" id="nodeStatus" role="status"></div><button class="btn primary" id="btnUnlock">UNLOCK SIGIL</button><div class="meta-total" id="metaTotal"></div></aside></div>
-    <div class="tree-foot"><span>SELECT A SIGIL · UNLOCK WITH ESSENCE</span><span>ABOUT ◆ 10,500 PER FULL CLEAR · ◆ 340,285 TO MASTER</span></div>
+    <div class="tree-foot"><span>SELECT A SIGIL · UNLOCK WITH ESSENCE</span><span>ABOUT ◆ 6,500–8,000 PER FULL CLEAR · ◆ 340,285 TO MASTER</span></div>
   </div>
 </div>
 <div id="treeTip"></div>
@@ -206,21 +223,21 @@
 <div id="chapterClear" class="ov"><div class="panel chapter-clear-panel"><div class="chapter-seal" id="chapterSeal" aria-hidden="true">Ⅰ</div><div class="eyebrow" id="chapterCompleteLabel">CHAPTER I COMPLETE</div><h2 id="chapterCompleteTitle">The Hollow Gate</h2><p id="chapterCompleteText">The Warden has lowered his weapon.<br>Beyond him, the stairs keep going.</p><div id="chapterStats" class="statsgrid"></div><div class="chapter-quote" id="chapterQuote">“You asked me to stop you.”</div><div class="btnrow"><button class="btn primary" id="chapterContinue">DESCEND FURTHER</button><button class="btn" id="chapterSave">SAVE & RETURN</button></div><button class="text-button" id="chapterExplore">Stay and look around</button></div></div>
 
 <script src="src/core/error-boundary.js"></script>
-<script src="src/core/foundation.js"></script>
+<script src="src/core/foundation.js?v=20260914"></script>
 <script src="src/core/input.js"></script>
 <script src="src/render/sprites.js"></script>
 <script src="src/core/state.js"></script>
 <script src="src/world/dungeon.js"></script>
-<script src="src/game/flow.js"></script>
+<script src="src/game/flow.js?v=20260914"></script>
 <script src="src/render/world-ui.js"></script>
-<script src="src/interface/refinements.js"></script>
-<script src="src/chapters/hollow.js"></script>
+<script src="src/interface/refinements.js?v=20260914"></script>
+<script src="src/chapters/hollow.js?v=20260914"></script>
 <script src="src/combat/ember-abilities.js"></script>
 <script src="src/chapters/garden.js"></script>
 <script src="src/chapters/late-regions.js"></script>
 <script src="src/progression/regional-blessings.js"></script>
 <script src="src/story/recovered-traces.js"></script>
-<script src="src/enemies/regional-enemies.js?v=2"></script>
+<script src="src/enemies/regional-enemies.js?v=20260914"></script>
 <script src="src/bosses/guardians.js"></script>
 <script src="src/world/regional-hazards.js"></script>
 <script src="src/chapters/late-hooks.js"></script>
@@ -228,7 +245,7 @@
 <script src="src/render/ember.js"></script>
 <script src="src/render/hollow-garden-art.js"></script>
 <script src="src/render/regional-art.js"></script>
-<script src="src/game/finale.js"></script>
+<script src="src/game/finale.js?v=20260914"></script>
 <script src="src/progression/blessings.js"></script>
 <script src="src/world/resting-flames.js"></script>
 <script src="src/audio/score.js"></script>
@@ -245,13 +262,15 @@
 <script src="src/game/guardian-modes.js"></script>
 <script src="src/bosses/final-tuning.js"></script>
 <script src="src/bosses/secret-boss.js"></script>
-<script src="src/game/endless-hardening.js"></script>
+<script src="src/game/endless-hardening.js?v=20260914"></script>
 <script src="src/story/living-archive.js"></script>
 <script src="src/story/story-rewrite.js?v=2"></script>
-<script src="src/bosses/adaptive-guardians.js?v=1"></script>
+<script src="src/bosses/adaptive-guardians.js?v=2"></script>
+<script src="src/progression/balance-profile.js?v=2"></script>
 <script src="src/combat/combat-polish.js?v=1"></script>
 <script src="src/audio/mastering.js?v=2"></script>
-<script src="src/core/save-system.js?v=bb7d539"></script>
+<script src="src/core/save-system.js?v=3"></script>
+<script src="src/core/changelog.js?v=1"></script>
 <script src="src/core/boot.js"></script>
 </body>
 </html>

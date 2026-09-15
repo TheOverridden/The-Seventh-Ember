@@ -1,12 +1,12 @@
 /* THE LAST LIGHT: authored encounters, creature silhouettes, and a finite campaign. */
-const DEPTH_REVISION=11;
+const DEPTH_REVISION=12;
 const ENDGAME_HP={bellkeeper:5100,colossus:8200,astronomer:11200,scribe:14500,regents:12000,seraph:26500,tyrant:90000,keeper:160000};
 const ENDGAME_DAMAGE={bellkeeper:29,colossus:35,astronomer:39,scribe:44,regents:44,seraph:55,tyrant:63,keeper:72};
 function depthCycle(){return G.run?.infinite?Math.floor((G.floor-51)/40)+1:0;}
 function authoredDepth(){return G.floor>50?11+(G.floor-51)%40:G.floor;}
-function depthHealth(f){const d=Math.max(0,f-11);return 1+d*.045+d*d*.0008;}
+function depthHealth(f){const d=Math.max(0,f-11);return 1+d*.05+d*d*.00105;}
 const depthSpawn=spawnEnemy;
-spawnEnemy=function(type,x,y,elite){const e=depthSpawn(type,x,y,elite),c=LATE_ENEMIES[type];if(c){const f=authoredDepth(),d=Math.max(0,f-11),cycle=depthCycle();e.hp=e.max=Math.round(c.hp*depthHealth(f)*(elite?1.7:1)*Math.pow(1.5,cycle));e.dmg=Math.round(c.dmg*(1+d*.025)*Math.pow(1.18,cycle));e.spd=c.spd*(1+Math.min(.25,d*.006)+Math.min(.2,cycle*.025));e.xp=Math.round(c.xp*.78*(elite?1.6:1));e.depthRevision=DEPTH_REVISION;}return e;};
+spawnEnemy=function(type,x,y,elite){const e=depthSpawn(type,x,y,elite),c=LATE_ENEMIES[type];if(c){const f=authoredDepth(),d=Math.max(0,f-11),cycle=depthCycle();e.hp=e.max=Math.round(c.hp*depthHealth(f)*(elite?1.7:1)*Math.pow(1.5,cycle));e.dmg=Math.round(c.dmg*(1+d*.029)*Math.pow(1.18,cycle));e.spd=c.spd*(1+Math.min(.25,d*.006)+Math.min(.2,cycle*.025));e.xp=Math.round(c.xp*.78*(elite?1.6:1));e.depthRevision=DEPTH_REVISION;}return e;};
 const depthBoss=makeLateBoss;
 makeLateBoss=function(type,x,y,name,role){const b=depthBoss(type,x,y,name,role),cycle=depthCycle();b.hp=b.max=Math.round(ENDGAME_HP[b.bossKey]*Math.pow(1.65,cycle));b.dmg=Math.round(ENDGAME_DAMAGE[b.bossKey]*Math.pow(1.2,cycle));b.depthRevision=DEPTH_REVISION;b.bs.phase=0;b.bs.cycle=0;b.bs.events=[];b.bs.history=[];b.bs.mechanismCd=0;return b;};
 // Secondary projectiles still add damage, but cannot multiply every proc at full strength.
@@ -16,7 +16,7 @@ const depthRecalc=recalc;
 recalc=function(){depthRecalc();if(!G.player||!G.run)return;G.player.regen=.35*(G.run.up.regen||0)+(META.regen||0);G.player.speed=BASE.speed*(META.speed+.07*(G.run.up.speed||0));};
 for(const id of ['regen','speed','proj']){const c=POOL.find(o=>o.id===id);if(c)c.ds=id==='regen'?'Restore 0.35 health each second':id==='speed'?'+7% movement speed':'Additional Ember Bolt · extra bolts deal 68% damage';}
 // A completed deep branch should be attainable before the entire tree is filled.
-const DEPTH_COSTS=[10,25,60,130,260,480,850,1450,2400,4000,6500,10000];
+const DEPTH_COSTS=[10,25,60,140,300,600,1200,2200,4000,7000,11000,16000];
 for(const b of MASTERY_BRANCHES)for(let i=0;i<b.ids.length;i++){const n=NODE_BY_ID[b.ids[i]];if(n)n.cost=DEPTH_COSTS[i];}
 MASTERY_COSTS.splice(0,MASTERY_COSTS.length,...DEPTH_COSTS);MASTERY_TOTAL=TREE_NODES.reduce((sum,n)=>sum+n.cost,0);
 for(const n of TREE_NODES){if(n.fx?.dmg){n.fx.dmg=Math.round(n.fx.dmg*150)/100;n.desc=n.desc.replace(/\+\d+% damage/,'+'+Math.round(n.fx.dmg*100)+'% damage');}if(n.fx?.hp){n.fx.hp=Math.round(n.fx.hp*1.25);n.desc=n.desc.replace(/\+\d+ maximum health/,'+'+n.fx.hp+' maximum health');}if(n.fx?.armor){n.fx.armor*=2;n.desc=n.desc.replace(/\d+% less damage/,Math.round(n.fx.armor*100)+'% less damage');}}
@@ -253,7 +253,7 @@ snapshotRun=function(){const state=G.state;if(state==='ending')G.state='paused';
 const depthValidate=validateSave;
 validateSave=function(raw){const clean=depthValidate(raw);clean.campaignMedal=raw.campaignMedal===true;return clean;};
 const depthResume=resumeRun;
-resumeRun=function(){const ending=save.resume?.ending;depthResume();if(!G.run)return;if(G.floor>50&&!G.run.infinite){G.run.campaignComplete=true;G.run.victoryBanked=!!G.run.wonShown;G.run.endingStep=0;G.floor=50;beginEnding();return;}if(ending||G.run.campaignComplete&&!G.run.infinite){beginEnding();return;}for(const e of G.enemies){if(e.depthRevision===DEPTH_REVISION)continue;const hp=e.hp/e.max;if(e.lateBoss){e.max=ENDGAME_HP[e.bossKey];e.hp=e.max*hp;e.dmg=ENDGAME_DAMAGE[e.bossKey];e.bs.total=0;e.bs.events=[];e.bs.history=[];e.bs.t=1.5;}else if(LATE_ENEMIES[e.type]){const c=LATE_ENEMIES[e.type];e.max=c.hp*depthHealth(authoredDepth())*(e.elite?1.7:1);e.hp=e.max*hp;e.dmg=Math.round(c.dmg*(1+Math.max(0,authoredDepth()-11)*.025));}e.depthRevision=DEPTH_REVISION;}};
+resumeRun=function(){const ending=save.resume?.ending;depthResume();if(!G.run)return;if(G.floor>50&&!G.run.infinite){G.run.campaignComplete=true;G.run.victoryBanked=!!G.run.wonShown;G.run.endingStep=0;G.floor=50;beginEnding();return;}if(ending||G.run.campaignComplete&&!G.run.infinite){beginEnding();return;}for(const e of G.enemies){if(e.depthRevision===DEPTH_REVISION)continue;const hp=e.hp/e.max;if(e.lateBoss){e.max=ENDGAME_HP[e.bossKey];e.hp=e.max*hp;e.dmg=ENDGAME_DAMAGE[e.bossKey];e.bs.total=0;e.bs.events=[];e.bs.history=[];e.bs.t=1.5;}else if(LATE_ENEMIES[e.type]){const c=LATE_ENEMIES[e.type];e.max=c.hp*depthHealth(authoredDepth())*(e.elite?1.7:1);e.hp=e.max*hp;e.dmg=Math.round(c.dmg*(1+Math.max(0,authoredDepth()-11)*.029));}e.depthRevision=DEPTH_REVISION;}};
 const depthMenuStats=refreshMenuStats;
 refreshMenuStats=function(){depthMenuStats();const badge=T('campaignMedal');if(badge)badge.hidden=!save.campaignMedal;};
 const depthHollowTick=hollowTick;

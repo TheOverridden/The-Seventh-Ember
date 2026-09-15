@@ -182,7 +182,10 @@ function setupHollowFloor(f){
       for(let attempt=0;attempt<25;attempt++){const x=(irand(r.x+2,r.x+r.w-3)+.5)*TILE,y=(irand(r.y+2,r.y+r.h-3)+.5)*TILE;pos=safePosition(w,x,y,ETYPES[type].r*(elite?1.3:1));if(pos&&!(bossFloorAt(f)&&pos.x>(w.exit.x-1)*TILE&&pos.x<(w.exit.x+w.exit.w+1)*TILE&&pos.y>(w.exit.y-1)*TILE&&pos.y<(w.exit.y+w.exit.h+1)*TILE)&&earlySpawnSpace(w,f,pos,r)&&w.fixtures.every(o=>d2(pos.x,pos.y,o.x,o.y)>65**2))break;pos=null;}
       if(pos&&(f>10||G.enemies.length<FLOOR_POPULATION[f-1]))spawnEnemy(type,pos.x,pos.y,elite);
     }
-    if(ri===2||ri===w.rooms.length-1&&!bossFloorAt(f)||bossFloorAt(f)&&ri===3){const pos=safePosition(w,(r.cx+2)*TILE+18,(r.cy+2)*TILE+18,17);if(pos)G.chests.push({...pos,opened:false,hollowGift:true});}
+    // One reliable blessing cache per opening floor. The old condition could
+    // place two, letting a lucky first chapter outgrow the rest of the run.
+    const giftRoom=bossFloorAt(f)?Math.min(3,w.rooms.length-1):Math.min(2,w.rooms.length-1);
+    if(ri===giftRoom){const pos=safePosition(w,(r.cx+2)*TILE+18,(r.cy+2)*TILE+18,17);if(pos)G.chests.push({...pos,opened:false,hollowGift:true});}
   }
   if(f===5){const b=spawnBossAt(w.exit.cx*TILE+18,(w.exit.cy-2)*TILE+18);b.warden=true;b.ai='warden';b.name='THE STAR WARDEN';b.hp=b.max=WARDEN_HP;b.balanceVersion=2;b.r=29;b.dmg=19;b.spd=74;b.xp=85;b.col='#d8c389';b.kb=0;b.tier=1;b.introduced=false;b.wb={mode:'wait',t:1.3,a:Math.PI/2,kind:'',step:0,marks:[],second:false};}
   if(f===10)spawnMatriarch();

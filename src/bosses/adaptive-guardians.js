@@ -6,7 +6,7 @@
    ======================================================================== */
 'use strict';
 
-const ADAPTIVE_GUARDIAN_VERSION=1;
+const ADAPTIVE_GUARDIAN_VERSION=2;
 const ADAPTIVE_REQUIREMENT=[0,.02,.06,.10,.16,.23,.30,.37,.44,.52];
 const ADAPTIVE_BUDGET=[.18,.135,.105,.08,.052,.044,.036,.03,.024,.019];
 const ADAPTIVE_HIT_CAP=[.10,.08,.065,.055,.042,.036,.03,.026,.021,.017];
@@ -53,12 +53,14 @@ function adaptiveBuild(up={}){
  return{power,offense:adaptiveClamp(offense,1,14),defense:adaptiveClamp(defense,1,5),totalRanks,mythics,label,scores};
 }
 function adaptiveModel(tier,mastery,build,mode='campaign'){
- const i=adaptiveClamp(tier,1,10)-1,need=ADAPTIVE_REQUIREMENT[i],deficit=Math.max(0,need-mastery);
+ const i=adaptiveClamp(tier,1,10)-1,need=ADAPTIVE_REQUIREMENT[i],deficit=Math.max(0,need-mastery),lateWeight=i/9;
  const modeWeight=mode==='practice'?.55:mode==='rush'?.68:1;
- const tempHp=1+(Math.pow(build.power,.36)-1)*modeWeight;
- const hp=adaptiveClamp(tempHp*(1+deficit*2.05*modeWeight),1,mode==='campaign'?4.8:3.25);
- const damage=adaptiveClamp(1+((build.defense-1)*.15+deficit*.82)*modeWeight,1,2.15);
- const tempo=adaptiveClamp(1+(Math.min(.20,(build.power-1)*.022)+deficit*.34)*modeWeight,1,1.42);
+ const tempHp=1+(Math.pow(build.power,.46)-1)*modeWeight;
+ // Permanent progress remains the answer. A huge temporary build makes the
+ // guardian sturdier, while missing late Skill Tree targets also sharpens it.
+ const hp=adaptiveClamp(tempHp*(1+deficit*(2.1+lateWeight*4.4)*modeWeight),1,mode==='campaign'?7.2:3.8);
+ const damage=adaptiveClamp(1+((build.defense-1)*.17+deficit*(.82+lateWeight*.78))*modeWeight,1,2.35);
+ const tempo=adaptiveClamp(1+(Math.min(.24,(build.power-1)*.026)+deficit*(.32+lateWeight*.30))*modeWeight,1,1.5);
  return{need,deficit,hp,damage,tempo,budget:ADAPTIVE_BUDGET[i],hitCap:ADAPTIVE_HIT_CAP[i]};
 }
 function adaptiveBossKey(b){return b?.bossKey||(b?.warden?'warden':b?.matriarch?'matriarch':'guardian');}

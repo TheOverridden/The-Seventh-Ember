@@ -4,13 +4,36 @@
    verification, automatic recovery, and stale-tab overwrite protection.
    ====================================================================== */
 document.documentElement.dataset.saveSystem='loading';
-const SAVE_SCHEMA=2;
+const SAVE_SCHEMA=3;
+const PROGRESSION_RESET_MARKER='voidfall_progression_reset_20260914';
+const CHANGELOG_SEEN_KEY='voidfall_changelog_seen';
 const SAVE_SLOT_KEYS=[SAVE_KEY+'_slot_a',SAVE_KEY+'_slot_b'];
 const SAVE_EMERGENCY_KEY=SAVE_KEY+'_emergency';
 const SAVE_MANIFEST_KEY=SAVE_KEY+'_manifest';
 const SAVE_PRIMARY_META_KEY=SAVE_KEY+'_primary_meta';
 const SAVE_WRITER=(globalThis.crypto?.randomUUID?.()||Math.random().toString(36).slice(2))+':'+Date.now();
 let saveRevision=0,saveLastHash='',saveLastTime=0,saveRemoteRevision=0,saveRecovered=false;
+let progressionMigration={status:'unknown',applied:false,removed:0};
+
+function applyProgressionMigration(){
+ try{
+   const recorded=localStorage.getItem(PROGRESSION_RESET_MARKER);
+   if(recorded){
+     try{progressionMigration={...progressionMigration,...JSON.parse(recorded),applied:false};}
+     catch(_){progressionMigration={status:recorded==='reset'?'reset':'fresh',applied:false,removed:0};}
+     return progressionMigration;
+   }
+   const keep=new Set([PROGRESSION_RESET_MARKER,CHANGELOG_SEEN_KEY]),doomed=[];
+   for(let i=0;i<localStorage.length;i++){
+     const key=localStorage.key(i);
+     if(key?.startsWith('voidfall_')&&!keep.has(key))doomed.push(key);
+   }
+   for(const key of doomed)localStorage.removeItem(key);
+   progressionMigration={status:doomed.length?'reset':'fresh',applied:doomed.length>0,removed:doomed.length,at:Date.now(),epoch:SAVE_PROGRESSION_EPOCH};
+   localStorage.setItem(PROGRESSION_RESET_MARKER,JSON.stringify(progressionMigration));
+ }catch(_){progressionMigration={status:'unavailable',applied:false,removed:0};}
+ return progressionMigration;
+}
 
 function saveHash(text){
  let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}return('00000000'+(h>>>0).toString(16)).slice(-8);
@@ -27,6 +50,7 @@ function parseSaveEnvelope(text,source,priority=0){
  }else if(source==='primary'){
    try{const meta=JSON.parse(localStorage.getItem(SAVE_PRIMARY_META_KEY)||'null');if(meta&&meta.checksum===saveHash(JSON.stringify(payload))){seq=Math.max(0,Math.floor(meta.seq)||0);savedAt=Math.max(0,Number(meta.savedAt)||0);verified=true;}}catch(_){ }
  }
+ if(payload?.progressionEpoch!==SAVE_PROGRESSION_EPOCH)return null;
  let clean,stripped=false;
  try{clean=validateSave(payload);}
  catch(_){
@@ -46,6 +70,7 @@ function verifiedSet(key,value){localStorage.setItem(key,value);return localStor
 function permanentSaveCopy(payload){return{...payload,resume:null,guardianSession:null};}
 
 loadSave=function(){
+ applyProgressionMigration();
  let candidates=[];try{candidates=readSaveCandidates();}catch(_){ }
  if(!candidates.length){let hadSave=false;try{hadSave=!!localStorage.getItem(SAVE_KEY);}catch(_){ }save=DEF_SAVE();storageMessage=hadSave?'The main save was damaged and no recovery copy was available. Import a backup in Settings.':'';return;}
  const chosen=candidates[0];save=chosen.payload;saveRevision=chosen.seq;saveLastTime=chosen.savedAt;saveLastHash=saveHash(JSON.stringify(save));
@@ -105,5 +130,5 @@ addEventListener('storage',event=>{
  if(event.key!==SAVE_MANIFEST_KEY||!event.newValue)return;try{const m=JSON.parse(event.newValue);if(m?.schema===SAVE_SCHEMA&&m.writer!==SAVE_WRITER&&Number(m.seq)>saveRevision){saveRemoteRevision=Number(m.seq);if(G.state==='playing')pauseGame(true);storageMessage='A newer save was written in another tab. This tab is paused and cannot overwrite it.';syncSaveStatus();}}catch(_){ }
 });
 
-globalThis.VoidFallSaveSystem={version:SAVE_SCHEMA,get revision(){return saveRevision;},get lastSavedAt(){return saveLastTime;},get recovered(){return saveRecovered;},keys:{primary:SAVE_KEY,slots:[...SAVE_SLOT_KEYS],emergency:SAVE_EMERGENCY_KEY,manifest:SAVE_MANIFEST_KEY}};
-document.documentElement.dataset.saveSystem='ready-v2';
+globalThis.VoidFallSaveSystem={version:SAVE_SCHEMA,progressionEpoch:SAVE_PROGRESSION_EPOCH,get revision(){return saveRevision;},get lastSavedAt(){return saveLastTime;},get recovered(){return saveRecovered;},get migration(){return{...progressionMigration};},keys:{primary:SAVE_KEY,slots:[...SAVE_SLOT_KEYS],emergency:SAVE_EMERGENCY_KEY,manifest:SAVE_MANIFEST_KEY,resetMarker:PROGRESSION_RESET_MARKER,changelog:CHANGELOG_SEEN_KEY}};
+document.documentElement.dataset.saveSystem='ready-v3';

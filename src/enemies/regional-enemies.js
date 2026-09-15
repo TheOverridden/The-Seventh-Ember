@@ -62,12 +62,17 @@ function lateHazardFor(region,room,index){
 }
 function setupLateFloor(f){
   const region=lateRegion(f),w=G.world;w.region='late';w.lateKey=region.key;w.pi=region.pi;w.pal=PALETTES[w.pi];w.lateDecor=[];w.lateHazards=[];w.lateFixtures=[];w.lateDoors=bossFloorAt(f)?createLateDoors(w):[];w.sealed=false;w.lateCleared=false;
-  G.enemies=[];G.bullets=[];G.ebul=[];G.picks=[];G.boss=null;G.bossActive=false;T('bossbar').classList.remove('on');
+  // Late floors own their reward layout. Clearing inherited base-generator
+  // chests prevents random maps from quietly handing out several free ranks.
+  G.enemies=[];G.bullets=[];G.ebul=[];G.picks=[];G.chests=[];G.boss=null;G.bossActive=false;T('bossbar').classList.remove('on');
   const start=w.rooms[0],exit=w.exit;G.player.x=start.cx*TILE+18;G.player.y=start.cy*TILE+18;G.player.hitCd=1;G.cam.x=G.player.x-G.w/2;G.cam.y=G.player.y-G.h/2;G.portal={x:exit.cx*TILE+18,y:exit.cy*TILE+18,r:26,active:!bossFloorAt(f),t:0};
   for(let i=0;i<w.rooms.length;i++){const room=w.rooms[i];w.lateDecor.push({type:region.key,x:room.cx*TILE+18,y:room.cy*TILE+18,w:(room.w-2)*TILE,h:(room.h-2)*TILE,seed:i});if(i>1&&room!==exit&&i%4===1)w.lateHazards.push(lateHazardFor(region,room,i));}
   const traceRooms=w.rooms.filter(r=>r!==start&&r!==exit),traceRoom=traceRooms[irand(0,traceRooms.length-1)]||w.rooms[1]||start,tracePos=latePlace(w,traceRoom,20);if(tracePos)w.lateFixtures.push({kind:'trace',id:'trace'+f,...tracePos});
   const roster=LATE_ROSTERS[region.key],rooms=w.rooms.filter(r=>r!==start&&r!==exit),within=f-region.from,target=bossFloorAt(f)?Math.min(15,9+region.stage):Math.min(30,12+region.stage+within*2),eliteChance=.08+(region.stage-5)*.035;let spawned=0;
   for(let pass=0;pass<3&&spawned<target;pass++)for(let ri=0;ri<rooms.length&&spawned<target;ri++){if(pass>0&&ri<2)continue;const room=rooms[ri],type=roster[(ri+pass+within)%roster.length],pos=latePlace(w,room,ETYPES[type].r);if(pos){spawnEnemy(type,pos.x,pos.y,chance(eliteChance));spawned++;}}
+  // Two known supply floors per region keep drafts regular without allowing
+  // random layouts to decide the whole build.
+  if(!bossFloorAt(f)&&(within===1||within===3)&&rooms.length){const room=rooms[(region.stage+within*2)%rooms.length],pos=latePlace(w,room,17);if(pos)G.chests.push({...pos,opened:false,lateCache:true});}
   if(bossFloorAt(f))spawnLateBoss(region);G.player.ammo=Math.min(G.player.ammo??G.player.magSize,G.player.magSize);G.run.lateClearShown=G.run.lateClearShown===f?0:G.run.lateClearShown;
   const arrivals={reservoir:'reservoirArrival',foundry:'foundryArrival',observatory:'obsArrival',archive:'archiveArrival',court:'courtArrival',choir:'choirArrival',citadel:'citadelArrival',heart:'heartArrival'};if(f===region.from)queueStory(arrivals[region.key]);announceLateFloor();musicInt=.56+region.stage*.04;saveNow();
 }
