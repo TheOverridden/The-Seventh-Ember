@@ -7,6 +7,7 @@
 'use strict';
 
 const VOIDFALL_CHANGELOG=[
+ {version:2026091501,date:'SEPTEMBER 15, 2026',title:'EVERY DESCENT LEAVES A RECORD',intro:'See what happened, pick your next goal, and help shape the next update.',changes:['Run recaps show your last encounter, blessings, forms, defeated guardians, and earned essence.','View an affordable sigil or the next step toward your chosen form directly in the Skill Tree.','Copy a run report and add your feedback. Reports stay on your device until you share them.','Your last recap survives a reload. This update keeps your progress.']},
  {
   version:2026091401,
   date:'SEPTEMBER 14, 2026',
