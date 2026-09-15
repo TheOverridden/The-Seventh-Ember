@@ -45,15 +45,11 @@ function startRun(){
   setupFloor(1);
   setState('playing');
   musicInt=.2; mouse.x=G.w/2+100;mouse.y=G.h/2; updateHUD(0); saveNow();
-  const tutorialRun=G.run;
-  if(!save.tut){
-    save.tut=1; markSave();
-    setTimeout(()=>{if(G.run===tutorialRun&&G.state==='playing')toast('WASD — MOVE','J to aim and cast · K for Flare');},600);
-    setTimeout(()=>{if(G.run===tutorialRun&&G.state==='playing')toast('HOLD CLICK — CAST','or hold J to cast at nearby enemies');},3200);
-    setTimeout(()=>{if(G.run===tutorialRun&&G.state==='playing')toast('SPACE — DASH','brief invulnerability');},5800);
-    setTimeout(()=>{if(G.run===tutorialRun&&G.state==='playing')toast('PRESS E AT THE PORTAL','descend when ready');},8400);
-  } else toast(floorName(1),'floor 1');
-  G.tutQ=save.tut?0:1;
+  // Contextual first-descent teaching is handled after dialogue and reacts to
+  // what the player is actually facing. Keep the old flag for save compatibility.
+  if(!save.tut){save.tut=1;markSave();saveNow();}
+  else toast(floorName(1),'floor 1');
+  G.tutQ=0;
 }
 function setupFloor(f){
   G.floor=f; save.bestFloor=Math.max(save.bestFloor,f); markSave();

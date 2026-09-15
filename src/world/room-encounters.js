@@ -48,7 +48,11 @@ function configureSpecialEncounter(sc){
 function specialEncounterTypes(f){if(f<=2)return['ambush'];if(f<=5)return['ambush','hunt','flameguard','cache'];return Object.keys(ROOM_ENCOUNTER_INFO);}
 function installSpecialEncounters(){
  const w=G.world;if(!w||!G.run)return;if(Array.isArray(w.specialEncounters)){for(const sc of w.specialEncounters){if(!sc.complete)configureSpecialEncounter(sc);if(sc.active&&!sc.complete)sealSpecialEncounter(sc,true);}w.specialEncounterVersion=ROOM_ENCOUNTER_VERSION;return;}
- const exitIndex=w.rooms.indexOf(w.exit),blocked=new Set([0,exitIndex,w.storyRoom,...(w.echoSanctuaries||[])]),candidates=w.rooms.map((r,i)=>({r,i,has:G.enemies.some(e=>!e.dead&&!e.isBoss&&roomHasPoint(r,e.x,e.y)),roll:Math.random()})).filter(o=>!blocked.has(o.i)).sort((a,b)=>(b.has-a.has)||(a.roll-b.roll));
+ const exitIndex=w.rooms.indexOf(w.exit),blocked=new Set([0,exitIndex,w.storyRoom,...(w.echoSanctuaries||[])]),allCandidates=w.rooms.map((r,i)=>({r,i,has:G.enemies.some(e=>!e.dead&&!e.isBoss&&roomHasPoint(r,e.x,e.y)),roll:Math.random()})).filter(o=>!blocked.has(o.i));
+ // The first two reachable rooms teach ordinary enemies without sealing the
+ // player in. Authored encounters still appear once per opening floor.
+ const earlyPlan=G.floor<=5&&typeof planEarlyEncounters==='function'?planEarlyEncounters(w,G.floor):null,deepCandidates=earlyPlan?allCandidates.filter(o=>(earlyPlan[o.i]?.rank??99)>=2):allCandidates;
+ const candidates=(deepCandidates.length?deepCandidates:allCandidates).sort((a,b)=>(b.has-a.has)||(a.roll-b.roll));
  const count=Math.min(candidates.length,G.floor<=5||bossFloorAt(G.floor)||G.floor%3===0?1:2),types=specialEncounterTypes(G.floor),used=new Set();w.specialEncounters=[];w.specialEncounterVersion=ROOM_ENCOUNTER_VERSION;
  for(let i=0;i<count;i++){let type=types[(G.floor+i*3+Math.floor(candidates[i].roll*types.length))%types.length];while(used.has(type)&&used.size<types.length)type=types[(types.indexOf(type)+1)%types.length];used.add(type);const sc={id:'room-'+G.floor+'-'+candidates[i].i,type,roomIndex:candidates[i].i,seed:(G.floor*17+candidates[i].i*11+i*7)%97,active:false,entered:false,complete:false,failed:false,sealTiles:[]};w.specialEncounters.push(sc);configureSpecialEncounter(sc);}
 }
