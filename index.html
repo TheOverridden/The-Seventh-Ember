@@ -7,7 +7,7 @@
 <title>VoidFall</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="description" content="A dungeon roguelike with fifty floors, permanent progression, ten guardians, and an endless descent.">
-<meta name="voidfall-build" content="combat-finale-2026-09-15">
+<meta name="voidfall-build" content="falling-light-ui-2026-09-16">
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/hud.css">
 <link rel="stylesheet" href="styles/overlays.css">
@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="styles/run-recap.css?v=1">
 <link rel="stylesheet" href="styles/onboarding.css?v=1">
 <link rel="stylesheet" href="styles/combat-finale.css?v=1">
+<link rel="stylesheet" href="styles/interface-reborn.css?v=1">
 </head>
 <body>
 
@@ -194,7 +195,7 @@
 </div>
 <div id="treeTip"></div>
 <div id="settings" class="ov" style="z-index:50"><div class="panel" style="width:530px;text-align:left"><div class="bigword" style="font-size:24px">MAKE THE DESCENT YOURS</div>
- <label class="settings-row"><span>Music<small>Procedural ambient soundtrack.</small></span><input id="setMusic" type="checkbox"></label>
+ <label class="settings-row"><span>Music<small>Original evolving soundtrack.</small></span><input id="setMusic" type="checkbox"></label>
  <label class="settings-row"><span>Sound effects<small>Combat, pickups, and menu sounds.</small></span><input id="setSfx" type="checkbox"></label>
  <label class="settings-row"><span>Reduced motion<small>Disable camera shake and menu animations.</small></span><input id="setMotion" type="checkbox"></label>
  <label class="settings-row"><span>Touch controls<small>Dual analog sticks with aim-to-fire and dedicated ability buttons. Enabled automatically on touchscreens.</small></span><input id="setTouch" type="checkbox"></label>
@@ -272,11 +273,13 @@
 <script src="src/progression/balance-profile.js?v=2"></script>
 <script src="src/combat/combat-polish.js?v=1"></script>
 <script src="src/audio/mastering.js?v=3"></script>
+<script src="src/audio/composed-score.js?v=1"></script>
 <script src="src/combat/combat-finale.js?v=1"></script>
 <script src="src/interface/run-recap.js?v=1"></script>
 <script src="src/game/onboarding.js?v=1"></script>
 <script src="src/core/save-system.js?v=3"></script>
-<script src="src/core/changelog.js?v=5"></script>
+<script src="src/interface/interface-reborn.js?v=1"></script>
+<script src="src/core/changelog.js?v=6"></script>
 <script src="src/core/boot.js"></script>
 </body>
 </html>

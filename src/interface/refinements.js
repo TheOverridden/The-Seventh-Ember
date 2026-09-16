@@ -151,6 +151,7 @@ function validateSave(raw){
   const scan=(v,depth=0)=>{if(depth>12)throw Error('Save is too deeply nested');if(typeof v==='number'&&!Number.isFinite(v))throw Error('Invalid value');if(typeof v==='string'&&v.length>200)throw Error('Invalid text');if(v&&typeof v==='object'){if(Array.isArray(v)&&v.length>17000)throw Error('Save is too large');for(const k of Object.keys(v)){if(['__proto__','constructor','prototype'].includes(k))throw Error('Invalid key');scan(v[k],depth+1);}}};scan(raw);
   const clean=DEF_SAVE();for(const k of ['essence','bestFloor','bestLevel','totalRuns','totalKills','totalEssence','victories','guardians']){if(raw[k]!==undefined&&(!Number.isFinite(raw[k])||raw[k]<0))throw Error('Invalid progress');clean[k]=Math.min(1e12,Math.floor(raw[k]||0));}
   for(const k of ['tut','music','sfx','motion','touch'])if(raw[k]!==undefined)clean[k]=raw[k]?1:0;clean.quality=raw.quality==='light'?'light':'full';
+  for(const k of ['musicVolume','sfxVolume'])if(Number.isFinite(raw[k]))clean[k]=clamp(raw[k],0,1);
   for(const n of TREE_NODES)if(raw.nodes&&raw.nodes[n.id]===true)clean.nodes[n.id]=true;
   if(raw.resume)clean.resume=validateCheckpoint(raw.resume);return clean;
 }
