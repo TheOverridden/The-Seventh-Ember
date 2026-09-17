@@ -2,4 +2,4 @@ installGuardianModes();
 
 init();
 
-showVoidFallUpdates();
+showTheSeventhEmberUpdates();

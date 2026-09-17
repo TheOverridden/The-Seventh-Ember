@@ -84,9 +84,9 @@ function combatFinaleTick(dt){
  if(COMBAT_FINALE.calloutT>0){COMBAT_FINALE.calloutT-=dt;if(COMBAT_FINALE.calloutT<=0)phaseCallout.classList.remove('visible');}
  combatFinaleScanPhases();
 }
-globalThis.VoidFallCombatMix={version:1,intensity:0};
+globalThis.TheSeventhEmberCombatMix={version:1,intensity:0};
 const combatFinaleUpdate=update;
-update=function(dt){const result=combatFinaleUpdate(dt);combatFinaleTick(Math.min(dt,.05));globalThis.VoidFallCombatMix.intensity=COMBAT_FINALE.intensity;return result;};
+update=function(dt){const result=combatFinaleUpdate(dt);combatFinaleTick(Math.min(dt,.05));globalThis.TheSeventhEmberCombatMix.intensity=COMBAT_FINALE.intensity;return result;};
 const combatFinaleSetup=setupFloor;
 setupFloor=function(f){COMBAT_FINALE.finishers.length=0;COMBAT_FINALE.waves.length=0;COMBAT_FINALE.phaseByUid.clear();COMBAT_FINALE.clearedRooms.clear();COMBAT_FINALE.intensity=COMBAT_FINALE.target=0;phaseCallout.classList.remove('visible');return combatFinaleSetup(f);};
 if(typeof combatFeelColor==='function'){
@@ -116,5 +116,5 @@ function combatFinaleDraw(ctx){
 }
 const combatFinaleDrawFx=drawCombatFX;
 drawCombatFX=function(ctx){combatFinaleDrawFx(ctx);combatFinaleDraw(ctx);};
-globalThis.VoidFallCombatFinale={version:1,state:COMBAT_FINALE,phase:combatFinalePhase,threat:combatFinaleThreat};
+globalThis.TheSeventhEmberCombatFinale={version:1,state:COMBAT_FINALE,phase:combatFinalePhase,threat:combatFinaleThreat};
 document.documentElement.dataset.combatFinale='v1';

@@ -1,6 +1,6 @@
-# VoidFall
+# The Seventh Ember
 
-VoidFall is a modular browser roguelike with a fifty-floor campaign, permanent progression, Guardian encounters, and an Endless mode. The current progression epoch rejects older backups whose balance data is no longer compatible.
+The Seventh Ember is a modular browser roguelike with a fifty-floor campaign, permanent progression, Guardian encounters, and an Endless mode. Its interface uses one ember-gold visual system with distinct regional accents across the descent. The current progression epoch rejects older backups whose balance data is no longer compatible.
 
 ## Project map
 

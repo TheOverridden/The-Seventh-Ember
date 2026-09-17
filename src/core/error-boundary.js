@@ -30,5 +30,5 @@
     var reason=event.reason,message=reason&&reason.message||typeof reason==='string'&&reason;
     if(message)showProblem(message,0);
   });
-  window.VoidFallErrorNotice={show:showProblem,clear:clearProblem};
+  window.TheSeventhEmberErrorNotice={show:showProblem,clear:clearProblem};
 })();

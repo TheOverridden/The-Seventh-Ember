@@ -1,6 +1,7 @@
 'use strict';
 
-const VOIDFALL_CHANGELOG=[
+const THE_SEVENTH_EMBER_CHANGELOG=[
+ {version:2026091707,date:'SEPTEMBER 17, 2026',title:'THE SEVENTH EMBER',intro:'The descent has found its name.',changes:['The game is now titled The Seventh Ember across the title screen, browser, saves, exports, and project identity.','Every menu, overlay, HUD plate, blessing card, dialogue frame, Memory, Skill Tree panel, touch control, and ending screen now shares one carved-stone, ember-gold visual language.','Each region carries its own restrained accent through the interface while text, controls, and combat information remain consistent.','The new name points toward the six vessels who came before the player without giving away what waits below.','Existing progress and active runs move automatically into the renamed save system.','Gameplay, balance, controls, and progression are unchanged.']},
  {version:2026091706,date:'SEPTEMBER 17, 2026',title:'EMBERLIGHT',intro:'The threshold now burns with the same warmth as the Ember.',changes:['Cyan title-screen accents have been replaced with aged gold, bronze, warm ivory, and restrained ember-orange.','The chamber stone, gate aperture, orbiting shards, menu borders, icons, and focus states now share the warmer palette.','Violet remains reserved for Ember Forms and Essence so those systems keep their own identity.','Layout, progress, saves, controls, and gameplay are unchanged.']},
  {version:2026091704,date:'SEPTEMBER 17, 2026',title:'THE GATE IN VIEW',intro:'The descent now begins before the first step.',changes:['The title screen now opens on a full pixel-art chamber with the Ember facing an awakened gate.','Orbiting shards, a living aperture, braziers, drifting motes, and layered chamber lighting give the scene depth and motion.','Navigation now has a clear primary action, polished secondary controls, compact Guardian access, and a cleaner permanent record.','Desktop, Chromebook, tablet, phone, ultrawide, and short landscape layouts each receive a dedicated composition.','Progress, saves, controls, and gameplay are unchanged.']},
  {version:2026091703,date:'SEPTEMBER 17, 2026',title:'A QUIETER THRESHOLD',intro:'The threshold belongs to the Ember again.',changes:['The title screen now centers the original pixel-art dungeon and Ember instead of covering them with oversized decoration.','The menu has quieter framing, cleaner lettering, and simpler controls that fit the game’s established visual style.','The full title menu remains readable on desktop, Chromebook, tablet, phone, and short landscape displays.','Progress, saves, controls, and gameplay are unchanged.']},
@@ -26,7 +27,7 @@ const VOIDFALL_CHANGELOG=[
   ]
  }
 ];
-const VOIDFALL_CHANGELOG_CURRENT=Math.max(...VOIDFALL_CHANGELOG.map(entry=>entry.version));
+const THE_SEVENTH_EMBER_CHANGELOG_CURRENT=Math.max(...THE_SEVENTH_EMBER_CHANGELOG.map(entry=>entry.version));
 
 function readSeenChangelog(){
  try{const n=Number(localStorage.getItem(CHANGELOG_SEEN_KEY));return Number.isFinite(n)&&n>0?n:0;}
@@ -37,7 +38,7 @@ function progressionResetBelongsToThisBrowser(){
  try{
    const raw=localStorage.getItem(PROGRESSION_RESET_MARKER),record=raw?JSON.parse(raw):null;
    return record?.status==='reset';
- }catch(_){return globalThis.VoidFallSaveSystem?.migration?.status==='reset';}
+ }catch(_){return globalThis.TheSeventhEmberSaveSystem?.migration?.status==='reset';}
 }
 function renderChangelogEntries(entries){
  const wrap=T('changelogEntries');wrap.replaceChildren();
@@ -48,25 +49,25 @@ function renderChangelogEntries(entries){
   article.append(head,title,intro,list);wrap.appendChild(article);
  }
 }
-function closeVoidFallUpdates(){
- writeSeenChangelog(VOIDFALL_CHANGELOG_CURRENT);hide('changelog');
+function closeTheSeventhEmberUpdates(){
+ writeSeenChangelog(THE_SEVENTH_EMBER_CHANGELOG_CURRENT);hide('changelog');
  const target=save.resume?T('btnContinue'):T('btnStart');target?.focus({preventScroll:true});
 }
-function showVoidFallUpdates(){
+function showTheSeventhEmberUpdates(){
  const seen=readSeenChangelog(),returning=progressionResetBelongsToThisBrowser()||seen>0;
- if(!returning){writeSeenChangelog(VOIDFALL_CHANGELOG_CURRENT);return;}
- const unread=VOIDFALL_CHANGELOG.filter(entry=>entry.version>seen).sort((a,b)=>a.version-b.version);
+ if(!returning){writeSeenChangelog(THE_SEVENTH_EMBER_CHANGELOG_CURRENT);return;}
+ const unread=THE_SEVENTH_EMBER_CHANGELOG.filter(entry=>entry.version>seen).sort((a,b)=>a.version-b.version);
  if(!unread.length)return;
  const reset=progressionResetBelongsToThisBrowser()&&seen===0;
- T('resetNotice').hidden=!reset;T('changelogClose').textContent=reset?'BEGIN AGAIN':'RETURN TO VOIDFALL';
+ T('resetNotice').hidden=!reset;T('changelogClose').textContent=reset?'BEGIN AGAIN':'RETURN TO THE SEVENTH EMBER';
  renderChangelogEntries(unread);show('changelog');T('changelogClose').focus({preventScroll:true});
 }
 
-on(T('changelogClose'),'click',closeVoidFallUpdates);
+on(T('changelogClose'),'click',closeTheSeventhEmberUpdates);
 const changelogBlocking=anyBlockingOverlay;
 anyBlockingOverlay=function(){return T('changelog').classList.contains('open')||changelogBlocking();};
 const changelogEscape=onEscKey;
-onEscKey=function(){if(T('changelog').classList.contains('open')){closeVoidFallUpdates();return;}return changelogEscape();};
+onEscKey=function(){if(T('changelog').classList.contains('open')){closeTheSeventhEmberUpdates();return;}return changelogEscape();};
 
-globalThis.VoidFallChangelog={current:VOIDFALL_CHANGELOG_CURRENT,entries:VOIDFALL_CHANGELOG.map(entry=>({...entry,changes:[...entry.changes]})),get seen(){return readSeenChangelog();},show:showVoidFallUpdates};
-document.documentElement.dataset.release='progression-rebuild';
+globalThis.TheSeventhEmberChangelog={current:THE_SEVENTH_EMBER_CHANGELOG_CURRENT,entries:THE_SEVENTH_EMBER_CHANGELOG.map(entry=>({...entry,changes:[...entry.changes]})),get seen(){return readSeenChangelog();},show:showTheSeventhEmberUpdates};
+document.documentElement.dataset.release='the-seventh-ember';

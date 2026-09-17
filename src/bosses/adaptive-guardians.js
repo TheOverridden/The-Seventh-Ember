@@ -180,5 +180,5 @@ resumeRun=function(){
  updateHUD(0);saveNow();
 };
 
-globalThis.VoidFallBossDirector={version:ADAPTIVE_GUARDIAN_VERSION,requirements:[...ADAPTIVE_REQUIREMENT],budgets:[...ADAPTIVE_BUDGET],hitCaps:[...ADAPTIVE_HIT_CAP],mastery:adaptiveMastery,build:adaptiveBuild,model:adaptiveModel};
+globalThis.TheSeventhEmberBossDirector={version:ADAPTIVE_GUARDIAN_VERSION,requirements:[...ADAPTIVE_REQUIREMENT],budgets:[...ADAPTIVE_BUDGET],hitCaps:[...ADAPTIVE_HIT_CAP],mastery:adaptiveMastery,build:adaptiveBuild,model:adaptiveModel};
 document.documentElement.dataset.bossDirector='listening-v1';

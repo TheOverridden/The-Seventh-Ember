@@ -4,27 +4,28 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>VoidFall</title>
+<title>The Seventh Ember</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="description" content="A dungeon roguelike with fifty floors, permanent progression, ten guardians, and an endless descent.">
-<meta name="voidfall-build" content="title-screen-emberlight-2026-09-17">
-<link rel="stylesheet" href="styles/base.css?v=2026091706">
-<link rel="stylesheet" href="styles/hud.css?v=2026091706">
-<link rel="stylesheet" href="styles/overlays.css?v=2026091706">
-<link rel="stylesheet" href="styles/interface.css?v=2026091706">
-<link rel="stylesheet" href="styles/boss-adaptation.css?v=2026091706">
-<link rel="stylesheet" href="styles/campaign.css?v=2026091706">
-<link rel="stylesheet" href="styles/story.css?v=2026091706">
-<link rel="stylesheet" href="styles/changelog.css?v=2026091706">
-<link rel="stylesheet" href="styles/run-recap.css?v=2026091706">
-<link rel="stylesheet" href="styles/onboarding.css?v=2026091706">
-<link rel="stylesheet" href="styles/combat-finale.css?v=2026091706">
-<link rel="stylesheet" href="styles/interface-reborn.css?v=2026091706">
-<link rel="stylesheet" href="styles/title-screen.css?v=2026091706">
+<meta name="description" content="The Seventh Ember is a dungeon roguelike with fifty floors, permanent progression, ten guardians, and an endless descent.">
+<meta name="the-seventh-ember-build" content="the-seventh-ember-rename-2026-09-17">
+<link rel="stylesheet" href="styles/base.css?v=2026091707">
+<link rel="stylesheet" href="styles/hud.css?v=2026091707">
+<link rel="stylesheet" href="styles/overlays.css?v=2026091707">
+<link rel="stylesheet" href="styles/interface.css?v=2026091707">
+<link rel="stylesheet" href="styles/boss-adaptation.css?v=2026091707">
+<link rel="stylesheet" href="styles/campaign.css?v=2026091707">
+<link rel="stylesheet" href="styles/story.css?v=2026091707">
+<link rel="stylesheet" href="styles/changelog.css?v=2026091707">
+<link rel="stylesheet" href="styles/run-recap.css?v=2026091707">
+<link rel="stylesheet" href="styles/onboarding.css?v=2026091707">
+<link rel="stylesheet" href="styles/combat-finale.css?v=2026091707">
+<link rel="stylesheet" href="styles/interface-reborn.css?v=2026091707">
+<link rel="stylesheet" href="styles/title-screen.css?v=2026091707">
+<link rel="stylesheet" href="styles/seventh-ember-theme.css?v=2026091707">
 </head>
 <body>
 
-<canvas id="cv" tabindex="0" aria-label="VoidFall dungeon. On touchscreens, use the left stick to move, hold the right stick to aim and fire, and use the four ability buttons. With a keyboard, move with WASD or arrows, J for Ember Bolt, K for Flare, R to Rekindle, Space to dash, E to interact, Escape to pause."></canvas>
+<canvas id="cv" tabindex="0" aria-label="The Seventh Ember dungeon. On touchscreens, use the left stick to move, hold the right stick to aim and fire, and use the four ability buttons. With a keyboard, move with WASD or arrows, J for Ember Bolt, K for Flare, R to Rekindle, Space to dash, E to interact, Escape to pause."></canvas>
 <div id="vig"></div><div id="lowvig"></div>
 <div id="fade"></div>
 
@@ -70,7 +71,7 @@
 
 <div id="menu" class="ov open">
   <div class="menu-box">
-    <h1 class="title">VOIDFALL</h1>
+    <h1 class="title" aria-label="The Seventh Ember"><span class="title-small">THE SEVENTH</span><span class="title-main">EMBER</span></h1>
     <div class="menu-btns">
       <button class="btn primary" id="btnContinue" hidden><i data-lucide="play"></i>CONTINUE DESCENT</button><div id="resumeHint" hidden></div>
       <button class="btn primary" id="btnStart"><i data-lucide="arrow-down"></i>BEGIN DESCENT</button>
@@ -85,7 +86,7 @@
 <div id="changelog" class="ov" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
   <section class="changelog-shell">
     <div class="changelog-sigil" aria-hidden="true"><i></i><b>◆</b><i></i></div>
-    <div class="changelog-kicker">VOIDFALL HAS CHANGED</div>
+    <div class="changelog-kicker">THE SEVENTH EMBER HAS CHANGED</div>
     <h2 id="changelogTitle">What’s New</h2>
     <div id="resetNotice" class="reset-notice" hidden>
       <strong>A fresh descent was required.</strong>
@@ -98,7 +99,7 @@
 
 
 <div id="finale" class="ov" role="dialog" aria-modal="true" aria-labelledby="endingTitle">
- <div class="finale-shell"><p class="ending-kicker">VOIDFALL · THE END OF THE DESCENT</p><canvas id="endingCanvas" width="720" height="280" aria-label="The archive opens, releasing its people into the dawn."></canvas><h2 id="endingTitle"></h2>
+ <div class="finale-shell"><p class="ending-kicker">THE SEVENTH EMBER · THE END OF THE DESCENT</p><canvas id="endingCanvas" width="720" height="280" aria-label="The archive opens, releasing its people into the dawn."></canvas><h2 id="endingTitle"></h2>
  <div id="endingStory"><strong id="endingSpeaker"></strong><p id="endingText"></p></div><button class="btn primary" id="endingNext">CONTINUE</button>
   <div id="endingResults" hidden><p>You opened the gate. Your campaign victory is saved.</p><div id="endingNumbers"></div><div id="endingBuild"></div><div class="ending-choices"><button class="btn primary" id="endingFinish">FINISH &amp; RETURN TO MENU</button><button class="btn" id="endingInfinite">ENTER ENDLESS MODE</button><button class="btn subtle" id="endingReplay">REPLAY ENDING</button></div><p>Endless Mode continues from floor 51 with your current blessings and forms. Mutations, mixed enemy groups, and binding Oaths reshape the descent. Dying there keeps your victory.</p></div>
  </div>
@@ -218,59 +219,59 @@
 <div id="memoryList"></div><div id="memoryEmpty">Nothing yet. Take the first step.</div><h3 class="armory-heading">Earned blessings</h3><div id="armoryList"></div></div></div>
 <div id="chapterClear" class="ov"><div class="panel chapter-clear-panel"><div class="chapter-seal" id="chapterSeal" aria-hidden="true">Ⅰ</div><div class="eyebrow" id="chapterCompleteLabel">CHAPTER I COMPLETE</div><h2 id="chapterCompleteTitle">The Hollow Gate</h2><p id="chapterCompleteText">The Warden has lowered his weapon.<br>Beyond him, the stairs keep going.</p><div id="chapterStats" class="statsgrid"></div><div class="chapter-quote" id="chapterQuote">“You asked me to stop you.”</div><div class="btnrow"><button class="btn primary" id="chapterContinue">DESCEND FURTHER</button><button class="btn" id="chapterSave">SAVE & RETURN</button></div><button class="text-button" id="chapterExplore">Stay and look around</button></div></div>
 
-<script src="src/core/error-boundary.js?v=2026091706"></script>
-<script src="src/core/foundation.js?v=2026091706"></script>
-<script src="src/core/input.js?v=2026091706"></script>
-<script src="src/render/sprites.js?v=2026091706"></script>
-<script src="src/core/state.js?v=2026091706"></script>
-<script src="src/world/dungeon.js?v=2026091706"></script>
-<script src="src/game/flow.js?v=2026091706"></script>
-<script src="src/render/world-ui.js?v=2026091706"></script>
-<script src="src/interface/refinements.js?v=2026091706"></script>
-<script src="src/chapters/hollow.js?v=2026091706"></script>
-<script src="src/combat/ember-abilities.js?v=2026091706"></script>
-<script src="src/chapters/garden.js?v=2026091706"></script>
-<script src="src/chapters/late-regions.js?v=2026091706"></script>
-<script src="src/progression/regional-blessings.js?v=2026091706"></script>
-<script src="src/story/recovered-traces.js?v=2026091706"></script>
-<script src="src/enemies/regional-enemies.js?v=2026091706"></script>
-<script src="src/bosses/guardians.js?v=2026091706"></script>
-<script src="src/world/regional-hazards.js?v=2026091706"></script>
-<script src="src/chapters/late-hooks.js?v=2026091706"></script>
-<script src="src/progression/skill-tree.js?v=2026091706"></script>
-<script src="src/render/ember.js?v=2026091706"></script>
-<script src="src/render/hollow-garden-art.js?v=2026091706"></script>
-<script src="src/render/regional-art.js?v=2026091706"></script>
-<script src="src/game/finale.js?v=2026091706"></script>
-<script src="src/progression/blessings.js?v=2026091706"></script>
-<script src="src/world/resting-flames.js?v=2026091706"></script>
-<script src="src/audio/score.js?v=2026091706"></script>
-<script src="src/game/endless.js?v=2026091706"></script>
-<script src="src/story/remembered-rooms.js?v=2026091706"></script>
-<script src="src/story/echo-tableaus.js?v=2026091706"></script>
-<script src="src/combat/combat-feel.js?v=2026091706"></script>
-<script src="src/progression/rarity.js?v=2026091706"></script>
-<script src="src/bosses/twin-regents.js?v=2026091706"></script>
-<script src="src/progression/forms.js?v=2026091706"></script>
-<script src="src/world/room-encounters.js?v=2026091706"></script>
-<script src="src/bosses/middle-guardians.js?v=2026091706"></script>
-<script src="src/input/touch.js?v=2026091706"></script>
-<script src="src/game/guardian-modes.js?v=2026091706"></script>
-<script src="src/bosses/final-tuning.js?v=2026091706"></script>
-<script src="src/bosses/secret-boss.js?v=2026091706"></script>
-<script src="src/game/endless-hardening.js?v=2026091706"></script>
-<script src="src/story/living-archive.js?v=2026091706"></script>
-<script src="src/story/story-rewrite.js?v=2026091706"></script>
-<script src="src/bosses/adaptive-guardians.js?v=2026091706"></script>
-<script src="src/combat/combat-polish.js?v=2026091706"></script>
-<script src="src/audio/mastering.js?v=2026091706"></script>
-<script src="src/audio/composed-score.js?v=2026091706"></script>
-<script src="src/combat/combat-finale.js?v=2026091706"></script>
-<script src="src/interface/run-recap.js?v=2026091706"></script>
-<script src="src/game/onboarding.js?v=2026091706"></script>
-<script src="src/core/save-system.js?v=2026091706"></script>
-<script src="src/interface/interface-reborn.js?v=2026091706"></script>
-<script src="src/core/changelog.js?v=2026091706"></script>
-<script src="src/core/boot.js?v=2026091706"></script>
+<script src="src/core/error-boundary.js?v=2026091707"></script>
+<script src="src/core/foundation.js?v=2026091707"></script>
+<script src="src/core/input.js?v=2026091707"></script>
+<script src="src/render/sprites.js?v=2026091707"></script>
+<script src="src/core/state.js?v=2026091707"></script>
+<script src="src/world/dungeon.js?v=2026091707"></script>
+<script src="src/game/flow.js?v=2026091707"></script>
+<script src="src/render/world-ui.js?v=2026091707"></script>
+<script src="src/interface/refinements.js?v=2026091707"></script>
+<script src="src/chapters/hollow.js?v=2026091707"></script>
+<script src="src/combat/ember-abilities.js?v=2026091707"></script>
+<script src="src/chapters/garden.js?v=2026091707"></script>
+<script src="src/chapters/late-regions.js?v=2026091707"></script>
+<script src="src/progression/regional-blessings.js?v=2026091707"></script>
+<script src="src/story/recovered-traces.js?v=2026091707"></script>
+<script src="src/enemies/regional-enemies.js?v=2026091707"></script>
+<script src="src/bosses/guardians.js?v=2026091707"></script>
+<script src="src/world/regional-hazards.js?v=2026091707"></script>
+<script src="src/chapters/late-hooks.js?v=2026091707"></script>
+<script src="src/progression/skill-tree.js?v=2026091707"></script>
+<script src="src/render/ember.js?v=2026091707"></script>
+<script src="src/render/hollow-garden-art.js?v=2026091707"></script>
+<script src="src/render/regional-art.js?v=2026091707"></script>
+<script src="src/game/finale.js?v=2026091707"></script>
+<script src="src/progression/blessings.js?v=2026091707"></script>
+<script src="src/world/resting-flames.js?v=2026091707"></script>
+<script src="src/audio/score.js?v=2026091707"></script>
+<script src="src/game/endless.js?v=2026091707"></script>
+<script src="src/story/remembered-rooms.js?v=2026091707"></script>
+<script src="src/story/echo-tableaus.js?v=2026091707"></script>
+<script src="src/combat/combat-feel.js?v=2026091707"></script>
+<script src="src/progression/rarity.js?v=2026091707"></script>
+<script src="src/bosses/twin-regents.js?v=2026091707"></script>
+<script src="src/progression/forms.js?v=2026091707"></script>
+<script src="src/world/room-encounters.js?v=2026091707"></script>
+<script src="src/bosses/middle-guardians.js?v=2026091707"></script>
+<script src="src/input/touch.js?v=2026091707"></script>
+<script src="src/game/guardian-modes.js?v=2026091707"></script>
+<script src="src/bosses/final-tuning.js?v=2026091707"></script>
+<script src="src/bosses/secret-boss.js?v=2026091707"></script>
+<script src="src/game/endless-hardening.js?v=2026091707"></script>
+<script src="src/story/living-archive.js?v=2026091707"></script>
+<script src="src/story/story-rewrite.js?v=2026091707"></script>
+<script src="src/bosses/adaptive-guardians.js?v=2026091707"></script>
+<script src="src/combat/combat-polish.js?v=2026091707"></script>
+<script src="src/audio/mastering.js?v=2026091707"></script>
+<script src="src/audio/composed-score.js?v=2026091707"></script>
+<script src="src/combat/combat-finale.js?v=2026091707"></script>
+<script src="src/interface/run-recap.js?v=2026091707"></script>
+<script src="src/game/onboarding.js?v=2026091707"></script>
+<script src="src/core/save-system.js?v=2026091707"></script>
+<script src="src/interface/interface-reborn.js?v=2026091707"></script>
+<script src="src/core/changelog.js?v=2026091707"></script>
+<script src="src/core/boot.js?v=2026091707"></script>
 </body>
 </html>

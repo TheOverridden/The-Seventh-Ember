@@ -1,0 +1,79 @@
+:root{--tse-gold:#d8b86c;--tse-gold-hot:#ffe7ad;--tse-ivory:#eee4d0;--tse-ink:#050504;--tse-panel:#0d0d0cf5;--tse-panel-2:#15130ff2;--tse-muted:#998f7e;--tse-line:#bda66a42;--tse-faint:#fff4d70c;--region:#cbb273;--region-rgb:203,178,115;--region-deep:#3d3220;--region-name:'THE HOLLOW GATE'}
+body[data-region="title"],body[data-region="hollow"]{--region:#cbb273;--region-rgb:203,178,115;--region-deep:#3d3220;--region-name:'THE HOLLOW GATE'}
+body[data-region="garden"]{--region:#9dbb76;--region-rgb:157,187,118;--region-deep:#26351f;--region-name:'THE ROOTBOUND GARDENS'}
+body[data-region="reservoir"]{--region:#79b7c4;--region-rgb:121,183,196;--region-deep:#18313a;--region-name:'THE DROWNED RESERVOIR'}
+body[data-region="foundry"]{--region:#d68d5c;--region-rgb:214,141,92;--region-deep:#43251a;--region-name:'THE EMBER FOUNDRY'}
+body[data-region="observatory"]{--region:#aaa0d2;--region-rgb:170,160,210;--region-deep:#2c2944;--region-name:'THE SHATTERED OBSERVATORY'}
+body[data-region="archive"]{--region:#c5ad83;--region-rgb:197,173,131;--region-deep:#3b3022;--region-name:'THE BURIED ARCHIVE'}
+body[data-region="court"]{--region:#c58baa;--region-rgb:197,139,170;--region-deep:#402539;--region-name:'THE SILENT COURT'}
+body[data-region="choir"]{--region:#a8c5c9;--region-rgb:168,197,201;--region-deep:#26373b;--region-name:'THE CHOIR SPIRE'}
+body[data-region="citadel"]{--region:#b9976f;--region-rgb:185,151,111;--region-deep:#3b2b21;--region-name:'THE BLACK CITADEL'}
+body[data-region="heart"]{--region:#c09dcc;--region-rgb:192,157,204;--region-deep:#382641;--region-name:'THE HEART OF THE STAR'}
+body.ui-reborn{color:var(--tse-ivory);background:var(--tse-ink)}
+body.ui-reborn .ov:not(#menu){background:radial-gradient(circle at 50% 35%,rgba(var(--region-rgb),.12),transparent 37%),linear-gradient(145deg,#090806e8,#030303f8 72%);backdrop-filter:blur(7px) saturate(.8)}
+body.ui-reborn .panel,body.ui-reborn #luWrap,body.ui-reborn .tree-panel,body.ui-reborn .changelog-shell,body.ui-reborn .recap-shell,body.ui-reborn .trace-shell,body.ui-reborn .finale-shell{color:var(--tse-ivory);border:1px solid rgba(var(--region-rgb),.42);border-radius:0 15px 0 15px;background:radial-gradient(circle at 88% 12%,rgba(var(--region-rgb),.1),transparent 31%),repeating-linear-gradient(135deg,var(--tse-faint) 0,var(--tse-faint) 1px,transparent 1px,transparent 5px),linear-gradient(145deg,var(--tse-panel-2),var(--tse-panel) 68%);box-shadow:0 30px 95px #000d,inset 0 1px #fff6d81a,inset 3px 0 var(--region);clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px))}
+body.ui-reborn .panel::before,body.ui-reborn #luWrap::before,body.ui-reborn .tree-panel::before{border-color:#fff0c50e;background:linear-gradient(90deg,var(--region),transparent 30%) 17px 16px/82px 1px no-repeat,linear-gradient(var(--region),transparent 34%) 17px 16px/1px 64px no-repeat}
+body.ui-reborn .panel::after,body.ui-reborn #luWrap::after,body.ui-reborn .tree-panel::after{background:linear-gradient(var(--tse-gold),var(--tse-gold)) 0 0/36px 2px no-repeat,linear-gradient(var(--tse-gold),var(--tse-gold)) 0 0/2px 36px no-repeat,linear-gradient(var(--region),var(--region)) 100% 100%/36px 2px no-repeat,linear-gradient(var(--region),var(--region)) 100% 100%/2px 36px no-repeat}
+body.ui-reborn .bigword,body.ui-reborn .panel h2,body.ui-reborn .tree-head h2,body.ui-reborn #luTitle,body.ui-reborn .recap-shell h2,body.ui-reborn .changelog-shell>h2{color:var(--tse-gold-hot);text-shadow:0 2px #120c04,0 0 24px #d7a94b24}
+body.ui-reborn .dword-sub,body.ui-reborn .tree-sub,body.ui-reborn .eyebrow,body.ui-reborn .changelog-kicker,body.ui-reborn .ending-kicker{color:var(--region);opacity:.86}
+body.ui-reborn .btn{border:1px solid rgba(var(--region-rgb),.34);border-radius:0 8px 0 8px;background:linear-gradient(110deg,rgba(var(--region-rgb),.11),#100f0dee 58%);color:#d9d0bf;box-shadow:inset 2px 0 var(--region),inset 0 1px #fff2d30d,0 8px 22px #0004}
+body.ui-reborn .btn:hover,body.ui-reborn .btn:focus-visible{color:#fff0cf;border-color:rgba(var(--region-rgb),.78);background:linear-gradient(110deg,rgba(var(--region-rgb),.2),#17130eef 62%);box-shadow:inset 3px 0 var(--tse-gold-hot),0 10px 28px #0008,0 0 20px rgba(var(--region-rgb),.12)}
+body.ui-reborn .btn.primary{color:#21170b;border-color:#ffe0a0;background:linear-gradient(112deg,#9e7438,#e6c47b 43%,#ffe2a2 58%,#b78342);box-shadow:inset 0 2px #fff5d0,inset 0 -2px #69431d99,0 10px 28px #0008}
+body.ui-reborn .btn.primary:hover,body.ui-reborn .btn.primary:focus-visible{color:#100a04;background:linear-gradient(112deg,#ad8040,#f2d48b 43%,#ffeab6 58%,#c3934d)}
+body.ui-reborn .btn.danger{color:#efb0aa;border-color:#c8666870;background:linear-gradient(110deg,#431a1aa8,#130d0deb);box-shadow:inset 2px 0 #d36a68}
+body.ui-reborn kbd{border-color:#d9cba24a;border-radius:2px;background:#fff4dc0a;color:#f4e8d0;box-shadow:inset 0 -1px #0008}
+body.ui-reborn .plate,body.ui-reborn #weaponHUD{border-color:rgba(var(--region-rgb),.35)!important;background:linear-gradient(140deg,#13130ff0,#080807f3)!important;box-shadow:0 11px 34px #000b,inset 3px 0 var(--region)!important}
+body.ui-reborn #mm{border-color:rgba(var(--region-rgb),.36);background:#090907e8;box-shadow:0 10px 28px #000a,inset 0 0 22px rgba(var(--region-rgb),.06)}
+body.ui-reborn #floorBanner,body.ui-reborn .stat b,body.ui-reborn #ammoCount{color:#ecd6a7}
+body.ui-reborn #floorObjective,body.ui-reborn .stat,body.ui-reborn #weaponStatus,body.ui-reborn #bladeReady{color:#9d9587}
+body.ui-reborn #xpfill{background:linear-gradient(90deg,var(--region-deep),var(--region));box-shadow:0 0 13px rgba(var(--region-rgb),.42)}
+body.ui-reborn #xptext{color:var(--region)}
+body.ui-reborn .chip{border-color:rgba(var(--region-rgb),.28);background:#0c0c0ae8;color:#d7cfbf;box-shadow:inset 2px 0 var(--region),0 6px 18px #0007}
+body.ui-reborn #prompt{border-color:#d7ba706e;background:#120f09ed;color:#f0d597;box-shadow:inset 2px 0 var(--tse-gold),0 8px 25px #0009}
+body.ui-reborn .sbox{border-color:rgba(var(--region-rgb),.25);background:linear-gradient(145deg,rgba(var(--region-rgb),.07),#0b0b0ae8);box-shadow:inset 2px 0 var(--region)}
+body.ui-reborn .sbox .v{color:#f0d9ad}body.ui-reborn .sbox .k{color:#8e877b}
+body.ui-reborn #settings,body.ui-reborn #howto,body.ui-reborn #memories,body.ui-reborn #chapterClear,body.ui-reborn #confirmRun{overflow:auto}
+body.ui-reborn #settings .panel,body.ui-reborn #howto .panel,body.ui-reborn .memories-panel,body.ui-reborn .chapter-clear-panel,body.ui-reborn #confirmRun .panel{max-height:calc(100dvh - 24px);overflow:auto}
+body.ui-reborn .settings-row{border-bottom-color:rgba(var(--region-rgb),.16)}
+body.ui-reborn .settings-row span{color:#ddd2bd}body.ui-reborn .settings-row span small,body.ui-reborn .save-message{color:#928b81}
+body.ui-reborn select{border:1px solid rgba(var(--region-rgb),.4);border-radius:0 6px 0 6px;background:#0d0d0c;color:#e9ddc7}
+body.ui-reborn input[type="checkbox"]{accent-color:var(--region)}
+body.ui-reborn .volume-control input{background:linear-gradient(90deg,var(--region),#3c382f)}
+body.ui-reborn .volume-control input::-webkit-slider-thumb{border-color:var(--tse-gold-hot);background:#11100d;box-shadow:0 0 13px rgba(var(--region-rgb),.42)}
+body.ui-reborn #scoreCard{border-color:rgba(var(--region-rgb),.3);border-left-color:var(--region);background:linear-gradient(90deg,rgba(var(--region-rgb),.1),transparent)}
+body.ui-reborn .card{border-radius:0 14px 0 14px;background:radial-gradient(circle at 50% 15%,rgba(var(--relic-rgb),.13),transparent 45%),repeating-linear-gradient(135deg,rgba(var(--relic-rgb),.025) 0,rgba(var(--relic-rgb),.025) 1px,transparent 1px,transparent 5px),linear-gradient(150deg,#1b1916,#0c0c0bed 80%);box-shadow:0 19px 48px #000c,inset 3px 0 var(--relic),inset 0 1px rgba(var(--relic-rgb),.25)}
+body.ui-reborn .card[data-r="0"]{--relic:#b6bec0;--relic-rgb:182,190,192;border-color:#b6bec066}
+body.ui-reborn .card[data-r="1"]{--relic:#74c49b;--relic-rgb:116,196,155;border-color:#74c49b80}
+body.ui-reborn .card[data-r="2"]{--relic:#b190d5;--relic-rgb:177,144,213;border-color:#b190d58a}
+body.ui-reborn .card[data-r="3"]{--relic:#f1bd61;--relic-rgb:241,189,97;border-color:#f1bd61a6;background:radial-gradient(circle at 50% 12%,#b466252e,transparent 50%),linear-gradient(150deg,#2b2016,#100d0b 82%);box-shadow:0 20px 52px #000d,0 0 34px #e2903327,inset 3px 0 #f1bd61,inset 0 1px #ffe6ac5c}
+body.ui-reborn .card .nm{color:#eee1ca}body.ui-reborn .card .ds{color:#b6afa3}body.ui-reborn .card .ic{background:linear-gradient(145deg,rgba(var(--relic-rgb),.12),#0908078a)}
+body.ui-reborn .tree-head{background:linear-gradient(90deg,rgba(var(--region-rgb),.12),#0c0c0bf2 56%);border-bottom-color:rgba(var(--region-rgb),.22)}
+body.ui-reborn .tree-map{background:radial-gradient(circle at 50% 48%,rgba(var(--region-rgb),.12),#0b0b0a 43%,#050504 84%)!important}
+body.ui-reborn .tree-inspector{background:linear-gradient(145deg,#17140f,#0b0b0a);border-color:rgba(var(--region-rgb),.28);box-shadow:-20px 0 55px #0007}
+body.ui-reborn .tree-inspector h3{color:#f2dfb8}body.ui-reborn .tree-inspector p{color:#aaa294}body.ui-reborn .tree-inspector .price{color:#d6b6e5}
+body.ui-reborn .tree-foot{border-color:rgba(var(--region-rgb),.2);background:#080807;color:#8d8578}
+body.ui-reborn .dialogue-frame{border-color:color-mix(in srgb,var(--voice) 56%,transparent);background:radial-gradient(circle at 13% 38%,color-mix(in srgb,var(--voice) 10%,transparent),transparent 28%),linear-gradient(110deg,#151410fa,#090908fc 72%);box-shadow:0 25px 85px #000e,inset 3px 0 var(--voice)}
+body.ui-reborn #dialogueText{color:#e8e0d1}body.ui-reborn #dialogueChapter,body.ui-reborn #dialogueKeys{color:#928b80}
+body.ui-reborn #dialogueNext,body.ui-reborn #dialogueSkip,body.ui-reborn #dialogueChoices button{border-color:color-mix(in srgb,var(--voice) 36%,transparent);background:#0d0d0bdc;color:#d8cebc}
+body.ui-reborn .memory-entry,body.ui-reborn .armory-entry{border-color:rgba(var(--region-rgb),.25);border-radius:0 8px 0 8px;background:linear-gradient(100deg,rgba(var(--region-rgb),.08),#0b0b0ae8)}
+body.ui-reborn .memory-entry:hover,body.ui-reborn .memory-entry:focus-visible{border-color:rgba(var(--region-rgb),.72);background:linear-gradient(100deg,rgba(var(--region-rgb),.17),#100f0ded)}
+body.ui-reborn .memory-entry strong,body.ui-reborn .armory-entry.unlocked strong{color:#e6d4b1}
+body.ui-reborn #traceRecord{background:radial-gradient(circle at 50% 45%,rgba(var(--region-rgb),.14),#040403f4 67%)}
+body.ui-reborn .trace-fragment,body.ui-reborn .recap-goal{border-color:var(--region);background:rgba(var(--region-rgb),.08);color:#ded3bf}
+body.ui-reborn .changelog-kicker,body.ui-reborn .changelog-entry li::before{color:var(--region)}
+body.ui-reborn .changelog-entry h3{color:#e3c57f}body.ui-reborn .changelog-entry li{border-color:rgba(var(--region-rgb),.4);background:rgba(var(--region-rgb),.045)}
+body.ui-reborn .changelog-entry+.changelog-entry{border-color:rgba(var(--region-rgb),.18)}
+body.ui-reborn #changelogClose{box-shadow:0 0 0 9px #0b0a08f0,0 0 28px #d7a64d24}
+body.ui-reborn #recapReport{border-color:rgba(var(--region-rgb),.42);background:#090908;color:#d8d0c1}
+body.ui-reborn .finale-shell{background:radial-gradient(circle at 50% 14%,#d4a04a18,transparent 42%),linear-gradient(150deg,#19150f,#080807)}
+body.ui-reborn #endingCanvas{border:1px solid #d3b56d30;background:#080806}
+body.ui-reborn #onboardingCoach{border-color:rgba(var(--region-rgb),.48);border-left-color:var(--region);background:linear-gradient(120deg,#15140ff5,#090908f7)}
+body.ui-reborn #onboardingCoach span{color:var(--region)}body.ui-reborn #onboardingCoach strong{color:#f0d7a4}
+body.ui-reborn .touch-stick{border-color:rgba(var(--region-rgb),.48);background:radial-gradient(circle at 50% 48%,rgba(var(--region-rgb),.18) 0 20%,#171612d1 21% 55%,#090908e6 57%);box-shadow:inset 0 0 0 7px #fff0cc08,inset 0 0 26px rgba(var(--region-rgb),.1),0 7px 28px #000b}
+body.ui-reborn .touch-knob{border-color:#e3c67f9c;background:radial-gradient(circle at 38% 32%,#f6dda3,#b48749 25%,#3d3830 29%,#191814 67%,#0b0b09 70%)}
+body.ui-reborn #aimStick .touch-knob{background:radial-gradient(circle at 50% 50%,#fff0bc 0 8%,#d78845 10% 22%,#44372d 25%,#191814 32% 67%,#0b0b09 70%)}
+body.ui-reborn .touch-action{border-color:rgba(var(--region-rgb),.5);background:radial-gradient(circle at 40% 30%,rgba(var(--region-rgb),.2),#171612ee 64%,#090908f3);color:#ead9b7}
+body.ui-reborn .touch-action strong,body.ui-reborn .touch-caption b{color:#f1cc7e}
+body.ui-reborn ::-webkit-scrollbar{width:8px;height:8px}body.ui-reborn ::-webkit-scrollbar-track{background:#070706}body.ui-reborn ::-webkit-scrollbar-thumb{border:2px solid #070706;background:var(--region)}
+@media(max-width:700px){body.ui-reborn .panel,body.ui-reborn #luWrap,body.ui-reborn .tree-panel,body.ui-reborn .changelog-shell,body.ui-reborn .recap-shell,body.ui-reborn .trace-shell,body.ui-reborn .finale-shell{border-radius:0 11px 0 11px;clip-path:polygon(0 0,calc(100% - 13px) 0,100% 13px,100% 100%,13px 100%,0 calc(100% - 13px))}}
+@media(prefers-reduced-motion:reduce){body.ui-reborn .panel,body.ui-reborn #luWrap,body.ui-reborn .tree-panel,body.ui-reborn .changelog-shell,body.ui-reborn .recap-shell,body.ui-reborn .trace-shell,body.ui-reborn .finale-shell{animation:none!important;transition:none!important}}

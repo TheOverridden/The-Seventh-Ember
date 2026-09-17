@@ -8,7 +8,7 @@ const recapHurt=hurtPlayer;
 hurtPlayer=function(dmg,sx,sy){const previous=recapDamageContext;recapDamageContext={source:recapSource(sx,sy),incoming:Math.round(dmg),hpBefore:Math.ceil(G.player?.hp||0)};try{return recapHurt(dmg,sx,sy);}finally{recapDamageContext=previous;}};
 function makeRunRecap(){
  const r=G.run,p=G.player;if(!r||!p)return null;
- return {version:1,build:document.querySelector('meta[name="voidfall-build"]')?.content||'unknown',mode:r.infinite?'Endless':r.mode||'campaign',floor:G.floor,level:r.level,kills:r.kills,seconds:Math.floor(r.t),essence:Math.round(r.ess||0),guardian:G.boss?.name||'No active guardian',guardians:(r.recapGuardians||[]).slice(-60),death:recapDamageContext?{...recapDamageContext}:{source:'Cause not recorded'},blessings:POOL.filter(c=>r.up[c.id]).map(c=>({id:c.id,name:c.name,rank:r.up[c.id]})),forms:Object.values(r.forms||{}).map(id=>FORM_BY_ID[id]?.name||id),sigils:TREE_NODES.filter(n=>save.nodes[n.id]).map(n=>n.id),room:specialEncounterAt()?.type||'ordinary room',health:p.maxHp,damage:Math.round(p.dmg),guardianPhase:G.boss?.bs?.phase??G.boss?.wb?.mode??null};
+ return {version:1,build:document.querySelector('meta[name="the-seventh-ember-build"]')?.content||'unknown',mode:r.infinite?'Endless':r.mode||'campaign',floor:G.floor,level:r.level,kills:r.kills,seconds:Math.floor(r.t),essence:Math.round(r.ess||0),guardian:G.boss?.name||'No active guardian',guardians:(r.recapGuardians||[]).slice(-60),death:recapDamageContext?{...recapDamageContext}:{source:'Cause not recorded'},blessings:POOL.filter(c=>r.up[c.id]).map(c=>({id:c.id,name:c.name,rank:r.up[c.id]})),forms:Object.values(r.forms||{}).map(id=>FORM_BY_ID[id]?.name||id),sigils:TREE_NODES.filter(n=>save.nodes[n.id]).map(n=>n.id),room:specialEncounterAt()?.type||'ordinary room',health:p.maxHp,damage:Math.round(p.dmg),guardianPhase:G.boss?.bs?.phase??G.boss?.wb?.mode??null};
 }
 function cleanRunRecap(raw){
  if(!raw||raw.version!==1||!Number.isFinite(raw.floor))return null;
@@ -31,7 +31,7 @@ function recapNextGoal(){
  if(goal)return{form:goal,text:goal.name+' · All required sigils owned · '+(save.essence>=goal.cost?'Ready to awaken':(goal.cost-save.essence)+' more essence needed')};
  return{text:'Every sigil is yours. Try a different form next run.'};
 }
-function runReport(r){return 'VOIDFALL RUN RECORD\n'+JSON.stringify(r,null,2)+'\n\nNotes:\n';}
+function runReport(r){return 'THE SEVENTH EMBER RUN RECORD\n'+JSON.stringify(r,null,2)+'\n\nNotes:\n';}
 function recapLine(parent,label,value){const row=document.createElement('p'),title=document.createElement('strong');title.textContent=label+' ';row.append(title,document.createTextNode(String(value)));parent.append(row);}
 function openRunRecap(){
  const r=save.lastRunRecap;if(!r)return;recapReturnFocus=document.activeElement;clearInput();const body=T('runRecapBody');body.replaceChildren();

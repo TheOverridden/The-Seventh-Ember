@@ -1,7 +1,10 @@
 document.documentElement.dataset.saveSystem='loading';
 const SAVE_SCHEMA=3;
-const PROGRESSION_RESET_MARKER='voidfall_progression_reset_20260914';
-const CHANGELOG_SEEN_KEY='voidfall_changelog_seen';
+const PROGRESSION_RESET_MARKER='the_seventh_ember_progression_reset_20260914';
+const CHANGELOG_SEEN_KEY='the_seventh_ember_changelog_seen';
+const LEGACY_SAVE_KEY=['void','fall_save_v1'].join('');
+const LEGACY_RESET_MARKER=['void','fall_progression_reset_20260914'].join('');
+const LEGACY_CHANGELOG_KEY=['void','fall_changelog_seen'].join('');
 const SAVE_SLOT_KEYS=[SAVE_KEY+'_slot_a',SAVE_KEY+'_slot_b'];
 const SAVE_EMERGENCY_KEY=SAVE_KEY+'_emergency';
 const SAVE_MANIFEST_KEY=SAVE_KEY+'_manifest';
@@ -10,21 +13,31 @@ const SAVE_WRITER=(globalThis.crypto?.randomUUID?.()||Math.random().toString(36)
 let saveRevision=0,saveLastHash='',saveLastTime=0,saveRemoteRevision=0,saveRecovered=false;
 let progressionMigration={status:'unknown',applied:false,removed:0};
 
+function migrateLegacyStorage(){
+ const pairs=[[LEGACY_SAVE_KEY,SAVE_KEY],[LEGACY_SAVE_KEY+'_slot_a',SAVE_SLOT_KEYS[0]],[LEGACY_SAVE_KEY+'_slot_b',SAVE_SLOT_KEYS[1]],[LEGACY_SAVE_KEY+'_emergency',SAVE_EMERGENCY_KEY],[LEGACY_SAVE_KEY+'_manifest',SAVE_MANIFEST_KEY],[LEGACY_SAVE_KEY+'_primary_meta',SAVE_PRIMARY_META_KEY],[LEGACY_RESET_MARKER,PROGRESSION_RESET_MARKER],[LEGACY_CHANGELOG_KEY,CHANGELOG_SEEN_KEY]];
+ let moved=0;
+ for(const [oldKey,newKey] of pairs){
+  try{
+   const oldValue=localStorage.getItem(oldKey);if(oldValue===null)continue;
+   if(localStorage.getItem(newKey)===null)localStorage.setItem(newKey,oldValue);
+   if(localStorage.getItem(newKey)!==null){localStorage.removeItem(oldKey);moved++;}
+  }catch(_){ }
+ }
+ return moved;
+}
+
 function applyProgressionMigration(){
  try{
+   const moved=migrateLegacyStorage();
    const recorded=localStorage.getItem(PROGRESSION_RESET_MARKER);
    if(recorded){
-     try{progressionMigration={...progressionMigration,...JSON.parse(recorded),applied:false};}
+     try{progressionMigration={...progressionMigration,...JSON.parse(recorded),applied:moved>0,renamed:moved};}
      catch(_){progressionMigration={status:recorded==='reset'?'reset':'fresh',applied:false,removed:0};}
      return progressionMigration;
    }
-   const keep=new Set([PROGRESSION_RESET_MARKER,CHANGELOG_SEEN_KEY]),doomed=[];
-   for(let i=0;i<localStorage.length;i++){
-     const key=localStorage.key(i);
-     if(key?.startsWith('voidfall_')&&!keep.has(key))doomed.push(key);
-   }
+   const saveKeys=[SAVE_KEY,SAVE_PRIMARY_META_KEY,SAVE_MANIFEST_KEY,SAVE_EMERGENCY_KEY,...SAVE_SLOT_KEYS],present=saveKeys.filter(key=>localStorage.getItem(key)!==null),valid=readSaveCandidates(),doomed=present.length&&!valid.length?present:[];
    for(const key of doomed)localStorage.removeItem(key);
-   progressionMigration={status:doomed.length?'reset':'fresh',applied:doomed.length>0,removed:doomed.length,at:Date.now(),epoch:SAVE_PROGRESSION_EPOCH};
+   progressionMigration={status:doomed.length?'reset':moved?'renamed':present.length?'preserved':'fresh',applied:moved>0||doomed.length>0,removed:doomed.length,renamed:moved,at:Date.now(),epoch:SAVE_PROGRESSION_EPOCH};
    localStorage.setItem(PROGRESSION_RESET_MARKER,JSON.stringify(progressionMigration));
  }catch(_){progressionMigration={status:'unavailable',applied:false,removed:0};}
  return progressionMigration;
@@ -125,5 +138,5 @@ addEventListener('storage',event=>{
  if(event.key!==SAVE_MANIFEST_KEY||!event.newValue)return;try{const m=JSON.parse(event.newValue);if(m?.schema===SAVE_SCHEMA&&m.writer!==SAVE_WRITER&&Number(m.seq)>saveRevision){saveRemoteRevision=Number(m.seq);if(G.state==='playing')pauseGame(true);storageMessage='A newer save was written in another tab. This tab is paused and cannot overwrite it.';syncSaveStatus();}}catch(_){ }
 });
 
-globalThis.VoidFallSaveSystem={version:SAVE_SCHEMA,progressionEpoch:SAVE_PROGRESSION_EPOCH,get revision(){return saveRevision;},get lastSavedAt(){return saveLastTime;},get recovered(){return saveRecovered;},get migration(){return{...progressionMigration};},keys:{primary:SAVE_KEY,slots:[...SAVE_SLOT_KEYS],emergency:SAVE_EMERGENCY_KEY,manifest:SAVE_MANIFEST_KEY,resetMarker:PROGRESSION_RESET_MARKER,changelog:CHANGELOG_SEEN_KEY}};
+globalThis.TheSeventhEmberSaveSystem={version:SAVE_SCHEMA,progressionEpoch:SAVE_PROGRESSION_EPOCH,get revision(){return saveRevision;},get lastSavedAt(){return saveLastTime;},get recovered(){return saveRecovered;},get migration(){return{...progressionMigration};},keys:{primary:SAVE_KEY,slots:[...SAVE_SLOT_KEYS],emergency:SAVE_EMERGENCY_KEY,manifest:SAVE_MANIFEST_KEY,resetMarker:PROGRESSION_RESET_MARKER,changelog:CHANGELOG_SEEN_KEY}};
 document.documentElement.dataset.saveSystem='ready-v3';

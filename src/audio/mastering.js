@@ -51,7 +51,7 @@ function audioScoreScheduler(){
   if(!AUDIO_SCORE.next||AUDIO_SCORE.next<now-.2)AUDIO_SCORE.next=now+.06;
   let guard=0;
   while(AUDIO_SCORE.next<now+.22&&guard++<5){
-    const step=AUDIO_SCORE.step++,offset=cfg.pattern[step%cfg.pattern.length],root=audioHarmonyRoot(),pressure=clamp(globalThis.VoidFallCombatMix?.intensity||0,0,1),beat=60/(cfg.bpm+(boss?12:Math.round(pressure*10)))/2;
+    const step=AUDIO_SCORE.step++,offset=cfg.pattern[step%cfg.pattern.length],root=audioHarmonyRoot(),pressure=clamp(globalThis.TheSeventhEmberCombatMix?.intensity||0,0,1),beat=60/(cfg.bpm+(boss?12:Math.round(pressure*10)))/2;
     if(offset!==null)audioBass(root*Math.pow(2,offset/12),AUDIO_SCORE.next,(step%8===0?1.18:1)*(1+pressure*.1),boss);
     if((boss&&step%4===0)||(!boss&&pressure>.62&&step%8===0))audioKick(AUDIO_SCORE.next,boss?(step%8===0?1.15:.82):.48+pressure*.25);
     if(step%16===6||step%16===14){const m=cfg.motif[(Math.floor(step/8)+G.floor)%cfg.motif.length];audioMist(root*4*Math.pow(2,m/12),AUDIO_SCORE.next+.02,boss?1.45:2.7);}
@@ -104,5 +104,5 @@ function masteredSound(name){
 const unmasteredSfx=sfx;
 sfx=function(name,a){if(!AC||!save.sfx)return;if(masteredSound(name))return;unmasteredSfx(name,a);};
 
-globalThis.VoidFallAudio={version:2,region:audioRegion,grooves:Object.keys(REGION_GROOVE)};
+globalThis.TheSeventhEmberAudio={version:2,region:audioRegion,grooves:Object.keys(REGION_GROOVE)};
 document.documentElement.dataset.audioScore='rolling-v2';

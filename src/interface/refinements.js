@@ -141,7 +141,7 @@ function validateCheckpoint(r){
   return r;
 }
 function validateSave(raw){
-  if(!raw||raw.v!==1||typeof raw!=='object')throw Error('Not a VoidFall save');
+  if(!raw||raw.v!==1||typeof raw!=='object')throw Error('Not a valid The Seventh Ember save');
   const scan=(v,depth=0)=>{if(depth>12)throw Error('Save is too deeply nested');if(typeof v==='number'&&!Number.isFinite(v))throw Error('Invalid value');if(typeof v==='string'&&v.length>200)throw Error('Invalid text');if(v&&typeof v==='object'){if(Array.isArray(v)&&v.length>17000)throw Error('Save is too large');for(const k of Object.keys(v)){if(['__proto__','constructor','prototype'].includes(k))throw Error('Invalid key');scan(v[k],depth+1);}}};scan(raw);
   const clean=DEF_SAVE();for(const k of ['essence','bestFloor','bestLevel','totalRuns','totalKills','totalEssence','victories','guardians']){if(raw[k]!==undefined&&(!Number.isFinite(raw[k])||raw[k]<0))throw Error('Invalid progress');clean[k]=Math.min(1e12,Math.floor(raw[k]||0));}
   for(const k of ['tut','music','sfx','motion','touch'])if(raw[k]!==undefined)clean[k]=raw[k]?1:0;clean.quality=raw.quality==='light'?'light':'full';
@@ -198,7 +198,7 @@ function wireRefinements(){
   on(T('btnConfirmRun'),'click',()=>{hide('confirmRun');const fn=confirmCallback;confirmCallback=null;if(fn)fn();});on(T('btnCancelRun'),'click',()=>hide('confirmRun'));
   for(const [id,key] of [['setMusic','music'],['setSfx','sfx'],['setMotion','motion'],['setTouch','touch']])on(T(id),'change',()=>{initAudio();save[key]=T(id).checked?1:0;applyAudioSettings();syncSettings();saveNow();});
   on(T('setQuality'),'change',()=>{save.quality=T('setQuality').value;saveNow();});
-  on(T('btnExport'),'click',()=>{saveNow();const blob=new Blob([JSON.stringify(save)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='voidfall-save-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);});
+  on(T('btnExport'),'click',()=>{saveNow();const blob=new Blob([JSON.stringify(save)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='the-seventh-ember-save-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);});
   on(T('btnImport'),'click',()=>T('saveFile').click());
   on(T('saveFile'),'change',async()=>{const file=T('saveFile').files[0];if(!file)return;try{if(file.size>1500000)throw Error('File is too large');const raw=JSON.parse(await file.text());if(raw?.progressionEpoch!==SAVE_PROGRESSION_EPOCH){const old=Error('OLD_PROGRESSION_SAVE');old.code='OLD_PROGRESSION_SAVE';throw old;}pendingImport=validateSave(raw);T('importSummary').textContent='Replace current progress with '+pendingImport.essence+' essence, '+Object.keys(pendingImport.nodes).length+' sigils, and best floor '+pendingImport.bestFloor+'? Export your current progress first if you want to keep it.';T('importReview').hidden=false;}catch(e){T('settingsSave').textContent=e?.code==='OLD_PROGRESSION_SAVE'?'That backup is from before the progression rebuild and cannot be restored. Your current progress has not changed.':'That save could not be read. Your current progress has not changed.';T('settingsSave').classList.add('warning');}T('saveFile').value='';});
   on(T('btnImportApply'),'click',()=>{if(!pendingImport)return;save=pendingImport;pendingImport=null;META=computeMeta();saveNow();refreshMenuStats();syncSettings();T('importReview').hidden=true;});

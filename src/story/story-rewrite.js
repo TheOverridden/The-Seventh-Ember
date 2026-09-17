@@ -314,5 +314,5 @@
  };
 
  document.documentElement.dataset.storyRecut='v'+STORY_RECUT_VERSION;
- globalThis.VoidFallStoryRecut={version:STORY_RECUT_VERSION,records:recordRows.length,scenes:Object.keys(HOLLOW_SCENES).length};
+ globalThis.TheSeventhEmberStoryRecut={version:STORY_RECUT_VERSION,records:recordRows.length,scenes:Object.keys(HOLLOW_SCENES).length};
 })();
