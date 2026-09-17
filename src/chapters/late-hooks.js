@@ -1,4 +1,3 @@
-/* ---------------- Final engine hooks, persistence, and offline controls ---------------- */
 const beforeLateFloorName=floorName;floorName=function(f){const r=lateRegion(f),info=lateFloorInfo(f);return r&&info?info[0]:beforeLateFloorName(f);};
 function playerInLateArena(){const w=G.world,r=w?.exit,p=G.player;return !!(w?.region==='late'&&r&&p&&p.x>r.x*TILE&&p.x<(r.x+r.w)*TILE&&p.y>r.y*TILE&&p.y<(r.y+r.h)*TILE);}
 const beforeLateHollowUpdate=hollowBeforeUpdate;

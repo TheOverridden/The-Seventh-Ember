@@ -1,7 +1,3 @@
-/* ======================================================================
-   FLOOR CHARACTER PASS · bespoke visual language for stages III–X.
-   Every mark and furnishing is drawn here, keeping the artwork asset-free.
-   ====================================================================== */
 const FLOOR_CHARACTER_ART_VERSION=6;
 function lateVariant(){
   const r=lateRegion(G.floor);return r?clamp(G.floor-r.from,0,4):0;
@@ -314,8 +310,6 @@ function drawLateTorches(ctx){
 const detailedEarlyTorches=drawTorches;
 drawTorches=function(ctx){if(G.world?.region==='late')drawLateTorches(ctx);else detailedEarlyTorches(ctx);};
 
-/* Hidden Spark refills only when a new floor is constructed. Keeping this
-   outside recalc prevents repeated menu refreshes from creating charges. */
 const beforeBlessingFloorSetup=setupFloor;
 setupFloor=function(f){
   beforeBlessingFloorSetup(f);initCombat();

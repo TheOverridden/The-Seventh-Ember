@@ -1,4 +1,3 @@
-/* ---------------- CONSTANTS / POOLS / STATE ---------------- */
 const TILE=36;
 const BASE={hp:100,dmg:12,rate:2.5,speed:208,magnet:96,crit:.05,bulletSpd:530,dashCd:2.6};
 const RARITY=[{n:'COMMON',c:'#9db4d0'},{n:'RARE',c:'#b06cff'},{n:'EPIC',c:'#ffcf6b'}];
@@ -19,7 +18,6 @@ const POOL=[
  {id:'exec',  r:1,max:3, w:4, icon:'axe',         name:'Executioner',      ds:'+30% damage against enemies below 30% HP'},
  {id:'glass', r:2,max:2, w:2, icon:'flame',       name:'Glass Cannon',     ds:'+40% damage, but −10% max HP'}
 ];
-/* ---- endless floor progression: normal floor → boss lair → normal → boss … ---- */
 const bossFloorAt = f => f%5===0;
 const FN_A=['Hollow','Mosslight','Drowned','Ashen','Starless','Ember','Obsidian','Weeping','Shattered','Sunken','Crimson','Whispering'];
 const FN_B=['Gate','Vaults','Chapel','Stacks','Deep','Gallery','Warrens','Sanctum','Expanse','Reliquary','Catacombs','Spire'];

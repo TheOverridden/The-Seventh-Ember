@@ -1,5 +1,3 @@
-/* THE TWIN REGENTS: one encounter conductor drives both bodies.  Their attacks
-   arrive on shared beats, so watching either Regent reveals the rhythm of both. */
 const REGENT_DANCE_VERSION=1;
 function livingRegents(){return (G.enemies||[]).filter(e=>!e.dead&&e.lateBoss&&e.bossKey==='regents').sort((a,b)=>a.twinRole==='blade'?-1:b.twinRole==='blade'?1:a.uid-b.uid);}
 function regentDanceState(pair=livingRegents()){

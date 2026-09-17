@@ -1,4 +1,3 @@
-/* ---------------- Four-rarity blessing draft and real build effects ---------------- */
 function rarityOdds(){
   const depth=clamp((G.floor-1)/49,0,1),treasure=G.opts.freeChoice?1:0;
   return [Math.max(.38,.67-depth*.2-treasure*.08),.25+depth*.08,.075+depth*.095+treasure*.05,.005+depth*.025+treasure*.03];

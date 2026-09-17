@@ -1,9 +1,3 @@
-/* ========================================================================
-   THE LISTENING GUARDIANS
-   Guardians read temporary blessings, while permanent Skill Tree progress
-   remains the player's lasting advantage. Burst limits preserve the fights'
-   authored phases instead of allowing one lucky build to erase them.
-   ======================================================================== */
 'use strict';
 
 const ADAPTIVE_GUARDIAN_VERSION=2;
@@ -56,8 +50,6 @@ function adaptiveModel(tier,mastery,build,mode='campaign'){
  const i=adaptiveClamp(tier,1,10)-1,need=ADAPTIVE_REQUIREMENT[i],deficit=Math.max(0,need-mastery),lateWeight=i/9;
  const modeWeight=mode==='practice'?.55:mode==='rush'?.68:1;
  const tempHp=1+(Math.pow(build.power,.46)-1)*modeWeight;
- // Permanent progress remains the answer. A huge temporary build makes the
- // guardian sturdier, while missing late Skill Tree targets also sharpens it.
  const hp=adaptiveClamp(tempHp*(1+deficit*(2.1+lateWeight*4.4)*modeWeight),1,mode==='campaign'?7.2:3.8);
  const damage=adaptiveClamp(1+((build.defense-1)*.17+deficit*(.82+lateWeight*.78))*modeWeight,1,2.35);
  const tempo=adaptiveClamp(1+(Math.min(.24,(build.power-1)*.026)+deficit*(.32+lateWeight*.30))*modeWeight,1,1.5);
@@ -85,8 +77,8 @@ function applyAdaptiveGroup(b,announce=true){
  G.run.adaptiveBudgets[key]={start:G.run.t,spent:0,max,rate:budget};
  if(announce&&!G.run.adaptiveAnnouncements?.[key]){
   G.run.adaptiveAnnouncements=G.run.adaptiveAnnouncements||{};G.run.adaptiveAnnouncements[key]=true;
-  const joke={barrage:'It counted every extra ember.',burst:'Yes, it saw the mythics.',flare:'It moved the furniture back.',fortress:'It noticed all that health.',motion:'Circling has been accounted for.',balanced:'It checked your pockets.'}[profile.label];
-  toast('THE GUARDIAN READ YOUR BUILD',joke);fieldNote(profile.label.toUpperCase()+' BUILD · THE ROOM ANSWERS',2.5);
+  const omen={barrage:'The air narrows around each cast.',burst:'The ward gathers at the point of impact.',flare:'Close flame wakes the outer ring.',fortress:'Old stone draws breath beneath the floor.',motion:'Each footfall returns as an echo.',balanced:'Every seal turns at once.'}[profile.label];
+  toast('THE OLD WARD STIRS',omen);fieldNote('THE GUARDIAN AWAKENS',2.5);
  }
 }
 
@@ -144,7 +136,7 @@ damageEnemy=function(e,dmg,ang,crit,kb,kind='shot'){
  if(threshold){const gateHp=e.max*threshold;if(e.hp>gateHp)dmg=Math.min(dmg,e.hp-gateHp);}
  if(dmg<=0)return;
  const before=e.hp;adaptiveDamageEnemy(e,dmg,ang,crit,kb,kind);const dealt=Math.max(0,before-e.hp);budget.spent+=dealt;
- if(threshold&&!e.dead&&e.hp<=e.max*threshold+.5){a.gate++;a.shieldUntil=G.run.t+.85;addText(e.x,e.y-e.r-18,'ADAPTED', '#f3d6ff',13);burst(e.x,e.y,22,'#d7b4ff',175,.6,2.8,true);}
+ if(threshold&&!e.dead&&e.hp<=e.max*threshold+.5){a.gate++;a.shieldUntil=G.run.t+.85;addText(e.x,e.y-e.r-18,'WARD RENEWED','#f3d6ff',13);burst(e.x,e.y,22,'#d7b4ff',175,.6,2.8,true);}
 };
 
 const adaptiveWardenActivation=activateWarden;
@@ -170,7 +162,7 @@ const adaptiveHUD=updateHUD;
 updateHUD=function(dt){
  adaptiveHUD(dt);const el=ensureAdaptiveBadge(),b=G.boss,a=b?.adapt;if(!a||b.dead||!b.introduced){el.hidden=true;return;}
  el.hidden=false;const tree=Math.round(a.mastery*100),need=Math.round(a.need*100),ready=a.mastery+1e-6>=a.need;
- el.classList.toggle('behind',!ready);el.textContent='READING '+a.read.toUpperCase()+'  ·  SKILL TREE '+tree+'% / '+need+'%'+(ready?'  ·  READY':'  ·  UNDERPOWERED');
+ el.classList.toggle('behind',!ready);el.textContent='EMBER MASTERY  '+tree+'% / '+need+'%'+(ready?'  ·  ATTUNED':'  ·  UNATTUNED');
 };
 
 const adaptiveLateBossBody=drawLateBossBody;

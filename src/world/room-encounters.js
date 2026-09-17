@@ -1,5 +1,3 @@
-/* One or two authored encounters punctuate each procedural floor. Ordinary
-   rooms, the entry room, guardian arenas, and Echo sanctuaries remain alone. */
 const ROOM_ENCOUNTER_VERSION=2;
 document.documentElement.dataset.roomEncounters='v2';
 const ROOM_ENCOUNTER_INFO={
@@ -49,8 +47,6 @@ function specialEncounterTypes(f){if(f<=2)return['ambush'];if(f<=5)return['ambus
 function installSpecialEncounters(){
  const w=G.world;if(!w||!G.run)return;if(Array.isArray(w.specialEncounters)){for(const sc of w.specialEncounters){if(!sc.complete)configureSpecialEncounter(sc);if(sc.active&&!sc.complete)sealSpecialEncounter(sc,true);}w.specialEncounterVersion=ROOM_ENCOUNTER_VERSION;return;}
  const exitIndex=w.rooms.indexOf(w.exit),blocked=new Set([0,exitIndex,w.storyRoom,...(w.echoSanctuaries||[])]),allCandidates=w.rooms.map((r,i)=>({r,i,has:G.enemies.some(e=>!e.dead&&!e.isBoss&&roomHasPoint(r,e.x,e.y)),roll:Math.random()})).filter(o=>!blocked.has(o.i));
- // The first two reachable rooms teach ordinary enemies without sealing the
- // player in. Authored encounters still appear once per opening floor.
  const earlyPlan=G.floor<=5&&typeof planEarlyEncounters==='function'?planEarlyEncounters(w,G.floor):null,deepCandidates=earlyPlan?allCandidates.filter(o=>(earlyPlan[o.i]?.rank??99)>=2):allCandidates;
  const candidates=(deepCandidates.length?deepCandidates:allCandidates).sort((a,b)=>(b.has-a.has)||(a.roll-b.roll));
  const count=Math.min(candidates.length,G.floor<=5||bossFloorAt(G.floor)||G.floor%3===0?1:2),types=specialEncounterTypes(G.floor),used=new Set();w.specialEncounters=[];w.specialEncounterVersion=ROOM_ENCOUNTER_VERSION;

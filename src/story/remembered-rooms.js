@@ -1,6 +1,3 @@
-/* ======================================================================
-   THE REMEMBERED ROOMS · player-shaped history and living Echo scenes
-   ====================================================================== */
 Object.assign(HOLLOW_SCENES,{
  reservoirChoice:{title:'The fourth line',where:'The Sunken Walk',lines:[
   ['You','This parcel was packed before the water rose.'],
@@ -362,8 +359,6 @@ function drawMemoryRestoration(ctx){
  ctx.beginPath();ctx.rect(rect.x+7,rect.y+7,rect.w-14,rect.h-14);ctx.clip();drawRestoredProps(ctx,rect,key,t,ease*.48);drawMemoryPeople(ctx,rect,key,t,ease,G.floor);
  const scene=ECHO_TABLEAUS[m.id]||ECHO_TABLEAUS.echo1,anchor=memoryOpenAnchor(scene,'artifact'),worldFx=m.fixture&&G.cam?m.fixture.x-G.cam.x:rect.x+rect.w*.5,worldFy=m.fixture&&G.cam?m.fixture.y-G.cam.y:rect.y+rect.h*.62,fx=lerp(worldFx,rect.x+rect.w*anchor.x,ease),fy=lerp(worldFy,rect.y+rect.h*anchor.y,ease);drawTableauArtifact(ctx,m.id,fx,fy,key,t,ease,m.wasSeen);
  ctx.restore();
- /* The room enlarges, but the Ember is redrawn outside that scale so it keeps
-    its normal silhouette and reads as the observer rather than part of the past. */
  if(m.fixture&&G.player&&G.cam){const rawX=G.player.x-G.cam.x,rawY=G.player.y-G.cam.y,observer=memoryOpenAnchor(scene,'observer'),worldPx=displayCx+(rawX-cx)*zoom,worldPy=displayCy+(rawY-cy)*zoom,targetPx=displayCx+(rect.x+rect.w*observer.x-cx)*zoom,targetPy=displayCy+(rect.y+rect.h*observer.y-cy)*zoom,px=lerp(worldPx,targetPx,ease),py=lerp(worldPy,targetPy,ease);ctx.save();ctx.translate(px-G.player.x,py-G.player.y);drawPlayer(ctx);ctx.restore();glowImg('gold',px,py,44,.15*ease);}
  const view={x:displayCx+(rect.x-cx)*zoom,y:displayCy+(rect.y-cy)*zoom,w:rect.w*zoom,h:rect.h*zoom};ctx.strokeStyle=pal.light;ctx.globalAlpha=.2+.5*ease;ctx.lineWidth=2;ctx.strokeRect(view.x-1,view.y-1,view.w+2,view.h+2);
  for(let i=0;i<22;i++){const a=i*2.399+t*.08,rr=(35+(i%7)*18)*zoom,px=displayCx+Math.cos(a)*rr,py=displayCy+Math.sin(a)*rr*.55;ctx.fillStyle=i%2?pal.light:m.record.color;ctx.globalAlpha=.12+.3*ease;ctx.fillRect(px,py,i%4===0?3:2,2);}
@@ -397,7 +392,6 @@ anyBlockingOverlay=function(){return !!activeMemoryEcho||rememberedBlocking();};
 const rememberedReset=resetEverything;
 resetEverything=function(){if(activeMemoryEcho){T('memoryStage').classList.remove('open','ready','leaving');document.body.classList.remove('remembering');activeMemoryEcho=null;}rememberedReset();};
 
-/* The final lock asks for an answer the Listener has never heard. */
 const FINAL_ANSWERS={
  people:{label:'For the people waiting behind it.',title:'The people behind the door',text:'You say it for the people whose names were cut out, for the crews under the water, and for everyone who kept setting a place at the table. The Listener searches the Archive. It has no earlier copy.'},
  wick:{label:'Because Wick asked me to stand.',title:'A promise made now',text:'Wick’s flame steadies beside you. The Listener knows every order the Lamplighter gave him. It has never heard you choose to answer one of his.'},

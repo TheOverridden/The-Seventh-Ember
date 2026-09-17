@@ -1,6 +1,4 @@
 'use strict';
-/* The closing combat pass joins the existing hit, death, room, boss, and music
-   systems. It changes presentation only: damage and attack timing stay intact. */
 const COMBAT_FINALE={finishers:[],waves:[],phaseByUid:new Map(),clearedRooms:new Set(),intensity:0,target:0,calloutT:0,serial:0};
 const COMBAT_PHASE_TITLES={
  warden:'THE SHIELD BREAKS',matriarch:'THE ROOTS WAKE',bellkeeper:'THE SECOND CHOIR RISES',colossus:'THE FURNACE OPENS',astronomer:'THE LENSES TURN',scribe:'THE OLD INK RUNS',regents:'ONE THRONE REMAINS',seraph:'THE WINGS TURN',tyrant:'THE CITADEL MOVES',keeper:'THE STAR OPENS',uncounted:'THE COUNT BREAKS'

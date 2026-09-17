@@ -1,4 +1,3 @@
-/* Innate ember abilities and earned additions to the blessing pool. */
 const ARMORY={
   magazine:{name:'Deep Wells',requirement:'Reach the Lantern Walks',detail:'Hold more ember charges before Rekindling.'},
   edge:{name:'Bright Core',requirement:'Reach the Bell Court',detail:'Stronger Flare attacks can now appear among your blessings.'},
@@ -112,12 +111,12 @@ damageEnemy=function(e,dmg,ang,crit,kb,kind='shot'){
   if(e.warden){
     if(!e.introduced)return;const b=e.wb;
     if(kind==='melee'){
-      if(!b.second&&b.mode==='wait'&&Math.abs(angleDiff(ang+Math.PI,b.a))<1.15)dmg*=1.4; // counter the older shared shield multiplier below
+      if(!b.second&&b.mode==='wait'&&Math.abs(angleDiff(ang+Math.PI,b.a))<1.15)dmg*=1.4;
     }else if(!b.second&&b.mode==='windup'&&Math.abs(angleDiff(ang+Math.PI,b.a))<1.15)dmg*=.35;
   }
   if(e.type==='gateShield'&&kind==='melee'&&e.action!=='recover'){
     const front=Math.abs(angleDiff(ang+Math.PI,e.face||0))<1.15;
-    if(front)dmg*=1.75; // Blade chips the ward for 70%; bullets still meet the full guard.
+    if(front)dmg*=1.75;
     if((e.staggerCd||0)<=0){
       e.guardHits=(e.guardHits||0)+1;
       if(e.guardHits>=2){e.guardHits=0;e.staggerCd=2.4;e.action='recover';e.actionT=.38;if(front)dmg/=1.75;burst(e.x,e.y,7,'#b9a4ff',100,.3,2,true);}

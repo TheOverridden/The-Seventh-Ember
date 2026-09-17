@@ -1,5 +1,3 @@
-/* Combat feel: the Ember's attacks stay mechanically identical, while casts,
-   impacts, reactions, deaths, audio, and the HUD now communicate their force. */
 const COMBAT_FEEL={casts:[],impacts:[],deaths:[],hurtT:0,hurtA:0,serial:0};
 function combatFeelReset(){COMBAT_FEEL.casts.length=0;COMBAT_FEEL.impacts.length=0;COMBAT_FEEL.deaths.length=0;COMBAT_FEEL.hurtT=0;}
 function combatFeelColor(kind,crit){if(crit)return'#fff3ae';if(kind==='melee')return'#ffd27a';if(kind==='storm')return'#9eeaff';if(kind==='burn')return'#ff8c56';return'#ffc16b';}

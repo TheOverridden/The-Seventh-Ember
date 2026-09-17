@@ -1,4 +1,3 @@
-/* Secret Boss Rush encounter. Intentionally absent from every menu, roster and preview. */
 const UNCOUNTED_CONFIG={key:'uncounted',hp:12800,r:43,dmg:49,spd:88,col:'#9ce7e3'};
 ETYPES.unrecorded={hp:12800,spd:88,dmg:49,r:43,xp:0,spr:'unrecorded',ai:'lateBoss',col:'#9ce7e3',ess:0,kb:0};
 

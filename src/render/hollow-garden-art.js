@@ -1,6 +1,3 @@
-/* ---------------- FLOORS 1–10: DETAILED ENVIRONMENT ART ----------------
-   These pieces are generated from room geometry, so old checkpoints receive
-   the same art pass without adding assets or changing the save format. */
 const ENV_ART_VERSION=5;
 function envRng(seed){
   let s=(seed>>>0)||1;
@@ -103,8 +100,6 @@ function drawEarlyEnvironmentArt(ctx){
   }
 }
 
-/* Rebuilt wall lanterns: layered iron, colored glass, moving flame, sparks and
-   garden growth. They use no bitmap assets and remain sharp at every scale. */
 drawTorches=function(ctx){
   const w=G.world,cam=G.cam,t=save.motion?0:G.tAll,garden=w.region==='hollow'&&G.floor>=6;
   for(const o of w.torches||[]){
@@ -122,7 +117,6 @@ drawTorches=function(ctx){
   }
 };
 
-/* More articulated garden dressing replaces the earlier flat silhouettes. */
 drawGardenDecor=function(ctx,o,t){
   ctx.imageSmoothingEnabled=false;
   if(o.type==='moss'){
@@ -154,7 +148,6 @@ drawPixelFloorDetails=function(ctx){
       if(!touches||h%11)continue;
       if(garden){ctx.fillStyle='#29472f';ctx.fillRect(wx+5,wy+3,4,31);ctx.fillRect(wx+9,wy+9,10,3);ctx.fillStyle='#719160';ctx.fillRect(wx+6,wy+5,2,25);ctx.fillStyle='#9eb677';ctx.fillRect(wx+15,wy+6+Math.round(Math.sin(t+h)*2),9,4);}
       else{
-        // Irregular mortar damage replaces the repeated H-shaped wall braces.
         ctx.fillStyle='#0a0f17aa';ctx.fillRect(wx+8,wy+8,9,2);ctx.fillRect(wx+15,wy+10,2,7);ctx.fillRect(wx+17,wy+15,7,2);ctx.fillRect(wx+22,wy+17,2,5);
         ctx.fillStyle='#71808a55';ctx.fillRect(wx+9,wy+7,7,1);ctx.fillRect(wx+17,wy+14,5,1);
         if(h%33===0){ctx.fillStyle='#9b875755';ctx.fillRect(wx+27,wy+5,3,2);ctx.fillRect(wx+29,wy+7,2,4);}

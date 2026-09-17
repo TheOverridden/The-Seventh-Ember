@@ -1,8 +1,3 @@
-/* ======================================================================
-   VOIDFALL STORY RECUT
-   The mystery is carried by ordinary lives first, answers second.
-   Existing presentation, save rules, and player-shaped Archive signals remain.
-   ====================================================================== */
 (function(){
  const STORY_RECUT_VERSION=2;
  const scene=(title,where,lines)=>({title,where,lines});

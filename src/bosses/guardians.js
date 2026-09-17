@@ -1,4 +1,3 @@
-/* ---------------- Eight bespoke guardian encounters ---------------- */
 const LATE_BOSSES={
  bellkeeper:{key:'bellkeeper',hp:3900,r:34,dmg:27,spd:72,col:'#6bc7d7'},emberColossus:{key:'colossus',hp:5100,r:45,dmg:31,spd:43,col:'#f08a4e'},
  glassAstronomer:{key:'astronomer',hp:6500,r:35,dmg:34,spd:65,col:'#89e1ef'},paleScribe:{key:'scribe',hp:7600,r:38,dmg:38,spd:58,col:'#decda7'},

@@ -1,4 +1,3 @@
-/* ---------------- Recovered traces replace talking environmental echoes ---------------- */
 let traceReturn='playing',activeTrace=null;
 function nearestTrace(){
   const list=G.world?.region==='late'?G.world.lateFixtures:G.world?.fixtures;if(!list||!G.player)return null;
@@ -44,19 +43,15 @@ drawPortrait=function(){
   const col={bellkeeper:'#72ccda',colossus:'#f29558',astronomer:'#8fe7f2',scribe:'#dfcfad',regents:'#e9a0b1',seraph:'#b5c4ff',tyrant:'#ff9a72',keeper:'#ffd47c'}[kind];x.strokeStyle=col;x.fillStyle='#151525';x.lineWidth=2;
   if(kind==='bellkeeper'){
     const sway=save.motion?0:Math.sin(t*2.2)*3;
-    // Waterline and wake establish the creature's scale without filling the portrait.
     x.strokeStyle='#315969';x.lineWidth=2;
     for(let i=0;i<3;i++){x.beginPath();x.ellipse(-5,29+i*5,34-i*5,5+i,0,Math.PI*.12,Math.PI*.88);x.stroke();}
-    // One continuous swimming body replaces the old row of chain-like circles.
     x.strokeStyle='#0a1720';x.lineWidth=18;x.beginPath();x.moveTo(-39,13+sway);x.bezierCurveTo(-25,-13-sway,-4,20+sway,17,-5);x.stroke();
     x.strokeStyle='#315d6b';x.lineWidth=13;x.stroke();x.strokeStyle=col;x.lineWidth=5;x.stroke();
     x.fillStyle='#315d6b';x.beginPath();x.moveTo(-35,8+sway);x.lineTo(-46,-3+sway);x.lineTo(-41,18+sway);x.closePath();x.fill();x.strokeStyle=col;x.lineWidth=2;x.stroke();
-    // Broad plated head, snout, eye and gill marks make the speaker unmistakable.
     x.fillStyle='#142b35';x.beginPath();x.moveTo(7,-18);x.quadraticCurveTo(27,-26,39,-10);x.lineTo(44,3);x.lineTo(32,13);x.lineTo(9,8);x.lineTo(1,-4);x.closePath();x.fill();x.strokeStyle=col;x.lineWidth=3;x.stroke();
     x.fillStyle='#3f7480';x.beginPath();x.moveTo(13,-17);x.lineTo(4,-31);x.lineTo(25,-20);x.closePath();x.fill();x.stroke();
     x.fillStyle='#f5df9a';x.beginPath();x.arc(29,-8,4,0,TAU);x.fill();x.fillStyle='#111820';x.beginPath();x.arc(30,-8,1.8,0,TAU);x.fill();
     x.strokeStyle='#83dce1';x.lineWidth=2;for(let i=0;i<3;i++){x.beginPath();x.moveTo(15+i*5,1+i);x.lineTo(20+i*5,5+i);x.stroke();}
-    // Brass bell harness and two separate hanging bells.
     x.strokeStyle='#c9aa69';x.lineWidth=3;x.beginPath();x.arc(17,-17,18,Math.PI,TAU);x.stroke();
     for(const bx of [7,22]){x.strokeStyle='#8b6b38';x.lineWidth=2;x.beginPath();x.moveTo(bx,-19);x.lineTo(bx,-8);x.stroke();x.fillStyle='#bc9451';x.beginPath();x.moveTo(bx-5,-8);x.lineTo(bx+5,-8);x.lineTo(bx+7,1);x.lineTo(bx-7,1);x.closePath();x.fill();x.fillStyle='#f0ce78';x.fillRect(bx-3,-6,3,5);x.fillStyle='#684820';x.fillRect(bx-1,1,3,4);}
   }

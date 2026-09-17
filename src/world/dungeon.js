@@ -1,6 +1,3 @@
-/* ============================================================================
-   Chunk B: dungeon generation · collision · entities · combat · particles
-============================================================================ */
 function genFloor(f){
   const W=88,H=68;
   let grid=null, rooms=null, tries=0;
@@ -19,7 +16,6 @@ function genFloor(f){
     }
     if(rooms.length>=9) break;
   }
-  // chain-connect rooms in order + two loop links
   const carve=(x,y)=>{ for(let j=-1;j<=0;j++) for(let i=-1;i<=0;i++){ const tx=x+i,ty=y+j; if(tx>0&&ty>0&&tx<W-1&&ty<H-1) grid[ty*W+tx]=1; } };
   const link=(a,b)=>{
     let x=a.cx,y=a.cy;
@@ -36,14 +32,12 @@ function genFloor(f){
   }
   link(rooms[irand(0,rooms.length-1)],rooms[irand(0,rooms.length-1)]);
   link(rooms[irand(0,rooms.length-1)],rooms[irand(0,rooms.length-1)]);
-  // farthest room becomes the exit (enlarged on boss floors)
   let exit=rooms[0],bd=-1;
   for(const r of rooms){ const d=d2(r.cx,r.cy,rooms[0].cx,rooms[0].cy); if(d>bd){bd=d;exit=r;} }
   if(bossFloorAt(f)){
     exit.x=clamp(exit.cx-8,2,W-18); exit.y=clamp(exit.cy-7,2,H-16); exit.w=17; exit.h=15;
     for(let y=exit.y;y<exit.y+exit.h;y++) for(let x=exit.x;x<exit.x+exit.w;x++) grid[y*W+x]=1;
   }
-  // pillars inside big rooms (skip spawn & exit rooms)
   for(const r of rooms){
     if(r===rooms[0]||r===exit) continue;
     if(r.w>=10&&r.h>=9&&chance(.55)){
@@ -51,7 +45,6 @@ function genFloor(f){
       for(let i=0;i<n;i++){ const px=irand(r.x+2,r.x+r.w-3), py=irand(r.y+2,r.y+r.h-3); grid[py*W+px]=2; }
     }
   }
-  // tile shade + decoration lookup (precomputed for cheap rendering)
   const shade=new Uint8Array(W*H), deco=new Uint8Array(W*H);
   const solidG=(tx,ty)=> tx<0||ty<0||tx>=W||ty>=H || grid[ty*W+tx]!==1;
   for(let i=0;i<W*H;i++){
@@ -61,7 +54,6 @@ function genFloor(f){
       deco[i]= r<.07 ? 1 : r<.13 ? 2 : r<.15 ? 3 : r<.20 ? 4 : r<.212 ? 5 : 0;
     }
   }
-  /* ---- scattered props & wall dressing ---- */
   const props=[];
   const PT=['pr_skull','pr_bones','pr_pot','pr_crate','pr_rubble','pr_shroom'];
   for(const r of rooms){
@@ -71,7 +63,6 @@ function genFloor(f){
       if(grid[ty*W+tx]!==1) continue;
       props.push({t:pickA(PT), x:tx*TILE+TILE/2+rand(-7,7), y:ty*TILE+TILE/2+rand(-7,7)});
     }
-    // banners & chains hung on the wall above the room
     if(chance(.55)){
       const bx=irand(r.x+1,r.x+r.w-2);
       if(solidG(bx,r.y-1)) props.push({t:'pr_banner', x:bx*TILE+TILE/2, y:(r.y-1)*TILE+TILE/2+3});
@@ -82,7 +73,6 @@ function genFloor(f){
     }
   }
   props.sort((a,b)=>a.y-b.y);
-  /* ---- torches mounted on the walls around each room ---- */
   const torches=[];
   for(const r of rooms){
     const n=irand(2,4);
@@ -104,7 +94,6 @@ function genFloor(f){
 const isSolidTile=(wld,tx,ty)=> tx<0||ty<0||tx>=wld.W||ty>=wld.H || wld.grid[ty*wld.W+tx]!==1;
 function solidPx(wld,wx,wy){ return isSolidTile(wld, Math.floor(wx/TILE), Math.floor(wy/TILE)); }
 function collideCircle(wld,e){
-  // resolve a circle entity {x,y,r} against solid tiles; returns true if it touched a wall
   let hit=false;
   for(let it=0;it<2;it++){
     const tx0=Math.floor((e.x-e.r)/TILE), tx1=Math.floor((e.x+e.r)/TILE);
@@ -138,7 +127,6 @@ function los(wld,x1,y1,x2,y2){
   return true;
 }
 
-/* ---------------- PARTICLES / FLOATING TEXT / TOASTS ---------------- */
 function part(x,y,vx,vy,life,size,col,glow){
   if(G.parts.length>420*G.partScale){ G.parts.shift(); }
   G.parts.push({x,y,vx,vy,life,max:life,size,col,glow:!!glow});
@@ -161,7 +149,6 @@ function toast(txt,sub){
   setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); },3400);
 }
 
-/* ---------------- ENEMIES ---------------- */
 const ETYPES={
   slime:   {hp:18, spd:58,  dmg:8,  r:13, xp:3, spr:'slime',   ai:'chase',   col:'#b06cff', ess:.30, kb:1},
   bat:     {hp:10, spd:118, dmg:6,  r:9,  xp:2, spr:'bat',     ai:'zigzag',  col:'#ff4d6d', ess:.24, kb:1.3},
@@ -173,7 +160,6 @@ const ETYPES={
 };
 function spawnEnemy(type,x,y,elite){
   const t=ETYPES[type], f=G.floor, dep=f-1;
-  // compounding scaling so the descent never stops getting harder
   const hpMul=(1+.24*dep+.015*dep*dep)*(elite?3.2:1);
   const dmgMul=(1+.09*dep+.004*dep*dep)*(elite?1.6:1);
   const spdMul=1+Math.min(.4,dep*.012);
@@ -211,7 +197,6 @@ function bossRing(e,n,spd){
   sfx('eshoot');
 }
 
-/* ---------------- COMBAT ---------------- */
 function fireVolley(){
   const p=G.player;
   const ma=aimAngle();
@@ -234,7 +219,6 @@ function damageEnemy(e,dmg,ang,isCrit,kbMul){
   dmg*=rand(.92,1.1);
   dmg=Math.max(1,Math.round(dmg));
   if(e.endlessDamageCeiling)dmg=Math.min(dmg,Math.max(1,Math.round(e.max*e.endlessDamageCeiling)));
-  // Guardian phase boundaries cannot be skipped by a single proc cascade.
   if(e.lateBoss&&e.bs){
     if(e.bossKey==='regents'){
       const other=G.enemies.find(o=>o!==e&&!o.dead&&o.bossKey==='regents');
@@ -266,7 +250,6 @@ function killEnemy(e){
   burst(e.x,e.y,14,e.col,210,.5,2.6,true);
   burst(e.x,e.y,6,'#ffffff',120,.3,1.8,false);
   G.cam.shake=Math.min(.5,G.cam.shake+.12);
-  // drops
   const orbN=e.xp>=8?3 : e.xp>=4?2 : 1;
   for(let i=0;i<orbN;i++) spawnPick('xp', e.x+rand(-14,14), e.y+rand(-14,14), Math.ceil(e.xp/orbN));
   if(chance(e.elite ? .9 : (ETYPES[e.type]?.ess ?? .3))) spawnPick('ess', e.x, e.y-6, e.elite?irand(5,9):irand(1,2));
@@ -306,16 +289,14 @@ function nova(x,y,r,dmg){
   G.cam.shake=Math.min(.8,G.cam.shake+.3);
 }
 
-/* ---------------- PICKUPS ---------------- */
 function spawnPick(kind,x,y,val){
   const arr=G.picks;
-  if(arr.length>260){ // merge overflow into the oldest matching orb
+  if(arr.length>260){
     const o=arr.find(o=>o.kind===kind); if(o){ o.val+=val; return; }
   }
   arr.push({kind,x,y,vx:rand(-60,60),vy:rand(-60,60),val,t:Math.random()*TAU});
 }
 
-/* ---------------- CHESTS / PORTAL / FLOOR EVENTS ---------------- */
 function killBoss(b){
   save.guardians++;markSave();
   G.boss=null; G.bossActive=false;
@@ -328,7 +309,6 @@ function killBoss(b){
   for(let i=0;i<4;i++) spawnPick('ess', b.x+rand(-30,30), b.y+rand(-30,30), Math.round((10+4*b.tier)/2));
   spawnPick('heart', b.x, b.y, 30);
   if(G.portal){ G.portal.active=true; toast('THE SEAL BREAKS','the portal opens'); }
-  // endless: bosses never end the run — milestones reward you instead
   const bonus=Math.round(18+b.tier*7);
   addEss(bonus);
   addText(b.x,b.y-40,'+'+Math.round(bonus*META.ess)+' ESSENCE','#d8bdff',14);

@@ -1,6 +1,3 @@
-/* ======================================================================
-   PRECISION TOUCH · independent pointers, cleaner response, live feedback
-   ====================================================================== */
 const TOUCH_CONTROL_VERSION=3,precisionTouchPointers={};
 function installPrecisionTouch(){
  if(T('touchControls')?.dataset.precision===String(TOUCH_CONTROL_VERSION))return;const controls=T('touchControls');controls.dataset.precision=String(TOUCH_CONTROL_VERSION);

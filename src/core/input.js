@@ -1,4 +1,3 @@
-/* ---------------- INPUT ---------------- */
 const keys={}; const mouse={x:0,y:0,down:false};
 const touchInput={moveX:0,moveY:0,aimX:0,aimY:0,aimActive:false,fire:false,movePointer:null,aimPointer:null};
 let interactQueued=false, dashQueued=false;

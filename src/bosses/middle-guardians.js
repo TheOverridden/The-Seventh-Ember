@@ -1,11 +1,3 @@
-/* ======================================================================
-   THE FOUR KEEP THEIR OWN LAWS · middle-guardian reforge
-
-   Floors 15–30 no longer share the same volley-and-recovery skeleton.
-   The Bellkeeper teaches rhythm, the Colossus pressure, the Astronomer
-   refraction, and the Scribe remembers the player's route as hostile ink.
-   Every event is plain saved data so an interrupted fight resumes exactly.
-   ====================================================================== */
 const MID_GUARDIAN_VERSION=2;
 const MID_GUARDIAN_KEYS=new Set(['bellkeeper','colossus','astronomer','scribe']);
 Object.assign(ENDGAME_HP,{bellkeeper:6400,colossus:9800,astronomer:13400,scribe:17800});

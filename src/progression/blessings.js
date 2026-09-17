@@ -1,8 +1,4 @@
-/* ======================================================================
-   THE LONG DESCENT · expanded blessing library, score, and Resting Flames
-   ====================================================================== */
 const LONG_DESCENT_BLESSINGS=[
- /* Common: dependable pieces that keep early drafts useful. */
  {id:'coalHeart',r:0,max:3,w:7,minFloor:2,icon:'heart',name:'Coal Heart',ds:'Heart drops restore 25% more health per rank'},
  {id:'longFuse',r:0,max:3,w:8,minFloor:3,icon:'arrow-up-right',name:'Long Fuse',ds:'+20% Ember Bolt range'},
  {id:'quickStep',r:0,max:3,w:8,minFloor:4,icon:'feather',name:'Lightfoot',ds:'+10% dash distance'},
@@ -16,7 +12,6 @@ const LONG_DESCENT_BLESSINGS=[
  {id:'patientAim',r:0,max:3,w:6,minFloor:12,icon:'crosshair',name:'Patient Aim',ds:'Bolts gain damage while you have not cast recently'},
  {id:'warmPocket',r:0,max:3,w:6,minFloor:13,icon:'gem',name:'Warm Pocket',ds:'Essence pickups have a chance to be worth one more'},
 
- /* Uncommon: mechanics that begin to define a build. */
  {id:'seeking',r:1,max:2,w:6,minFloor:9,icon:'navigation',name:'Seeking Embers',ds:'Bolts gently curve toward nearby enemies'},
  {id:'cauterize',r:1,max:2,w:5,minFloor:11,icon:'flame',name:'Cauterize',ds:'Burning enemies deal 8% less contact damage'},
  {id:'dashBurst',r:1,max:2,w:5,minFloor:12,icon:'wind',name:'Flash Step',ds:'Ending a dash releases a small damaging pulse'},
@@ -30,7 +25,6 @@ const LONG_DESCENT_BLESSINGS=[
  {id:'bossWard',r:1,max:2,w:4,minFloor:21,icon:'shield-check',name:'Guardian Ward',ds:'Guardian attacks deal 7% less damage'},
  {id:'closeQuarters',r:1,max:2,w:5,minFloor:22,icon:'focus',name:'Nearlight',ds:'Bolts deal +18% damage at close range'},
 
- /* Epic: strong engines with visible, active effects. */
  {id:'comet',r:2,max:2,w:4,minFloor:16,icon:'star',name:'Comet Ember',ds:'Every ninth cast launches a large piercing comet'},
  {id:'phoenixWake',r:2,max:2,w:3,minFloor:19,icon:'flame',name:'Phoenix Wake',ds:'Taking damage leaves a burning ring behind'},
  {id:'gravityFlare',r:2,max:2,w:3,minFloor:21,icon:'circle-dot',name:'Gravity Flare',ds:'Flare pulls nearby enemies toward its center'},
@@ -46,7 +40,6 @@ const LONG_DESCENT_BLESSINGS=[
  {id:'timePocket',r:2,max:2,w:3,minFloor:41,icon:'hourglass',name:'Still Time',ds:'Standing still slows nearby enemy projectiles'},
  {id:'heartfire',r:2,max:2,w:3,minFloor:43,icon:'heart',name:'Heartfire',ds:'Healing briefly raises damage and casting speed'},
 
- /* Mythic: rare build-changing rules, introduced across the full descent. */
  {id:'supernova',r:3,max:1,w:1,minFloor:22,icon:'sun',name:'Supernova',ds:'Every tenth critical hit detonates an enormous 800% damage nova'},
  {id:'blackHole',r:3,max:1,w:1,minFloor:28,icon:'circle-dot',name:'Black Star',ds:'Every eighth cast opens a huge seven-second gravity well'},
  {id:'sevenfold',r:3,max:1,w:1,minFloor:32,icon:'asterisk',name:'Sevenfold Flame',ds:'Every fourth cast becomes a piercing nine-Bolt fan'},
@@ -61,8 +54,6 @@ const LONG_DESCENT_BLESSINGS=[
 POOL.push(...LONG_DESCENT_BLESSINGS);
 RARITY[2].n='EPIC';
 
-/* A draft is assembled from blessings available at this depth. Later cards
-   remain genuinely new instead of appearing and being exhausted early. */
 buildCards=function(){
  const u=G.run.up,eligible=o=>(u[o.id]||0)<o.max&&(!o.unlock||armoryData()[o.unlock])&&G.floor>=(o.minFloor||1);
  let pool=POOL.filter(eligible);if(!pool.length)pool=[{id:'hp',r:0,max:99,w:1,icon:'heart',name:'Emberglow',ds:'Restore 25 health'}];

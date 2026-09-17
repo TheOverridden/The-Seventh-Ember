@@ -1,5 +1,3 @@
-/* Final audio direction: one warm palette for music, combat, and rewards.
-   This loads after the feature modules so it can master every sound at one exit. */
 const REGION_GROOVE={
   hollow:{bpm:76,pattern:[0,null,7,12,3,null,7,null,0,12,7,null,3,7,12,null],motif:[0,3,7,10]},
   garden:{bpm:80,pattern:[0,7,12,null,3,7,10,null,0,12,10,7,3,null,7,12],motif:[0,2,5,7,9]},
@@ -18,8 +16,6 @@ function audioRegion(){return G.world?.region==='late'?(G.world.lateKey||'heart'
 function audioHarmonyRoot(){const i=chordI>0?(chordI-1)%CHORDS.length:0;return CHORDS[i][0];}
 function audioScoreActive(){return AC&&save.music&&AC.state==='running'&&!document.hidden&&G.run&&['playing','dialogue','chapter'].includes(G.state);}
 
-/* A sine body with a heavily filtered upper voice. It has weight and pitch,
-   but no hard transient, so repeated pickups never resemble a toy piano. */
 function warmFxTone(freq,dur=.32,vol=.025,delay=0,cutoff=920){
   if(!AC||!save.sfx)return;
   const t=AC.currentTime+delay,lp=AC.createBiquadFilter(),amp=AC.createGain(),body=AC.createOscillator(),grain=AC.createOscillator(),grainG=AC.createGain();
@@ -63,8 +59,6 @@ function audioScoreScheduler(){
   }
 }
 
-/* The older region pulse selected a bright note every 720 ms. Keeping its
-   timer inert prevents two melodic clocks from competing with one another. */
 scorePulse=function(){};
 const masteredInitAudio=initAudio;
 initAudio=function(){masteredInitAudio();if(AC&&!AUDIO_SCORE.timer)AUDIO_SCORE.timer=setInterval(audioScoreScheduler,55);};

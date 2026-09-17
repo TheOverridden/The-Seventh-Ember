@@ -1,8 +1,3 @@
-/* ============================================================================
-   Chunk C: game flow · stats · level-ups · per-frame updates
-============================================================================ */
-// Early choices arrive quickly; later ranks take long enough that the build
-// keeps developing through the campaign and well into Endless.
 const needXP = l => Math.floor(14 + 11*l + 3.2*Math.pow(l,1.48) + .65*Math.pow(Math.max(0,l-12),2));
 function setState(s){
   G.state=s;
@@ -45,8 +40,6 @@ function startRun(){
   setupFloor(1);
   setState('playing');
   musicInt=.2; mouse.x=G.w/2+100;mouse.y=G.h/2; updateHUD(0); saveNow();
-  // Contextual first-descent teaching is handled after dialogue and reacts to
-  // what the player is actually facing. Keep the old flag for save compatibility.
   if(!save.tut){save.tut=1;markSave();saveNow();}
   else toast(floorName(1),'floor 1');
   G.tutQ=0;
@@ -61,12 +54,9 @@ function setupFloor(f){
   G.player.x=spawnR.cx*TILE+TILE/2; G.player.y=spawnR.cy*TILE+TILE/2;
   G.player.kbx=G.player.kby=0; G.player.hitCd=1;
   G.cam.x=G.player.x-G.w/2; G.cam.y=G.player.y-G.h/2;
-  // portal
   const exit=w.exit, bossHere=bossFloorAt(f);
   G.portal={x:exit.cx*TILE+TILE/2, y:exit.cy*TILE+TILE/2, r:26, active:!bossHere, t:0};
-  // boss
   if(bossHere){ spawnBossAt(exit.cx*TILE+TILE/2, exit.cy*TILE-TILE*2); }
-  // populate rooms
   const avail=['slime','bat'];
   if(f>=2)avail.push('spitter');
   if(f>=3)avail.push('brute');
@@ -89,7 +79,6 @@ function setupFloor(f){
       if(pos)G.chests.push({...pos,opened:false});
     }
   }
-  // ambience particles
   for(let i=0;i<26;i++) part(rand(0,w.W*TILE),rand(0,w.H*TILE),rand(-6,6),rand(-14,-4),rand(3,7),rand(1,2.4),'rgba(255,180,94,.5)',true);
   musicInt=clamp(.15+f*.07,0,.75);
 }
@@ -206,7 +195,6 @@ function addChip(o){
   } else el.querySelector('b').textContent=n;
 }
 
-/* ---------------- DEATH / VICTORY / PAUSE ---------------- */
 function statBoxes(el,floor,level,kills,time){
   el.innerHTML=`
    <div class="sbox"><div class="v">${floor}</div><div class="k">FLOOR</div></div>
@@ -279,7 +267,6 @@ function onEscKey(){
   else if(G.state==='paused') pauseGame(false);
 }
 
-/* ---------------- PER-FRAME UPDATES ---------------- */
 function update(dt){
   const p=G.player, w=G.world, run=G.run;
   if(G.descending)return;
@@ -288,7 +275,6 @@ function update(dt){
   if(G.victoryPending>0){G.victoryPending-=dt;if(G.victoryPending<=0){victory();return;}}
   if(keys.KeyJ||touchInput.fire){aimTarget=nearestTarget();}else{aimTarget=null;}
   if(xpComboT>0){ xpComboT-=dt; if(xpComboT<=0) xpCombo=0; }
-  // ---- movement ----
   let mx=0,my=0;
   if(keys.KeyW||keys.ArrowUp)my-=1;
   if(keys.KeyS||keys.ArrowDown)my+=1;
@@ -297,7 +283,6 @@ function update(dt){
   mx+=touchInput.moveX;my+=touchInput.moveY;
   if(mx||my){ const l=Math.hypot(mx,my); mx/=l; my/=l; }
   p.moving=!!(mx||my);
-  // ---- dash ----
   p.dashCdT-=dt;
   if(dashQueued){
     dashQueued=false;
@@ -322,7 +307,6 @@ function update(dt){
   }
   p.kbx*=Math.pow(.0005,dt); p.kby*=Math.pow(.0005,dt);
   p.hitCd-=dt; p.shotT-=dt; p.muzzle-=dt;
-  // banking lean + afterimage decay
   p.lean=lerp(p.lean, mx*0.26, 1-Math.exp(-dt*9));
   for(let i=p.ghosts.length-1;i>=0;i--){
     const g=p.ghosts[i]; g.life-=dt*3.4;
@@ -330,9 +314,7 @@ function update(dt){
   }
   if(p.regen>0&&p.hp<p.maxHp) p.hp=Math.min(p.maxHp,p.hp+p.regen*dt);
   p.face=aimAngle();
-  // ---- firing ----
   if((mouse.down || keys.KeyJ || touchInput.fire) && p.shotT<=0) fireVolley();
-  // ---- orbitals ----
   if(p.orbN>0){
     p.orbA+=dt*2.7*(p.orbitRate||1);
     for(let i=0;i<p.orbN;i++){
@@ -348,7 +330,6 @@ function update(dt){
       }
     }
   }
-  // ---- interact / portal ----
   if(interactQueued){
     interactQueued=false;
     if(G.portal && G.portal.active && d2(p.x,p.y,G.portal.x,G.portal.y)<80*80) descend();
@@ -359,24 +340,20 @@ function update(dt){
   updateEBullets(dt); if(G.state!=='playing')return;
   updatePicks(dt); if(G.state!=='playing'){updateHUD(0);return;}
   updateFx(dt);
-  // ---- chests ----
   for(const c of G.chests){
     if(!c.opened && d2(p.x,p.y,c.x,c.y)<30*30){openChest(c);if(G.state!=="playing")return;}
   }
-  // ---- reveal for minimap ----
   const ptx=Math.floor(p.x/TILE), pty=Math.floor(p.y/TILE);
   for(let j=-7;j<=7;j++) for(let i=-7;i<=7;i++){
     if(i*i+j*j>52) continue;
     const tx=ptx+i, ty=pty+j;
     if(tx>=0&&ty>=0&&tx<w.W&&ty<w.H && !w.reveal[ty*w.W+tx]){ w.reveal[ty*w.W+tx]=1; w.mmDirty=true; }
   }
-  // ---- camera ----
   const cam=G.cam;
   const tx=p.x-G.w/2, ty=p.y-G.h/2;
   cam.x=lerp(cam.x,tx,1-Math.exp(-dt*7));
   cam.y=lerp(cam.y,ty,1-Math.exp(-dt*7));
   cam.shake=Math.max(0,cam.shake-dt*2.4);
-  // ---- timers / autosave ----
   saveTimer+=dt;
   if(saveTimer>3){saveTimer=0;saveNow();}
   updateHUD(dt);
@@ -433,13 +410,11 @@ function updateEnemies(dt){
       }
     }
     e.kbx*=Math.pow(.001,dt); e.kby*=Math.pow(.001,dt);
-    // contact damage
     if(e.dmg>0 && !(e.lateBoss&&(e.bs.mode==='submerge'||e.bs.airborne)) && e.atkT<=0 && d<e.r+p.r+2){
       e.atkT=.7;
       hurtPlayer(e.dmg,e.x,e.y); if(G.dead)return;
     }
   }
-  // separation (cheap n², enemy counts are capped by design)
   for(let i=0;i<es.length;i++){
     const a=es[i]; if(a.dead)continue;
     for(let j=i+1;j<es.length;j++){
@@ -468,23 +443,21 @@ function bossAI(b,dt,d,dx,dy){
   const enrage=b.hp<b.max*.5;
   b.t2-=dt; b.t3-=dt; b.summonT-=dt;
   if(b.burstLeft>0){b.burstTimer-=dt;if(b.burstTimer<=0){for(let a=-1;a<=1;a++)enemyShoot(b,b.burstAngle+a*.13,215+b.tier*10,Math.floor(b.dmg*.6)+1);b.burstLeft--;b.burstTimer=.14;}}
-  if(b.phase===2){ // charging
+  if(b.phase===2){
     b.chargeT-=dt;
     const wallHit=moveEnt(G.world,b,b.cvx*BOSS_TUNING.chargeSpeed*dt,b.cvy*BOSS_TUNING.chargeSpeed*dt);
     part(b.x,b.y,rand(-30,30),rand(-30,30),.3,4,'rgba(255,93,126,.7)',true);
     if(b.chargeT<=0 || wallHit){ b.phase=0; b.t2=rand(1,1.6); }
     return;
   }
-  if(b.phase===1){ // telegraph
+  if(b.phase===1){
     b.teleT-=dt;
     if(b.teleT<=0){
       b.phase=2; b.chargeT=.55;
-      // Direction was locked at the beginning of the warning.
       sfx('roar2');
     }
     return;
   }
-  // drift toward the player
   b.x+=dx/d*b.spd*dt; b.y+=dy/d*b.spd*dt;
   collideCircle(G.world,b);
   if(b.t2<=0){

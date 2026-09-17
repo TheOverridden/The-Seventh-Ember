@@ -1,5 +1,3 @@
-/* Surface actionable script failures without turning harmless resource events
-   into a permanent "Error: unknown" message. */
 (function(){
   var lastProblem='',lastProblemAt=0,hideTimer=0;
   function clearProblem(){
@@ -25,8 +23,6 @@
     if(hideTimer)clearTimeout(hideTimer);hideTimer=setTimeout(clearProblem,10000);
   }
   window.addEventListener('error',function(event){
-    // Image, stylesheet, media, and extension failures arrive here as plain
-    // Events with no message. They are not game script crashes.
     var message=event.message||(event.error&&event.error.message);
     if(message)showProblem(message,event.lineno);
   },true);

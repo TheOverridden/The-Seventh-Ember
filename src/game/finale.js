@@ -1,4 +1,3 @@
-/* THE LAST LIGHT: authored encounters, creature silhouettes, and a finite campaign. */
 const DEPTH_REVISION=12;
 const ENDGAME_HP={bellkeeper:5100,colossus:8200,astronomer:11200,scribe:14500,regents:12000,seraph:26500,tyrant:90000,keeper:160000};
 const ENDGAME_DAMAGE={bellkeeper:29,colossus:35,astronomer:39,scribe:44,regents:44,seraph:55,tyrant:63,keeper:72};
@@ -9,13 +8,11 @@ const depthSpawn=spawnEnemy;
 spawnEnemy=function(type,x,y,elite){const e=depthSpawn(type,x,y,elite),c=LATE_ENEMIES[type];if(c){const f=authoredDepth(),d=Math.max(0,f-11),cycle=depthCycle();e.hp=e.max=Math.round(c.hp*depthHealth(f)*(elite?1.7:1)*Math.pow(1.5,cycle));e.dmg=Math.round(c.dmg*(1+d*.029)*Math.pow(1.18,cycle));e.spd=c.spd*(1+Math.min(.25,d*.006)+Math.min(.2,cycle*.025));e.xp=Math.round(c.xp*.78*(elite?1.6:1));e.depthRevision=DEPTH_REVISION;}return e;};
 const depthBoss=makeLateBoss;
 makeLateBoss=function(type,x,y,name,role){const b=depthBoss(type,x,y,name,role),cycle=depthCycle();b.hp=b.max=Math.round(ENDGAME_HP[b.bossKey]*Math.pow(1.65,cycle));b.dmg=Math.round(ENDGAME_DAMAGE[b.bossKey]*Math.pow(1.2,cycle));b.depthRevision=DEPTH_REVISION;b.bs.phase=0;b.bs.cycle=0;b.bs.events=[];b.bs.history=[];b.bs.mechanismCd=0;return b;};
-// Secondary projectiles still add damage, but cannot multiply every proc at full strength.
 const depthFire=fireVolley;
 fireVolley=function(){const start=G.bullets.length;depthFire();const shots=G.bullets.slice(start);if(shots.some(b=>b.whiteStar))shots[0].whiteStar=true;for(let i=1;i<shots.length;i++){shots[i].dmg*=.68;shots[i].whiteStar=false;}};
 const depthRecalc=recalc;
 recalc=function(){depthRecalc();if(!G.player||!G.run)return;G.player.regen=.35*(G.run.up.regen||0)+(META.regen||0);G.player.speed=BASE.speed*(META.speed+.07*(G.run.up.speed||0));};
 for(const id of ['regen','speed','proj']){const c=POOL.find(o=>o.id===id);if(c)c.ds=id==='regen'?'Restore 0.35 health each second':id==='speed'?'+7% movement speed':'Additional Ember Bolt · extra bolts deal 68% damage';}
-// A completed deep branch should be attainable before the entire tree is filled.
 const DEPTH_COSTS=[10,25,60,140,300,600,1200,2200,4000,7000,11000,16000];
 for(const b of MASTERY_BRANCHES)for(let i=0;i<b.ids.length;i++){const n=NODE_BY_ID[b.ids[i]];if(n)n.cost=DEPTH_COSTS[i];}
 MASTERY_COSTS.splice(0,MASTERY_COSTS.length,...DEPTH_COSTS);MASTERY_TOTAL=TREE_NODES.reduce((sum,n)=>sum+n.cost,0);
@@ -23,7 +20,6 @@ for(const n of TREE_NODES){if(n.fx?.dmg){n.fx.dmg=Math.round(n.fx.dmg*150)/100;n
 const depthTreeSelect=selectNode;
 selectNode=function(n){depthTreeSelect(n);const el=T('metaTotal');el.innerHTML=el.innerHTML.replace(/Typical full clear:[^<]+/,'Later floors reward developed branches. Capstones add new ways to fight.');};
 
-/* Destructible mechanisms are ordinary damageable entities, with no farmable rewards. */
 ETYPES.bossMechanism={hp:160,spd:0,dmg:0,r:20,xp:0,spr:'bossMechanism',ai:'late',col:'#dfc38c',ess:0,kb:0};
 function arenaBounds(){const r=G.world.exit;return{left:(r.x+1)*TILE+12,right:(r.x+r.w-1)*TILE-12,top:(r.y+1)*TILE+12,bottom:(r.y+r.h-1)*TILE-12,cx:r.cx*TILE+18,cy:r.cy*TILE+18};}
 function bossNodes(b){return G.enemies.filter(e=>!e.dead&&e.mechanism&&e.ownerUid===b.uid);}
@@ -49,7 +45,6 @@ moveEnt=function(w,e,dx,dy){const ox=e.x,oy=e.y,result=depthMove(w,e,dx,dy);if(!
 const depthLateAI=lateEnemyAI;
 lateEnemyAI=function(e,dt,d,dx,dy){if(!e.mechanism){depthLateAI(e,dt,d,dx,dy);return;}const b=G.enemies.find(o=>o.uid===e.ownerUid&&!o.dead);if(!b){e.dead=true;return;}e.life-=dt;if(e.life<=0){killEnemy(e);return;}e.attackClock-=dt;e.phase+=dt;if(e.attackClock<=0){e.attackClock=e.mechanism==='siege'?3.4:4.8;const a=Math.atan2(G.player.y-e.y,G.player.x-e.x);if(e.mechanism==='lens')encounterHazard(b,'sweep',e.x,e.y,a,{delay:.85,life:1.1,len:360,turn:.5,width:7});else if(e.mechanism==='siege')encounterHazard(b,'shell',G.player.x,G.player.y,0,{delay:.95,life:.35,radius:37});else if(e.mechanism==='seal')encounterHazard(b,'glyph',e.x,e.y,a,{delay:.8,life:.55,len:240,width:8});}};
 
-/* All encounter timing runs on game time; pause and save preserve every attack. */
 function encounterHazard(b,type,x,y,a,opts={}){const h={type,x,y,a,phase:'warn',t:opts.delay??.8,delay:opts.delay??.8,activeT:opts.life??.65,age:0,boss:true,authored:true,ownerUid:b.uid,color:b.col,damage:Math.round(b.dmg*(opts.damageMul??.65)),hitCd:0,...opts};G.world.lateHazards.push(h);return h;}
 function scheduleBoss(b,after,kind,data={}){b.bs.events.push({after,kind,...data});}
 function executeBossEvent(b,event){
@@ -154,7 +149,6 @@ drawLateHazard=function(ctx,h){if(!h.authored){depthDrawHazard(ctx,h);return;}ct
 const depthUpdate=update;
 update=function(dt){const p=G.player,ox=p?.x,oy=p?.y;depthUpdate(dt);if(p&&G.state==='playing'){p.vigilVX=(p.x-ox)/Math.max(.001,dt);p.vigilVY=(p.y-oy)/Math.max(.001,dt);}};
 
-/* Distinct pixel silhouettes: every late creature has its own authored anatomy. */
 const CREATURE_ART={
  rippleLeech:['........hh......','...bbbbblb......','.bbllbbbbbbh....','bbbbb...bbwwbb..','bbbb....bbkkwb..','.bbbb....bbbb...','..bbbbb..bb.....','....bbbbbbb.....','......bbb.......'],
  pumpCrawler:['...h.....h......','..bbb...bbb.....','..bbbhhhbbb.....','.bllbbbbbbllb...','bbbbhkwwkhbbbb..','..bbhkwwkhbb....','..bbbbbbbbbb....','.bhb......bhb...','bhh........hhb..'],
@@ -202,7 +196,6 @@ function drawMechanism(ctx,e){ctx.save();ctx.translate(Math.round(e.x),Math.roun
  else{ctx.fillRect(-15,-8,30,16);ctx.fillRect(-5,-26,10,28);ctx.fillStyle='#fff0ba';ctx.fillRect(-2,-24,4,10);}
  ctx.restore();ctx.fillStyle='#101622';ctx.fillRect(e.x-20,e.y+26,40,3);ctx.fillStyle=e.col;ctx.fillRect(e.x-20,e.y+26,40*clamp(e.hp/e.max,0,1),3);}
 
-/* Boss bodies and portraits share this renderer, including their moving mechanisms. */
 const depthBossBody=drawLateBossBody;
 drawLateBossBody=function(ctx,b){depthBossBody(ctx,b);if(b.bossKey==='bellkeeper')return;const t=save.motion?0:G.tAll,s=b.bs,phase=s.phase||0;ctx.save();ctx.translate(b.x,b.y);ctx.strokeStyle=b.col;ctx.fillStyle='#131925';ctx.lineWidth=2;
  if(b.bossKey==='colossus'){for(const side of [-1,1]){ctx.save();ctx.translate(side*40,8);ctx.rotate(side*Math.sin(t*1.4)*.08+(s.kind==='hammer'&&s.mode==='windup'?-side*.5:0));ctx.fillStyle='#392c2b';ctx.fillRect(-9,-30,18,58);ctx.strokeRect(-9,-30,18,58);ctx.fillStyle='#977a58';ctx.fillRect(-15,19,30,19);ctx.fillStyle='#ffc471';ctx.fillRect(-11,22,4,12);ctx.restore();}ctx.fillStyle='#151821';ctx.fillRect(-20,7,40,20);for(let i=0;i<6;i++){ctx.fillStyle=i%2?'#ffd078':'#87502e';ctx.fillRect(-16+i*6,10,3,12);}}
@@ -217,7 +210,6 @@ drawLateBossBody=function(ctx,b){depthBossBody(ctx,b);if(b.bossKey==='bellkeeper
 const depthPortrait=drawPortrait;
 drawPortrait=function(){if(!dialogue)return;const name=dialogue.lines[dialogue.index].speaker,key=LATE_BOSS_SPEAKERS.get(name);if(!key){depthPortrait();return;}const x=T('speakerPortrait').getContext('2d');x.clearRect(0,0,120,120);x.imageSmoothingEnabled=false;x.save();x.translate(60,66);const scale=key==='bellkeeper'?.67:key==='seraph'?.68:.73;x.scale(scale,scale);const type=Object.keys(LATE_BOSSES).find(t=>LATE_BOSSES[t].key===key),c=LATE_BOSSES[type],b={x:0,y:0,r:c.r,col:c.col,bossKey:key,twinRole:'blade',bs:{mode:'wait',a:0,t:0,duration:1,phase:0,second:false}};if(key==='regents'){x.scale(.7,.7);b.x=-30;drawLateBossBody(x,b);b.x=35;b.twinRole='bell';drawLateBossBody(x,b);}else drawLateBossBody(x,b);x.restore();};
 
-/* The campaign ends here. Infinite descent is a separate, explicit choice. */
 const ENDING_SCENES=[
  {title:'The lock opens',speaker:'The First Keeper',text:'There. I can hear them again. All this time, I thought the silence meant they were gone.'},
  {title:'What the garden kept',speaker:'Wick',text:'They were still inside the star when it began to fail. You opened the gate to bring them out. The Keeper sealed it behind you. He thought the cold would kill them.'},
@@ -277,7 +269,6 @@ const detailedBossBody=drawLateBossBody;
 drawLateBossBody=function(ctx,b){const surface=BOSS_PIXEL_SURFACE,x=surface.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,144,144);x.save();x.translate(72,72);x.scale(.7,.7);detailedBossBody(x,{...b,x:0,y:0});x.restore();x.globalCompositeOperation='source-atop';for(let i=0;i<160;i++){const px=20+(i*67)%105,py=18+(i*43)%105;x.fillStyle=i%3===0?'#ffffff18':'#03070b24';x.fillRect(px,py,i%4===0?3:1,1);}x.globalCompositeOperation='source-over';ctx.save();ctx.imageSmoothingEnabled=false;const lift=b.bossKey==='seraph'&&b.bs.airborne?14:0;ctx.drawImage(surface,b.x-144/1.4,b.y-144/1.4-lift,144/.7,144/.7);ctx.restore();};
 const cinematicBase=drawEnding;
 drawEnding=function(){cinematicBase();const cv=T('endingCanvas'),x=cv.getContext('2d'),w=cv.width,h=cv.height,cx=w/2,cy=h*.53,step=G.run.endingStep,t=save.motion?5:endingClock; x.save();x.imageSmoothingEnabled=false;
- // Layered remnants of the archive frame the open sky.
  for(const side of [-1,1])for(let tower=0;tower<3;tower++){const bx=cx+side*(140+tower*70),by=85+tower*23;x.fillStyle=step>=4?'#554859':'#111a29';x.fillRect(bx-17,by,34,h-by);for(let row=0;row<12;row++){const yy=by+row*17;x.fillStyle=row%2?'#2b3040':'#373442';x.fillRect(bx-17+(row%2)*4,yy,30,2);x.fillStyle='#796955';x.fillRect(bx-16,yy+2,2,12);}x.fillStyle='#b09a71';x.fillRect(bx-22,by-4,44,7);x.fillStyle='#e2c68e';x.fillRect(bx-20,by-4,9,2);}
  for(let row=0;row<3;row++){const yy=h-30+row*11;x.fillStyle=row%2?'#302d3b':'#242836';x.fillRect(0,yy,w,10);x.fillStyle='#8e765744';for(let col=0;col<14;col++)x.fillRect(col*60+(row%2)*25,yy,56,1);}
  if(step===0){x.save();x.translate(cx,cy-20);x.globalAlpha=Math.max(.15,1-t*.12);drawLateBossBody(x,{x:0,y:0,r:44,col:'#efc986',bossKey:'keeper',bs:{mode:'recover',a:0,t:1,duration:1,phase:2,second:true}});x.restore();for(let i=0;i<20;i++){const a=i*TAU/20,rr=35+Math.min(7,t)*10;x.fillStyle=i%2?'#efd29a':'#8d7367';x.fillRect(cx+Math.cos(a)*rr,cy-20+Math.sin(a)*rr*.6,4,3);}}

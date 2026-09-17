@@ -1,6 +1,3 @@
-/* ============================================================================
-   Chunk D: rendering · HUD · minimap · skill tree UI · menus · main loop
-============================================================================ */
 let lightCv=null, lctx=null, treeCtx=null;
 function resize(){
   G.dpr=Math.min(window.devicePixelRatio||1,1.5);
@@ -10,7 +7,6 @@ function resize(){
   lightCv.width=Math.ceil(G.w/4); lightCv.height=Math.ceil(G.h/4);
 }
 
-/* ---------------- WORLD RENDER ---------------- */
 function render(){
   const ctx=G.ctx;
   ctx.setTransform(G.dpr,0,0,G.dpr,0,0);
@@ -45,7 +41,6 @@ function drawTiles(ctx){
   const y0=Math.max(0,Math.floor(G.cam.y/ts)-1), y1=Math.min(w.H-1,Math.ceil((G.cam.y+G.h)/ts)+2);
   ctx.imageSmoothingEnabled=false;
   const S=(img,wx,wy)=>ctx.drawImage(img,0,0,TP,TP,wx,wy,ts,ts);
-  /* pass 1 — floors, decals, ambient occlusion */
   for(let ty=y0;ty<=y1;ty++) for(let tx=x0;tx<=x1;tx++){
     const i=ty*w.W+tx;
     if(w.grid[i]!==1) continue;
@@ -62,14 +57,13 @@ function drawTiles(ctx){
     if(isSolidTile(w,tx-1,ty)) S(AOT.W,wx,wy);
     if(isSolidTile(w,tx+1,ty)) S(AOT.E,wx,wy);
   }
-  /* pass 2 — walls: brick face where it meets open floor, stone cap elsewhere */
   for(let ty=y0;ty<=y1;ty++) for(let tx=x0;tx<=x1;tx++){
     const i=ty*w.W+tx;
     if(w.grid[i]===1) continue;
     if(isSolidTile(w,tx+1,ty)&&isSolidTile(w,tx-1,ty)&&isSolidTile(w,tx,ty+1)&&isSolidTile(w,tx,ty-1)) continue;
     const wx=tx*ts, wy=ty*ts;
-    if(!isSolidTile(w,tx,ty+1)) S(face,wx,wy);   // floor below → show the brick face
-    else S(cap,wx,wy);                            // otherwise the top of the block
+    if(!isSolidTile(w,tx,ty+1)) S(face,wx,wy);
+    else S(cap,wx,wy);
   }
   ctx.imageSmoothingEnabled=true;
 }
@@ -126,7 +120,6 @@ function drawEnemies(ctx){
     if(e.ai==='late'||e.ai==='lateBoss'){drawLateEnemy(ctx,e);continue;}
     if(e.ai==='garden'||e.matriarch){drawGardenEnemy(ctx,e);continue;}
     if(e.ai==='gate'||e.warden){drawGateEnemy(ctx,e);continue;}
-    // ground shadow
     ctx.fillStyle='rgba(0,0,0,.42)';
     ctx.beginPath(); ctx.ellipse(e.x,e.y+e.r*.85,e.r*.85,e.r*.36,0,0,TAU); ctx.fill();
     glowImg(EGLOW[e.type]||'violet',e.x,e.y,e.r*2.1,(e.isBoss ? .4 : .24));
@@ -157,7 +150,6 @@ function drawEnemies(ctx){
       ctx.beginPath(); ctx.arc(e.x,e.y,e.r+10+p*26,0,TAU); ctx.stroke(); ctx.restore();
     }
     if(e.type==='spitter'&&e.aggro&&e.t1<0.35&&e.t1>0) glowImg('teal',e.x,e.y,e.r+8,.5);
-    // mini hp bar for wounded non-boss enemies
     if(!e.isBoss && e.hp<e.max){
       const wpx=e.r*2;
       ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(e.x-wpx/2-1,e.y-e.r-10,wpx+2,5);
@@ -182,7 +174,6 @@ function drawBullets(ctx){
     glowImg('magenta',b.x,b.y,12,.4);
   }
   ctx.restore();
-  // orbitals
   const p=G.player;
   if(p&&p.orbN>0){
     for(let i=0;i<p.orbN;i++){
@@ -196,18 +187,15 @@ function drawBullets(ctx){
 function drawPlayer(ctx){
   const p=G.player; if(!p||G.dead&&G.state==='dead') return;
   const blink=p.hitCd>0&&p.dashT<=0&&(G.tAll*18|0)%2===0&&G.state==='playing';
-  // dash afterimages (drawn under the body)
   if(p.ghosts) for(const g of p.ghosts){
     drawSpr('pDash',g.x,g.y,1,g.rot,clamp(g.life,0,1)*.32);
   }
   if(!blink){
-    // ground shadow + ember aura (the light source)
     const hov=Math.sin(G.tAll*2.4)*1.8;
     ctx.fillStyle='rgba(0,0,0,.42)';
     ctx.beginPath(); ctx.ellipse(p.x,p.y+p.r*1.05,p.r*(.85-hov*.03),p.r*.34,0,0,TAU); ctx.fill();
     glowImg('ember',p.x,p.y-4,54,.62);
     glowImg('gold',p.x,p.y-6,26,.38);
-    // aim line while firing
     if(p.muzzle>0){
       ctx.save(); ctx.globalCompositeOperation='lighter';
       ctx.strokeStyle='rgba(255,196,107,.55)'; ctx.lineWidth=2;
@@ -217,8 +205,6 @@ function drawPlayer(ctx){
     const dashing=p.dashT>0,cy=p.y+2-(dashing?0:hov),oa=G.tAll*(dashing?4.2:1.78);
     const state = dashing ? 'pDash' : (p.moving ? 'pMove' : 'pIdle');
     const rot = dashing ? Math.atan2(p.dashDy,p.dashDx)+Math.PI/2 : p.lean;
-    // The old Ember carried a small broken halo. Keep it fragmented and dim so
-    // the brighter revolving relics remain readable against every floor.
     ctx.save();ctx.translate(p.x,cy-4);ctx.rotate(-oa*.18);ctx.globalCompositeOperation='lighter';
     ctx.strokeStyle='rgba(255,199,103,.22)';ctx.lineWidth=1.5;
     for(let i=0;i<6;i++){const a=i*TAU/6+.12;ctx.beginPath();ctx.arc(0,0,15,a,a+.42);ctx.stroke();}
@@ -236,7 +222,6 @@ function drawPlayer(ctx){
     for(const s of satellites)if(!s.front)drawSatellite(s);
     drawSpr(state, p.x, cy, dashing?1.06:1, rot);
     for(const s of satellites)if(s.front)drawSatellite(s);
-    // Tiny free sparks keep the center lively without replacing its silhouette.
     if(!save.motion)for(let i=0;i<4;i++){
       const u=(G.tAll*(.31+i*.027)+i*.23)%1;
       const ox=p.x-6+i*4+Math.sin(G.tAll*2.4+i*1.7)*2,oy=cy-8-u*21;
@@ -328,7 +313,6 @@ function drawCrosshair(ctx){
 }
 function drawMenuBg(){
   const ctx=G.ctx,t=save.motion?0:G.tAll,cx=G.w*.72,cy=G.h*.43,unit=Math.min(44,G.w/25);
-  // Reuse the live game's own pixel tiles and sprites for the title-screen lair.
   ctx.save();ctx.translate(cx,cy);ctx.rotate(-.12);ctx.imageSmoothingEnabled=false;
   const radius=7;
   for(let y=-radius;y<=radius;y++)for(let x=-radius;x<=radius;x++){
@@ -350,7 +334,6 @@ function drawMenuBg(){
   ctx.fillStyle='#e9be78';for(let i=0;i<34;i++){const x=(i*137.7)%G.w,y=(G.h-((t*(9+i%5)+i*61)%G.h));ctx.globalAlpha=.12+(i%4)*.05;ctx.fillRect(x,y,1.5,1.5);}ctx.globalAlpha=1;
 }
 
-/* ---------------- HUD SYNC ---------------- */
 const hudCache={};
 function setTxt(id,v){ if(hudCache[id]!==v){ hudCache[id]=v; T(id).textContent=v; } }
 function updateHUD(dt){
@@ -368,22 +351,18 @@ function updateHUD(dt){
   const dm=T('dashmeter');
   const pc=p.dashCdT>0 ? 1-p.dashCdT/p.dashCd : 1;
   dm.style.setProperty('--p',clamp(pc,0,1).toFixed(3));
-  // vignette decay
   const vig=T('vig');
   const o=parseFloat(vig.style.opacity||0);
   if(o>0) vig.style.opacity=Math.max(0,o-dt*1.8).toFixed(2);
   T('lowvig').style.opacity=p.hp<p.maxHp*.3?1:0;
-  // boss bar
   if(G.boss&&!G.boss.dead){
     T('bossfill').style.width=clamp(G.boss.hp/G.boss.max*100,0,100)+'%';
   }
-  // portal prompt
   const pr=G.portal;
   if(pr && d2(p.x,p.y,pr.x,pr.y)<90*90){
     T('promptTxt').textContent= pr.active ? 'DESCEND TO FLOOR '+(G.floor+1) : 'SEALED — SLAY THE GUARDIAN';
     T('prompt').classList.add('on');
   } else T('prompt').classList.remove('on');
-  // minimap (4 Hz)
   G.mmT=(G.mmT||0)-dt;
   if(G.mmT<=0){ G.mmT=.25; drawMinimap(); }
 }
@@ -398,7 +377,6 @@ function drawMinimap(){
     if(!w.reveal[ty*w.W+tx]||w.grid[ty*w.W+tx]!==1) continue;
     x.fillRect(ox+tx*s,oy+ty*s,s+0.5,s+0.5);
   }
-  // portal marker
   if(G.portal&&w.reveal[Math.floor(G.portal.y/TILE)*w.W+Math.floor(G.portal.x/TILE)]){
     x.fillStyle=G.portal.active?'#ffd88a':'#5a4a6a';
     x.beginPath(); x.arc(ox+G.portal.x/TILE*s,oy+G.portal.y/TILE*s,3,0,TAU); x.fill();
@@ -407,8 +385,6 @@ function drawMinimap(){
   x.beginPath(); x.arc(ox+tx0*s+ (p.x/TILE-tx0)*s,oy+p.y/TILE*s,2.6,0,TAU); x.fill();
 }
 
-/* ---------------- SKILL TREE UI ---------------- */
-/* branch titles are drawn horizontally just past the final node of each branch */
 const BRANCH_ENDS=[
   {id:'m5',t:'MIGHT',      dx:0, dy:78},
   {id:'v5',t:'VITALITY',   dx:0, dy:78},
@@ -469,17 +445,15 @@ function drawTree(t){
     cv.width=Math.round(1240*d); cv.height=Math.round(980*d);
     cv.style.width='1240px'; cv.style.height='980px';
     treeCtx=cv.getContext('2d');
-    treeCtx.setTransform(d,0,0,d,0,0);   // crisp text on hi-dpi screens
+    treeCtx.setTransform(d,0,0,d,0,0);
   }
   const x=treeCtx;
   x.clearRect(0,0,1240,980);
-  // backdrop: dust + root aura
   x.fillStyle='rgba(120,140,200,.05)';
   for(let i=0;i<54;i++){ const dxx=(i*733)%1230+5, dyy=(i*421)%970+5; x.fillRect(dxx,dyy,2,2); }
   const aura=x.createRadialGradient(620,470,10,620,470,240);
   aura.addColorStop(0,'rgba(232,196,118,.10)'); aura.addColorStop(1,'rgba(0,0,0,0)');
   x.fillStyle=aura; x.beginPath(); x.arc(620,470,240,0,TAU); x.fill();
-  // links
   x.lineCap='round';
   for(const n of TREE_NODES){
     if(!n.req) continue;
@@ -504,7 +478,6 @@ function drawTree(t){
     }
     x.stroke(); x.shadowBlur=0; x.setLineDash([]);
   }
-  // branch titles — always horizontal, on a solid plate so they stay legible
   x.textAlign='center'; x.textBaseline='middle';
   x.font='800 16px system-ui, sans-serif';
   for(const b of BRANCH_ENDS){
@@ -518,7 +491,6 @@ function drawTree(t){
     x.fillStyle='#e8d5ae';
     x.fillText(b.t, lx, ly+.5);
   }
-  // nodes — diamond rune-stones with pixel icons
   const diamond=(cx,cy,r)=>{ x.beginPath(); x.moveTo(cx,cy-r); x.lineTo(cx+r,cy); x.lineTo(cx,cy+r); x.lineTo(cx-r,cy); x.closePath(); };
   const pill=(px3,py3,w3,h3,r3)=>{ x.beginPath(); if(x.roundRect) x.roundRect(px3,py3,w3,h3,r3); else x.rect(px3,py3,w3,h3); };
   x.imageSmoothingEnabled=false;
@@ -554,7 +526,6 @@ function drawTree(t){
       pill(n.x-tw/2, py, tw, 21, 10.5);
       x.fillStyle= st===3? 'rgba(26,18,44,.96)':'rgba(9,11,18,.94)'; x.fill();
       x.strokeStyle= st===3? 'rgba(216,189,255,.6)':'rgba(110,122,155,.34)'; x.lineWidth=1; x.stroke();
-      // small gem dot + plain number, far easier to read than a glyph
       x.fillStyle= st===3? '#c99bff':'#59647e';
       x.beginPath(); x.arc(n.x-tw/2+9, py+10.5, 3.2, 0, TAU); x.fill();
       x.fillStyle= st===3? '#efe2ff':'#adbbce';
@@ -572,7 +543,6 @@ function wireTree(){
   addEventListener('resize',fitTree);
 }
 
-/* ---------------- MENUS ---------------- */
 function refreshMenuStats(){
   T('menuStats').innerHTML=
    `<span>BEST FLOOR <b>${save.bestFloor||'—'}</b></span>
@@ -609,7 +579,6 @@ function wireButtons(){
   T('btnSfx').classList.toggle('off',!save.sfx);
 }
 
-/* ---------------- MAIN LOOP / BOOT ---------------- */
 let lastT=0, fpsE=60, fpsTick=0;
 function loop(now){
   requestAnimationFrame(loop);

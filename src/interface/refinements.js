@@ -1,8 +1,3 @@
-/* ========================================================================
-   PORTABLE EDITION — artwork, sound, UI, and saves stay inside this project.
-   Boss names/ranks remain above in BOSS_NAMES / BOSS_RANK. Shared tuning below
-   deliberately preserves the live build's combat values for future iteration.
-   ======================================================================== */
 const BOSS_TUNING={baseHp:260,chargeSpeed:430,chargeWarning:.8};
 let entitySerial=0,aimTarget=null,selectedNode=null,storageMessage='',pendingImport=null,confirmCallback=null;
 const deepCopy=o=>JSON.parse(JSON.stringify(o));
@@ -98,7 +93,6 @@ function syncSaveStatus(){
 function snapshotRun(){
   if(!G.run||!G.world||G.dead||!['playing','paused','levelup','win','winning'].includes(G.state))return;
   const w=G.world;
-  // A single storage record makes essence and pickup collection atomic.
   const world={W:w.W,H:w.H,grid:Array.from(w.grid),shade:Array.from(w.shade),deco:Array.from(w.deco),reveal:Array.from(w.reveal),rooms:w.rooms,exit:w.exit,torches:w.torches,props:w.props||[],pi:w.pi};
   save.resume=deepCopy({version:2,floor:G.floor,run:G.run,meta:META,player:{...G.player,ghosts:[]},world,enemies:G.enemies.filter(e=>!e.dead),picks:G.picks,chests:G.chests,portal:G.portal,bullets:G.bullets.map(b=>({...b,hits:b.hits?Array.from(b.hits,e=>e.uid):[]})),ebul:G.ebul,bossUid:G.boss?.uid||0,bossActive:!!G.bossActive,pendingLevels:G.pendingLevels,cardIds:G.cardPool?.map(c=>c.id)||[],freeChoice:!!G.opts.freeChoice,state:G.state==='levelup'?'levelup':'paused',elapsed:G.t||0,descendTo:G.descending?G.floor+1:0});
 }
@@ -213,7 +207,6 @@ function wireRefinements(){
   wireTouchAction('touchDash',()=>dashQueued=true);wireTouchAction('touchEnter',()=>interactQueued=true);
 }
 
-/* Menu-only ornaments. These are inline interface shapes, with no image assets. */
 function decorateMenus(){
   const emblems={howto:'book-open',pause:'orbit',dead:'flame',win:'sparkles',settings:'gem',confirmRun:'target'};
   for(const [id,icon] of Object.entries(emblems)){

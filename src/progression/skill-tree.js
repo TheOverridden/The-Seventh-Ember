@@ -1,8 +1,3 @@
-/* ======================================================================
-   THE MASSIVE SKILL TREE · 97 permanent sigils
-   Costs are tuned against measured run income: roughly 230 essence by
-   floor 10 and 10,500 for an exploratory clear before permanent bonuses.
-   ====================================================================== */
 const MASTERY_COSTS=[10,25,60,140,300,600,1200,2200,4000,7000,11000,16000];
 const MASTERY_BRANCHES=[
  {key:'m',name:'EMBERCRAFT',color:'#ff9b62',icon:'sw',v:[47,0],ids:Array.from({length:12},(_,i)=>'m'+(i+1)),nodes:[
@@ -119,9 +114,6 @@ const MASTERY_BRANCHES=[
  ]}
 ];
 
-/* Each family grows as a forked constellation instead of a straight spoke.
-   The last sigil asks for all four outer twigs, so the drawing and the
-   progression share the same branching shape. */
 const MASTERY_SHAPE=[
  {radius:80, turn:0,    parents:[]},
  {radius:145,turn:-.16, parents:[0]},

@@ -1,5 +1,3 @@
-/* Final combat presentation pass. This module deliberately leaves damage, cooldowns,
-   enemy timing, and saves alone; it makes the existing combat easier to read and feel. */
 const COMBAT_POLISH={
   freeze:0,spawns:[],debris:[],dashes:[],near:[],flash:0,flashCol:'#ffffff',
   lookX:0,lookY:0,appliedX:0,appliedY:0,serial:0

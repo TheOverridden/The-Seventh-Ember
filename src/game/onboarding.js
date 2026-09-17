@@ -1,6 +1,4 @@
 'use strict';
-/* The first descent teaches one decision at a time. Progress is local, small,
-   and survives reloads; established players do not receive beginner prompts. */
 const ONBOARDING_VERSION=1;
 const ONBOARDING_STEPS=['move','bolt','flare','dash','rekindle','interact','blessing','warden'];
 let onboardingMoveT=0,onboardingDashT=0,onboardingDeadShown=false;

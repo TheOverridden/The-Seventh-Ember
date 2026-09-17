@@ -1,4 +1,3 @@
-/* ---------------- Environmental hazards and procedural region art ---------------- */
 function lateLineHit(h,p,width=h.width||10){const x2=h.x+Math.cos(h.a)*(h.len||300),y2=h.y+Math.sin(h.a)*(h.len||300);return segmentDistance(p.x,p.y,h.x,h.y,x2,y2)<p.r+width;}
 function tickLateHazards(dt){
   const w=G.world,p=G.player;if(!w?.lateHazards)return;
@@ -54,21 +53,17 @@ function drawLateBossBody(ctx,b){
   const t=save.motion?0:G.tAll,s=b.bs,wind=s.mode==='windup',u=wind?smoothBoss(1-s.t/Math.max(.01,s.duration)):0,c=b.col,second=s.second;ctx.save();ctx.translate(b.x,b.y);ctx.rotate((s.mode==='dash'||s.mode==='dive'||s.mode==='ram')?s.a:0);const squash=wind?.08*u:0;ctx.scale(1+squash,1-squash);ctx.strokeStyle='#10131c';ctx.fillStyle=c;ctx.lineWidth=4;
   if(b.bossKey==='bellkeeper'){
     const swim=save.motion?0:Math.sin(t*2.35)*5,face=s.a||0;ctx.rotate(face);
-    // A continuous river-serpent silhouette: tail, body and pale lateral stripe.
     ctx.strokeStyle='#09151d';ctx.lineWidth=31;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-78,swim);ctx.bezierCurveTo(-57,-25-swim,-28,24+swim,2,-2);ctx.stroke();
     ctx.strokeStyle='#254957';ctx.lineWidth=24;ctx.stroke();ctx.strokeStyle=c;ctx.lineWidth=9;ctx.stroke();
     ctx.strokeStyle='#b8edf0';ctx.globalAlpha=.55;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-67,swim-3);ctx.bezierCurveTo(-48,-17-swim,-23,15+swim,-2,-5);ctx.stroke();ctx.globalAlpha=1;
-    // Tail fan and uneven armor plates follow the curve instead of resembling links.
     ctx.fillStyle='#315b67';ctx.beginPath();ctx.moveTo(-68,swim);ctx.lineTo(-91,-21+swim);ctx.lineTo(-84,3+swim);ctx.lineTo(-94,24+swim);ctx.closePath();ctx.fill();ctx.strokeStyle=c;ctx.lineWidth=3;ctx.stroke();
     for(let i=0;i<5;i++){const px=-55+i*13,py=Math.sin(t*2.35-i*.72)*8-2;ctx.save();ctx.translate(px,py);ctx.rotate(Math.sin(t*1.4-i)*.18);ctx.fillStyle=i%2?'#3a6671':'#284d5a';ctx.beginPath();ctx.moveTo(-6,-12);ctx.lineTo(7,-9);ctx.lineTo(5,8);ctx.lineTo(-7,10);ctx.closePath();ctx.fill();ctx.strokeStyle='#78ced6';ctx.lineWidth=1.5;ctx.stroke();ctx.restore();}
-    // The armored head has a clear jaw, brow, eye, gills and dorsal fin.
     ctx.fillStyle='#102832';ctx.beginPath();ctx.moveTo(-4,-22);ctx.quadraticCurveTo(22,-33,45,-16);ctx.lineTo(53,-2);ctx.lineTo(46,17);ctx.lineTo(18,25);ctx.lineTo(-3,13);ctx.lineTo(-11,-3);ctx.closePath();ctx.fill();ctx.strokeStyle=c;ctx.lineWidth=4;ctx.stroke();
     ctx.fillStyle='#386976';ctx.beginPath();ctx.moveTo(1,-21);ctx.lineTo(-8,-42);ctx.lineTo(20,-27);ctx.closePath();ctx.fill();ctx.strokeStyle='#83dbe1';ctx.lineWidth=2;ctx.stroke();
     ctx.fillStyle='#315e6b';ctx.beginPath();ctx.moveTo(7,17);ctx.lineTo(-1,38);ctx.lineTo(25,22);ctx.closePath();ctx.fill();ctx.stroke();
     ctx.fillStyle='#f2dda0';ctx.beginPath();ctx.arc(31,-11,6,0,TAU);ctx.fill();ctx.fillStyle='#10151c';ctx.beginPath();ctx.arc(33,-11,2.5,0,TAU);ctx.fill();ctx.fillStyle='#fff7ce';ctx.fillRect(29,-14,2,2);
     ctx.strokeStyle='#76c7d0';ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(17+i*6,3+i*2);ctx.lineTo(23+i*6,8+i*2);ctx.stroke();}
     ctx.fillStyle='#08131a';ctx.beginPath();ctx.moveTo(31,14);ctx.lineTo(49,8);ctx.lineTo(42,18);ctx.closePath();ctx.fill();ctx.strokeStyle='#5baab6';ctx.stroke();
-    // A brass yoke carries individual bells, the source of its attacks.
     const bellGlow=wind&&s.kind==='bells'?u:second?.35:0;ctx.strokeStyle='#b99654';ctx.lineWidth=5;ctx.beginPath();ctx.arc(11,-24,27,Math.PI,TAU);ctx.stroke();
     for(const bx of [-2,15,31]){ctx.strokeStyle='#75552a';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(bx,-32+Math.abs(bx-15)*.22);ctx.lineTo(bx,-17);ctx.stroke();ctx.fillStyle=bellGlow>.05?'#f1cd69':'#a77c3e';ctx.beginPath();ctx.moveTo(bx-7,-17);ctx.lineTo(bx+7,-17);ctx.lineTo(bx+10,-4);ctx.lineTo(bx-10,-4);ctx.closePath();ctx.fill();ctx.strokeStyle='#e4c175';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#5d3d1d';ctx.fillRect(bx-2,-4,4,7);if(bellGlow>.05){ctx.strokeStyle='rgba(255,224,132,'+(.25+.35*bellGlow)+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(bx,-9,12+bellGlow*4,0,TAU);ctx.stroke();}}
     ctx.lineCap='butt';

@@ -1,6 +1,3 @@
-/* ======================================================================
-   ENDLESS DESCENT · mutations, mixed regions, Oaths, and lasting records
-   ====================================================================== */
 const ENDLESS_MUTATIONS=[
  {key:'relentless',name:'RELENTLESS',desc:'Enemies move and use their abilities faster.'},
  {key:'iron',name:'IRON PROCESSION',desc:'Enemies carry heavier bodies and more health.'},

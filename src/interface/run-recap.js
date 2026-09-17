@@ -1,5 +1,4 @@
 'use strict';
-// Small, bounded reports contain game data only; copying never sends a report.
 let recapDamageContext=null,recapReturnFocus=null;
 function recapSource(sx,sy){
  const source=G.enemies.find(e=>!e.dead&&Math.hypot(e.x-sx,e.y-sy)<2);
@@ -32,7 +31,7 @@ function recapNextGoal(){
  if(goal)return{form:goal,text:goal.name+' · All required sigils owned · '+(save.essence>=goal.cost?'Ready to awaken':(goal.cost-save.essence)+' more essence needed')};
  return{text:'Every sigil is yours. Try a different form next run.'};
 }
-function runReport(r){return 'VOIDFALL PLAYTEST REPORT\n'+JSON.stringify(r,null,2)+'\n\nWhat felt wrong or surprising:\n';}
+function runReport(r){return 'VOIDFALL RUN RECORD\n'+JSON.stringify(r,null,2)+'\n\nNotes:\n';}
 function recapLine(parent,label,value){const row=document.createElement('p'),title=document.createElement('strong');title.textContent=label+' ';row.append(title,document.createTextNode(String(value)));parent.append(row);}
 function openRunRecap(){
  const r=save.lastRunRecap;if(!r)return;recapReturnFocus=document.activeElement;clearInput();const body=T('runRecapBody');body.replaceChildren();
@@ -43,10 +42,10 @@ function openRunRecap(){
  T('recapGoal').textContent=recapNextGoal().text;T('recapReport').value=runReport(r);T('recapReport').hidden=true;T('recapCopyStatus').textContent='';show('runRecap');T('recapClose').focus();
 }
 function closeRunRecap(){hide('runRecap');recapReturnFocus?.focus?.();}
-const recapPanel=document.createElement('div');recapPanel.id='runRecap';recapPanel.className='ov';recapPanel.setAttribute('role','dialog');recapPanel.setAttribute('aria-modal','true');recapPanel.setAttribute('aria-labelledby','runRecapTitle');recapPanel.innerHTML='<section class="recap-shell"><div class="eyebrow">YOUR LAST DESCENT</div><h2 id="runRecapTitle">A little farther next time.</h2><div id="runRecapBody"></div><div class="recap-goal" id="recapGoal"></div><div class="btnrow"><button class="btn primary" id="recapTree">VIEW NEXT GOAL</button><button class="btn" id="recapCopy">COPY RUN REPORT</button><button class="btn" id="recapClose">BACK</button></div><p id="recapCopyStatus" role="status"></p><textarea id="recapReport" aria-label="Run report — select and copy" readonly hidden></textarea></section>';document.body.append(recapPanel);
+const recapPanel=document.createElement('div');recapPanel.id='runRecap';recapPanel.className='ov';recapPanel.setAttribute('role','dialog');recapPanel.setAttribute('aria-modal','true');recapPanel.setAttribute('aria-labelledby','runRecapTitle');recapPanel.innerHTML='<section class="recap-shell"><div class="eyebrow">YOUR LAST DESCENT</div><h2 id="runRecapTitle">A little farther next time.</h2><div id="runRecapBody"></div><div class="recap-goal" id="recapGoal"></div><div class="btnrow"><button class="btn primary" id="recapTree">VIEW NEXT GOAL</button><button class="btn" id="recapCopy">COPY RUN RECORD</button><button class="btn" id="recapClose">BACK</button></div><p id="recapCopyStatus" role="status"></p><textarea id="recapReport" aria-label="Run record — select and copy" readonly hidden></textarea></section>';document.body.append(recapPanel);
 on(T('recapClose'),'click',closeRunRecap);
 on(T('recapTree'),'click',()=>{const goal=recapNextGoal();closeRunRecap();if(goal.node){T('skills').classList.add('recap-tree');openTree('recap');selectNode(goal.node);}else if(goal.form)openForms('runRecap');});
-on(T('recapCopy'),'click',async()=>{try{if(!navigator.clipboard?.writeText)throw Error();await navigator.clipboard.writeText(T('recapReport').value);T('recapCopyStatus').textContent='Copied. Paste this into your feedback and add what happened.';}catch(_){T('recapReport').hidden=false;T('recapReport').focus();T('recapReport').select();T('recapCopyStatus').textContent='Select and copy the report below.';}});
+on(T('recapCopy'),'click',async()=>{try{if(!navigator.clipboard?.writeText)throw Error();await navigator.clipboard.writeText(T('recapReport').value);T('recapCopyStatus').textContent='Run record copied.';}catch(_){T('recapReport').hidden=false;T('recapReport').focus();T('recapReport').select();T('recapCopyStatus').textContent='Select and copy the record below.';}});
 function installRecapButtons(){for(const [id,parent] of [['btnLastRecap',T('menu').querySelector('.audiorow')],['btnDeadRecap',T('dead').querySelector('.btnrow')],['btnGuardianRecap',T('guardianModeResult')?.querySelector('.guardian-result-actions')]]){if(!parent||T(id))continue;const b=document.createElement('button');b.id=id;b.className='btn';b.textContent='RUN RECAP';on(b,'click',openRunRecap);parent.append(b);}}
 installRecapButtons();
 const recapInstallGuardians=installGuardianModes;

@@ -1,8 +1,3 @@
-/* ========================================================================
-   EMBER FORMS · permanent ability loadouts and mid-run blessing evolutions.
-   Every form belongs to the Ember itself.  The player sprite never carries
-   an item; its orbiting shards, cast geometry, movement and sound change.
-   ======================================================================== */
 const EMBER_FORMS=[
  {id:'emberBolt',slot:'primary',name:'Ember Bolt',tag:'THE FIRST SPARK',cost:0,req:[],color:'#ffbd68',desc:'Balanced light. Quick, steady, and eager to take on any blessing.',effect:'A reliable cast with no hidden weakness.'},
  {id:'sunlance',slot:'primary',name:'Sunlance',tag:'A LINE THROUGH DARK',cost:1200,req:['m4','c3'],color:'#fff0a6',desc:'Compress the Ember into a slow, brilliant lance.',effect:'2.15× power · pierces four more targets · slower casting.'},

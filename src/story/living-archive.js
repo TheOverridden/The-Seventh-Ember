@@ -1,8 +1,3 @@
-/* ======================================================================
-   THE LIVING ARCHIVE
-   Story decisions are inferred from play: what the Ember approaches,
-   protects, interrupts, and repeats. There is no visible alignment meter.
-   ====================================================================== */
 const ARCHIVE_MEMORY_VERSION=2;
 const ARCHIVE_SIGNAL_KEYS=['witness','shelter','defiance','severance'];
 const ARCHIVE_ECHO_IDS=[...Object.keys(TRACE_RECORDS)];
@@ -32,8 +27,6 @@ function archiveProfile(){
  return{...a.signals,dominant:(a.signals[top]||0)>0?top:'witness',confidence:Math.max(0,(a.signals[top]||0)-(a.signals[next]||0)),recovered,interrupted,skipped:Object.keys(a.skipped).length,lastGuardian:a.guardianOrder.at(-1)||''};
 }
 
-/* Remove the two remaining dialogue-button decisions. Their meaning is now
-   inferred from play along with the later trace decisions. */
 if(HOLLOW_SCENES.barracks)HOLLOW_SCENES.barracks.lines=[['You','That coat is mine.'],['Wick','It was. Check the left sleeve.'],['You','Why?'],['Wick','You always hid things where the lining tore.']];
 if(HOLLOW_SCENES.gardenChoice)HOLLOW_SCENES.gardenChoice.lines=[['You','That is my handwriting.'],['Wick','You ran out of red paint halfway through.'],['You','The back says “even if they ask nicely.”'],['Wick','You added that after somebody asked.']];
 
@@ -53,8 +46,6 @@ function rememberLegacyMeaning(id,focus,interrupted=false){const key=ARCHIVE_LEG
 const livingValidateSave=validateSave;
 validateSave=function(raw){const clean=livingValidateSave(raw);clean.story=clean.story||{seen:{},choices:{}};clean.story.archive=cleanArchiveMemory(raw?.story?.archive);return clean;};
 
-/* Echo rooms remain sealed from ordinary combat even when later systems add
-   encounters or Endless reinforcements after map generation. */
 const livingPrepareEchoSanctuaries=prepareEchoSanctuaries;
 prepareEchoSanctuaries=function(){
  livingPrepareEchoSanctuaries();const w=G.world;if(!w?.echoSanctuaries?.length)return;const rooms=w.echoSanctuaries.map(i=>w.rooms[i]).filter(Boolean),inside=(o,r)=>o.x>=r.x*TILE&&o.x<(r.x+r.w)*TILE&&o.y>=r.y*TILE&&o.y<(r.y+r.h)*TILE;
@@ -127,8 +118,6 @@ drawMemoryRestoration=function(ctx){
 T('cv').addEventListener('pointerdown',e=>{if(!activeMemoryEcho||activeMemoryEcho.phase==='leaving')return;const r=G.cv.getBoundingClientRect(),p=echoPointFromScreen(activeMemoryEcho,e.clientX-r.left,e.clientY-r.top);activeMemoryEcho.observerTarget=p;e.preventDefault();},{passive:false});
 addEventListener('keydown',e=>{if(!activeMemoryEcho||e.repeat)return;if(['KeyJ','KeyK','KeyR'].includes(e.code)){e.preventDefault();disturbEcho();}},true);
 
-/* World behavior is also remembered. These hooks run after the combat,
-   blessing, form, and Endless wrappers so they observe the final result. */
 const livingUseRestingFlame=useRestingFlame;
 useRestingFlame=function(o){const fresh=!!o&&!o.lit,floor=String(G.floor);livingUseRestingFlame(o);if(fresh&&o.lit&&!archiveData().flames[floor]){archiveData().flames[floor]=true;archiveSignal('shelter',.7,'resting flame tended','flame:'+floor);saveNow();}};
 const livingCompleteSpecialEncounter=completeSpecialEncounter;
@@ -175,8 +164,6 @@ function archiveEndingScene(){const p=archiveProfile(),count=p.recovered,miss=p.
 const livingConfigureEndingScenes=configureEndingScenes;
 configureEndingScenes=function(){livingConfigureEndingScenes();const scene=archiveEndingScene();ENDING_SCENES.splice(Math.max(ENDING_SCENES.length-1,0),0,scene);};
 
-/* Each remembered room carries a different quiet distortion outside the
-   tableau, while later floors retain small physical consequences. */
 const livingDrawStoryConsequences=drawStoryConsequences;
 drawStoryConsequences=function(ctx){livingDrawStoryConsequences(ctx);if(!G.world||G.floor<11)return;const p=archiveProfile(),room=G.world.rooms?.[0];if(!room)return;const x=room.cx*TILE+18,y=room.cy*TILE+18,t=save.motion?1:G.tAll;ctx.save();ctx.translate(x,y);ctx.globalAlpha=.28;
  if(p.dominant==='witness'){ctx.strokeStyle='#b9e2e5';for(let i=0;i<Math.min(5,p.recovered);i++){ctx.strokeRect(-58+i*23,-61-(i%2)*5,15,9);ctx.fillStyle='#e8f5ec';ctx.fillRect(-54+i*23,-58-(i%2)*5,7,1);}}

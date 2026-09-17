@@ -1,6 +1,3 @@
-/* ======================================================================
-   FIFTY TABLEAUS · each recovered object remembers a different moment
-   ====================================================================== */
 const memoryActor=(role,x,y,pose='stand',dir=1,tone=0,scale=1)=>({role,x,y,pose,dir,tone,scale});
 const memoryProp=(kind,x,y,w=0,h=0)=>({kind,x,y,w,h});
 const ECHO_TABLEAUS={
@@ -110,7 +107,6 @@ function drawMemoryActor(ctx,a,rect,key,t,index,alpha){
  ctx.fillStyle=style.skin;ctx.fillRect(handL.x-2,handL.y+bob-2,4,4);ctx.fillRect(handR.x-2,handR.y+bob-2,4,4);
  ctx.fillStyle='#171923';ctx.fillRect(-9,shoulderY-2,18,20);ctx.fillStyle=style.coat;ctx.fillRect(-8,shoulderY-1,16,18);ctx.fillStyle=style.trim;ctx.fillRect(-7,shoulderY,14,3);ctx.fillRect(-7,hipY-3,14,2);ctx.fillStyle='#ffffff20';ctx.fillRect(-6,shoulderY+4,2,8);
  if(['lamplighter','watcher','warden','soldier'].includes(a.role)){ctx.fillStyle=style.coat;ctx.beginPath();ctx.moveTo(-8,hipY-2);ctx.lineTo(8,hipY-2);ctx.lineTo(11,2);ctx.lineTo(-10,2);ctx.closePath();ctx.fill();ctx.fillStyle=style.trim;ctx.fillRect(-8,hipY-1,16,2);}
- /* Clothing silhouettes distinguish the people before their faces can be read. */
  if(['scribe','singer','cantor','regent','keeper'].includes(a.role)){ctx.fillStyle='#171923';ctx.beginPath();ctx.moveTo(-9,hipY-4);ctx.lineTo(9,hipY-4);ctx.lineTo(13,4);ctx.lineTo(-13,4);ctx.closePath();ctx.fill();ctx.fillStyle=style.coat;ctx.beginPath();ctx.moveTo(-7,hipY-3);ctx.lineTo(7,hipY-3);ctx.lineTo(11,2);ctx.lineTo(-11,2);ctx.closePath();ctx.fill();ctx.fillStyle=style.trim;ctx.fillRect(-10,0,20,2);}
  if(a.role==='worker'||a.role==='engineer'){ctx.fillStyle=style.trim;ctx.fillRect(-11,shoulderY,6,6);ctx.fillRect(5,shoulderY,6,6);ctx.fillRect(-7,shoulderY+5,4,13);ctx.fillRect(3,shoulderY+5,4,13);ctx.fillStyle='#292a30';ctx.fillRect(-8,hipY-2,16,4);ctx.fillStyle='#d8b476';ctx.fillRect(-6,hipY-1,3,2);ctx.fillRect(2,hipY-1,3,2);}
  if(a.role==='gardener'||a.role==='caretaker'){ctx.fillStyle='#c8b68b';ctx.beginPath();ctx.moveTo(-6,shoulderY+4);ctx.lineTo(6,shoulderY+4);ctx.lineTo(9,hipY+2);ctx.lineTo(-9,hipY+2);ctx.closePath();ctx.fill();ctx.fillStyle='#667653';ctx.fillRect(-3,shoulderY+7,6,9);ctx.fillStyle=style.trim;ctx.fillRect(-9,hipY,18,2);}
@@ -144,8 +140,6 @@ function drawMemoryActor(ctx,a,rect,key,t,index,alpha){
  if(a.pose==='carryflame'){ctx.fillStyle='#fff0b7';ctx.fillRect(-4,-15+bob,8,8);glowImg('ember',0,-12+bob,22,.3);}
  if(a.pose==='umbrella'){ctx.fillStyle='#8ea4b2';ctx.fillRect(-1,-31+bob,3,34);ctx.beginPath();ctx.arc(0,-30+bob,16,Math.PI,TAU);ctx.fill();ctx.fillStyle='#d9eef0';ctx.fillRect(-12,-31+bob,4,2);ctx.fillRect(2,-38+bob,4,2);}
  if(a.pose==='guard'||a.pose==='aim'){ctx.fillStyle='#9b8061';ctx.save();ctx.rotate(a.pose==='aim'?-1.2:-.2);ctx.fillRect(-2,-30,4,49);ctx.fillStyle='#d3c39d';ctx.fillRect(-5,-32,10,5);ctx.restore();}
- /* These are damaged recollections, not living people: portions fail to resolve,
-    bright edges detach, and the room remains visible through every figure. */
  ctx.filter='none';ctx.globalAlpha=alpha*.34;ctx.fillStyle=(MEMORY_PALETTES[key]||MEMORY_PALETTES.hollow).floor;
  for(let cut=0;cut<4;cut++){const yy=headY+2+((index*11+cut*7)%25);ctx.fillRect(-10+((index+cut)%3)*3,yy,5+(cut%2)*4,2);}
  ctx.globalCompositeOperation='lighter';ctx.fillStyle=(MEMORY_PALETTES[key]||MEMORY_PALETTES.hollow).light;ctx.globalAlpha=alpha*.26;
@@ -202,8 +196,6 @@ drawMemoryPeople=function(ctx,rect,key,t,alpha,floor){
  ctx.restore();
 };
 
-/* High-detail spectral cast. Each person is drawn to a small pixel surface first,
-   allowing the recollection to lose pieces without erasing the restored room. */
 const MEMORY_GHOST_SURFACE=document.createElement('canvas');MEMORY_GHOST_SURFACE.width=80;MEMORY_GHOST_SURFACE.height=92;
 function memoryPixelLine(x,x1,y1,x2,y2,color,size=2){
  const steps=Math.max(Math.abs(x2-x1),Math.abs(y2-y1),1);x.fillStyle=color;
@@ -303,8 +295,6 @@ drawMemoryActor=function(ctx,a,rect,key,t,index,alpha){
  x.restore();ctx.save();const floatY=save.motion?0:Math.sin(t*1.35+seed)*1.4;ctx.translate(Math.round(px),Math.round(py+floatY));ctx.scale(dir*sc,sc);ctx.imageSmoothingEnabled=false;const aura=ctx.createRadialGradient(0,-35,3,0,-35,42);aura.addColorStop(0,'rgba(221,251,255,'+(alpha*.12)+')');aura.addColorStop(1,'rgba(110,194,221,0)');ctx.fillStyle=aura;ctx.fillRect(-45,-83,90,90);ctx.filter='brightness(1.22)';ctx.globalCompositeOperation='screen';ctx.globalAlpha=alpha*.12;ctx.drawImage(surface,-40+(save.motion?0:Math.sin(t*1.7+index)*4),-84);ctx.globalAlpha=alpha*.09;ctx.drawImage(surface,-40-(save.motion?0:Math.sin(t*1.2+index)*3),-82);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=alpha*.72;ctx.shadowColor='#bceef7';ctx.shadowBlur=12;ctx.drawImage(surface,-40,-84);ctx.shadowBlur=0;ctx.filter='none';ctx.globalCompositeOperation='lighter';const scanY=-76+((save.motion?31:t*18+seed)%68);ctx.globalAlpha=alpha*.2;ctx.fillStyle='#efffff';ctx.fillRect(-19,scanY,38,2);for(let shard=0;shard<12;shard++){const drift=save.motion?0:Math.sin(t*1.25+seed+shard)*5;ctx.fillStyle=shard%3?style.ghost:style.core;ctx.globalAlpha=alpha*(.09+(shard%3)*.04);ctx.fillRect((shard%2?18:-21)+drift,-64+shard*6,shard%3===0?4:2,1+(shard%2));}for(let wisp=0;wisp<4;wisp++){const wx=-10+wisp*7+(save.motion?0:Math.sin(t*1.1+seed+wisp)*3);ctx.globalAlpha=alpha*(.12-wisp*.015);ctx.fillStyle=wisp%2?style.coat:style.trim;ctx.fillRect(wx,2+wisp*3,3,7-wisp);}ctx.restore();
 };
 
-/* Every recovered object has its own readable icon instead of sharing a generic
-   paper/tool/relic drawing. These are also used as deliberate scene anchors. */
 const ECHO_HERO_KIND={
  echo1:'watchRoster',echo2:'oilTin',echo3:'bellRope',echo4:'unsentLetter',echo5:'ironDoor',echo6:'beanStakes',echo7:'glassWedge',echo8:'warningSign',echo9:'bedLabels',echo10:'gardenSpade',
  trace11:'floodGauge',trace12:'pumpWrench',trace13:'parcel',trace14:'prayerBoard',trace15:'bellClapper',trace16:'lunchPail',trace17:'coolingHook',trace18:'hammerToken',trace19:'clayFinger',trace20:'furnaceKey',
@@ -367,8 +357,6 @@ function drawTableauArtifact(ctx,id,x,y,key,t,alpha,seen){
  const kind=ECHO_HERO_KIND[id]||'watchRoster',record=TRACE_RECORDS[id],color=record?.color||'#c4a4dd',seed=idHash(id),bob=save.motion?0:Math.sin(t*1.6+seed)*2;ctx.save();ctx.translate(Math.round(x),Math.round(y+bob));ctx.globalAlpha=alpha*(seen?.68:1);const glow=ctx.createRadialGradient(0,-5,2,0,-5,35);glow.addColorStop(0,color+'55');glow.addColorStop(1,color+'00');ctx.fillStyle=glow;ctx.fillRect(-38,-43,76,76);ctx.fillStyle='#131923';ctx.fillRect(-24,22,48,6);ctx.fillStyle='#5f6872';ctx.fillRect(-19,17,38,5);ctx.fillStyle='#c9b47d';ctx.fillRect(-14,15,28,3);ctx.save();ctx.translate(0,-2);drawHeroArtifactGlyph(ctx,kind,color,t,seed);ctx.restore();ctx.globalCompositeOperation='lighter';for(let i=0;i<5;i++){const a=seed*.01+i*TAU/5+t*(i%2?-.5:.6),rr=27+(i%2)*4;ctx.fillStyle=i%2?color:'#f1dfb0';ctx.globalAlpha=alpha*.28;ctx.fillRect(Math.round(Math.cos(a)*rr)-1,Math.round(-4+Math.sin(a)*rr*.55)-1,3,3);}ctx.restore();
 }
 
-/* Several memories were previously staged around later dialogue instead of the
-   object being recovered. Their action now matches the physical evidence. */
 Object.assign(ECHO_TABLEAUS,{
  echo9:{mood:'count the names',actors:[memoryActor('lamplighter',.46,.62,'hold',1,1),memoryActor('child',.22,.72,'reach',1,2,.78),memoryActor('child',.34,.75,'reach',1,0,.76),memoryActor('caretaker',.72,.67,'count',-1,2,.95)],props:[memoryProp('bed',.20,.58,58),memoryProp('bed',.80,.58,58),memoryProp('labels',.53,.73,72)]},
  trace32:{mood:'dinner is not a meeting',actors:[memoryActor('regent',.28,.66,'sit',1,0,1.04),memoryActor('regent',.72,.66,'argue',-1,3,1.04),memoryActor('servant',.50,.69,'set',1,1,.92)],props:[memoryProp('table',.50,.62,164),memoryProp('chair',.27,.69,27),memoryProp('chair',.73,.69,27)]},

@@ -1,8 +1,3 @@
-/* ======================================================================
-   STAGES III–X · authored regions, a trace system, and forty build cards.
-   This layer is intentionally data-driven so the same offline file can
-   carry a large amount of variety without loading external assets.
-   ====================================================================== */
 const LATE_REGIONS=[
   {stage:3,from:11,to:15,key:'reservoir',name:'The Drowned Reservoir',boss:'THE BELLKEEPER',bossKey:'bellkeeper',color:'#62c6d9',pi:1,
    floors:[['The Spillway','Water keeps finding the stairs.'],['The Pump Gallery','The old pistons still move when the bells ring.'],['The Sunken Walk','Ripples cross the path against the current.'],['The Sluice Chapel','Someone built an altar around the main valve.'],['The Bell Cistern','The Keeper is moving under the water.']]},

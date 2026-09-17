@@ -1,4 +1,3 @@
-/* Middle guardian durability and desperation pass. */
 const MID_GUARDIAN_HP_V3={bellkeeper:8400,colossus:13500,astronomer:18500,scribe:24500};
 const MID_GUARDIAN_DMG_V3={bellkeeper:32,colossus:39,astronomer:44,scribe:50};
 Object.assign(ENDGAME_HP,MID_GUARDIAN_HP_V3);Object.assign(ENDGAME_DAMAGE,MID_GUARDIAN_DMG_V3);

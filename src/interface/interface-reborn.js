@@ -1,6 +1,4 @@
 'use strict';
-/* The third-generation interface layer keeps every existing control and gives
-   it one responsive visual system. It also exposes useful audio controls. */
 const VF_UI={version:3,lastRegion:'',resizeTimer:0};
 
 function vfUiRange(id,label,detail,value){

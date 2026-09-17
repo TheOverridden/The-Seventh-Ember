@@ -1,7 +1,3 @@
-/* ============================================================================
-   VOIDFALL — a roguelike of ember & void. Modular browser build.
-   Chunk A: utils · save/meta · skill-tree data · audio · input · sprites
-============================================================================ */
 'use strict';
 const T = id => document.getElementById(id);
 const clamp = (v,a,b)=> v<a?a : v>b?b : v;
@@ -18,7 +14,6 @@ const refreshIcons = ()=> offlineIcons();
 const show = id => T(id).classList.add('open');
 const hide = id => T(id).classList.remove('open');
 
-/* ---------------- SAVE / META PROGRESSION ---------------- */
 const SAVE_KEY='voidfall_save_v1';
 const SAVE_PROGRESSION_EPOCH=2;
 const DEF_SAVE = ()=>({v:1, progressionEpoch:SAVE_PROGRESSION_EPOCH, essence:0, nodes:{}, bestFloor:0, bestLevel:0, totalRuns:0, totalKills:0, totalEssence:0, victories:0, guardians:0, tut:0, music:1, sfx:1, musicVolume:.82, sfxVolume:.86, motion:0, touch:0, quality:"full", resume:null});
@@ -31,56 +26,46 @@ function loadSave(){
 function saveNow(){ snapshotRun(); try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); saveDirty=false; storageMessage=''; }catch(e){ storageMessage='Automatic saving is unavailable. Export a save to keep your progress.'; } syncSaveStatus(); }
 function markSave(){ saveDirty=true; }
 
-/* Permanent skill tree — positions on a 1240x980 canvas, root at (620,470) */
 const TREE_NODES=[
  {id:'awaken', L:'A', x:620, y:470, r:24, cost:5,  req:null,      name:'Awakening',      desc:'Open your eyes in the dark. +5% damage, +10 max HP.'},
- /* Might — East */
  {id:'m1',L:'M',x:770,y:470,cost:8, req:'awaken',name:'Might I',   desc:'+8% damage.'},
  {id:'m2',L:'M',x:875,y:470,cost:18,req:'m1',    name:'Might II',  desc:'+8% damage.'},
  {id:'m3',L:'M',x:980,y:470,cost:32,req:'m2',    name:'Might III', desc:'+8% damage.'},
  {id:'m4',L:'M',x:1085,y:470,cost:56,req:'m3',   name:'Might IV',  desc:'+8% damage.'},
  {id:'m5',L:'M',x:1190,y:470,cost:88,req:'m4',   name:'Might V',   desc:'+8% damage.'},
- /* Vitality — West */
  {id:'v1',L:'V',x:470,y:470,cost:8, req:'awaken',name:'Vitality I',  desc:'+15 max HP.'},
  {id:'v2',L:'V',x:365,y:470,cost:18,req:'v1',    name:'Vitality II', desc:'+15 max HP.'},
  {id:'v3',L:'V',x:260,y:470,cost:32,req:'v2',    name:'Vitality III',desc:'+15 max HP.'},
  {id:'v4',L:'V',x:155,y:470,cost:56,req:'v3',    name:'Vitality IV', desc:'+15 max HP.'},
  {id:'v5',L:'V',x:60, y:470,cost:88,req:'v4',    name:'Vitality V',  desc:'+15 max HP.'},
- /* Focus — North */
  {id:'f1',L:'F',x:620,y:330,cost:10,req:'awaken',name:'Focus I',   desc:'+6% casting rate.'},
  {id:'f2',L:'F',x:620,y:230,cost:22,req:'f1',    name:'Focus II',  desc:'+6% casting rate.'},
  {id:'f3',L:'F',x:620,y:135,cost:40,req:'f2',    name:'Focus III', desc:'+6% casting rate.'},
  {id:'f4',L:'F',x:620,y:58, cost:64,req:'f3',    name:'Focus IV',  desc:'+6% casting rate.'},
- /* Magnet — South */
  {id:'g1',L:'L',x:620,y:610,cost:10,req:'awaken',name:'Lodestone I',  desc:'+18% pickup radius.'},
  {id:'g2',L:'L',x:620,y:710,cost:22,req:'g1',    name:'Lodestone II', desc:'+18% pickup radius.'},
  {id:'g3',L:'L',x:620,y:810,cost:40,req:'g2',    name:'Lodestone III',desc:'+18% pickup radius.'},
- /* Crit — NE */
  {id:'c1',L:'C',x:715,y:375,cost:14,req:'awaken',name:'Arcane Eye I',  desc:'+3% critical chance.'},
  {id:'c2',L:'C',x:786,y:304,cost:30,req:'c1',    name:'Arcane Eye II', desc:'+3% critical chance.'},
  {id:'c3',L:'C',x:853,y:237,cost:54,req:'c2',    name:'Arcane Eye III',desc:'+3% critical chance.'},
- /* Swiftness — NW */
  {id:'s1',L:'S',x:525,y:375,cost:10,req:'awaken',name:'Celerity I',   desc:'+4% move speed.'},
  {id:'s2',L:'S',x:454,y:304,cost:22,req:'s1',    name:'Celerity II',  desc:'+4% move speed.'},
  {id:'s3',L:'S',x:387,y:237,cost:40,req:'s2',    name:'Celerity III', desc:'+4% move speed.'},
  {id:'s4',L:'S',x:325,y:175,cost:64,req:'s3',    name:'Celerity IV',  desc:'+4% move speed.'},
- /* Dash — SE */
  {id:'d1',L:'P',x:715,y:565,cost:14,req:'awaken',name:'Phantom Step I',  desc:'−8% dash cooldown.'},
  {id:'d2',L:'P',x:786,y:636,cost:30,req:'d1',    name:'Phantom Step II', desc:'−8% dash cooldown.'},
  {id:'d3',L:'P',x:853,y:703,cost:54,req:'d2',    name:'Phantom Step III',desc:'−8% dash cooldown.'},
- /* Avarice — SW */
  {id:'a1',L:'G',x:525,y:565,cost:10,req:'awaken',name:'Greed I',     desc:'+10% XP gained.'},
  {id:'a2',L:'G',x:454,y:636,cost:22,req:'a1',    name:'Fortune I',   desc:'+12% essence gained.'},
  {id:'a3',L:'G',x:387,y:703,cost:44,req:'a2',    name:'Greed II',    desc:'+10% XP gained.'},
  {id:'a4',L:'G',x:325,y:766,cost:70,req:'a3',    name:'Fortune II',  desc:'+15% essence gained.'},
- /* Capstone */
  {id:'wind',L:'+',x:460,y:740,r:30,cost:140,req:'awaken',name:'SECOND WIND',desc:'Once per run, refuse death — revive at 50% HP in a burst of embers.'}
 ];
 const NODE_BY_ID={}; TREE_NODES.forEach(n=>NODE_BY_ID[n.id]=n);
 function nodeState(n){
-  if(save.nodes[n.id]) return 2;                       // owned
-  if(n.req && !save.nodes[n.req]) return 0;            // locked
-  return save.essence>=n.cost ? 3 : 1;                 // affordable / unlocked
+  if(save.nodes[n.id]) return 2;
+  if(n.req && !save.nodes[n.req]) return 0;
+  return save.essence>=n.cost ? 3 : 1;
 }
 function computeMeta(){
   const n=save.nodes;
@@ -99,8 +84,6 @@ function computeMeta(){
 }
 let META = computeMeta();
 
-/* ---------------- AUDIO — warm ambient score + organic, acoustic-flavoured SFX ----------------
-   Everything is soft-attack, filtered and reverb-washed: no square/saw chiptune timbres.       */
 let AC=null, masterG=null, sfxDry=null, sfxSend=null, musDry=null, musSend=null,
     noiseBuf=null, revNode=null, musLP=null, musicInt=0, droneG=null, droneLP=null;
 function makeIR(dur,decay){
@@ -112,7 +95,7 @@ function makeIR(dur,decay){
     for(let i=0;i<len;i++){
       const t=i/len;
       const n=(Math.random()*2-1)*Math.pow(1-t,decay);
-      lp=lp*0.72+n*0.28;              // gentle low-pass → warm, non-fizzy tail
+      lp=lp*0.72+n*0.28;
       d[i]=lp*(1-t*0.15);
     }
   }
@@ -127,7 +110,6 @@ function initAudio(){
     comp.attack.value=.02; comp.release.value=.34;
     masterG=AC.createGain(); masterG.gain.value=.9;
     comp.connect(masterG); masterG.connect(AC.destination);
-    // large soft hall
     revNode=AC.createConvolver(); revNode.buffer=makeIR(4.2,2.6);
     const revLP=AC.createBiquadFilter(); revLP.type='lowpass'; revLP.frequency.value=2600;
     const revGain=AC.createGain(); revGain.gain.value=.9;
@@ -145,7 +127,6 @@ function initAudio(){
     musicLoop();
   }catch(e){ AC=null; }
 }
-/* soft additive chime — natural inharmonic partials, gentle attack */
 function bell(f,dur,vol,delay,warm){
   if(!AC) return; const t0=AC.currentTime+(delay||0);
   const parts=warm?[[1,1],[2.01,.28],[2.98,.10]]:[[1,1],[2.02,.42],[3.01,.2],[4.23,.08]];
@@ -160,7 +141,6 @@ function bell(f,dur,vol,delay,warm){
     o.start(t0); o.stop(t0+dur+.15);
   }
 }
-/* filtered noise — breath, whoosh, impact body */
 function air(dur,vol,f0,f1,q,delay,type){
   if(!AC) return; const t0=AC.currentTime+(delay||0);
   const s=AC.createBufferSource(); s.buffer=noiseBuf; s.loop=true;
@@ -175,7 +155,6 @@ function air(dur,vol,f0,f1,q,delay,type){
   s.connect(bp); bp.connect(g); g.connect(sfxDry); g.connect(sfxSend);
   s.start(t0); s.stop(t0+dur+.1);
 }
-/* soft body thump — sine with pitch drop and rounded attack */
 function thump(f0,f1,dur,vol,delay){
   if(!AC) return; const t0=AC.currentTime+(delay||0);
   const o=AC.createOscillator(), g=AC.createGain();
@@ -187,7 +166,6 @@ function thump(f0,f1,dur,vol,delay){
   o.connect(g); g.connect(sfxDry); g.connect(sfxSend);
   o.start(t0); o.stop(t0+dur+.1);
 }
-/* slow harmonic swell — used for level ups, portals, victory */
 function swell(freqs,dur,vol,delay){
   if(!AC) return; const t0=AC.currentTime+(delay||0);
   const lp=AC.createBiquadFilter(); lp.type='lowpass';
@@ -213,48 +191,37 @@ const PENT=[261.63,293.66,349.23,392.00,440.00,523.25,587.33,698.46];
 function sfx(name,a){
   if(!AC||!save.sfx) return;
   switch(name){
-    // soft breath of flame rather than a laser
     case 'shoot': air(.13,.05,1500,420,.7,0); thump(190,95,.10,.045); break;
-    // dull organic impact
     case 'hit':   air(.07,.05,780,300,1.1,0,'lowpass'); thump(165,78,.09,.06); break;
-    // a body coming apart, dissolving into dust
     case 'die':   air(.34,.055,900,150,.7,0,'lowpass'); thump(150,52,.26,.06); break;
-    // deep, felt-in-the-chest hurt
     case 'hurt':  air(.34,.075,520,120,.6,0,'lowpass'); thump(120,48,.38,.13); break;
-    // glassy chime that climbs as you hoover up shards
     case 'xp':    { const f=PENT[Math.min(xpCombo,PENT.length-1)]*2; bell(f,.5,.038,0,false); xpCombo++; xpComboT=1.1; break; }
     case 'ess':   bell(1046.5,.85,.042,0,false); bell(1568,.5,.018,.02,false); break;
     case 'heart': bell(392,.9,.05,0,true); bell(587.33,.7,.026,.05,true); break;
     case 'levelup': swell([261.63,329.63,392,523.25],2.0,.052,0); bell(1046.5,1.4,.03,.18,false); air(.9,.012,4200,1800,.5,.1); break;
-    // airy rush of displaced air
     case 'dash':  air(.30,.06,380,2400,.9,0); air(.22,.03,2200,500,1.1,.05); break;
     case 'portal':swell([98,146.83,196,293.66],2.6,.06,0); [392,523.25,659.25,784].forEach((f,i)=>bell(f,1.5,.032,.25+i*.13,true)); break;
-    // wooden lid + soft treasure shimmer
     case 'chest': air(.10,.05,420,180,1.4,0,'lowpass'); thump(150,88,.14,.05); bell(659.25,1.0,.03,.09,true); bell(987.77,.8,.02,.15,true); break;
     case 'ui':    air(.05,.022,2400,1300,1.2,0); break;
     case 'deny':  thump(110,72,.22,.055); air(.14,.02,300,160,.9,0,'lowpass'); break;
     case 'buy':   bell(523.25,1.1,.045,0,true); bell(784,.9,.03,.07,true); air(.5,.012,3600,1600,.6,.05); break;
-    // subterranean dread
     case 'boss':  swell([41.2,61.74,82.41],3.2,.10,0); air(1.8,.05,220,70,.5,0,'lowpass'); break;
     case 'roar2': air(.7,.06,340,90,.6,0,'lowpass'); thump(96,44,.7,.09); break;
     case 'nova':  thump(220,48,.5,.11); air(.5,.05,1400,300,.7,0,'lowpass'); break;
-    // slow, mournful descent
     case 'death': swell([220,164.81,130.81],3.4,.055,0); [329.63,261.63,196,146.83].forEach((f,i)=>bell(f,2.2,.032,i*.42,true)); break;
     case 'victory':swell([261.63,392,523.25,659.25],3.0,.055,0); [523.25,659.25,784,1046.5].forEach((f,i)=>bell(f,1.8,.034,i*.16,true)); break;
     case 'eshoot':air(.12,.028,900,320,.9,0); break;
     case 'charge':air(.55,.05,180,1500,.8,0); thump(70,150,.5,.045); break;
   }
 }
-/* slow modal chord cycle — natural minor, no rhythm, purely atmospheric */
 const CHORDS=[
-  [55,82.41,130.81,164.81],   // Am
-  [49,73.42,116.54,146.83],   // G
-  [43.65,65.41,103.83,130.81],// F
-  [48.99,73.42,123.47,146.83] // Gsus
+  [55,82.41,130.81,164.81],
+  [49,73.42,116.54,146.83],
+  [43.65,65.41,103.83,130.81],
+  [48.99,73.42,123.47,146.83]
 ];
 const MEL=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
 let chordI=0, padT=0, melT=6, breathT=9;
-/* continuous sub-bass drone: the room tone of the dungeon */
 function startDrone(){
   droneLP=AC.createBiquadFilter(); droneLP.type='lowpass'; droneLP.frequency.value=220; droneLP.Q.value=.6;
   droneG=AC.createGain(); droneG.gain.value=0;
@@ -265,7 +232,6 @@ function startDrone(){
     g.gain.value=(i===2 ? .10 : .22);
     o.connect(g); g.connect(droneLP); o.start();
   });
-  // slow breathing LFO on the drone level
   const lfo=AC.createOscillator(), lg=AC.createGain();
   lfo.type='sine'; lfo.frequency.value=.055; lg.gain.value=.05;
   lfo.connect(lg); lg.connect(droneG.gain); lfo.start();
@@ -284,9 +250,9 @@ function padChord(fs){
       o.frequency.value=f; o.detune.value=det;
       const v=(i<2 ? .05 : .028)*(1-musicInt*.15);
       g.gain.setValueAtTime(0,t0);
-      g.gain.linearRampToValueAtTime(v,t0+4.5);        // very slow fade in
+      g.gain.linearRampToValueAtTime(v,t0+4.5);
       g.gain.linearRampToValueAtTime(v*.85,t0+dur*.7);
-      g.gain.linearRampToValueAtTime(0,t0+dur);         // and out
+      g.gain.linearRampToValueAtTime(0,t0+dur);
       o.connect(g); g.connect(lp);
       o.start(t0); o.stop(t0+dur+.4);
     });
@@ -304,7 +270,6 @@ function musicLoop(){
     if(!save.music||document.hidden||AC.state!=='running'||G.state==='ending') return;
     padT-=0.5; melT-=0.5; breathT-=0.5;
     if(padT<=0){ padChord(CHORDS[chordI%CHORDS.length]); chordI++; padT=10.5; }
-    // sparse, distant bell motifs
     if(melT<=0){
       melT = 5.5+Math.random()*7 - musicInt*2.2;
       if(chance(.55+musicInt*.2)){
@@ -320,7 +285,6 @@ function musicLoop(){
         });
       }
     }
-    // faint air movement through the halls
     if(breathT<=0){
       breathT=7+Math.random()*9;
       const t0=AC.currentTime, dur=5+Math.random()*4;

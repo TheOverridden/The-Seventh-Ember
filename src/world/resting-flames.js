@@ -1,5 +1,3 @@
-/* The Resting Flame now exists on every floor. It is always near the entry,
-   can be used once, and remains used after saving and resuming. */
 function floorFixtures(){return G.world?.region==='late'?G.world.lateFixtures:G.world?.fixtures;}
 function ensureRestingFlame(){if(!G.world||!G.player)return;const list=floorFixtures();if(!list)return;let b=list.find(o=>o.kind==='brazier'),s=G.world.rooms[0],pos=safePosition(G.world,s.cx*TILE+18+58,s.cy*TILE+18,18)||{x:G.player.x+50,y:G.player.y};if(!b){b={kind:'brazier',x:pos.x,y:pos.y,lit:false,resting:true};list.push(b);}else if(!b.lit){b.x=pos.x;b.y=pos.y;b.resting=true;}G.world.restingFlame=b;}
 const longSetup=setupFloor;

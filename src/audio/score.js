@@ -1,5 +1,3 @@
-/* Region-aware score: eight melodic palettes, a firm pulse during guardian
-   fights, and louder but limited output. The first user input unlocks audio. */
 const REGION_SCORE={hollow:[0,3,5,7,10],garden:[0,2,5,7,9],reservoir:[0,2,3,7,9],foundry:[0,3,5,6,10],observatory:[0,2,6,7,11],archive:[0,1,5,7,8],court:[0,3,5,8,10],choir:[0,2,5,9,11],citadel:[0,1,5,6,10],heart:[0,3,7,8,11]};
 let longScoreTimer=0,longScoreBeat=0;
 function scoreTone(freq,dur=.65,vol=.018,delay=0,type='triangle'){if(!AC)return;const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain(),lp=AC.createBiquadFilter();o.type=type;o.frequency.value=freq;lp.type='lowpass';lp.frequency.value=1800;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(lp);lp.connect(g);g.connect(musLP);o.start(t);o.stop(t+dur+.05);}

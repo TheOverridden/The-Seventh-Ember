@@ -1,6 +1,6 @@
 # VoidFall
 
-VoidFall is maintained as a modular browser game. The September 2026 progression rebuild begins a new save epoch; older exported saves are intentionally rejected so retired balance data cannot return.
+VoidFall is a modular browser roguelike with a fifty-floor campaign, permanent progression, Guardian encounters, and an Endless mode. The current progression epoch rejects older backups whose balance data is no longer compatible.
 
 ## Project map
 
@@ -15,7 +15,7 @@ VoidFall is maintained as a modular browser game. The September 2026 progression
 - `src/story/` contains the hidden Living Archive state, recovered traces, remembered rooms, and all fifty Echo tableaus.
 - `src/input/`, `src/combat/`, `src/audio/`, and `src/interface/` contain focused supporting systems.
 
-Scripts are loaded in a deliberate order at the bottom of `index.html`. This first refactor preserves the existing shared runtime so gameplay remains identical. Future changes can replace individual systems with explicit modules without another large extraction.
+Scripts load in dependency order at the bottom of `index.html`. Each directory owns a distinct part of the game while sharing the same browser runtime.
 
 The Living Archive records behavior rather than presenting an alignment meter. Echo attention, interrupted memories, protected rooms, Resting Flames, and guardian finishes can alter later dialogue, guardian adaptation, environmental details, and the campaign ending. Echo rooms remain enemy-free and let the player move or tap toward the people or evidence inside each restored tableau.
 

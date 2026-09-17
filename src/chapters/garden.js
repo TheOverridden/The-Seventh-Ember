@@ -1,4 +1,3 @@
-/* Chapter II — the agreed Rootbound Gardens, with small encounters. */
 const FLOOR_POPULATION=[5,7,8,9,4,9,11,12,14,5];
 const ENCOUNTER_VERSION=3;
 function earlyAttackLimit(f){return f===1?1:f<=3?2:f<=7?3:4;}
@@ -11,7 +10,6 @@ function canWakeEnemy(e){
   return G.enemies.filter(o=>!o.dead&&!o.isBoss&&!o.growth&&o.aggro&&d2(o.x,o.y,p.x,p.y)<600**2).length<earlyAttackLimit(G.floor);
 }
 function planEarlyEncounters(w,f){
-  // Order rooms by walking distance so the first encounters are simple, even on a new layout.
   const dist=new Int32Array(w.grid.length);dist.fill(-1);
   const start=w.rooms[0].cy*w.W+w.rooms[0].cx,q=[start];dist[start]=0;
   for(let i=0;i<q.length;i++)for(const n of [q[i]-1,q[i]+1,q[i]-w.W,q[i]+w.W])if(w.grid[n]===1&&dist[n]<0){dist[n]=dist[q[i]]+1;q.push(n);}
@@ -21,7 +19,6 @@ function planEarlyEncounters(w,f){
   const target=FLOOR_POPULATION[f-1],used=Math.min(target,rooms.length);
   for(let i=0;i<used;i++){const index=used===1?0:Math.round(i*(rooms.length-1)/(used-1));plan[rooms[index].i].count=1;}
   let left=target-used;
-  // Extra creatures belong in later rooms, never in the first encounter.
   for(let i=rooms.length-1;i>1&&left>0;i--)if(plan[rooms[i].i].count<earlyRoomLimit(f)){plan[rooms[i].i].count++;left--;}
   return plan;
 }
@@ -183,7 +180,6 @@ function matriarchAI(b,dt,d,dx,dy){
   if(!a.second&&b.hp<=b.max*.5){a.second=true;a.mode='bloom';a.t=1.1;a.duration=1.1;burst(b.x,b.y,22,'#d1a6b9',160,.7,3,false);sfx('roar2');return;}
   if(a.mode==='bloom'){if(a.t<=0){a.mode='recover';a.t=.6;}return;}
   if(a.mode==='windup'){
-    // Her arms follow the route she expects, then commit before the strike.
     if(a.t>.22&&(a.kind==='lash'||a.kind==='seeds')){const lead=a.kind==='lash'?.36:Math.min(.95,d/290+.22);a.a=Math.atan2(p.y+a.vy*lead-b.y,p.x+a.vx*lead-b.x);}
     if(a.t>0)return;
     if(a.kind==='plant'){plantGrowth(b,'gardenNest');plantGrowth(b,'gardenRoot');if(a.second)plantGrowth(b,'gardenRoot');a.mode='recover';a.t=1.15;sfx('chest');return;}
@@ -251,7 +247,6 @@ function bakeGardenSprites(){
   bakeGardenCreatureVariants();
   SPR.gardenMatriarch=pxGen(54,40,4,(i,j,f)=>{
     const x=i-26.5,y=j-23,phase=f*TAU/4;
-    // Knotted legs frame a seed-heavy body and an empty flower face.
     for(let s of [-1,1])for(let k=0;k<3;k++){
       const rootY=18+k*5,tipX=26.5+s*(23-k*2),tipY=rootY+7+Math.sin(phase+k)*1.1;
       if(segmentDistance(i,j,26.5+s*10,rootY,tipX,tipY)<1.9)return j<tipY?'#819667':'#293628';
@@ -267,7 +262,6 @@ function bakeGardenSprites(){
   },{fps:4,sc:2.3});
   SPR.gardenMatriarch=pxGen(60,48,6,(i,j,f)=>{
     const phase=f/6*TAU,x=i-29.5,y=j;
-    // Six living root legs flex independently instead of moving as a rigid block.
     for(let side of [-1,1])for(let k=0;k<3;k++){
       const bx=29.5+side*(9+k*2),by=27+k*4,tx=29.5+side*(27-k*2),ty=32+k*5+Math.sin(phase+k*1.7)*1.8;
       const d=segmentDistance(i,j,bx,by,tx,ty);if(d<2.5)return d>1.4?'#182a20':k===1?'#91a36d':'#506d49';

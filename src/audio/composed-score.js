@@ -1,7 +1,4 @@
 'use strict';
-/* FALLING LIGHT — a synchronized procedural score. Every part is written to
-   the same sixteenth-note transport, so the soundtrack develops as a song
-   instead of layering unrelated ambient timers. */
 const VF_SCORE_REGIONS={
  title:{name:'Falling Light',movement:'Overture',bpm:72,tonic:33,scale:[0,2,3,5,7,8,10],progression:[0,5,3,6,0,2,5,4],wave:'triangle',leadCut:1180,bass:[0,null,null,0,null,4,null,null,0,null,2,null,4,null,5,null]},
  hollow:{name:'Falling Light',movement:'The Hollow Gate',bpm:78,tonic:33,scale:[0,2,3,5,7,8,10],progression:[0,5,3,6,0,2,5,4],wave:'triangle',leadCut:1080,bass:[0,null,0,null,4,null,5,null,0,null,2,null,4,null,5,null]},
@@ -88,8 +85,6 @@ function vfScoreCreateBus(){
  if(VF_SCORE.bus)return;VF_SCORE.bus=AC.createGain();VF_SCORE.bus.gain.value=.9;VF_SCORE.bus.connect(musLP);VF_SCORE.bassBus=AC.createGain();const drive=AC.createWaveShaper(),low=AC.createBiquadFilter(),curve=new Float32Array(1024);for(let i=0;i<curve.length;i++){const x=i/(curve.length-1)*2-1;curve[i]=Math.tanh(x*1.45)/Math.tanh(1.45);}drive.curve=curve;drive.oversample='2x';low.type='lowshelf';low.frequency.value=115;low.gain.value=3.2;VF_SCORE.bassBus.gain.value=.82;VF_SCORE.bassBus.connect(drive);drive.connect(low);low.connect(musLP);
 }
 
-/* Retire the older independent clocks before the first user gesture creates
-   the AudioContext. The original sound effects remain available. */
 musicLoop=function(){};startDrone=vfScoreStartDrone;audioScoreScheduler=function(){};
 audioHarmonyRoot=function(){return vfScoreMidi(vfScoreProfile().tonic);};
 const vfComposedInitAudio=initAudio;

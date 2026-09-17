@@ -7,19 +7,19 @@
 <title>VoidFall</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="description" content="A dungeon roguelike with fifty floors, permanent progression, ten guardians, and an endless descent.">
-<meta name="voidfall-build" content="falling-light-ui-2026-09-16">
-<link rel="stylesheet" href="styles/base.css">
-<link rel="stylesheet" href="styles/hud.css">
-<link rel="stylesheet" href="styles/overlays.css">
-<link rel="stylesheet" href="styles/interface.css">
-<link rel="stylesheet" href="styles/boss-adaptation.css?v=1">
-<link rel="stylesheet" href="styles/campaign.css">
-<link rel="stylesheet" href="styles/story.css">
-<link rel="stylesheet" href="styles/changelog.css?v=1">
-<link rel="stylesheet" href="styles/run-recap.css?v=1">
-<link rel="stylesheet" href="styles/onboarding.css?v=1">
-<link rel="stylesheet" href="styles/combat-finale.css?v=1">
-<link rel="stylesheet" href="styles/interface-reborn.css?v=1">
+<meta name="voidfall-build" content="release-polish-2026-09-17">
+<link rel="stylesheet" href="styles/base.css?v=2026091701">
+<link rel="stylesheet" href="styles/hud.css?v=2026091701">
+<link rel="stylesheet" href="styles/overlays.css?v=2026091701">
+<link rel="stylesheet" href="styles/interface.css?v=2026091701">
+<link rel="stylesheet" href="styles/boss-adaptation.css?v=2026091701">
+<link rel="stylesheet" href="styles/campaign.css?v=2026091701">
+<link rel="stylesheet" href="styles/story.css?v=2026091701">
+<link rel="stylesheet" href="styles/changelog.css?v=2026091701">
+<link rel="stylesheet" href="styles/run-recap.css?v=2026091701">
+<link rel="stylesheet" href="styles/onboarding.css?v=2026091701">
+<link rel="stylesheet" href="styles/combat-finale.css?v=2026091701">
+<link rel="stylesheet" href="styles/interface-reborn.css?v=2026091701">
 </head>
 <body>
 
@@ -27,7 +27,6 @@
 <div id="vig"></div><div id="lowvig"></div>
 <div id="fade"></div>
 
-<!-- ================= HUD ================= -->
 <div id="hud">
   <div id="topL" class="plate">
     <div class="barwrap"><div id="hpfill"></div><div id="hptext"></div></div>
@@ -68,7 +67,6 @@
   </div>
 </div>
 
-<!-- ================= MENU ================= -->
 <div id="menu" class="ov open">
   <div class="menu-box">
     <h1 class="title">VOIDFALL</h1>
@@ -83,7 +81,6 @@
   </div>
 </div>
 
-<!-- ================= WHAT'S NEW ================= -->
 <div id="changelog" class="ov" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
   <section class="changelog-shell">
     <div class="changelog-sigil" aria-hidden="true"><i></i><b>◆</b><i></i></div>
@@ -102,11 +99,10 @@
 <div id="finale" class="ov" role="dialog" aria-modal="true" aria-labelledby="endingTitle">
  <div class="finale-shell"><p class="ending-kicker">VOIDFALL · THE END OF THE DESCENT</p><canvas id="endingCanvas" width="720" height="280" aria-label="The archive opens, releasing its people into the dawn."></canvas><h2 id="endingTitle"></h2>
  <div id="endingStory"><strong id="endingSpeaker"></strong><p id="endingText"></p></div><button class="btn primary" id="endingNext">CONTINUE</button>
- <div id="endingResults" hidden><p>You opened the gate. Your campaign victory is saved.</p><div id="endingNumbers"></div><div id="endingBuild"></div><div class="ending-choices"><button class="btn primary" id="endingFinish">FINISH &amp; RETURN TO MENU</button><button class="btn" id="endingInfinite">ENTER ENDLESS MODE</button><button class="btn subtle" id="endingReplay">REPLAY ENDING</button></div><p>Endless Mode carries this build into floor 51. Mutations, mixed enemy groups, and binding Oaths reshape the descent. Dying there keeps your victory.</p></div>
+  <div id="endingResults" hidden><p>You opened the gate. Your campaign victory is saved.</p><div id="endingNumbers"></div><div id="endingBuild"></div><div class="ending-choices"><button class="btn primary" id="endingFinish">FINISH &amp; RETURN TO MENU</button><button class="btn" id="endingInfinite">ENTER ENDLESS MODE</button><button class="btn subtle" id="endingReplay">REPLAY ENDING</button></div><p>Endless Mode continues from floor 51 with your current blessings and forms. Mutations, mixed enemy groups, and binding Oaths reshape the descent. Dying there keeps your victory.</p></div>
  </div>
 </div>
 
-<!-- ================= HOW TO ================= -->
 <div id="howto" class="ov">
   <div class="panel" style="max-width:560px">
     <div class="bigword cinzel" style="font-size:1.6rem;color:#ffe9b8">HOW TO PLAY</div>
@@ -129,7 +125,6 @@
   </div>
 </div>
 
-<!-- ================= LEVEL UP ================= -->
 <div id="levelup" class="ov">
   <div id="luWrap">
     <div id="luTitle">LEVEL UP</div>
@@ -138,7 +133,6 @@
   </div>
 </div>
 
-<!-- ================= PAUSE ================= -->
 <div id="pause" class="ov">
   <div class="panel">
     <div class="bigword">PAUSED</div>
@@ -151,7 +145,6 @@
   </div>
 </div>
 
-<!-- ================= DEATH ================= -->
 <div id="dead" class="ov">
   <div class="panel">
     <div class="bigword">THE VOID CLAIMS YOU</div>
@@ -165,7 +158,6 @@
   </div>
 </div>
 
-<!-- ================= VICTORY ================= -->
 <div id="win" class="ov">
   <div class="panel">
     <div class="bigword">THE STAR IS STILL</div>
@@ -179,7 +171,6 @@
   </div>
 </div>
 
-<!-- ================= SKILL TREE ================= -->
 <div id="skills" class="ov">
   <div class="tree-panel">
     <div class="tree-head">
@@ -190,7 +181,7 @@
       </div>
     </div>
     <div class="tree-layout"><div class="tree-map"><div id="treeWrap"><canvas id="treeCv" width="1240" height="980" aria-hidden="true"></canvas><div id="treeNodes" aria-label="Permanent skill tree"></div></div></div><aside class="tree-inspector"><div class="eyebrow">PERMANENT SIGIL</div><h3 id="nodeTitle">Awakening</h3><p id="nodeDesc"></p><div class="price" id="nodePrice"></div><div class="node-status" id="nodeStatus" role="status"></div><button class="btn primary" id="btnUnlock">UNLOCK SIGIL</button><div class="meta-total" id="metaTotal"></div></aside></div>
-    <div class="tree-foot"><span>SELECT A SIGIL · UNLOCK WITH ESSENCE</span><span>ABOUT ◆ 6,500–8,000 PER FULL CLEAR · ◆ 340,285 TO MASTER</span></div>
+    <div class="tree-foot"><span>SELECT A SIGIL · UNLOCK WITH ESSENCE</span><span>EVERY SIGIL REMAINS BETWEEN DESCENTS</span></div>
   </div>
 </div>
 <div id="treeTip"></div>
@@ -226,60 +217,59 @@
 <div id="memoryList"></div><div id="memoryEmpty">Nothing yet. Take the first step.</div><h3 class="armory-heading">Earned blessings</h3><div id="armoryList"></div></div></div>
 <div id="chapterClear" class="ov"><div class="panel chapter-clear-panel"><div class="chapter-seal" id="chapterSeal" aria-hidden="true">Ⅰ</div><div class="eyebrow" id="chapterCompleteLabel">CHAPTER I COMPLETE</div><h2 id="chapterCompleteTitle">The Hollow Gate</h2><p id="chapterCompleteText">The Warden has lowered his weapon.<br>Beyond him, the stairs keep going.</p><div id="chapterStats" class="statsgrid"></div><div class="chapter-quote" id="chapterQuote">“You asked me to stop you.”</div><div class="btnrow"><button class="btn primary" id="chapterContinue">DESCEND FURTHER</button><button class="btn" id="chapterSave">SAVE & RETURN</button></div><button class="text-button" id="chapterExplore">Stay and look around</button></div></div>
 
-<script src="src/core/error-boundary.js?v=2"></script>
-<script src="src/core/foundation.js?v=20260914"></script>
-<script src="src/core/input.js"></script>
-<script src="src/render/sprites.js"></script>
-<script src="src/core/state.js"></script>
-<script src="src/world/dungeon.js"></script>
-<script src="src/game/flow.js?v=20260914"></script>
-<script src="src/render/world-ui.js"></script>
-<script src="src/interface/refinements.js?v=20260914"></script>
-<script src="src/chapters/hollow.js?v=20260914"></script>
-<script src="src/combat/ember-abilities.js"></script>
-<script src="src/chapters/garden.js"></script>
-<script src="src/chapters/late-regions.js"></script>
-<script src="src/progression/regional-blessings.js"></script>
-<script src="src/story/recovered-traces.js"></script>
-<script src="src/enemies/regional-enemies.js?v=20260914"></script>
-<script src="src/bosses/guardians.js"></script>
-<script src="src/world/regional-hazards.js"></script>
-<script src="src/chapters/late-hooks.js"></script>
-<script src="src/progression/skill-tree.js"></script>
-<script src="src/render/ember.js"></script>
-<script src="src/render/hollow-garden-art.js"></script>
-<script src="src/render/regional-art.js"></script>
-<script src="src/game/finale.js?v=20260914"></script>
-<script src="src/progression/blessings.js"></script>
-<script src="src/world/resting-flames.js"></script>
-<script src="src/audio/score.js"></script>
-<script src="src/game/endless.js"></script>
-<script src="src/story/remembered-rooms.js"></script>
-<script src="src/story/echo-tableaus.js"></script>
-<script src="src/combat/combat-feel.js"></script>
-<script src="src/progression/rarity.js"></script>
-<script src="src/bosses/twin-regents.js"></script>
-<script src="src/progression/forms.js"></script>
-<script src="src/world/room-encounters.js?v=2"></script>
-<script src="src/bosses/middle-guardians.js"></script>
-<script src="src/input/touch.js"></script>
-<script src="src/game/guardian-modes.js"></script>
-<script src="src/bosses/final-tuning.js"></script>
-<script src="src/bosses/secret-boss.js"></script>
-<script src="src/game/endless-hardening.js?v=20260914"></script>
-<script src="src/story/living-archive.js"></script>
-<script src="src/story/story-rewrite.js?v=2"></script>
-<script src="src/bosses/adaptive-guardians.js?v=2"></script>
-<script src="src/progression/balance-profile.js?v=2"></script>
-<script src="src/combat/combat-polish.js?v=1"></script>
-<script src="src/audio/mastering.js?v=3"></script>
-<script src="src/audio/composed-score.js?v=1"></script>
-<script src="src/combat/combat-finale.js?v=1"></script>
-<script src="src/interface/run-recap.js?v=1"></script>
-<script src="src/game/onboarding.js?v=1"></script>
-<script src="src/core/save-system.js?v=3"></script>
-<script src="src/interface/interface-reborn.js?v=1"></script>
-<script src="src/core/changelog.js?v=6"></script>
-<script src="src/core/boot.js"></script>
+<script src="src/core/error-boundary.js?v=2026091701"></script>
+<script src="src/core/foundation.js?v=2026091701"></script>
+<script src="src/core/input.js?v=2026091701"></script>
+<script src="src/render/sprites.js?v=2026091701"></script>
+<script src="src/core/state.js?v=2026091701"></script>
+<script src="src/world/dungeon.js?v=2026091701"></script>
+<script src="src/game/flow.js?v=2026091701"></script>
+<script src="src/render/world-ui.js?v=2026091701"></script>
+<script src="src/interface/refinements.js?v=2026091701"></script>
+<script src="src/chapters/hollow.js?v=2026091701"></script>
+<script src="src/combat/ember-abilities.js?v=2026091701"></script>
+<script src="src/chapters/garden.js?v=2026091701"></script>
+<script src="src/chapters/late-regions.js?v=2026091701"></script>
+<script src="src/progression/regional-blessings.js?v=2026091701"></script>
+<script src="src/story/recovered-traces.js?v=2026091701"></script>
+<script src="src/enemies/regional-enemies.js?v=2026091701"></script>
+<script src="src/bosses/guardians.js?v=2026091701"></script>
+<script src="src/world/regional-hazards.js?v=2026091701"></script>
+<script src="src/chapters/late-hooks.js?v=2026091701"></script>
+<script src="src/progression/skill-tree.js?v=2026091701"></script>
+<script src="src/render/ember.js?v=2026091701"></script>
+<script src="src/render/hollow-garden-art.js?v=2026091701"></script>
+<script src="src/render/regional-art.js?v=2026091701"></script>
+<script src="src/game/finale.js?v=2026091701"></script>
+<script src="src/progression/blessings.js?v=2026091701"></script>
+<script src="src/world/resting-flames.js?v=2026091701"></script>
+<script src="src/audio/score.js?v=2026091701"></script>
+<script src="src/game/endless.js?v=2026091701"></script>
+<script src="src/story/remembered-rooms.js?v=2026091701"></script>
+<script src="src/story/echo-tableaus.js?v=2026091701"></script>
+<script src="src/combat/combat-feel.js?v=2026091701"></script>
+<script src="src/progression/rarity.js?v=2026091701"></script>
+<script src="src/bosses/twin-regents.js?v=2026091701"></script>
+<script src="src/progression/forms.js?v=2026091701"></script>
+<script src="src/world/room-encounters.js?v=2026091701"></script>
+<script src="src/bosses/middle-guardians.js?v=2026091701"></script>
+<script src="src/input/touch.js?v=2026091701"></script>
+<script src="src/game/guardian-modes.js?v=2026091701"></script>
+<script src="src/bosses/final-tuning.js?v=2026091701"></script>
+<script src="src/bosses/secret-boss.js?v=2026091701"></script>
+<script src="src/game/endless-hardening.js?v=2026091701"></script>
+<script src="src/story/living-archive.js?v=2026091701"></script>
+<script src="src/story/story-rewrite.js?v=2026091701"></script>
+<script src="src/bosses/adaptive-guardians.js?v=2026091701"></script>
+<script src="src/combat/combat-polish.js?v=2026091701"></script>
+<script src="src/audio/mastering.js?v=2026091701"></script>
+<script src="src/audio/composed-score.js?v=2026091701"></script>
+<script src="src/combat/combat-finale.js?v=2026091701"></script>
+<script src="src/interface/run-recap.js?v=2026091701"></script>
+<script src="src/game/onboarding.js?v=2026091701"></script>
+<script src="src/core/save-system.js?v=2026091701"></script>
+<script src="src/interface/interface-reborn.js?v=2026091701"></script>
+<script src="src/core/changelog.js?v=2026091701"></script>
+<script src="src/core/boot.js?v=2026091701"></script>
 </body>
 </html>

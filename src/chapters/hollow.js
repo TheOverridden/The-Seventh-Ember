@@ -1,7 +1,3 @@
-/* ======================================================================
-   THE HOLLOW GATE — Chapter I. Story, map layouts, and encounters are kept
-   together so later regions can be added without changing the save key.
-   ====================================================================== */
 const HOLLOW_FLOORS=[
   {name:'The Gatehouse',hint:'Follow the old lanterns.'},
   {name:'The Lantern Walks',hint:'Some of the lights are moving.'},
@@ -109,8 +105,6 @@ function wireHollow(){
   addEventListener('keydown',hollowKey,true);
 }
 
-/* The original room-and-corridor generator supplies the layout. Chapter
-   objects are placed afterwards, without fixing rooms to set coordinates. */
 function genHollowFloor(f){
   const w=beforeHollow.genFloor(f),{rooms,exit}=w;
   if(bossFloorAt(f)){exit.cx=exit.x+(exit.w>>1);exit.cy=exit.y+(exit.h>>1);}
@@ -125,14 +119,12 @@ function genHollowFloor(f){
     return null;
   };
   const candidates=rooms.slice(1).filter(r=>r!==exit&&!inArena(r.cx*TILE,r.cy*TILE,2));
-  // Try a shuffled collection of rooms so pillars never bury a memory.
   const shuffled=[...candidates].sort(()=>Math.random()-.5);
   let memoryRoom=null;
   for(const r of shuffled){const p=place(r);if(p){w.fixtures.push({kind:'echo',id:'echo'+f,...p});memoryRoom=r;break;}}
   if(!memoryRoom){const r=rooms[0],p=place(r);if(p){w.fixtures.push({kind:'echo',id:'echo'+f,...p});memoryRoom=r;}}
   const restOrder=[rooms[0],...shuffled];
   for(const r of restOrder){const p=place(r);if(p){w.fixtures.push({kind:'brazier',...p,lit:false});break;}}
-  // Later floors offer a second chance to find an earlier, missed echo.
   if(f>1)for(const r of shuffled){if(r===memoryRoom)continue;const p=place(r);if(p){w.fixtures.push({kind:'echo',id:'echo'+irand(1,f-1),...p});break;}}
   const barracks=shuffled[0]||rooms[1];w.storyRoom=rooms.indexOf(barracks);
   for(let i=0;i<rooms.length;i++){
@@ -147,7 +139,6 @@ function genHollowFloor(f){
     w.hazards.push({x:r.cx*TILE+18-width/2,y:(r.cy+1)*TILE+18,w:width,h:14,t:rand(1.8,3.6),phase:'rest'});
   }
   if(bossFloorAt(f)){
-    // Record every corridor that actually meets this randomly placed arena.
     const doorway=(x,y)=>{if(w.grid[y*w.W+x]===1)w.arenaDoors.push({x,y});};
     for(let x=exit.x;x<exit.x+exit.w;x++){doorway(x,exit.y-1);doorway(x,exit.y+exit.h);}
     for(let y=exit.y;y<exit.y+exit.h;y++){doorway(exit.x-1,y);doorway(exit.x+exit.w,y);}
@@ -155,7 +146,6 @@ function genHollowFloor(f){
     w.props=w.props.filter(o=>!inArena(o.x,o.y));
     for(const side of [-1,1])w.hollowDecor.push({type:'statue',x:(exit.cx+side*Math.floor((exit.w-5)/2))*TILE+18,y:(exit.y+2)*TILE+18});
   }
-  // A fixture always has an unobstructed visual footprint as well as walkable ground.
   w.props=w.props.filter(o=>w.fixtures.every(p=>d2(o.x,o.y,p.x,p.y)>48**2));
   return w;
 }
@@ -182,8 +172,6 @@ function setupHollowFloor(f){
       for(let attempt=0;attempt<25;attempt++){const x=(irand(r.x+2,r.x+r.w-3)+.5)*TILE,y=(irand(r.y+2,r.y+r.h-3)+.5)*TILE;pos=safePosition(w,x,y,ETYPES[type].r*(elite?1.3:1));if(pos&&!(bossFloorAt(f)&&pos.x>(w.exit.x-1)*TILE&&pos.x<(w.exit.x+w.exit.w+1)*TILE&&pos.y>(w.exit.y-1)*TILE&&pos.y<(w.exit.y+w.exit.h+1)*TILE)&&earlySpawnSpace(w,f,pos,r)&&w.fixtures.every(o=>d2(pos.x,pos.y,o.x,o.y)>65**2))break;pos=null;}
       if(pos&&(f>10||G.enemies.length<FLOOR_POPULATION[f-1]))spawnEnemy(type,pos.x,pos.y,elite);
     }
-    // One reliable blessing cache per opening floor. The old condition could
-    // place two, letting a lucky first chapter outgrow the rest of the run.
     const giftRoom=bossFloorAt(f)?Math.min(3,w.rooms.length-1):Math.min(2,w.rooms.length-1);
     if(ri===giftRoom){const pos=safePosition(w,(r.cx+2)*TILE+18,(r.cy+2)*TILE+18,17);if(pos)G.chests.push({...pos,opened:false,hollowGift:true});}
   }
@@ -192,7 +180,6 @@ function setupHollowFloor(f){
   musicInt=Math.min(.7,.18+f*.06);announceHollowFloor();if(f===2)queueStory('walks');
 }
 function bakeHollowSprites(){
-  // Keep the actual creature art from the earlier build, including its pixel palettes.
   SPR.gateHound=SPR.bat;
   SPR.gateSentry=SPR.slime;
   SPR.gateLantern=SPR.spitter;
@@ -292,7 +279,6 @@ function wardenAI(b,dt,d,dx,dy){
       for(const [ox,oy]of offsets){const pos=safePosition(w,p.x+ox,p.y+oy,14);if(pos)a.marks.push({...pos,delay:a.marks.length*.16,landed:false});}
       a.mode='rain';a.rainAge=0;a.t=.66+Math.max(0,a.marks.length-1)*.16;sfx('eshoot');return;
     }
-    // Damage follows the moving blade, rather than filling a sector instantly.
     a.mode='swing';a.t=.28;a.swingDuration=.28;a.hit=false;sfx('dash');return;
   }
   if(a.mode==='swing'){
@@ -317,7 +303,6 @@ function wardenAI(b,dt,d,dx,dy){
     }
     if(a.t<=0){a.mode='recover';a.t=a.second?.34:.7;}return;
   }
-  // Older checkpoints may contain the former impact state.
   if(a.mode==='starFlash'){a.marks=[];a.mode='recover';a.t=.7;return;}
   if(a.mode==='recover'){if(a.t<=0){a.mode='wait';a.t=a.second?.14:.36;a.marks=[];}return;}
   a.a=Math.atan2(dy,dx);
@@ -376,7 +361,6 @@ function drawHollowFloor(ctx){
     }else drawHealingLantern(ctx,o,time);
     if(near&&o.kind!=='echo'){ctx.font='10px system-ui';ctx.textAlign='center';ctx.fillStyle='#dfd6bd';ctx.fillText(o.lit?'BRAZIER LIT':'E · RESTORE HEALTH',o.x,o.y+40);}
   }
-  // A modest trail of brass studs makes the corridor direction easier to read.
   ctx.fillStyle='#9c865145';for(const r of w.rooms){ctx.fillRect((r.cx)*TILE+15,r.y*TILE+3,6,3);}
 }
 function smoothBoss(u){u=clamp(u,0,1);return u*u*(3-2*u);}
@@ -428,7 +412,6 @@ function drawGateEnemy(ctx,e){
       if(warn){sx*=1.06;sy*=.94;}
     }
     ctx.save();ctx.translate(e.x,e.y+bob);ctx.scale(sx,sy);drawSpr(e.spr,0,0,1,rot,1,e.seed);ctx.restore();
-    // The slime lashes out; the stone creature pounds the floor. Neither carries a human weapon.
     if(e.strikeT>0){
       const u=1-e.strikeT/.18;ctx.save();ctx.translate(e.x,e.y);ctx.rotate(e.face||0);ctx.globalAlpha=1-u;
       if(e.type==='gateSentry'){
@@ -465,7 +448,6 @@ function hollowBeforeUpdate(dt){
   return false;
 }
 
-/* Extend the existing engine; saved essence and purchased skills keep their IDs. */
 const beforeHollow={genFloor,setupFloor,startRun,spawnEnemy,damageEnemy,killBoss,update,updateHUD,openChest,die,tryBuyNode,backToMenu,validateSave,validateCheckpoint,snapshotRun,resumeRun,syncSettings,onEscKey,anyBlockingOverlay};
 genFloor=function(f){return f<=10?genHollowFloor(f):beforeHollow.genFloor(f);};
 setupFloor=function(f){storyQueue=storyQueue.filter(id=>id==='firstDeath'||id==='firstSigil');chapterBannerT=0;T('chapterBanner').classList.remove('visible');if(f<=10)setupHollowFloor(f);else beforeHollow.setupFloor(f);};

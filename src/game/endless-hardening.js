@@ -1,6 +1,3 @@
-/* ======================================================================
-   ENDLESS ASCENSION · steep scaling, anti-circle pressure, and safe saves
-   ====================================================================== */
 const ENDLESS_DIFFICULTY_VERSION=3;
 const ENDLESS_BOSS_WEIGHT={bellkeeper:.88,colossus:.94,astronomer:1,scribe:1.06,regents:.62,seraph:1.1,tyrant:1.17,keeper:1.25};
 const endlessLayoutStyle=document.createElement('style');

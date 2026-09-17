@@ -1,4 +1,3 @@
-/* Chapter I: every visual is drawn locally from local project code. */
 #chapterBanner{position:fixed;z-index:13;top:24%;left:50%;transform:translate(-50%,8px);opacity:0;pointer-events:none;text-align:center;width:min(550px,90vw);padding:24px 28px;background:linear-gradient(90deg,transparent,#090f19e8 22%,#090f19e8 78%,transparent);transition:opacity .7s,transform .7s}
 #chapterBanner.visible{opacity:1;transform:translate(-50%,0)}#chapterBanner span{display:block;color:#b29a74;font:9px system-ui;letter-spacing:.25em}#chapterBanner strong{display:block;font:30px Georgia;color:#f3dcae;letter-spacing:.06em;margin:13px 0}#chapterBanner small{color:#b8c2cf;font:11px system-ui}#chapterBanner:before,#chapterBanner:after{content:'';display:block;height:1px;position:absolute;left:17%;right:17%;background:linear-gradient(90deg,transparent,#bd9b59,transparent)}#chapterBanner:before{top:0}#chapterBanner:after{bottom:0}
 #fieldNote{position:fixed;z-index:18;left:50%;bottom:108px;transform:translateX(-50%);max-width:75vw;border-left:2px solid #d6b26e;padding:10px 18px;background:#0a111cee;color:#e8d8bb;font:14px/1.5 Georgia;opacity:0;pointer-events:none;transition:opacity .3s}#fieldNote.visible{opacity:1}
@@ -21,7 +20,6 @@ body.conversing #hud{opacity:.3}body.conversing #touchControls,body.conversing #
 
 .chapter-plan{margin:16px 0 24px;border:1px solid #87a76b55;border-radius:3px 14px 3px 14px;background:#1c2b2266}.chapter-plan summary{padding:16px 18px;color:#d5dfba;font:14px Georgia;cursor:pointer}.chapter-plan summary span{float:right;font:9px system-ui;letter-spacing:.12em;color:#a9ad87}.chapter-plan>div{padding:0 18px 18px}.chapter-plan h3{font:18px Georgia;color:#c9d9b5;margin:20px 0 10px}.chapter-plan p{font:12px/1.9 system-ui;color:#b2c1ab}.chapter-plan table{width:100%;border-collapse:collapse;font:11px/1.6 system-ui;color:#b2c1ab}.chapter-plan th,.chapter-plan td{padding:10px 7px;border-bottom:1px solid #9cad8326;text-align:left;vertical-align:top}.chapter-plan th{color:#d4dec1;font-weight:500}.chapter-plan td:first-child{color:#c7b17d;white-space:nowrap}.dialogue-frame[data-speaker=matriarch]{--voice:#d9b0c2;border-color:#a0ad83;background:linear-gradient(125deg,#222c27fa,#101d1bfc 65%)}.dialogue-frame[data-speaker=matriarch] #speakerName{color:#d9b0c2}.dialogue-frame[data-speaker=matriarch]:before{border-color:#9bad7633}.dialogue-frame[data-speaker=matriarch]:after{background:linear-gradient(90deg,#c49aaa,#87a66a)}
 
-/* Stages V–X, trace records, and the four-tier blessing draft. */
 .card[data-r="0"]{--rar:#9db4d0}.card[data-r="1"]{--rar:#65d9b1}.card[data-r="2"]{--rar:#b98aff}.card[data-r="3"]{--rar:#ffbf5c}
 .card[data-r="3"]{background:radial-gradient(circle at 50% 15%,#70421f55,transparent 45%),linear-gradient(145deg,#21191d,#100d16);box-shadow:0 0 0 1px #ffbf5c55,0 0 32px #ff8d3930,inset 0 0 30px #ffbf5c0c}
 .card[data-r="3"]:before{content:"";position:absolute;inset:5px;clip-path:polygon(0 12px,12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px));border:1px solid #ffcb7950;pointer-events:none}
@@ -52,7 +50,6 @@ body.conversing #hud{opacity:.3}body.conversing #touchControls,body.conversing #
 @media(max-width:700px){#treeMastery,.mastery-track{display:none}.tree-inspector{width:100%}.tree-inspector .meta-total small{display:none}}
 
 
-/* Final campaign sequence, drawn entirely inside the project. */
 #finale{z-index:150;background:#060912f7;padding:max(12px,env(safe-area-inset-top)) 18px;overflow:auto;align-items:center}
 .finale-shell{width:min(880px,96vw);margin:auto;text-align:center;color:#e8dfc9;padding:22px;border:1px solid #c6a76b66;background:linear-gradient(150deg,#151b2c,#080d17);box-shadow:0 0 100px #b8943b15;position:relative}
 .finale-shell:before{content:'';position:absolute;inset:7px;border:1px solid #c6a76b22;pointer-events:none}

@@ -1,8 +1,3 @@
-/* ======================================================================
-   VERIFIED SAVE SYSTEM
-   Two rotating full checkpoints, a compact emergency copy, read-back
-   verification, automatic recovery, and stale-tab overwrite protection.
-   ====================================================================== */
 document.documentElement.dataset.saveSystem='loading';
 const SAVE_SCHEMA=3;
 const PROGRESSION_RESET_MARKER='voidfall_progression_reset_20260914';
