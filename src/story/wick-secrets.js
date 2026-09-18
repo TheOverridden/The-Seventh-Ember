@@ -33,7 +33,7 @@
  }
  function nextScene(){return scenes.find(id=>!storyData().seen[id]);}
  function canPesterWick(){
-  return G.state==='playing'&&G.run&&!G.run.mode&&G.portal?.active&&portalTileSeen()&&!G.descending&&!realInteractionNear()&&!G.enemies.some(e=>!e.dead)&&!armoryData().wickPointer&&!dialogue;
+  return G.state==='playing'&&G.run&&!G.run.mode&&!G.descending&&!realInteractionNear()&&!armoryData().wickPointer&&!dialogue;
  }
  function canRecall(){
   return G.state==='playing'&&G.run&&!G.run.mode&&G.portal?.active&&portalTileSeen()&&!G.descending&&!returning&&d2(G.player.x,G.player.y,G.portal.x,G.portal.y)>105**2;
@@ -93,7 +93,7 @@
   pressWindow=Math.max(0,pressWindow-dt);if(!pressWindow)presses=0;portalTileSeen();
   if(returnQueued){returnQueued=false;if(canRecall()){returnToPortal();return;}}
   if(interactQueued&&canPesterWick()){
-   interactQueued=false;presses++;pressWindow=2.5;const id=nextScene(),needed=id==='wickPointer1'?8:6;
+   interactQueued=false;presses++;pressWindow=5.5;const id=nextScene(),needed=id==='wickPointer1'?7:5;
    if(id&&presses>=needed){presses=0;pressWindow=0;beginDialogue(id,false,0,'playing');return;}
   }
   if(storyData().seen.wickPointer6&&!armoryData().wickPointer&&G.state==='playing'){openGift();return;}
