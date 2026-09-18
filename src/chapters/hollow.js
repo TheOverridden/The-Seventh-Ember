@@ -83,7 +83,7 @@ function hollowTick(dt){
 function fieldNote(text,duration=4){T('fieldNote').textContent=text;fieldNoteT=duration;T('fieldNote').classList.add('visible');}
 function announceHollowFloor(){if(G.world?.region!=='hollow')return;const f=HOLLOW_FLOORS[G.floor-1];T('chapterRegion').textContent=G.floor>=6?'CHAPTER II · THE ROOTBOUND GARDENS':'CHAPTER I · THE HOLLOW GATE';T('chapterPlace').textContent=f.name;T('chapterHint').textContent=f.hint;chapterBannerT=4;T('chapterBanner').classList.add('visible');}
 function renderMemories(){
-  const list=T('memoryList');list.replaceChildren();const ids=Object.keys(HOLLOW_SCENES).filter(id=>storyData().seen[id]);T('memoryEmpty').hidden=ids.length>0;
+  const list=T('memoryList');list.replaceChildren();const ids=Object.keys(HOLLOW_SCENES).filter(id=>storyData().seen[id]&&!HOLLOW_SCENES[id].hidden);T('memoryEmpty').hidden=ids.length>0;
   for(const id of ids){const s=HOLLOW_SCENES[id],b=document.createElement('button');b.className='memory-entry';const left=document.createElement('span'),name=document.createElement('strong'),where=document.createElement('small'),action=document.createElement('span');name.textContent=s.title;where.textContent=s.where;action.textContent='RECALL →';left.append(name,where);b.append(left,action);b.addEventListener('click',()=>beginDialogue(id,true));list.appendChild(b);}
 }
 function openMemories(){if(G.state==='playing')pauseGame(true);renderMemories();show('memories');}
