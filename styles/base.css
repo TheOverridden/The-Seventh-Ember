@@ -1,6 +1,28 @@
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#05060a}
   body{font-family:system-ui,system-ui,sans-serif;color:#dfe6f0;user-select:none}
+  #bootScreen{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 45%,rgba(119,48,20,.22),transparent 28%),linear-gradient(145deg,#100c0d,#050507 58%,#0e0907);opacity:1;visibility:visible;pointer-events:auto;transition:opacity .72s cubic-bezier(.32,.02,.18,1),visibility 0s .72s;animation:bootFailsafe .01s 8s forwards}
+  #bootScreen::before,#bootScreen::after{content:"";position:absolute;inset:clamp(18px,4vw,56px);border:1px solid rgba(213,143,75,.14);clip-path:polygon(24px 0,calc(100% - 24px) 0,100% 24px,100% calc(100% - 24px),calc(100% - 24px) 100%,24px 100%,0 calc(100% - 24px),0 24px)}
+  #bootScreen::after{inset:clamp(24px,4.8vw,68px);border-color:rgba(255,213,151,.055)}
+  .boot-content{position:relative;display:grid;justify-items:center;gap:18px;text-align:center}
+  .boot-emblem{position:relative;width:112px;height:112px;filter:drop-shadow(0 0 26px rgba(229,102,35,.22))}
+  .boot-emblem::before,.boot-emblem::after{content:"";position:absolute;inset:24px;border:1px solid rgba(242,177,99,.48);transform:rotate(45deg)}
+  .boot-emblem::after{inset:35px;border-color:rgba(255,227,180,.34);animation:bootPulse 1.45s ease-in-out infinite}
+  .boot-emblem b{position:absolute;left:50%;top:50%;width:22px;height:32px;translate:-50% -50%;border-radius:55% 45% 58% 42%;background:radial-gradient(circle at 50% 62%,#fff4d2 0 12%,#ffc36e 13% 34%,#e15a27 35% 63%,transparent 65%);filter:drop-shadow(0 0 7px #e85d26) drop-shadow(0 0 18px rgba(229,91,33,.75));animation:bootFlame .92s ease-in-out infinite alternate}
+  .boot-emblem i{--a:0deg;position:absolute;left:52px;top:7px;width:8px;height:15px;border:1px solid rgba(255,205,130,.72);background:linear-gradient(#f5b568,#8b3d20);clip-path:polygon(50% 0,100% 38%,72% 100%,25% 82%,0 34%);transform-origin:4px 49px;transform:rotate(var(--a));animation:bootOrbit 5.6s linear infinite}
+  .boot-emblem i:nth-child(2){--a:51.43deg}.boot-emblem i:nth-child(3){--a:102.86deg}.boot-emblem i:nth-child(4){--a:154.29deg}.boot-emblem i:nth-child(5){--a:205.72deg}.boot-emblem i:nth-child(6){--a:257.15deg}.boot-emblem i:nth-child(7){--a:308.58deg}
+  .boot-title{display:grid;gap:2px;color:#f3e6ce;font-family:Georgia,serif;line-height:.88;text-shadow:0 2px 18px rgba(0,0,0,.75)}
+  .boot-title small{font-size:clamp(10px,1vw,13px);font-weight:600;letter-spacing:.48em;padding-left:.48em;color:#cfa777}
+  .boot-title strong{font-size:clamp(31px,4.2vw,52px);font-weight:500;letter-spacing:.13em;padding-left:.13em}
+  .boot-status{display:flex;align-items:center;gap:10px;color:#a67d58;font-size:9px;font-weight:700;letter-spacing:.3em;padding-left:.3em}
+  .boot-status::before,.boot-status::after{content:"";width:28px;height:1px;background:linear-gradient(90deg,transparent,rgba(211,143,77,.55))}
+  .boot-status::after{transform:scaleX(-1)}
+  html.boot-ready #bootScreen{opacity:0;visibility:hidden;pointer-events:none;animation:none}
+  @keyframes bootOrbit{to{rotate:360deg}}
+  @keyframes bootPulse{50%{inset:31px;opacity:.55}}
+  @keyframes bootFlame{to{scale:.91 1.08;translate:-50% -52%;filter:drop-shadow(0 0 10px #f17a31) drop-shadow(0 0 24px rgba(229,91,33,.82))}}
+  @keyframes bootFailsafe{to{opacity:0;visibility:hidden;pointer-events:none}}
+  @media (prefers-reduced-motion:reduce){#bootScreen{transition-duration:.18s}.boot-emblem::after,.boot-emblem b,.boot-emblem i{animation:none}}
   body.play, body.play canvas{cursor:none}
   canvas#cv{position:fixed;inset:0;display:block;z-index:0}
   .cinzel{font-family:Georgia,serif}
