@@ -35,7 +35,7 @@ function offlineIcons(){
   });
 }
 function resetTouchInput(){touchInput.moveX=touchInput.moveY=touchInput.aimX=touchInput.aimY=0;touchInput.aimActive=touchInput.fire=false;touchInput.movePointer=touchInput.aimPointer=null;for(const id of ['moveStick','aimStick']){const el=T(id);if(!el)continue;el.classList.remove('active');const knob=el.querySelector('.touch-knob');if(knob)knob.style.transform='translate(0px,0px)';}}
-function clearInput(){for(const k in keys)keys[k]=false;mouse.down=false;interactQueued=false;dashQueued=false;aimTarget=null;resetTouchInput();}
+function clearInput(){for(const k in keys)keys[k]=false;mouse.down=false;interactQueued=false;dashQueued=false;dashBufferT=0;aimTarget=null;resetTouchInput();}
 function anyBlockingOverlay(){return G.skillsOpen||['howto','settings','confirmRun'].some(id=>T(id).classList.contains('open'));}
 function nearestTarget(){
   if(!G.player)return null;let best=null,dist=600*600;
@@ -204,7 +204,7 @@ function wireRefinements(){
   on(T('btnImportApply'),'click',()=>{if(!pendingImport)return;save=pendingImport;pendingImport=null;META=computeMeta();saveNow();refreshMenuStats();syncSettings();T('importReview').hidden=true;});
   on(T('btnImportCancel'),'click',()=>{pendingImport=null;T('importReview').hidden=true;});
   wireAnalogStick('moveStick','move');wireAnalogStick('aimStick','aim');
-  wireTouchAction('touchDash',()=>dashQueued=true);wireTouchAction('touchEnter',()=>interactQueued=true);
+  wireTouchAction('touchDash',queueDash);wireTouchAction('touchEnter',()=>interactQueued=true);
 }
 
 function decorateMenus(){

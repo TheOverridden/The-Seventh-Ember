@@ -1,6 +1,7 @@
 const keys={}; const mouse={x:0,y:0,down:false};
 const touchInput={moveX:0,moveY:0,aimX:0,aimY:0,aimActive:false,fire:false,movePointer:null,aimPointer:null};
-let interactQueued=false, dashQueued=false;
+let interactQueued=false, dashQueued=false, dashBufferT=0;
+function queueDash(){dashQueued=true;dashBufferT=.16;}
 addEventListener('keydown', e=>{
   if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)) return;
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) {
@@ -13,7 +14,7 @@ addEventListener('keydown', e=>{
   if(e.code==='KeyM') toggleMusic();
   if(e.code==='KeyP') onEscKey();
   if(G.state==='playing'){
-    if(e.code==='Space') dashQueued=true;
+    if(e.code==='Space') queueDash();
     if(e.code==='KeyE') interactQueued=true;
   }
   if(G.state==='levelup'){

@@ -1,6 +1,6 @@
 'use strict';
-const ONBOARDING_VERSION=1;
-const ONBOARDING_STEPS=['move','bolt','flare','dash','rekindle','interact','blessing','warden'];
+const ONBOARDING_VERSION=2;
+const ONBOARDING_STEPS=['move','bolt','flare','dash','kindled','rekindle','interact','blessing','warden'];
 let onboardingMoveT=0,onboardingDashT=0,onboardingDeadShown=false;
 function cleanOnboarding(raw,totalRuns=0){
  const out={version:ONBOARDING_VERSION};
@@ -18,10 +18,11 @@ const ONBOARDING_COPY={
  bolt:['EMBER BOLT',()=>onboardingTouch()?'Hold the right ember-ring toward the creature.':'Aim with the mouse and hold click, or hold J.'],
  flare:['FLARE',()=>onboardingTouch()?'Tap FLARE when a creature gets close. It hits much harder.':'Press K or right-click when a creature gets close. Flare hits much harder.'],
  dash:['DASH THROUGH DANGER',()=>onboardingTouch()?'Tap DASH as an attack reaches you. You cannot be hurt during the burst.':'Press Space as an attack reaches you. You cannot be hurt during the burst.'],
+ kindled:['KINDLED FLARE',()=> 'A close dash through danger arms your Flare. Strike before the gold light fades.'],
  rekindle:['REKINDLE',()=>onboardingTouch()?'Your six bolts are nearly spent. Tap REKINDLE now, or it will begin automatically at empty.':'Your six bolts are nearly spent. Press R now, or Rekindle begins automatically at empty.'],
  interact:['THE RESTING FLAME',()=>onboardingTouch()?'Stand near the flame and tap USE to recover health.':'Stand near the flame and press E to recover health.'],
  blessing:['CHOOSE WHAT CHANGES',()=> 'Blessings last for this descent. Pick one that works with the way you are fighting.'],
- warden:['THE LAST WATCH',()=> 'Mara’s shield follows your bolts. Let the glaive pass, then strike during the opening.']
+ warden:['THE LAST WATCH',()=> 'Mara follows careless Bolts. Dash close to the glaive, then answer with a Kindled Flare when her guard opens.']
 };
 const coach=document.createElement('aside');coach.id='onboardingCoach';coach.setAttribute('role','status');coach.setAttribute('aria-live','polite');coach.innerHTML='<span>FIRST DESCENT</span><strong id="onboardingTitle"></strong><p id="onboardingText"></p><i aria-hidden="true"></i>';document.body.append(coach);
 function hideOnboardingCoach(){coach.classList.remove('visible');coach.dataset.step='';}
@@ -34,6 +35,7 @@ function onboardingWanted(){
  if(!d.flare&&nearEnemy(145))return'flare';
  const danger=G.ebul.some(b=>d2(p.x,p.y,b.x,b.y)<155**2)||G.enemies.some(e=>!e.dead&&(e.action==='warn'||e.ai==='warden'&&e.wb?.mode==='windup'));
  if(!d.dash&&danger)return'dash';
+ if(!d.kindled&&p.kindledT>0)return'kindled';
  if(!d.rekindle&&(p.ammo??p.magSize)>0&&(p.ammo??99)<=2)return'rekindle';
  const resting=typeof nearestRestingFlame==='function'&&nearestRestingFlame();
  if(!d.interact&&resting&&!resting.lit)return'interact';

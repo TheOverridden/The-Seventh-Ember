@@ -7,7 +7,9 @@
 #memoryStage .memory-discovery.on{opacity:.94;transform:translate(-50%,-50%) scale(1)}
 #memoryStage .memory-discovery small{display:block;margin-bottom:8px;color:#b9d7db;font:8px system-ui;letter-spacing:.32em;text-transform:uppercase}
 #memoryStage .memory-caption{border-color:#b7d7dc80;background:linear-gradient(145deg,#0c1720ed,#070c13f4);box-shadow:0 16px 70px #000,0 0 44px #8bcad51b}
-#memoryStage .memory-speaker{color:#c0dadd}
+#memoryStage .memory-speaker{display:inline-flex;align-items:center;gap:9px;min-height:22px;padding:3px 11px 3px 8px;border-left:3px solid var(--memory-color,#c0dadd);background:linear-gradient(90deg,color-mix(in srgb,var(--memory-color,#c0dadd) 18%,transparent),transparent);color:#e9fbfc;font-size:11px;font-weight:800;letter-spacing:.22em;text-shadow:0 0 15px var(--memory-color,#c0dadd)}
+#memoryStage .memory-speaker:before{content:'';width:7px;height:7px;transform:rotate(45deg);border:1px solid currentColor;box-shadow:0 0 10px var(--memory-color,#c0dadd)}
+#memoryStage.speaker-focused .memory-caption{border-color:color-mix(in srgb,var(--memory-color,#b7d7dc) 75%,#fff);box-shadow:0 16px 70px #000,0 0 52px color-mix(in srgb,var(--memory-color,#8bcad5) 25%,transparent)}
 #memoryStage .memory-line{min-height:42px}
 #memoryStage .memory-progress i{background:#76939a42}
 #memoryStage .memory-progress i.on{background:#d2e7e7;box-shadow:0 0 11px #a7dde5}

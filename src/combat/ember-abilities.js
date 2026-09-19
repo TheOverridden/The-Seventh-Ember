@@ -10,8 +10,9 @@ POOL.push(
   {id:'quickload',r:0,max:3,w:6,icon:'rotate-ccw',name:'Quickening',ds:'Rekindle 18% faster',unlock:'quickload'},
   {id:'bladeEcho',r:2,max:1,w:3,icon:'wind',name:'Warden’s Wake',ds:'Flare releases a piercing wave forward',unlock:'bladeEcho'}
 );
-const MELEE={damage:2.25,reach:66,halfArc:.8,windup:.22,swing:.22,cooldown:.92,cleave:[1,.65,.45]};
-let meleeQueued=false,reloadQueued=false,armoryNotices=[];
+const MELEE={damage:2.25,reach:74,halfArc:.9,windup:.16,swing:.23,cooldown:.82,baseCooldown:.82,cleave:[1,.72,.55,.4]};
+let meleeQueued=false,meleeBufferT=0,reloadQueued=false,armoryNotices=[];
+function queueMelee(){meleeQueued=true;meleeBufferT=.16;}
 function armoryData(){if(!save.armory)save.armory={};return save.armory;}
 function unlockArmory(id){if(armoryData()[id])return;armoryData()[id]=true;armoryNotices.push(id);markSave();}
 function initCombat(){
@@ -46,7 +47,9 @@ function combatTick(dt){
   if(p.reloadT>0){p.reloadT=Math.max(0,p.reloadT-dt);if(p.reloadT===0){p.ammo=p.magSize;sfx('ui');}}
   if(reloadQueued){reloadQueued=false;beginReload();}
   if(dashQueued&&p.meleeWindT>0){p.meleeWindT=0;p.meleeCdT=.25;}
-  if(meleeQueued){meleeQueued=false;beginMelee();}
+  meleeBufferT=Math.max(0,meleeBufferT-dt);
+  if(meleeQueued){meleeQueued=false;if(beginMelee())meleeBufferT=0;}
+  else if(meleeBufferT>0&&beginMelee())meleeBufferT=0;
   if(p.meleeWindT>0){p.meleeWindT=Math.max(0,p.meleeWindT-dt);if(p.meleeWindT===0)strikeMelee();}
   if(G.dead||G.state!=='playing')return true;return false;
 }
@@ -95,10 +98,10 @@ function renderArmory(){
   for(const[id,o]of Object.entries(ARMORY)){const row=document.createElement('div');row.className='armory-entry'+(armoryData()[id]?' unlocked':'');const title=document.createElement('strong'),desc=document.createElement('small');title.textContent=armoryData()[id]?o.name:'Undiscovered blessing';desc.textContent=armoryData()[id]?o.detail:o.requirement;row.append(title,desc);list.appendChild(row);}
 }
 function wireCombat(){
-  on(T('btnReload'),'click',()=>{if(G.state==='playing')reloadQueued=true;});on(T('btnMelee'),'click',()=>{if(G.state==='playing')meleeQueued=true;});
-  on(T('touchMelee'),'pointerdown',e=>{e.preventDefault();if(G.state==='playing')meleeQueued=true;});on(T('touchReload'),'click',()=>{if(G.state==='playing')reloadQueued=true;});
-  addEventListener('keydown',e=>{if(e.repeat||G.state!=='playing'||anyBlockingOverlay()||['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;if(e.code==='KeyK'){e.preventDefault();meleeQueued=true;}if(e.code==='KeyR'){e.preventDefault();reloadQueued=true;}});
-  addEventListener('mousedown',e=>{if(e.button===2&&e.target.id==='cv'&&G.state==='playing'){e.preventDefault();meleeQueued=true;initAudio();}});
+  on(T('btnReload'),'click',()=>{if(G.state==='playing')reloadQueued=true;});on(T('btnMelee'),'click',()=>{if(G.state==='playing')queueMelee();});
+  on(T('touchMelee'),'pointerdown',e=>{e.preventDefault();if(G.state==='playing')queueMelee();});on(T('touchReload'),'click',()=>{if(G.state==='playing')reloadQueued=true;});
+  addEventListener('keydown',e=>{if(e.repeat||G.state!=='playing'||anyBlockingOverlay()||['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;if(e.code==='KeyK'){e.preventDefault();queueMelee();}if(e.code==='KeyR'){e.preventDefault();reloadQueued=true;}});
+  addEventListener('mousedown',e=>{if(e.button===2&&e.target.id==='cv'&&G.state==='playing'){e.preventDefault();queueMelee();initAudio();}});
 }
 const beforeCombat={fireVolley,recalc,startRun,setupFloor,resumeRun,damageEnemy,killBoss,validateSave,validateCheckpoint,updateHUD,clearInput,renderMemories,chooseCard};
 fireVolley=function(){const p=G.player;initCombat();if(p.reloadT>0||p.meleeWindT>0||p.meleeHitT>.08)return;if(p.ammo<=0){beginReload();return;}p.ammo--;beforeCombat.fireVolley();if(p.ammo===0)beginReload();};
@@ -106,7 +109,7 @@ recalc=function(){beforeCombat.recalc();initCombat();};
 startRun=function(){beforeCombat.startRun();initCombat();syncWeaponHUD();};
 setupFloor=function(f){beforeCombat.setupFloor(f);initCombat();if(f===2)unlockArmory('magazine');if(f===3)unlockArmory('edge');if(f===4)unlockArmory('quickload');};
 resumeRun=function(){beforeCombat.resumeRun();migrateEnemyBalance();initCombat();syncWeaponHUD();};
-clearInput=function(){beforeCombat.clearInput();meleeQueued=false;reloadQueued=false;};
+clearInput=function(){beforeCombat.clearInput();meleeQueued=false;meleeBufferT=0;reloadQueued=false;};
 damageEnemy=function(e,dmg,ang,crit,kb,kind='shot'){
   if(e.warden){
     if(!e.introduced)return;const b=e.wb;

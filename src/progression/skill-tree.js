@@ -165,7 +165,7 @@ initCombat=function(){
  p.ammo=Math.min(p.ammo??p.magSize,p.magSize);
 };
 const beforeMasteryRecalc=recalc;
-recalc=function(){beforeMasteryRecalc();if(!G.player||!G.run)return;const p=G.player;p.pierce+=META.pierce||0;p.regen+=META.regen||0;p.orbN+=META.orbit||0;MELEE.damage=2.25*(META.flare||1);p.flareReach=(p.flareReach||66)+(META.flareReach||0);MELEE.reach=p.flareReach;MELEE.cooldown=.92*(META.flareCd||1);p.metaArmor=META.armor||0;};
+recalc=function(){beforeMasteryRecalc();if(!G.player||!G.run)return;const p=G.player;p.pierce+=META.pierce||0;p.regen+=META.regen||0;p.orbN+=META.orbit||0;MELEE.damage=2.25*(META.flare||1);p.flareReach=(p.flareReach||74)+(META.flareReach||0);MELEE.reach=p.flareReach;MELEE.cooldown=MELEE.baseCooldown*(META.flareCd||1);p.metaArmor=META.armor||0;};
 const beforeMasteryDamageEnemy=damageEnemy;
 damageEnemy=function(e,dmg,ang,crit,kb,kind='shot'){
  if(!e||e.dead)return;if(e.isBoss)dmg*=META.boss||1;if(crit&&META.critPower)dmg*=(2+META.critPower)/2;

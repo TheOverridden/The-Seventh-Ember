@@ -157,7 +157,7 @@ resetEverything=function(){formsResetEverything();formData();renderEvolutionChip
 
 const formsRecalc=recalc;
 recalc=function(){
- MELEE.damage=2.25;MELEE.reach=66;MELEE.halfArc=.8;MELEE.windup=.22;MELEE.swing=.22;MELEE.cooldown=.92;MELEE.cleave=[1,.65,.45];formsRecalc();if(!G.player||!G.run)return;const p=G.player,primary=activeForm('primary').id,flare=activeForm('flare').id,dash=activeForm('dash').id;
+ MELEE.damage=2.25;MELEE.reach=74;MELEE.halfArc=.9;MELEE.windup=.16;MELEE.swing=.23;MELEE.cooldown=MELEE.baseCooldown;MELEE.cleave=[1,.72,.55,.4];formsRecalc();if(!G.player||!G.run)return;const p=G.player,primary=activeForm('primary').id,flare=activeForm('flare').id,dash=activeForm('dash').id;
  if(primary==='sunlance')p.shotInt*=1.65;else if(primary==='cinderburst')p.shotInt*=1.32;else if(primary==='starweaver')p.shotInt*=1.27;else if(primary==='ashDisc')p.shotInt*=2.25;
  if(flare==='novaFlare'){MELEE.damage*=.78;MELEE.reach=Math.max(MELEE.reach,92);MELEE.halfArc=Math.PI;MELEE.cooldown*=1.18;MELEE.cleave=Array.from({length:16},(_,i)=>Math.max(.38,1-i*.045));}
  else if(flare==='dawnCrescent'){MELEE.damage*=1.64;MELEE.reach=Math.max(MELEE.reach,138);MELEE.halfArc=.36;MELEE.cooldown*=1.13;MELEE.cleave=[1,.82,.68,.5];}

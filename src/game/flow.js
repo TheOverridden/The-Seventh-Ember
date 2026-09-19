@@ -284,15 +284,17 @@ function update(dt){
   if(mx||my){ const l=Math.hypot(mx,my); mx/=l; my/=l; }
   p.moving=!!(mx||my);
   p.dashCdT-=dt;
+  dashBufferT=Math.max(0,dashBufferT-dt);
   if(dashQueued){
-    dashQueued=false;
     if(p.dashCdT<=0 && p.dashT<=0){
+      dashQueued=false;dashBufferT=0;
       const a=(mx||my)?Math.atan2(my,mx):aimAngle();
       p.dashT=.16+(META.dashIFrame||0); p.dashDx=Math.cos(a); p.dashDy=Math.sin(a);
       p.dashCdT=p.dashCd;
+      if(p.reloadT>0)p.reloadT=0;
       sfx('dash');
       burst(p.x,p.y,8,'#ffd88a',140,.35,2,true);
-    }
+    }else if(dashBufferT<=0)dashQueued=false;
   }
   if(p.dashT>0){
     p.dashT-=dt;
@@ -302,7 +304,7 @@ function update(dt){
     if(p.ghostT<=0){ p.ghostT=.022;
       p.ghosts.push({x:p.x,y:p.y+2,rot:Math.atan2(p.dashDy,p.dashDx)+Math.PI/2,life:1}); }
   } else {
-    const sp=p.speed*(p.pathSpeed||1)*(p.meleeWindT>0?.65:p.meleeHitT>0?.8:1);
+    const sp=p.speed*(p.pathSpeed||1)*(p.meleeWindT>0?.72:p.meleeHitT>0?.86:1)*(p.reloadT>0?.76:1);
     moveEnt(w,p,mx*sp*dt+p.kbx*dt,my*sp*dt+p.kby*dt);
   }
   p.kbx*=Math.pow(.0005,dt); p.kby*=Math.pow(.0005,dt);

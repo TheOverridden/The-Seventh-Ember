@@ -175,7 +175,7 @@ function setupHollowFloor(f){
     const giftRoom=bossFloorAt(f)?Math.min(3,w.rooms.length-1):Math.min(2,w.rooms.length-1);
     if(ri===giftRoom){const pos=safePosition(w,(r.cx+2)*TILE+18,(r.cy+2)*TILE+18,17);if(pos)G.chests.push({...pos,opened:false,hollowGift:true});}
   }
-  if(f===5){const b=spawnBossAt(w.exit.cx*TILE+18,(w.exit.cy-2)*TILE+18);b.warden=true;b.ai='warden';b.name='THE STAR WARDEN';b.hp=b.max=WARDEN_HP;b.balanceVersion=2;b.r=29;b.dmg=19;b.spd=74;b.xp=85;b.col='#d8c389';b.kb=0;b.tier=1;b.introduced=false;b.wb={mode:'wait',t:1.3,a:Math.PI/2,kind:'',step:0,marks:[],second:false};}
+  if(f===5){const b=spawnBossAt(w.exit.cx*TILE+18,(w.exit.cy-2)*TILE+18);b.warden=true;b.ai='warden';b.name='THE STAR WARDEN';b.hp=b.max=WARDEN_HP;b.balanceVersion=2;b.r=29;b.dmg=19;b.spd=74;b.xp=85;b.col='#d8c389';b.kb=0;b.tier=1;b.introduced=false;b.wb={mode:'wait',t:1.3,a:Math.PI/2,kind:'',step:0,marks:[],second:false,final:false};}
   if(f===10)spawnMatriarch();
   musicInt=Math.min(.7,.18+f*.06);announceHollowFloor();if(f===2)queueStory('walks');
 }
@@ -255,17 +255,21 @@ function sealWardenArena(closed){
 
 function playerInArena(){const r=G.world.exit,p=G.player;return p.x>(r.x+1)*TILE&&p.x<(r.x+r.w-1)*TILE&&p.y>(r.y+1)*TILE&&p.y<(r.y+r.h-1)*TILE;}
 function activateWarden(b){b.introduced=true;b.aggro=true;G.bossActive=true;G.ebul=[];G.bullets=[];chapterBannerT=0;T('chapterBanner').classList.remove('visible');sealWardenArena(true);G.cam.x=(G.player.x+b.x)/2-G.w/2;G.cam.y=(G.player.y+b.y)/2-G.h/2;T('bossname').textContent=b.name;T('bossbar').classList.add('on');sfx('boss');if(!storyData().seen.wardenBefore)beginDialogue('wardenBefore');saveNow();}
-const WARDEN_HP=1650;
+const WARDEN_HP=1850;
 const WARDEN_REACH=134;
 function wardenAI(b,dt,d,dx,dy){
   if(!b.introduced)return;musicInt=.88;const a=b.wb,p=G.player,w=G.world;a.t-=dt;
-  if(!a.second&&b.hp<=b.max*.5){
+  if(!a.second&&b.hp<=b.max*.56){
     a.second=true;a.mode='break';a.t=1.05;a.marks=[];G.ebul=[];
     burst(b.x,b.y,24,'#b491dc',200,.65,3,false);sfx('roar2');return;
   }
+  if(a.second&&!a.final&&b.hp<=b.max*.22){
+    a.final=true;a.mode='break';a.t=.72;a.marks=[];G.ebul=[];
+    burst(b.x,b.y,30,'#ffd08a',245,.72,3.4,false);sfx('roar2');return;
+  }
   if(a.mode==='break'){if(a.t<=0){a.mode='recover';a.t=.6;}return;}
   if(a.mode==='lunge'){
-    const hit=moveEnt(w,b,Math.cos(a.a)*(a.second?700:650)*dt,Math.sin(a.a)*(a.second?700:650)*dt);
+    const hit=moveEnt(w,b,Math.cos(a.a)*(a.final?760:a.second?700:650)*dt,Math.sin(a.a)*(a.final?760:a.second?700:650)*dt);
     if(d2(p.x,p.y,b.x,b.y)<(b.r+p.r+5)**2)hurtPlayer(b.dmg+3,b.x,b.y);
     if(hit||a.t<=0){a.mode='recover';a.t=a.second?.54:1.05;burst(b.x,b.y,12,'#8973a9',130,.45,2,false);}
     return;
@@ -274,7 +278,7 @@ function wardenAI(b,dt,d,dx,dy){
     if(a.t>0)return;
     if(a.kind==='lunge'){a.mode='lunge';a.t=a.second?.5:.46;sfx('charge');return;}
     if(a.kind==='stars'){
-      const offsets=a.second?[[0,0],[-80,-50],[85,50],[-65,100],[65,-100]]:[[0,0],[-85,40],[85,-40]];
+      const offsets=a.final?[[0,0],[-92,-58],[92,58],[-72,108],[72,-108],[112,-22]]:a.second?[[0,0],[-80,-50],[85,50],[-65,100],[65,-100]]:[[0,0],[-85,40],[85,-40]];
       a.marks=[];
       for(const [ox,oy]of offsets){const pos=safePosition(w,p.x+ox,p.y+oy,14);if(pos)a.marks.push({...pos,delay:a.marks.length*.16,landed:false});}
       a.mode='rain';a.rainAge=0;a.t=.66+Math.max(0,a.marks.length-1)*.16;sfx('eshoot');return;
@@ -299,18 +303,18 @@ function wardenAI(b,dt,d,dx,dy){
       if(d2(p.x,p.y,m.x,m.y)<(14+p.r)**2)hurtPlayer(b.dmg,m.x,m.y);
       burst(m.x,m.y,8,'#d2a1ed',95,.45,2,false);sfx('hit');
       const rotation=a.a+(a.second?Math.PI/4:0);
-      for(let i=0;i<4;i++){const angle=rotation+i*TAU/4;enemyShoot({x:m.x,y:m.y},angle,a.second?175:145,12);}
+      const rays=a.final?6:4;for(let i=0;i<rays;i++){const angle=rotation+i*TAU/rays;enemyShoot({x:m.x,y:m.y},angle,a.final?195:a.second?175:145,a.final?14:12);}
     }
     if(a.t<=0){a.mode='recover';a.t=a.second?.34:.7;}return;
   }
   if(a.mode==='starFlash'){a.marks=[];a.mode='recover';a.t=.7;return;}
-  if(a.mode==='recover'){if(a.t<=0){a.mode='wait';a.t=a.second?.14:.36;a.marks=[];}return;}
+  if(a.mode==='recover'){if(a.t<=0){a.mode='wait';a.t=a.final?.08:a.second?.14:.36;a.marks=[];a.kindledOpened=false;}return;}
   a.a=Math.atan2(dy,dx);
-  if(d>104)moveEnt(w,b,dx/d*(a.second?104:80)*dt,dy/d*(a.second?104:80)*dt);
+  if(d>104)moveEnt(w,b,dx/d*(a.final?118:a.second?104:80)*dt,dy/d*(a.final?118:a.second?104:80)*dt);
   if(a.t>0)return;
-  const sequence=a.second?['double','lunge','stars','double','lunge']:['sweep','lunge','sweep','stars'];
+  const sequence=a.final?['double','stars','lunge','double','stars','lunge']:a.second?['double','lunge','stars','double','lunge']:['sweep','lunge','sweep','stars'];
   a.kind=sequence[a.step++%sequence.length];if(d>230&&a.kind==='sweep')a.kind='lunge';
-  a.followup=false;a.mode='windup';a.duration=a.kind==='stars'?(a.second?.82:.95):a.kind==='lunge'?(a.second?.5:.72):(a.second?.46:.66);
+  a.followup=false;a.mode='windup';a.duration=a.kind==='stars'?(a.final?.66:a.second?.82:.95):a.kind==='lunge'?(a.final?.4:a.second?.5:.72):(a.final?.36:a.second?.46:.66);
   a.t=a.duration;a.a=Math.atan2(p.y-b.y,p.x-b.x);a.marks=[];
 }
 
@@ -493,7 +497,7 @@ validateCheckpoint=function(r){
     for(const h of w.hazards)if(!num(h.w,1,1000)||!num(h.h,1,1000)||!num(h.t)||!['rest','warn','active'].includes(h.phase))fail();
     for(const o of w.hollowDecor)if(!['carpet','bed','lampRack','statue','bell','moss','vine','planter','trellis'].includes(o.type)||o.type==='carpet'&&(!num(o.w,1,1000)||!num(o.h,1,1000)))fail();
   }
-  for(const e of r.enemies){if(e.ai==='warden'){const b=e.wb;if(!e.warden||!b||!['wait','break','recover','windup','swing','lunge','starFlash','rain'].includes(b.mode)||!['','sweep','double','stars','lunge'].includes(b.kind)||!num(b.t)||!num(b.a)||!num(b.step,0)||!Array.isArray(b.marks)||b.marks.length>5)fail();for(const p of b.marks)if(!num(p.x,0,w.W*TILE)||!num(p.y,0,w.H*TILE))fail();if(b.mode==='rain'&&(!num(b.rainAge,0,10)||b.marks.some(m=>!num(m.delay,0,2)||typeof m.landed!=='boolean')))fail();}
+  for(const e of r.enemies){if(e.ai==='warden'){const b=e.wb;if(!e.warden||!b||!['wait','break','recover','windup','swing','lunge','starFlash','rain'].includes(b.mode)||!['','sweep','double','stars','lunge'].includes(b.kind)||!num(b.t)||!num(b.a)||!num(b.step,0)||!Array.isArray(b.marks)||b.marks.length>6)fail();for(const p of b.marks)if(!num(p.x,0,w.W*TILE)||!num(p.y,0,w.H*TILE))fail();if(b.mode==='rain'&&(!num(b.rainAge,0,10)||b.marks.some(m=>!num(m.delay,0,2)||typeof m.landed!=='boolean')))fail();}
     if(e.ai==='gate'&&(!['stalk','warn','recover','leap'].includes(e.action)||!num(e.actionT)||!num(e.face)))fail();}
   if(r.dialogue&&(!HOLLOW_SCENES[r.dialogue.id]||!Number.isInteger(r.dialogue.index)||r.dialogue.index<0||r.dialogue.index>50))fail();return r;
 };

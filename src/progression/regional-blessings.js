@@ -37,7 +37,7 @@ const beforeLateRecalc=recalc;
 recalc=function(){
   beforeLateRecalc();if(!G.player||!G.run)return;const p=G.player,u=G.run.up,g=id=>u[id]||0;
   p.magSize=6+2*g('magazine')+g('reserve');p.reloadDuration=1.65*Math.pow(.82,g('quickload'));p.ammo=Math.min(p.ammo??p.magSize,p.magSize);
-  p.flareReach=66+16*g('flareReach');p.flareArc=.8+.12*g('flareReach');
+  p.flareReach=74+16*g('flareReach');p.flareArc=.9+.12*g('flareReach');
   MELEE.reach=p.flareReach;MELEE.halfArc=p.flareArc;
   p.orbN+=g('ashCrown')?5:0;p.runRevive=!!g('runRevive');
 };
