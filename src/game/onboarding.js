@@ -18,11 +18,11 @@ const ONBOARDING_COPY={
  bolt:['EMBER BOLT',()=>onboardingTouch()?'Hold the right ember-ring toward the creature.':'Aim with the mouse and hold click, or hold J.'],
  flare:['FLARE',()=>onboardingTouch()?'Tap FLARE when a creature gets close. It hits much harder.':'Press K or right-click when a creature gets close. Flare hits much harder.'],
  dash:['DASH THROUGH DANGER',()=>onboardingTouch()?'Tap DASH as an attack reaches you. You cannot be hurt during the burst.':'Press Space as an attack reaches you. You cannot be hurt during the burst.'],
- kindled:['KINDLED FLARE',()=> 'A close dash through danger arms your Flare. Strike before the gold light fades.'],
+ kindled:['DASH COUNTER',()=> 'A close dash through danger empowers your next Flare. Strike before the gold light fades.'],
  rekindle:['REKINDLE',()=>onboardingTouch()?'Your six bolts are nearly spent. Tap REKINDLE now, or it will begin automatically at empty.':'Your six bolts are nearly spent. Press R now, or Rekindle begins automatically at empty.'],
  interact:['THE RESTING FLAME',()=>onboardingTouch()?'Stand near the flame and tap USE to recover health.':'Stand near the flame and press E to recover health.'],
  blessing:['CHOOSE WHAT CHANGES',()=> 'Blessings last for this descent. Pick one that works with the way you are fighting.'],
- warden:['THE LAST WATCH',()=> 'Mara follows careless Bolts. Dash close to the glaive, then answer with a Kindled Flare when her guard opens.']
+ warden:['THE LAST WATCH',()=> 'Mara follows careless Bolts. Dash close to the glaive, then answer with Flare while her guard is open.']
 };
 const coach=document.createElement('aside');coach.id='onboardingCoach';coach.setAttribute('role','status');coach.setAttribute('aria-live','polite');coach.innerHTML='<span>FIRST DESCENT</span><strong id="onboardingTitle"></strong><p id="onboardingText"></p><i aria-hidden="true"></i>';document.body.append(coach);
 function hideOnboardingCoach(){coach.classList.remove('visible');coach.dataset.step='';}

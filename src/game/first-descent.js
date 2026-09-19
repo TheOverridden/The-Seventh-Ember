@@ -8,8 +8,7 @@ function initEmberRhythm(p=G.player){
 function kindleFlare(source){
  const p=G.player;if(!p||G.state!=='playing')return;
  initEmberRhythm(p);const fresh=p.kindledT<=0;p.kindledT=KINDLED_DURATION;
- if(fresh){addText(p.x,p.y-27,'KINDLED','#fff0a6',14);burst(p.x,p.y,14,'#ffd478',150,.42,2.4,true);if(typeof combatPolishFlash==='function')combatPolishFlash(.045,'#ffe2a0');}
- if(!p.kindledLearnedRun){p.kindledLearnedRun=true;fieldNote('A close dash kindled your Flare. Strike before the light fades.',3.2);}
+ if(fresh){burst(p.x,p.y,14,'#ffd478',150,.42,2.4,true);if(typeof combatPolishFlash==='function')combatPolishFlash(.045,'#ffe2a0');}
  if(source)source.kindledClaimed=true;
  syncWeaponHUD();
 }
@@ -42,7 +41,7 @@ strikeMelee=function(){
  if(kindled&&hit){
   p.meleeCdT=Math.min(p.meleeCdT,.44);
   if(p.reloadT>0)p.reloadT=Math.max(.12,p.reloadT-.55);else p.ammo=Math.min(p.magSize,p.ammo+1);
-  addText(p.x,p.y-29,'KINDLED FLARE','#fff2b3',15);burst(p.x+Math.cos(p.meleeAngle)*42,p.y+Math.sin(p.meleeAngle)*42,18,'#ffe09a',190,.5,2.8,true);
+  burst(p.x+Math.cos(p.meleeAngle)*42,p.y+Math.sin(p.meleeAngle)*42,18,'#ffe09a',190,.5,2.8,true);
   if(typeof combatPolishFreeze==='function')combatPolishFreeze(.036);if(typeof combatPolishRumble==='function')combatPolishRumble(23,.32,.48);learnOnboarding?.('kindled');
  }
  return result;
@@ -77,7 +76,7 @@ resumeRun=function(){const result=firstDescentResume();initEmberRhythm();return 
 const firstDescentSync=syncWeaponHUD;
 syncWeaponHUD=function(){
  firstDescentSync();const p=G.player,hud=T('weaponHUD');if(!p||!hud)return;const kindled=(p.kindledT||0)>0;
- hud.classList.toggle('kindled',kindled);T('touchMelee')?.classList.toggle('kindled',kindled);if(kindled){T('bladeReady').textContent='KINDLED FLARE · '+p.kindledT.toFixed(1)+'s';T('weaponStatus').textContent=p.reloadT>0?'REKINDLING · FLARE ARMED':'EMBER BOLT · FLARE ARMED';}
+ hud.classList.toggle('kindled',kindled);T('touchMelee')?.classList.toggle('kindled',kindled);
 };
 
 const firstDescentDrawPlayer=drawPlayer;
@@ -91,7 +90,7 @@ drawPlayer=function(ctx){
 const firstDescentHUD=updateHUD;
 updateHUD=function(dt){
  firstDescentHUD(dt);if(!G.world||G.floor>5||G.boss?.introduced)return;const active=G.world.specialEncounters?.find(o=>o.active&&!o.complete);if(active)return;
- const goals=['LEARN BOLT · FLARE','DASH CLOSE · KINDLE FLARE','STRIKE DURING RECOVERY','CONTROL THE ROOM','FIND THE WARDEN'];setTxt('floorObjective',goals[G.floor-1]);
+ const goals=['FIND THE OLD GATE','FOLLOW THE LANTERN WALK','CROSS THE BELL COURT','SEARCH THE EMPTY BARRACKS','FACE THE STAR WARDEN'];setTxt('floorObjective',goals[G.floor-1]);
 };
 
 const firstDescentStyle=document.createElement('style');firstDescentStyle.textContent=`
