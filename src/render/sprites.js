@@ -293,20 +293,6 @@ function bakeAll(){
    [".....ooooo......","...oobbbbo......","..obllllbbo.....","..oblkklbbbo....","..oblkklbbbo....","..obllllbbbo....","...obbbbbbo.....","...obbbbbbo.....","...bobbbobo.....","...bob.bobo.....","....b...b......."],
    [".....ooooo......","...oobbbbo......","..obllllbbo.....","..oblkklbbbo....","..oblkklbbbo....","..obllllbbbo....","...obbbbbbo.....","...obbbbbbo.....","...bobobbo......","....bo.bobo.....","....b...b......."]
   ],{o:'#42539a',b:'#a9c4ff',l:'#dbe8ff',k:'#0d1226'},{fps:5,sc:2});
-  SPR.boss=pxGen(30,30,2,(i,j,f)=>{
-    const dx=i-14.5, dy=j-14.5, d=Math.hypot(dx,dy), a=Math.atan2(dy,dx);
-    if(d>15.2) return null;
-    const spike=Math.abs(Math.sin(4*a))<(f?0.34:0.26);
-    if(d>11.6 && d<15.2 && spike) return d>13.6?'#ff8ba0':'#ff5d7e';
-    if(d>13) return null;
-    if(d>12) return '#3a1040';
-    if(d>10.6&&d<11.8) return '#ff5d7e';
-    if(d<(f?3.2:2.5)) return '#fff3c8';
-    if(d<(f?4.6:3.7)) return '#ffcf6b';
-    if(d<5.3) return '#130a28';
-    if((d>6.4&&d<7)||(d>8.7&&d<9.5)) return '#3a1040';
-    return (Math.floor((a+Math.PI)/0.785)+Math.floor(d))%2===0? '#2a0d38':'#241031';
-  },{fps:1.6,sc:2.6});
   SPR.chest=px([
    ["..oooooooooooo..",".oblllllllllbo..",".obyyyyyyyybbo..",".obbbbbbbbbbbo..",".obbbbyyyybbbo..",".obbbbykkybbbo..",".obbbbyyyybbbo..",".obbbbbbbbbbbo..","..oooooooooooo.."]
   ],{o:'#241505',b:'#5a3d1e',l:'#8a6530',y:'#ffd88a',k:'#1a0f04',w:'#fff3c8'},{fps:1,sc:2});

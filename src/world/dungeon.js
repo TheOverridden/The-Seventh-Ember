@@ -178,7 +178,7 @@ function spawnBossAt(x,y){
   const b={
     type:'boss', ai:'boss', x, y, r:34, hp, max:hp,
     spd:56+Math.min(26,tier*2), dmg:Math.round(20*(1+.12*dep+.005*dep*dep)), xp:Math.round(45+18*tier),
-    col:'#ff5d7e', spr:'boss', elite:true, kb:.06, kbx:0, kby:0,
+    col:'#d8c389', spr:'gateWarden', elite:true, kb:.06, kbx:0, kby:0,
     hitT:0, atkT:0, seed:0, t1:2, t2:1.2, t3:6, orbT:0,
     aggro:false, isBoss:true, dead:false, tier,
     name:bossTitle(f), phase:0, chargeT:0, cvx:0, cvy:0, summonT:9, teleT:0

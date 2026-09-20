@@ -12,12 +12,7 @@ const HOLLOW_SCENES={
   wardenBefore:{title:'An old instruction',where:'The Last Watch',lines:[['The Star Warden','Stop there.'],['You','Do you know a way out?'],['The Star Warden','You asked me to stop you.'],['You','I’ve never been here.'],['The Star Warden','Wick. You let them forget.'],['Wick','Put the sword down.'],['The Star Warden','I can’t.']]},
   wardenAfter:{title:'Beyond the gate',where:'The Last Watch',lines:[['The Star Warden','You used to wait until I lowered my shield.'],['You','Why would I ask you to kill me?'],['The Star Warden','Stop you. Not kill you.'],['You','You could have said that before.'],['The Star Warden','Would you have stayed?'],['Wick','The door’s open.'],['You','We’re going to talk about this.'],['Wick','Yes.']]},
   firstDeath:{title:'Back at the gate',where:'After the first fall',lines:[['Wick','Take a moment.'],['You','I died.'],['Wick','Yes.'],['You','You don’t seem surprised.'],['Wick','I was hoping it wouldn’t happen this time.']]},
-  firstSigil:{title:'A hand on the door',where:'The Skill Tree',lines:[['A memory','Your hand rests on an iron door. Someone on the other side knocks twice.'],['You','I knew what that meant. A second ago, I knew.'],['Wick','Don’t force it. Keep what you can.']]},
-  echo1:{title:'The late shift',where:'The Gatehouse · recovered trace',echo:true,lines:[['A voice','You’re late.'],['Another voice','Bell hasn’t gone.'],['A voice','Bell’s broken. You know that.'],['Another voice','Then I’m early.']]},
-  echo2:{title:'Oil for the lamps',where:'The Lantern Walks · recovered trace',echo:true,lines:[['A memory','A list scratched into a shelf: oil, clean cloth, bread. Underneath, in another hand: enough bread for two.'],['You','Someone lived here.'],['Wick','A lot of people did.']]},
-  echo3:{title:'The bell rope',where:'The Bell Court · recovered trace',echo:true,lines:[['A child','Let me try.'],['An older voice','You’ll wake everyone.'],['A child','That’s what a bell is for.'],['A memory','The rope shifts in your hand. For a moment, the courtyard is full of people.']]},
-  echo4:{title:'An unfinished letter',where:'The Empty Barracks · recovered trace',echo:true,lines:[['A memory','“I’ll be home after the watch changes. Don’t wait up.”'],['You','There’s no name.'],['Wick','They probably thought they’d get there before the letter.']]},
-  echo5:{title:'Two knocks',where:'The Last Watch · recovered trace',echo:true,lines:[['A voice','If I come back and I don’t know you—'],['Another voice','You’ll know me.'],['A voice','Listen. Two knocks. Then ask me why I came.'],['A memory','The rest is gone.']]}
+  firstSigil:{title:'A hand on the door',where:'The Skill Tree',lines:[['A memory','Your hand rests on an iron door. Someone on the other side knocks twice.'],['You','I knew what that meant. A second ago, I knew.'],['Wick','Don’t force it. Keep what you can.']]}
 };
 let dialogue=null,storyQueue=[],chapterBannerT=0,fieldNoteT=0,portraitClock=0;
 function storyData(){if(!save.story)save.story={seen:{},choices:{}};return save.story;}
@@ -447,7 +442,7 @@ function hollowBeforeUpdate(dt){
   if(storyQueue.length&&!anyBlockingOverlay()){const id=storyQueue.shift();if(!storyData().seen[id]){beginDialogue(id);return true;}}
   if(G.boss?.warden&&!G.boss.introduced&&playerInArena()){activateWarden(G.boss);if(G.state!=='playing')return true;}
   if(G.floor===4&&!storyData().seen.barracks){const r=w.rooms[w.storyRoom??1];if(p.x>r.x*TILE&&p.x<(r.x+r.w)*TILE&&p.y>r.y*TILE&&p.y<(r.y+r.h)*TILE){queueStory('barracks');}}
-  if(interactQueued){const o=nearestFixture();if(o){interactQueued=false;if(o.kind==='echo'){beginDialogue(o.id,!!storyData().seen[o.id]);return true;}if(!o.lit){o.lit=true;p.hp=Math.min(p.maxHp,p.hp+Math.ceil(p.maxHp*.3));w.torches.push({x:o.x,y:o.y-15,s:0});sfx('chest');burst(o.x,o.y,16,'#edca80',110,.8,2,true);fieldNote('A little warmth. Restored 30% health.',4);saveNow();}}}
+  if(interactQueued){const o=nearestFixture();if(o){interactQueued=false;if(o.kind==='echo'){openTrace(o.id,!!storyData().seen[o.id]);return true;}if(!o.lit){o.lit=true;p.hp=Math.min(p.maxHp,p.hp+Math.ceil(p.maxHp*.3));w.torches.push({x:o.x,y:o.y-15,s:0});sfx('chest');burst(o.x,o.y,16,'#edca80',110,.8,2,true);fieldNote('A little warmth. Restored 30% health.',4);saveNow();}}}
   for(const h of w.hazards){h.t-=dt;if(h.t<=0){h.phase=h.phase==='rest'?'warn':h.phase==='warn'?'active':'rest';h.t=h.phase==='warn'?1.15:h.phase==='active'?.35:3.1;if(h.phase==='active'&&d2(p.x,p.y,h.x+h.w/2,h.y)<400**2)sfx('eshoot');}if(h.phase==='active'&&p.x+p.r>h.x&&p.x-p.r<h.x+h.w&&p.y+p.r>h.y&&p.y-p.r<h.y+h.h){hurtPlayer(11,h.x,h.y);if(G.dead)return true;}}
   return false;
 }
@@ -493,7 +488,7 @@ validateCheckpoint=function(r){
   if(w.region==='hollow'){
     if(r.floor>10)fail();if(w.layout!==undefined){if(w.layout!=='procedural-v1'||!Number.isInteger(w.storyRoom)||w.storyRoom<0||w.storyRoom>=w.rooms.length||!Array.isArray(w.arenaDoors)||w.arenaDoors.length>200)fail();for(const p of w.arenaDoors)if(!Number.isInteger(p.x)||!Number.isInteger(p.y)||!num(p.x,0,w.W-1)||!num(p.y,0,w.H-1))fail();}for(const k of ['fixtures','hazards','hollowDecor'])if(!Array.isArray(w[k])||w[k].length>100)fail();
     for(const o of [...w.fixtures,...w.hazards,...w.hollowDecor])if(!num(o.x,0,w.W*TILE)||!num(o.y,0,w.H*TILE))fail();
-    for(const o of w.fixtures)if(!['echo','brazier'].includes(o.kind)||o.kind==='echo'&&!HOLLOW_SCENES[o.id])fail();
+    for(const o of w.fixtures)if(!['echo','brazier'].includes(o.kind)||o.kind==='echo'&&!(typeof TRACE_RECORDS==='object'&&TRACE_RECORDS[o.id]))fail();
     for(const h of w.hazards)if(!num(h.w,1,1000)||!num(h.h,1,1000)||!num(h.t)||!['rest','warn','active'].includes(h.phase))fail();
     for(const o of w.hollowDecor)if(!['carpet','bed','lampRack','statue','bell','moss','vine','planter','trellis'].includes(o.type)||o.type==='carpet'&&(!num(o.w,1,1000)||!num(o.h,1,1000)))fail();
   }
