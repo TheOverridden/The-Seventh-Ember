@@ -7,34 +7,35 @@
 <title>The Seventh Ember</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="description" content="The Seventh Ember is a dungeon roguelike with fifty floors, permanent progression, ten guardians, and an endless descent.">
-<meta name="the-seventh-ember-build" content="the-seventh-ember-speedrun-2026-09-20">
-<link rel="stylesheet" href="styles/base.css?v=2026092011">
-<link rel="stylesheet" href="styles/hud.css?v=2026092011">
-<link rel="stylesheet" href="styles/overlays.css?v=2026092011">
-<link rel="stylesheet" href="styles/interface.css?v=2026092011">
-<link rel="stylesheet" href="styles/boss-adaptation.css?v=2026092011">
-<link rel="stylesheet" href="styles/campaign.css?v=2026092011">
-<link rel="stylesheet" href="styles/story.css?v=2026092011">
-<link rel="stylesheet" href="styles/changelog.css?v=2026092011">
-<link rel="stylesheet" href="styles/run-recap.css?v=2026092011">
-<link rel="stylesheet" href="styles/onboarding.css?v=2026092011">
-<link rel="stylesheet" href="styles/combat-finale.css?v=2026092011">
-<link rel="stylesheet" href="styles/interface-reborn.css?v=2026092011">
-<link rel="stylesheet" href="styles/title-screen.css?v=2026092011">
-<link rel="stylesheet" href="styles/seventh-ember-theme.css?v=2026092011">
-<link rel="stylesheet" href="styles/wick-secrets.css?v=2026092011">
-<link rel="stylesheet" href="styles/secret-rooms.css?v=2026092011">
-<link rel="stylesheet" href="styles/speedrun.css?v=2026092011">
+<meta name="the-seventh-ember-build" content="the-seventh-ember-runner-tools-pixel-boot-2026-09-21">
+<link rel="stylesheet" href="styles/base.css?v=2026092013">
+<link rel="stylesheet" href="styles/hud.css?v=2026092013">
+<link rel="stylesheet" href="styles/overlays.css?v=2026092013">
+<link rel="stylesheet" href="styles/interface.css?v=2026092013">
+<link rel="stylesheet" href="styles/boss-adaptation.css?v=2026092013">
+<link rel="stylesheet" href="styles/campaign.css?v=2026092013">
+<link rel="stylesheet" href="styles/story.css?v=2026092013">
+<link rel="stylesheet" href="styles/changelog.css?v=2026092013">
+<link rel="stylesheet" href="styles/run-recap.css?v=2026092013">
+<link rel="stylesheet" href="styles/onboarding.css?v=2026092013">
+<link rel="stylesheet" href="styles/combat-finale.css?v=2026092013">
+<link rel="stylesheet" href="styles/interface-reborn.css?v=2026092013">
+<link rel="stylesheet" href="styles/title-screen.css?v=2026092013">
+<link rel="stylesheet" href="styles/seventh-ember-theme.css?v=2026092013">
+<link rel="stylesheet" href="styles/wick-secrets.css?v=2026092013">
+<link rel="stylesheet" href="styles/secret-rooms.css?v=2026092013">
+<link rel="stylesheet" href="styles/speedrun.css?v=2026092013">
 </head>
 <body>
 
 <div id="bootScreen" role="status" aria-label="Opening The Seventh Ember">
   <div class="boot-content">
-    <div class="boot-emblem" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b></b></div>
+    <div class="boot-art-frame" aria-hidden="true"><canvas id="bootArt" width="320" height="180"></canvas><i class="boot-corner one"></i><i class="boot-corner two"></i><i class="boot-corner three"></i><i class="boot-corner four"></i></div>
     <div class="boot-title"><small>THE SEVENTH</small><strong>EMBER</strong></div>
-    <span class="boot-status">OPENING THE GATE</span>
+    <span class="boot-status">PREPARING THE DESCENT</span>
   </div>
 </div>
+<script src="src/render/boot-art.js?v=2026092013"></script>
 
 <canvas id="cv" tabindex="0" aria-label="The Seventh Ember dungeon. On touchscreens, use the left stick to move, hold the right stick to aim and fire, and use the ability buttons. With a keyboard, move with WASD or arrows, J for Ember Bolt, K for Flare, R to Rekindle, Space to dash, E to interact, Q to return to a discovered portal, and Escape to pause."></canvas>
 <div id="vig"></div><div id="lowvig"></div>
@@ -89,7 +90,6 @@
       <button class="btn primary" id="btnStart"><i data-lucide="arrow-down"></i>BEGIN DESCENT</button>
       <button class="btn subtle" id="btnTree"><i data-lucide="sparkles"></i>SKILL TREE</button>
       <button class="btn subtle" id="btnHow"><i data-lucide="book-open"></i>HOW TO PLAY</button>
-      <button class="btn subtle speedrun-menu-button" id="btnSpeedrun"><span aria-hidden="true">◷</span>SPEEDRUN</button>
     </div>
     <div class="audiorow"><button class="btn" id="btnMusic"><i data-lucide="music"></i>MUSIC</button><button class="btn" id="btnSfx"><i data-lucide="volume-2"></i>SOUND</button><button class="btn" id="btnSettings">SETTINGS & SAVE</button><button class="btn" id="btnMemories">MEMORIES</button></div>
     <div id="campaignMedal" hidden>◆ FIRST DAWN · CAMPAIGN COMPLETE</div><div id="menuStats"></div>
@@ -110,25 +110,7 @@
   </section>
 </div>
 
-<div id="speedrunSetup" class="ov" role="dialog" aria-modal="true" aria-labelledby="speedrunSetupTitle">
-  <section class="speedrun-setup-shell">
-    <header class="speedrun-setup-head"><div><span class="speedrun-kicker">THE GATE KEEPS TIME</span><h2 id="speedrunSetupTitle">Speedrun</h2><p>A deterministic, save-independent race from the Hollow Gate to the First Keeper.</p></div><button class="speedrun-close" id="speedrunSetupClose" type="button" aria-label="Close speedrun setup">×</button></header>
-    <div class="speedrun-category" role="tablist" aria-label="Speedrun category"><button type="button" class="selected" data-speedrun-category="random" role="tab" aria-selected="true"><b>RANDOM SEED</b><small>A new layout · overall personal best</small></button><button type="button" data-speedrun-category="seeded" role="tab" aria-selected="false"><b>FIXED SEED</b><small>Repeat or share · seed personal best</small></button></div>
-    <div class="speedrun-seed-block"><label for="speedrunSeed">RUN SEED</label><div><input id="speedrunSeed" type="text" maxlength="28" autocomplete="off" spellcheck="false" aria-describedby="speedrunSeedHelp"><button id="speedrunNewSeed" type="button">NEW</button><button id="speedrunDailySeed" type="button">DAILY</button><button id="speedrunCopySeed" type="button">COPY</button></div><small id="speedrunSeedHelp">The seed fixes floor layouts, encounters, drops, and blessing drafts.</small></div>
-    <div class="speedrun-record-grid"><div><span>PERSONAL BEST</span><b id="speedrunSetupPB">NO FINISH</b></div><div><span>ATTEMPTS</span><b id="speedrunSetupAttempts">0</b></div><div><span>FINISHES</span><b id="speedrunSetupFinishes">0</b></div><div><span>RESETS</span><b id="speedrunSetupResets">0</b></div><div><span>LAST RUN</span><b id="speedrunSetupLast">—</b></div></div>
-    <details class="speedrun-history"><summary>RECENT ATTEMPTS</summary><div id="speedrunHistory"></div></details>
-    <div class="speedrun-rules"><h3>ANY% · STANDARD RULES</h3><ul><li>Default Ember Forms and no permanent Skill Tree bonuses.</li><li>Guardian attunement follows the same fixed curve for every runner.</li><li>Story scenes and chapter pauses are skipped automatically.</li><li>RTA continues through pauses and tab changes. IGT counts active play.</li><li>Floor and Guardian splits are automatic. Press <kbd>T</kbd> to open them.</li></ul></div>
-    <div class="speedrun-setup-actions"><button class="btn primary" id="speedrunStart" type="button">BEGIN COUNTDOWN</button><button class="btn" id="speedrunSetupBack" type="button">RETURN</button></div>
-  </section>
-</div>
-
-<button id="speedrunHud" type="button" hidden aria-label="Open speedrun splits"><span id="speedrunHudCategory">ANY% RANDOM</span><b id="speedrunRta">00:00.000</b><small><i>IGT</i> <strong id="speedrunIgt">00:00.000</strong><em id="speedrunDelta">NO PACE</em></small><u id="speedrunHudSeed">SEED</u></button>
-<aside id="speedrunSplits" hidden aria-label="Speedrun splits"><header><div><span>GUARDIAN SPLITS</span><b id="speedrunSplitCategory">ANY% RANDOM</b></div><button id="speedrunSplitsClose" type="button" aria-label="Close splits">×</button></header><div id="speedrunSplitList"></div><footer><span><kbd>T</kbd> TOGGLE</span><b id="speedrunSplitSeed"></b></footer></aside>
-<div id="speedrunCountdown" hidden aria-live="assertive"><span id="speedrunCountdownLabel">3</span><small>THE CLOCK STARTS AT GO</small></div>
-
-<div id="speedrunResult" class="ov" role="dialog" aria-modal="true" aria-labelledby="speedrunResultTitle">
-  <section class="speedrun-result-shell"><div class="speedrun-result-kicker" id="speedrunResultKicker">ANY% RANDOM · COMPLETE</div><h2 id="speedrunResultTitle">THE GATE OPENS</h2><div class="speedrun-result-time"><span>REAL TIME</span><b id="speedrunResultRta">00:00.000</b><em id="speedrunResultPB">PERSONAL BEST</em></div><div class="speedrun-result-stats" id="speedrunResultStats"></div><div class="speedrun-result-splits" id="speedrunResultSplits"></div><div class="speedrun-result-code"><span>RUN CODE</span><b id="speedrunResultCode"></b></div><div class="speedrun-result-actions"><button class="btn primary" id="speedrunResultRetry" type="button">RUN THIS SEED AGAIN</button><button class="btn" id="speedrunResultCopy" type="button">COPY RESULTS</button><button class="btn" id="speedrunResultMenu" type="button">RETURN TO TITLE</button></div></section>
-</div>
+<button id="runTimerHud" type="button" hidden aria-label="Copy the current run seed"><span>RUN TIME</span><b id="runTimerValue">00:00.000</b><small id="runTimerSeed">SEED</small></button>
 
 
 <div id="finale" class="ov" role="dialog" aria-modal="true" aria-labelledby="endingTitle">
@@ -149,7 +131,6 @@
       <div class="k"><kbd>Q</kbd></div><div>Return to an open portal after you have discovered it</div>
       <div class="k"><kbd>ESC</kbd>/<kbd>P</kbd></div><div>Pause</div>
       <div class="k"><kbd>J</kbd></div><div>Cast Ember Bolts at the nearest enemy · Rekindles when empty</div><div class="k"><kbd>K</kbd> / right click</div><div>Flare — 2.25× Ember Bolt damage · usable while Rekindling</div><div class="k"><kbd>R</kbd></div><div>Rekindle six charges · empty wells Rekindle automatically</div><div class="k"><kbd>M</kbd></div><div>Toggle music</div>
-      <div class="k"><kbd>T</kbd></div><div>Toggle automatic splits during a Speedrun</div>
       <div class="k"><kbd>TOUCH</kbd></div><div>Left stick moves · hold the right stick to aim and fire · four buttons use Flare, Dash, Rekindle, and nearby objects</div>
     </div>
     <div class="how-tips">Walk up to a chest to open it. Cyan XP and violet essence are separate.<br>
@@ -204,10 +185,8 @@
     <div class="statsgrid" style="grid-template-columns:repeat(4,1fr)" id="pStats"></div>
     <div class="btnrow">
       <button class="btn primary" id="btnResume"><i data-lucide="play"></i>RESUME</button>
-      <button class="btn speedrun-restart" id="btnSpeedRestartPause" hidden>RESTART SEED</button>
       <button class="btn" id="btnSaveExit">SAVE & RETURN</button><button class="btn" id="btnPauseSettings">SETTINGS</button><button class="btn" id="btnPauseMemories">MEMORIES</button><button class="btn danger" id="btnAbandon"><i data-lucide="home"></i>END RUN</button>
     </div>
-    <p class="speedrun-pause-note" id="speedrunPauseNote" hidden>RTA KEEPS RUNNING · IGT IS PAUSED</p>
   </div>
 </div>
 
@@ -218,11 +197,9 @@
     <div class="statsgrid" id="dStats"></div>
     <div id="dEssBox"></div>
     <div class="btnrow">
-      <button class="btn primary speedrun-restart" id="btnSpeedRestartDead" hidden>RESTART SEED</button>
       <button class="btn primary" id="btnDeadTree"><i data-lucide="sparkles"></i>SPEND ESSENCE</button>
       <button class="btn" id="btnDeadMenu"><i data-lucide="rotate-ccw"></i>RISE AGAIN</button>
     </div>
-    <p class="speedrun-pause-note" id="speedrunDeathNote" hidden></p>
   </div>
 </div>
 
@@ -261,6 +238,7 @@
  <label class="settings-row"><span>Dialogue speed<small>Read at your own pace. Enter or Space continues.</small></span><select id="setTextSpeed"><option value="1">Normal</option><option value="2">Fast</option><option value="0">Instant</option></select></label>
  <label class="settings-row"><span>Dialogue sounds<small>Quiet tones while characters speak.</small></span><input id="setDialogueVoice" type="checkbox"></label>
  <label class="settings-row"><span>Effects<small>Use light effects on slower devices.</small></span><select id="setQuality"><option value="full">Full</option><option value="light">Light</option></select></label>
+ <section class="runner-settings" aria-labelledby="runnerSettingsTitle"><header><span>OPTIONAL TOOLS</span><h3 id="runnerSettingsTitle">Speedrunning</h3></header><label class="settings-row runner-timer-row"><span>Run timer<small>Show active play time during ordinary descents.</small></span><input id="setRunTimer" type="checkbox"></label><div class="runner-seed-setting"><label for="setRunSeed">Run seed<small>Applied to your next new descent. Leave blank for a fresh random dungeon.</small></label><input id="setRunSeed" type="text" maxlength="28" autocomplete="off" spellcheck="false" placeholder="RANDOM EACH DESCENT"><div><button id="runnerRandomSeed" type="button">RANDOM</button><button id="runnerDailySeed" type="button">DAILY</button><button id="runnerCopySeed" type="button">COPY</button><button id="runnerClearSeed" type="button">CLEAR</button></div><p id="runnerSeedStatus">The current descent is unchanged.</p></div></section>
  <p class="save-message" id="settingsSave">Your essence, skill tree, and current run save automatically. Export a backup before changing browsers or devices.</p>
  <div class="settings-actions"><button class="btn" id="btnExport">EXPORT SAVE</button><button class="btn" id="btnImport">IMPORT SAVE</button><button class="btn primary" id="btnSettingsClose">DONE</button></div><div class="settings-reset"><button class="btn danger" id="btnResetEverything">RESET EVERYTHING</button><small>Start fresh, including dialogue, essence, and the Skill Tree.</small></div><input type="file" id="saveFile" accept="application/json,.json" hidden>
  <div id="importReview" hidden><p class="save-message" id="importSummary"></p><div class="settings-actions"><button class="btn danger" id="btnImportApply">REPLACE PROGRESS</button><button class="btn" id="btnImportCancel">CANCEL</button></div></div>
@@ -285,63 +263,63 @@
 <div id="memoryList"></div><div id="memoryEmpty">Nothing yet. Take the first step.</div><h3 class="armory-heading">Earned blessings</h3><div id="armoryList"></div></div></div>
 <div id="chapterClear" class="ov"><div class="panel chapter-clear-panel"><div class="chapter-seal" id="chapterSeal" aria-hidden="true">Ⅰ</div><div class="eyebrow" id="chapterCompleteLabel">CHAPTER I COMPLETE</div><h2 id="chapterCompleteTitle">The Hollow Gate</h2><p id="chapterCompleteText">The Warden has lowered his weapon.<br>Beyond him, the stairs keep going.</p><div id="chapterStats" class="statsgrid"></div><div class="chapter-quote" id="chapterQuote">“You asked me to stop you.”</div><div class="btnrow"><button class="btn primary" id="chapterContinue">DESCEND FURTHER</button><button class="btn" id="chapterSave">SAVE & RETURN</button></div><button class="text-button" id="chapterExplore">Stay and look around</button></div></div>
 
-<script src="src/core/error-boundary.js?v=2026092011"></script>
-<script src="src/core/foundation.js?v=2026092011"></script>
-<script src="src/core/input.js?v=2026092011"></script>
-<script src="src/render/sprites.js?v=2026092011"></script>
-<script src="src/core/state.js?v=2026092011"></script>
-<script src="src/world/dungeon.js?v=2026092011"></script>
-<script src="src/game/flow.js?v=2026092011"></script>
-<script src="src/render/world-ui.js?v=2026092011"></script>
-<script src="src/interface/refinements.js?v=2026092011"></script>
-<script src="src/chapters/hollow.js?v=2026092011"></script>
-<script src="src/combat/ember-abilities.js?v=2026092011"></script>
-<script src="src/chapters/garden.js?v=2026092011"></script>
-<script src="src/chapters/late-regions.js?v=2026092011"></script>
-<script src="src/progression/regional-blessings.js?v=2026092011"></script>
-<script src="src/story/recovered-traces.js?v=2026092011"></script>
-<script src="src/enemies/regional-enemies.js?v=2026092011"></script>
-<script src="src/bosses/guardians.js?v=2026092011"></script>
-<script src="src/world/regional-hazards.js?v=2026092011"></script>
-<script src="src/chapters/late-hooks.js?v=2026092011"></script>
-<script src="src/progression/skill-tree.js?v=2026092011"></script>
-<script src="src/render/ember.js?v=2026092011"></script>
-<script src="src/render/hollow-garden-art.js?v=2026092011"></script>
-<script src="src/render/regional-art.js?v=2026092011"></script>
-<script src="src/game/finale.js?v=2026092011"></script>
-<script src="src/progression/blessings.js?v=2026092011"></script>
-<script src="src/world/resting-flames.js?v=2026092011"></script>
-<script src="src/audio/score.js?v=2026092011"></script>
-<script src="src/game/endless.js?v=2026092011"></script>
-<script src="src/story/remembered-rooms.js?v=2026092011"></script>
-<script src="src/story/echo-tableaus.js?v=2026092011"></script>
-<script src="src/combat/combat-feel.js?v=2026092011"></script>
-<script src="src/progression/rarity.js?v=2026092011"></script>
-<script src="src/bosses/twin-regents.js?v=2026092011"></script>
-<script src="src/progression/forms.js?v=2026092011"></script>
-<script src="src/world/room-encounters.js?v=2026092011"></script>
-<script src="src/bosses/middle-guardians.js?v=2026092011"></script>
-<script src="src/input/touch.js?v=2026092011"></script>
-<script src="src/game/guardian-modes.js?v=2026092011"></script>
-<script src="src/bosses/final-tuning.js?v=2026092011"></script>
-<script src="src/bosses/secret-boss.js?v=2026092011"></script>
-<script src="src/game/endless-hardening.js?v=2026092011"></script>
-<script src="src/story/living-archive.js?v=2026092011"></script>
-<script src="src/story/story-rewrite.js?v=2026092011"></script>
-<script src="src/bosses/adaptive-guardians.js?v=2026092011"></script>
-<script src="src/combat/combat-polish.js?v=2026092011"></script>
-<script src="src/audio/mastering.js?v=2026092011"></script>
-<script src="src/audio/composed-score.js?v=2026092011"></script>
-<script src="src/combat/combat-finale.js?v=2026092011"></script>
-<script src="src/interface/run-recap.js?v=2026092011"></script>
-<script src="src/game/onboarding.js?v=2026092011"></script>
-<script src="src/game/first-descent.js?v=2026092011"></script>
-<script src="src/core/save-system.js?v=2026092011"></script>
-<script src="src/interface/interface-reborn.js?v=2026092011"></script>
-<script src="src/story/wick-secrets.js?v=2026092011"></script>
-<script src="src/world/secret-rooms.js?v=2026092011"></script>
-<script src="src/game/speedrun.js?v=2026092011"></script>
-<script src="src/core/changelog.js?v=2026092011"></script>
-<script src="src/core/boot.js?v=2026092011"></script>
+<script src="src/core/error-boundary.js?v=2026092013"></script>
+<script src="src/core/foundation.js?v=2026092013"></script>
+<script src="src/core/input.js?v=2026092013"></script>
+<script src="src/render/sprites.js?v=2026092013"></script>
+<script src="src/core/state.js?v=2026092013"></script>
+<script src="src/world/dungeon.js?v=2026092013"></script>
+<script src="src/game/flow.js?v=2026092013"></script>
+<script src="src/render/world-ui.js?v=2026092013"></script>
+<script src="src/interface/refinements.js?v=2026092013"></script>
+<script src="src/chapters/hollow.js?v=2026092013"></script>
+<script src="src/combat/ember-abilities.js?v=2026092013"></script>
+<script src="src/chapters/garden.js?v=2026092013"></script>
+<script src="src/chapters/late-regions.js?v=2026092013"></script>
+<script src="src/progression/regional-blessings.js?v=2026092013"></script>
+<script src="src/story/recovered-traces.js?v=2026092013"></script>
+<script src="src/enemies/regional-enemies.js?v=2026092013"></script>
+<script src="src/bosses/guardians.js?v=2026092013"></script>
+<script src="src/world/regional-hazards.js?v=2026092013"></script>
+<script src="src/chapters/late-hooks.js?v=2026092013"></script>
+<script src="src/progression/skill-tree.js?v=2026092013"></script>
+<script src="src/render/ember.js?v=2026092013"></script>
+<script src="src/render/hollow-garden-art.js?v=2026092013"></script>
+<script src="src/render/regional-art.js?v=2026092013"></script>
+<script src="src/game/finale.js?v=2026092013"></script>
+<script src="src/progression/blessings.js?v=2026092013"></script>
+<script src="src/world/resting-flames.js?v=2026092013"></script>
+<script src="src/audio/score.js?v=2026092013"></script>
+<script src="src/game/endless.js?v=2026092013"></script>
+<script src="src/story/remembered-rooms.js?v=2026092013"></script>
+<script src="src/story/echo-tableaus.js?v=2026092013"></script>
+<script src="src/combat/combat-feel.js?v=2026092013"></script>
+<script src="src/progression/rarity.js?v=2026092013"></script>
+<script src="src/bosses/twin-regents.js?v=2026092013"></script>
+<script src="src/progression/forms.js?v=2026092013"></script>
+<script src="src/world/room-encounters.js?v=2026092013"></script>
+<script src="src/bosses/middle-guardians.js?v=2026092013"></script>
+<script src="src/input/touch.js?v=2026092013"></script>
+<script src="src/game/guardian-modes.js?v=2026092013"></script>
+<script src="src/bosses/final-tuning.js?v=2026092013"></script>
+<script src="src/bosses/secret-boss.js?v=2026092013"></script>
+<script src="src/game/endless-hardening.js?v=2026092013"></script>
+<script src="src/story/living-archive.js?v=2026092013"></script>
+<script src="src/story/story-rewrite.js?v=2026092013"></script>
+<script src="src/bosses/adaptive-guardians.js?v=2026092013"></script>
+<script src="src/combat/combat-polish.js?v=2026092013"></script>
+<script src="src/audio/mastering.js?v=2026092013"></script>
+<script src="src/audio/composed-score.js?v=2026092013"></script>
+<script src="src/combat/combat-finale.js?v=2026092013"></script>
+<script src="src/interface/run-recap.js?v=2026092013"></script>
+<script src="src/game/onboarding.js?v=2026092013"></script>
+<script src="src/game/first-descent.js?v=2026092013"></script>
+<script src="src/core/save-system.js?v=2026092013"></script>
+<script src="src/interface/interface-reborn.js?v=2026092013"></script>
+<script src="src/story/wick-secrets.js?v=2026092013"></script>
+<script src="src/world/secret-rooms.js?v=2026092013"></script>
+<script src="src/game/speedrun.js?v=2026092013"></script>
+<script src="src/core/changelog.js?v=2026092013"></script>
+<script src="src/core/boot.js?v=2026092013"></script>
 </body>
 </html>
