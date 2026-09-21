@@ -60,5 +60,3 @@ on(T('runnerCopySeed'),'click',()=>runnerCopy(runnerCleanSeed(save.runSeed),T('r
 on(T('runTimerHud'),'click',()=>runnerCopy(G.run?.runner?.seed,T('runTimerSeed')));
 
 runnerSyncSettings();
-globalThis.TheSeventhEmberRunnerTools={version:RUNNER_TOOLS_VERSION,get seed(){return G.run?.runner?.seed||'';},get timer(){return G.run?.t||0;},formatTime:runnerFormat,normalizeSeed:runnerCleanSeed};
-document.documentElement.dataset.runnerTools='settings-v2';

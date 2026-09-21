@@ -65,7 +65,7 @@ function applyAdaptiveGuardian(b,profile,mastery){
  const tier=adaptiveTier(b),model=adaptiveModel(Math.min(10,tier),mastery,profile,adaptiveMode()),ratio=adaptiveClamp(b.hp/Math.max(1,b.max),0,1);
  b.max=Math.max(1,Math.round(b.max*model.hp));b.hp=Math.max(1,Math.round(b.max*ratio));b.dmg=Math.max(1,Math.round(b.dmg*model.damage));b.spd*=1+Math.min(.12,(model.tempo-1)*.46);
  b.endlessDamageCeiling=Math.min(b.endlessDamageCeiling||1,model.hitCap);
- b.adapt={version:ADAPTIVE_GUARDIAN_VERSION,tier,key:adaptiveBossKey(b),read:profile.label,mastery,need:model.need,deficit:model.deficit,power:profile.power,tempo:model.tempo,budget:model.budget,hitCap:model.hitCap,counterT:adaptiveCounterInterval(tier,profile.power)*.68,counterStep:0,shieldUntil:0,gate:0};
+ b.adapt={version:ADAPTIVE_GUARDIAN_VERSION,tier,key:adaptiveBossKey(b),mastery,need:model.need,deficit:model.deficit,power:profile.power,tempo:model.tempo,budget:model.budget,hitCap:model.hitCap,counterT:adaptiveCounterInterval(tier,profile.power)*.68,counterStep:0,shieldUntil:0,gate:0};
 }
 function applyAdaptiveGroup(b,announce=true){
  if(!b||G.run?.infinite)return;
@@ -155,16 +155,6 @@ matriarchAI=function(b,dt,d,dx,dy){tickAdaptiveGuardian(b,dt);return adaptiveMat
 const adaptiveLateBossAI=lateBossAI;
 lateBossAI=function(b,dt,d,dx,dy){tickAdaptiveGuardian(b,dt);return adaptiveLateBossAI(b,dt*(b.adapt?.tempo||1),Math.max(1,d),dx,dy);};
 
-function ensureAdaptiveBadge(){
- let el=T('bossAdaptation');if(el)return el;el=document.createElement('div');el.id='bossAdaptation';el.hidden=true;el.setAttribute('aria-live','polite');T('bossname').after(el);return el;
-}
-const adaptiveHUD=updateHUD;
-updateHUD=function(dt){
- adaptiveHUD(dt);const el=ensureAdaptiveBadge(),b=G.boss,a=b?.adapt;if(!a||b.dead||!b.introduced){el.hidden=true;return;}
- el.hidden=false;const tree=Math.round(a.mastery*100),need=Math.round(a.need*100),ready=a.mastery+1e-6>=a.need;
- el.classList.toggle('behind',!ready);el.textContent='EMBER MASTERY  '+tree+'% / '+need+'%'+(ready?'  ·  ATTUNED':'  ·  UNATTUNED');
-};
-
 const adaptiveLateBossBody=drawLateBossBody;
 drawLateBossBody=function(ctx,b){
  adaptiveLateBossBody(ctx,b);const a=b.adapt;if(!a)return;const t=save.motion?0:G.tAll,shield=(a.shieldUntil||0)>(G.run?.t||0);
@@ -179,6 +169,3 @@ resumeRun=function(){
  else{G.run.adaptiveBudgets=G.run.adaptiveBudgets&&typeof G.run.adaptiveBudgets==='object'?G.run.adaptiveBudgets:{};const key=adaptiveGroupKey(G.boss);if(!G.run.adaptiveBudgets[key])G.run.adaptiveBudgets[key]={start:G.run.t,spent:0,max:group.reduce((sum,b)=>sum+b.max,0),rate:G.boss.adapt.budget};}
  updateHUD(0);saveNow();
 };
-
-globalThis.TheSeventhEmberBossDirector={version:ADAPTIVE_GUARDIAN_VERSION,requirements:[...ADAPTIVE_REQUIREMENT],budgets:[...ADAPTIVE_BUDGET],hitCaps:[...ADAPTIVE_HIT_CAP],mastery:adaptiveMastery,build:adaptiveBuild,model:adaptiveModel};
-document.documentElement.dataset.bossDirector='listening-v1';

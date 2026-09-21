@@ -6,14 +6,13 @@ function tseUiRange(id,label,detail,value){
 }
 function tseUiBuildAudioSettings(){
  if(T('setMusicVolume'))return;const musicRow=T('setMusic')?.closest('.settings-row'),sfxRow=T('setSfx')?.closest('.settings-row');if(!musicRow||!sfxRow)return;
- const music=tseUiRange('setMusicVolume','Music volume','Falling Light · full score mix.',save.musicVolume??.82),effects=tseUiRange('setSfxVolume','Effects volume','Combat, pickups, menus, and dialogue.',save.sfxVolume??.86);musicRow.after(music);sfxRow.after(effects);
- const card=document.createElement('div');card.id='scoreCard';card.innerHTML='<span>ORIGINAL SCORE</span><strong>FALLING LIGHT</strong><small id="scoreMovement">OVERTURE</small>';music.after(card);
+ const music=tseUiRange('setMusicVolume','Music volume','Exploration and combat music.',save.musicVolume??.82),effects=tseUiRange('setSfxVolume','Effects volume','Combat, pickups, menus, and dialogue.',save.sfxVolume??.86);musicRow.after(music);sfxRow.after(effects);
  const bind=(id,key)=>{const input=T(id),value=T(id+'Value');on(input,'input',()=>{save[key]=Number(input.value)/100;value.textContent=input.value+'%';initAudio();applyAudioSettings();markSave();});on(input,'change',saveNow);};bind('setMusicVolume','musicVolume');bind('setSfxVolume','sfxVolume');
 }
 function tseUiSyncRanges(){for(const [id,key,fallback] of [['setMusicVolume','musicVolume',.82],['setSfxVolume','sfxVolume',.86]]){const el=T(id),value=T(id+'Value');if(!el)continue;const n=Math.round(clamp(save[key]??fallback,0,1)*100);el.value=n;if(value)value.textContent=n+'%';}}
-function tseUiRegion(){return globalThis.TheSeventhEmberScore?.region?.()||(!G.run?'title':G.world?.lateKey||(G.floor<=5?'hollow':'garden'));}
+function tseUiRegion(){return !G.run?'title':G.world?.lateKey||(G.floor<=5?'hollow':'garden');}
 function tseUiRefresh(){
- const region=tseUiRegion(),profile=globalThis.TheSeventhEmberScore?.profiles?.[region];document.body.dataset.region=region;document.body.classList.toggle('guardian-ui',!!G.bossActive);if(T('scoreMovement'))T('scoreMovement').textContent=(profile?.movement||'Overture').toUpperCase();TSE_UI.lastRegion=region;
+ const region=tseUiRegion();document.body.dataset.region=region;document.body.classList.toggle('guardian-ui',!!G.bossActive);TSE_UI.lastRegion=region;
 }
 function tseUiViewport(){const w=innerWidth,h=innerHeight;document.documentElement.style.setProperty('--ui-vh',h+'px');document.body.dataset.viewport=w<520?'phone':w<820?'tablet':w<1180?'compact':'wide';document.body.dataset.orientation=w>h?'landscape':'portrait';if(G.skillsOpen&&typeof fitTree==='function')fitTree();}
 function tseUiDecorate(){
@@ -26,5 +25,3 @@ syncSettings=function(){const result=tseUiSyncSettingsBase();tseUiSyncRanges();t
 const tseUiUpdateHudBase=updateHUD;
 updateHUD=function(dt){const result=tseUiUpdateHudBase(dt);if(tseUiRegion()!==TSE_UI.lastRegion||document.body.classList.contains('guardian-ui')!==!!G.bossActive)tseUiRefresh();return result;};
 on(window,'resize',()=>{clearTimeout(TSE_UI.resizeTimer);TSE_UI.resizeTimer=setTimeout(tseUiViewport,60);});on(window,'orientationchange',tseUiViewport);
-globalThis.TheSeventhEmberUI={version:3,refresh:tseUiRefresh,viewport:tseUiViewport};
-document.documentElement.dataset.interface='reborn-v3';

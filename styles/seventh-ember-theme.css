@@ -40,7 +40,6 @@ body.ui-reborn select{border:1px solid rgba(var(--region-rgb),.4);border-radius:
 body.ui-reborn input[type="checkbox"]{accent-color:var(--region)}
 body.ui-reborn .volume-control input{background:linear-gradient(90deg,var(--region),#3c382f)}
 body.ui-reborn .volume-control input::-webkit-slider-thumb{border-color:var(--tse-gold-hot);background:#11100d;box-shadow:0 0 13px rgba(var(--region-rgb),.42)}
-body.ui-reborn #scoreCard{border-color:rgba(var(--region-rgb),.3);border-left-color:var(--region);background:linear-gradient(90deg,rgba(var(--region-rgb),.1),transparent)}
 body.ui-reborn .card{border-radius:0 14px 0 14px;background:radial-gradient(circle at 50% 15%,rgba(var(--relic-rgb),.13),transparent 45%),repeating-linear-gradient(135deg,rgba(var(--relic-rgb),.025) 0,rgba(var(--relic-rgb),.025) 1px,transparent 1px,transparent 5px),linear-gradient(150deg,#1b1916,#0c0c0bed 80%);box-shadow:0 19px 48px #000c,inset 3px 0 var(--relic),inset 0 1px rgba(var(--relic-rgb),.25)}
 body.ui-reborn .card[data-r="0"]{--relic:#b6bec0;--relic-rgb:182,190,192;border-color:#b6bec066}
 body.ui-reborn .card[data-r="1"]{--relic:#74c49b;--relic-rgb:116,196,155;border-color:#74c49b80}

@@ -7,24 +7,23 @@
 <title>The Seventh Ember</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="description" content="The Seventh Ember is a dungeon roguelike with fifty floors, permanent progression, ten guardians, and an endless descent.">
-<meta name="the-seventh-ember-build" content="the-seventh-ember-runner-tools-pixel-boot-2026-09-21">
-<link rel="stylesheet" href="styles/base.css?v=2026092013">
-<link rel="stylesheet" href="styles/hud.css?v=2026092013">
-<link rel="stylesheet" href="styles/overlays.css?v=2026092013">
-<link rel="stylesheet" href="styles/interface.css?v=2026092013">
-<link rel="stylesheet" href="styles/boss-adaptation.css?v=2026092013">
-<link rel="stylesheet" href="styles/campaign.css?v=2026092013">
-<link rel="stylesheet" href="styles/story.css?v=2026092013">
-<link rel="stylesheet" href="styles/changelog.css?v=2026092013">
-<link rel="stylesheet" href="styles/run-recap.css?v=2026092013">
-<link rel="stylesheet" href="styles/onboarding.css?v=2026092013">
-<link rel="stylesheet" href="styles/combat-finale.css?v=2026092013">
-<link rel="stylesheet" href="styles/interface-reborn.css?v=2026092013">
-<link rel="stylesheet" href="styles/title-screen.css?v=2026092013">
-<link rel="stylesheet" href="styles/seventh-ember-theme.css?v=2026092013">
-<link rel="stylesheet" href="styles/wick-secrets.css?v=2026092013">
-<link rel="stylesheet" href="styles/secret-rooms.css?v=2026092013">
-<link rel="stylesheet" href="styles/speedrun.css?v=2026092013">
+<meta name="application-name" content="The Seventh Ember">
+<link rel="stylesheet" href="styles/base.css?v=2026092101">
+<link rel="stylesheet" href="styles/hud.css?v=2026092101">
+<link rel="stylesheet" href="styles/overlays.css?v=2026092101">
+<link rel="stylesheet" href="styles/interface.css?v=2026092101">
+<link rel="stylesheet" href="styles/campaign.css?v=2026092101">
+<link rel="stylesheet" href="styles/story.css?v=2026092101">
+<link rel="stylesheet" href="styles/changelog.css?v=2026092101">
+<link rel="stylesheet" href="styles/run-recap.css?v=2026092101">
+<link rel="stylesheet" href="styles/onboarding.css?v=2026092101">
+<link rel="stylesheet" href="styles/combat-finale.css?v=2026092101">
+<link rel="stylesheet" href="styles/interface-reborn.css?v=2026092101">
+<link rel="stylesheet" href="styles/title-screen.css?v=2026092101">
+<link rel="stylesheet" href="styles/seventh-ember-theme.css?v=2026092101">
+<link rel="stylesheet" href="styles/wick-secrets.css?v=2026092101">
+<link rel="stylesheet" href="styles/secret-rooms.css?v=2026092101">
+<link rel="stylesheet" href="styles/speedrun.css?v=2026092101">
 </head>
 <body>
 
@@ -35,7 +34,7 @@
     <span class="boot-status">PREPARING THE DESCENT</span>
   </div>
 </div>
-<script src="src/render/boot-art.js?v=2026092013"></script>
+<script src="src/render/boot-art.js?v=2026092101"></script>
 
 <canvas id="cv" tabindex="0" aria-label="The Seventh Ember dungeon. On touchscreens, use the left stick to move, hold the right stick to aim and fire, and use the ability buttons. With a keyboard, move with WASD or arrows, J for Ember Bolt, K for Flare, R to Rekindle, Space to dash, E to interact, Q to return to a discovered portal, and Escape to pause."></canvas>
 <div id="vig"></div><div id="lowvig"></div>
@@ -231,7 +230,7 @@
 </div>
 <div id="treeTip"></div>
 <div id="settings" class="ov" style="z-index:50"><div class="panel" style="width:530px;text-align:left"><div class="bigword" style="font-size:24px">MAKE THE DESCENT YOURS</div>
- <label class="settings-row"><span>Music<small>Original evolving soundtrack.</small></span><input id="setMusic" type="checkbox"></label>
+ <label class="settings-row"><span>Music<small>Music during exploration and combat.</small></span><input id="setMusic" type="checkbox"></label>
  <label class="settings-row"><span>Sound effects<small>Combat, pickups, and menu sounds.</small></span><input id="setSfx" type="checkbox"></label>
  <label class="settings-row"><span>Reduced motion<small>Disable camera shake and menu animations.</small></span><input id="setMotion" type="checkbox"></label>
  <label class="settings-row"><span>Touch controls<small>Dual analog sticks with aim-to-fire and dedicated ability buttons. Enabled automatically on touchscreens.</small></span><input id="setTouch" type="checkbox"></label>
@@ -263,63 +262,63 @@
 <div id="memoryList"></div><div id="memoryEmpty">Nothing yet. Take the first step.</div><h3 class="armory-heading">Earned blessings</h3><div id="armoryList"></div></div></div>
 <div id="chapterClear" class="ov"><div class="panel chapter-clear-panel"><div class="chapter-seal" id="chapterSeal" aria-hidden="true">Ⅰ</div><div class="eyebrow" id="chapterCompleteLabel">CHAPTER I COMPLETE</div><h2 id="chapterCompleteTitle">The Hollow Gate</h2><p id="chapterCompleteText">The Warden has lowered his weapon.<br>Beyond him, the stairs keep going.</p><div id="chapterStats" class="statsgrid"></div><div class="chapter-quote" id="chapterQuote">“You asked me to stop you.”</div><div class="btnrow"><button class="btn primary" id="chapterContinue">DESCEND FURTHER</button><button class="btn" id="chapterSave">SAVE & RETURN</button></div><button class="text-button" id="chapterExplore">Stay and look around</button></div></div>
 
-<script src="src/core/error-boundary.js?v=2026092013"></script>
-<script src="src/core/foundation.js?v=2026092013"></script>
-<script src="src/core/input.js?v=2026092013"></script>
-<script src="src/render/sprites.js?v=2026092013"></script>
-<script src="src/core/state.js?v=2026092013"></script>
-<script src="src/world/dungeon.js?v=2026092013"></script>
-<script src="src/game/flow.js?v=2026092013"></script>
-<script src="src/render/world-ui.js?v=2026092013"></script>
-<script src="src/interface/refinements.js?v=2026092013"></script>
-<script src="src/chapters/hollow.js?v=2026092013"></script>
-<script src="src/combat/ember-abilities.js?v=2026092013"></script>
-<script src="src/chapters/garden.js?v=2026092013"></script>
-<script src="src/chapters/late-regions.js?v=2026092013"></script>
-<script src="src/progression/regional-blessings.js?v=2026092013"></script>
-<script src="src/story/recovered-traces.js?v=2026092013"></script>
-<script src="src/enemies/regional-enemies.js?v=2026092013"></script>
-<script src="src/bosses/guardians.js?v=2026092013"></script>
-<script src="src/world/regional-hazards.js?v=2026092013"></script>
-<script src="src/chapters/late-hooks.js?v=2026092013"></script>
-<script src="src/progression/skill-tree.js?v=2026092013"></script>
-<script src="src/render/ember.js?v=2026092013"></script>
-<script src="src/render/hollow-garden-art.js?v=2026092013"></script>
-<script src="src/render/regional-art.js?v=2026092013"></script>
-<script src="src/game/finale.js?v=2026092013"></script>
-<script src="src/progression/blessings.js?v=2026092013"></script>
-<script src="src/world/resting-flames.js?v=2026092013"></script>
-<script src="src/audio/score.js?v=2026092013"></script>
-<script src="src/game/endless.js?v=2026092013"></script>
-<script src="src/story/remembered-rooms.js?v=2026092013"></script>
-<script src="src/story/echo-tableaus.js?v=2026092013"></script>
-<script src="src/combat/combat-feel.js?v=2026092013"></script>
-<script src="src/progression/rarity.js?v=2026092013"></script>
-<script src="src/bosses/twin-regents.js?v=2026092013"></script>
-<script src="src/progression/forms.js?v=2026092013"></script>
-<script src="src/world/room-encounters.js?v=2026092013"></script>
-<script src="src/bosses/middle-guardians.js?v=2026092013"></script>
-<script src="src/input/touch.js?v=2026092013"></script>
-<script src="src/game/guardian-modes.js?v=2026092013"></script>
-<script src="src/bosses/final-tuning.js?v=2026092013"></script>
-<script src="src/bosses/secret-boss.js?v=2026092013"></script>
-<script src="src/game/endless-hardening.js?v=2026092013"></script>
-<script src="src/story/living-archive.js?v=2026092013"></script>
-<script src="src/story/story-rewrite.js?v=2026092013"></script>
-<script src="src/bosses/adaptive-guardians.js?v=2026092013"></script>
-<script src="src/combat/combat-polish.js?v=2026092013"></script>
-<script src="src/audio/mastering.js?v=2026092013"></script>
-<script src="src/audio/composed-score.js?v=2026092013"></script>
-<script src="src/combat/combat-finale.js?v=2026092013"></script>
-<script src="src/interface/run-recap.js?v=2026092013"></script>
-<script src="src/game/onboarding.js?v=2026092013"></script>
-<script src="src/game/first-descent.js?v=2026092013"></script>
-<script src="src/core/save-system.js?v=2026092013"></script>
-<script src="src/interface/interface-reborn.js?v=2026092013"></script>
-<script src="src/story/wick-secrets.js?v=2026092013"></script>
-<script src="src/world/secret-rooms.js?v=2026092013"></script>
-<script src="src/game/speedrun.js?v=2026092013"></script>
-<script src="src/core/changelog.js?v=2026092013"></script>
-<script src="src/core/boot.js?v=2026092013"></script>
+<script src="src/core/error-boundary.js?v=2026092101"></script>
+<script src="src/core/foundation.js?v=2026092101"></script>
+<script src="src/core/input.js?v=2026092101"></script>
+<script src="src/render/sprites.js?v=2026092101"></script>
+<script src="src/core/state.js?v=2026092101"></script>
+<script src="src/world/dungeon.js?v=2026092101"></script>
+<script src="src/game/flow.js?v=2026092101"></script>
+<script src="src/render/world-ui.js?v=2026092101"></script>
+<script src="src/interface/refinements.js?v=2026092101"></script>
+<script src="src/chapters/hollow.js?v=2026092101"></script>
+<script src="src/combat/ember-abilities.js?v=2026092101"></script>
+<script src="src/chapters/garden.js?v=2026092101"></script>
+<script src="src/chapters/late-regions.js?v=2026092101"></script>
+<script src="src/progression/regional-blessings.js?v=2026092101"></script>
+<script src="src/story/recovered-traces.js?v=2026092101"></script>
+<script src="src/enemies/regional-enemies.js?v=2026092101"></script>
+<script src="src/bosses/guardians.js?v=2026092101"></script>
+<script src="src/world/regional-hazards.js?v=2026092101"></script>
+<script src="src/chapters/late-hooks.js?v=2026092101"></script>
+<script src="src/progression/skill-tree.js?v=2026092101"></script>
+<script src="src/render/ember.js?v=2026092101"></script>
+<script src="src/render/hollow-garden-art.js?v=2026092101"></script>
+<script src="src/render/regional-art.js?v=2026092101"></script>
+<script src="src/game/finale.js?v=2026092101"></script>
+<script src="src/progression/blessings.js?v=2026092101"></script>
+<script src="src/world/resting-flames.js?v=2026092101"></script>
+<script src="src/audio/score.js?v=2026092101"></script>
+<script src="src/game/endless.js?v=2026092101"></script>
+<script src="src/story/remembered-rooms.js?v=2026092101"></script>
+<script src="src/story/echo-tableaus.js?v=2026092101"></script>
+<script src="src/combat/combat-feel.js?v=2026092101"></script>
+<script src="src/progression/rarity.js?v=2026092101"></script>
+<script src="src/bosses/twin-regents.js?v=2026092101"></script>
+<script src="src/progression/forms.js?v=2026092101"></script>
+<script src="src/world/room-encounters.js?v=2026092101"></script>
+<script src="src/bosses/middle-guardians.js?v=2026092101"></script>
+<script src="src/input/touch.js?v=2026092101"></script>
+<script src="src/game/guardian-modes.js?v=2026092101"></script>
+<script src="src/bosses/final-tuning.js?v=2026092101"></script>
+<script src="src/bosses/secret-boss.js?v=2026092101"></script>
+<script src="src/game/endless-hardening.js?v=2026092101"></script>
+<script src="src/story/living-archive.js?v=2026092101"></script>
+<script src="src/story/story-rewrite.js?v=2026092101"></script>
+<script src="src/bosses/adaptive-guardians.js?v=2026092101"></script>
+<script src="src/combat/combat-polish.js?v=2026092101"></script>
+<script src="src/audio/mastering.js?v=2026092101"></script>
+<script src="src/audio/composed-score.js?v=2026092101"></script>
+<script src="src/combat/combat-finale.js?v=2026092101"></script>
+<script src="src/interface/run-recap.js?v=2026092101"></script>
+<script src="src/game/onboarding.js?v=2026092101"></script>
+<script src="src/game/first-descent.js?v=2026092101"></script>
+<script src="src/core/save-system.js?v=2026092101"></script>
+<script src="src/interface/interface-reborn.js?v=2026092101"></script>
+<script src="src/story/wick-secrets.js?v=2026092101"></script>
+<script src="src/world/secret-rooms.js?v=2026092101"></script>
+<script src="src/game/speedrun.js?v=2026092101"></script>
+<script src="src/core/changelog.js?v=2026092101"></script>
+<script src="src/core/boot.js?v=2026092101"></script>
 </body>
 </html>

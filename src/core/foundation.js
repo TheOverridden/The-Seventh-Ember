@@ -9,7 +9,11 @@ const pickA = arr => arr[Math.floor(Math.random()*arr.length)];
 const TAU = Math.PI*2;
 const d2 = (x1,y1,x2,y2)=>{const dx=x2-x1,dy=y2-y1;return dx*dx+dy*dy;};
 const fmt = v => v>=10000 ? (v/1000).toFixed(1)+'k' : Math.floor(v);
-const on = (el,ev,fn)=>el.addEventListener(ev,fn);
+const on = (el,ev,fn)=>{
+  if(!el)return false;
+  el.addEventListener(ev,fn);
+  return true;
+};
 const refreshIcons = ()=> offlineIcons();
 const show = id => T(id).classList.add('open');
 const hide = id => T(id).classList.remove('open');

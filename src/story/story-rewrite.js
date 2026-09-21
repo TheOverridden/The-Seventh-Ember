@@ -247,7 +247,7 @@
   scribeBefore:{witness:'You read what we left between the names.',shelter:'The margins carry a line of warm fingerprints.',defiance:'You have corrected several records by impact.',severance:'Blank pages are accumulating behind you.'},
   regentsBefore:{witness:'You heard the witnesses. Annoying.','shelter':'The servants are lighting the lower tables.','defiance':'You have mistaken every objection for permission to advance.','severance':'Unheard testimony is still testimony.'},
   seraphBefore:{witness:'You listened without finishing the song.',shelter:'Little flames have found a harmony of their own.',defiance:'You strike between the beats.',severance:'You are making a silence even I cannot follow.'},
-  tyrantBefore:{witness:'ARCHIVE ACCESS: EXCESSIVE.',shelter:'UNAUTHORIZED BEACON TRAIL DETECTED.',defiance:'COMBAT HABIT RECEIVED. COUNTERMEASURE LOADED.',severance:'MISSING-ROOM COUNT ACCEPTABLE.'},
+  tyrantBefore:{witness:'ARCHIVE ACCESS: EXCESSIVE.',shelter:'UNAUTHORIZED BEACON TRAIL DETECTED.',defiance:'INNER BASTION: WAKE.',severance:'MISSING-ROOM COUNT ACCEPTABLE.'},
   keeperBefore:{witness:'You carried the rooms here. The lock is crowded with them.',shelter:'The route behind you is lit. I had forgotten what that meant.',defiance:'Every guardian arrives in your stance. None kept it.',severance:'You came to the Heart lighter than the others.'}
  };
 
@@ -314,5 +314,4 @@
  };
 
  document.documentElement.dataset.storyRecut='v'+STORY_RECUT_VERSION;
- globalThis.TheSeventhEmberStoryRecut={version:STORY_RECUT_VERSION,records:recordRows.length,scenes:Object.keys(HOLLOW_SCENES).length};
 })();

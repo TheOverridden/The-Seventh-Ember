@@ -138,5 +138,4 @@ addEventListener('storage',event=>{
  if(event.key!==SAVE_MANIFEST_KEY||!event.newValue)return;try{const m=JSON.parse(event.newValue);if(m?.schema===SAVE_SCHEMA&&m.writer!==SAVE_WRITER&&Number(m.seq)>saveRevision){saveRemoteRevision=Number(m.seq);if(G.state==='playing')pauseGame(true);storageMessage='A newer save was written in another tab. This tab is paused and cannot overwrite it.';syncSaveStatus();}}catch(_){ }
 });
 
-globalThis.TheSeventhEmberSaveSystem={version:SAVE_SCHEMA,progressionEpoch:SAVE_PROGRESSION_EPOCH,get revision(){return saveRevision;},get lastSavedAt(){return saveLastTime;},get recovered(){return saveRecovered;},get migration(){return{...progressionMigration};},keys:{primary:SAVE_KEY,slots:[...SAVE_SLOT_KEYS],emergency:SAVE_EMERGENCY_KEY,manifest:SAVE_MANIFEST_KEY,resetMarker:PROGRESSION_RESET_MARKER,changelog:CHANGELOG_SEEN_KEY}};
 document.documentElement.dataset.saveSystem='ready-v3';

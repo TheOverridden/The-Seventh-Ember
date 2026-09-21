@@ -63,7 +63,7 @@ function tseScoreLeadDegree(step,section,boss){
  if(section===1&&step%8===0)degree+=2;if(section===2)degree=(step%16<8?degree+4:degree-2);if(section===3&&step%16>10)degree-=2;if(boss)degree=(degree+3+(step%4===0?7:0));return degree;
 }
 function tseScoreScheduleStep(when){
- const profile=tseScoreProfile(),boss=!!G.bossActive,pressure=clamp(globalThis.TheSeventhEmberCombatMix?.intensity||0,0,1),step=TSE_SCORE.step++,beat=60/(profile.bpm+(boss?12:Math.round(pressure*6)))/4,bar=Math.floor(step/16),local=step%16,section=Math.floor(bar/4)%4,chordRoot=profile.progression[bar%profile.progression.length];TSE_SCORE.section=section;TSE_SCORE.movement=profile.movement;
+ const profile=tseScoreProfile(),boss=!!G.bossActive,pressure=clamp(combatMusicIntensity||0,0,1),step=TSE_SCORE.step++,beat=60/(profile.bpm+(boss?12:Math.round(pressure*6)))/4,bar=Math.floor(step/16),local=step%16,section=Math.floor(bar/4)%4,chordRoot=profile.progression[bar%profile.progression.length];TSE_SCORE.section=section;TSE_SCORE.movement=profile.movement;
  if(local===0){tseScorePad(profile,[chordRoot,chordRoot+2,chordRoot+4],when,beat*17,pressure);tseScoreSetDrone(profile,when);}
  const bassDegree=profile.bass[local];if(bassDegree!==null)tseScoreBass(profile,chordRoot+bassDegree,when,beat*(boss?.92:1.55),local===0?1.14:1);
  const lead=tseScoreLeadDegree(step,section,boss);if(lead!==null&&(local%2===0||boss))tseScoreVoice(tseScoreDegree(profile,lead,2),when,beat*(boss?2.15:3.1),boss?.019:.014,profile.wave,profile.leadCut,boss?1:section-1.5);
@@ -91,6 +91,3 @@ const tseComposedInitAudio=initAudio;
 initAudio=function(){tseComposedInitAudio();if(!AC)return;tseScoreCreateBus();tseScoreSetDrone(tseScoreProfile());if(!TSE_SCORE.timer)TSE_SCORE.timer=setInterval(tseScoreScheduler,42);};
 const tseComposedApplyAudioSettings=applyAudioSettings;
 applyAudioSettings=function(){tseComposedApplyAudioSettings();if(!AC)return;const now=AC.currentTime,music=save.music?clamp(save.musicVolume??.82,0,1):0,effects=save.sfx?clamp(save.sfxVolume??.86,0,1):0;sfxDry.gain.setTargetAtTime(.58*effects,now,.1);sfxSend.gain.setTargetAtTime(.27*effects,now,.1);musDry.gain.setTargetAtTime(.32*music,now,.14);musSend.gain.setTargetAtTime(.34*music,now,.18);if(droneG)droneG.gain.setTargetAtTime(.14*music,now,.4);};
-
-globalThis.TheSeventhEmberScore={version:3,title:TSE_SCORE.title,state:TSE_SCORE,profiles:TSE_SCORE_REGIONS,region:tseScoreRegion,schedule:tseScoreScheduler};
-document.documentElement.dataset.audioScore='falling-light-v3';
