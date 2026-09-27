@@ -24,6 +24,7 @@
 <link rel="stylesheet" href="styles/wick-secrets.css?v=2026092201">
 <link rel="stylesheet" href="styles/secret-rooms.css?v=2026092201">
 <link rel="stylesheet" href="styles/speedrun.css?v=2026092201">
+<link rel="stylesheet" href="styles/endless-wheel.css?v=2026092701">
 </head>
 <body>
 
@@ -115,7 +116,7 @@
 <div id="finale" class="ov" role="dialog" aria-modal="true" aria-labelledby="endingTitle">
  <div class="finale-shell"><p class="ending-kicker">THE SEVENTH EMBER · THE END OF THE DESCENT</p><canvas id="endingCanvas" width="720" height="280" aria-label="The archive opens, releasing its people into the dawn."></canvas><h2 id="endingTitle"></h2>
  <div id="endingStory"><strong id="endingSpeaker"></strong><p id="endingText"></p></div><button class="btn primary" id="endingNext">CONTINUE</button>
-  <div id="endingResults" hidden><p>You opened the gate. Your campaign victory is saved.</p><div id="endingNumbers"></div><div id="endingBuild"></div><div class="ending-choices"><button class="btn primary" id="endingFinish">FINISH &amp; RETURN TO MENU</button><button class="btn" id="endingInfinite">ENTER ENDLESS MODE</button><button class="btn subtle" id="endingReplay">REPLAY ENDING</button></div><p>Endless Mode continues from floor 51 with your current blessings and forms. Mutations, mixed enemy groups, and binding Oaths reshape the descent. Dying there keeps your victory.</p></div>
+  <div id="endingResults" hidden><p>You opened the gate. Your campaign victory is saved.</p><div id="endingNumbers"></div><div id="endingBuild"></div><div class="ending-choices"><button class="btn primary" id="endingFinish">FINISH &amp; RETURN TO MENU</button><button class="btn" id="endingInfinite">ENTER ENDLESS MODE</button><button class="btn subtle" id="endingReplay">REPLAY ENDING</button></div><p>Endless Mode continues from floor 51 with your current blessings and forms. Every five floors, the Wheel Below adds another permanent Burden to the descent. Dying there keeps your victory.</p></div>
  </div>
 </div>
 
@@ -316,10 +317,11 @@
 <script src="src/core/save-system.js?v=2026092201"></script>
 <script src="src/interface/interface-reborn.js?v=2026092201"></script>
 <script src="src/story/wick-secrets.js?v=2026092201"></script>
-<script src="src/world/secret-rooms.js?v=2026092201"></script>
+<script src="src/world/secret-rooms.js?v=2026092701"></script>
 <script src="src/audio/recorded-score.js?v=2026092201"></script>
 <script src="src/game/speedrun.js?v=2026092201"></script>
-<script src="src/core/changelog.js?v=2026092201"></script>
+<script src="src/game/endless-wheel.js?v=2026092701"></script>
+<script src="src/core/changelog.js?v=2026092701"></script>
 <script src="src/core/boot.js?v=2026092201"></script>
 </body>
 </html>
