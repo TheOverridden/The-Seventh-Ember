@@ -1,16 +1,16 @@
-const SECRET_ROOM_VERSION=1;
+const SECRET_ROOM_VERSION=2;
 const SECRET_ROOM_TYPES={
- cache:{name:'THE HIDDEN CACHE',verb:'OPEN THE CACHE',line:'A box sits where the room should end.',reward:'Marks, essence, and a blessing'},
- workshop:{name:'THE LOST WORKSHOP',verb:'USE THE BENCH',line:'The tools are warm. Nobody has touched them in years.',reward:'Choose one lasting run improvement'},
- quiet:{name:'THE QUIET ROOM',verb:'REST A MOMENT',line:'Nothing follows you across the threshold.',reward:'Restore health and steady the Ember'},
- shrine:{name:'THE EMBER SHRINE',verb:'MAKE AN OFFERING',line:'Seven cups. Six are cold.',reward:'Trade health for Marks and power'},
- trial:{name:'THE CLOSED TRIAL',verb:'WAKE THE SEAL',line:'The floor is waiting for your answer.',reward:'Clear a short trial for a rich reward'},
- wager:{name:'THE WAGER ROOM',verb:'PLACE TWO MARKS',line:'The little wheel has no losing spaces. That is suspicious.',reward:'Risk two Marks for a rare prize'},
+ cache:{name:'THE HIDDEN CACHE',verb:'OPEN THE CACHE',line:'A box sits where the room should end.',reward:'A rare blessing, many Marks, and a large Essence cache'},
+ workshop:{name:'THE LOST WORKSHOP',verb:'USE THE BENCH',line:'The tools are warm. Nobody has touched them in years.',reward:'Choose one major improvement for this descent'},
+ quiet:{name:'THE QUIET ROOM',verb:'REST A MOMENT',line:'Nothing follows you across the threshold.',reward:'Fully restore the Ember, gain a ward, and take the room’s Marks'},
+ shrine:{name:'THE EMBER SHRINE',verb:'MAKE AN OFFERING',line:'Seven cups. Six are cold.',reward:'Trade health for an Epic blessing, power, Marks, and Essence'},
+ trial:{name:'THE CLOSED TRIAL',verb:'WAKE THE SEAL',line:'The floor is waiting for your answer.',reward:'Survive an elite trial for an exceptional reward'},
+ wager:{name:'THE WAGER ROOM',verb:'PLACE THREE MARKS',line:'The little wheel has no losing spaces. That is suspicious.',reward:'Risk three Marks for an Epic or Mythic prize'},
  echo:{name:'THE ECHO SANCTUARY',verb:'LISTEN',line:'The room remembers a sound the Archive missed.',reward:'A Seventh Mark may be hidden here'},
- cartographer:{name:'THE CARTOGRAPHER’S ROOM',verb:'READ THE WALL',line:'Every corridor is drawn except the one behind you.',reward:'Reveal this floor and its portal'},
- armory:{name:'THE FORGOTTEN ARMORY',verb:'BREAK THE SEAL',line:'No blades. Only shapes an Ember can remember.',reward:'Strengthen one of your blessings'},
- false:{name:'THE FALSE ROOM',verb:'CHECK THE BACK WALL',line:'The dust stops halfway across the floor.',reward:'Find what the room is hiding'},
- deep:{name:'THE DEEP ROOM',verb:'TOUCH THE LOW FLAME',line:'This chamber was old before the first stair.',reward:'Many Marks and a chance at a Seventh Mark'},
+ cartographer:{name:'THE CARTOGRAPHER’S ROOM',verb:'READ THE WALL',line:'Every corridor is drawn except the one behind you.',reward:'Reveal the floor and take six Marks with a large Essence cache'},
+ armory:{name:'THE FORGOTTEN ARMORY',verb:'BREAK THE SEAL',line:'No blades. Only shapes an Ember can remember.',reward:'Strengthen two blessings and recover the room’s hoard'},
+ false:{name:'THE FALSE ROOM',verb:'CHECK THE BACK WALL',line:'The dust stops halfway across the floor.',reward:'An Epic blessing, eight Marks, and a large Essence cache'},
+ deep:{name:'THE DEEP ROOM',verb:'TOUCH THE LOW FLAME',line:'This chamber was old before the first stair.',reward:'A Mythic blessing, fifteen Marks, and a chance at a Seventh Mark'},
  shop:{name:'THE BACK ROOM',verb:'',line:'Moth has kept the lamp on.',reward:'Spend Marks on run-changing goods'}
 };
 const SECRET_REGIONS={
@@ -41,7 +41,7 @@ function secretRegionKey(f=G.floor){if(f<=5)return'gate';if(f<=10)return'garden'
 function secretRun(){if(!G.run)return null;G.run.secretMarks=Math.max(0,Math.floor(G.run.secretMarks||0));G.run.secretRoomsFound=Math.max(0,Math.floor(G.run.secretRoomsFound||0));G.run.secretFloorGap=Math.max(0,Math.floor(G.run.secretFloorGap||0));G.run.secretShopsSeen=Math.max(0,Math.floor(G.run.secretShopsSeen||0));G.run.secretLastShopFloor=Number.isInteger(G.run.secretLastShopFloor)?G.run.secretLastShopFloor:-99;G.run.secretForge=G.run.secretForge&&typeof G.run.secretForge==='object'?G.run.secretForge:{};return G.run;}
 function secretMarkList(){save.seventhMarks=Array.isArray(save.seventhMarks)?save.seventhMarks.filter(id=>SEVENTH_MARKS.some(m=>m.id===id)).filter((id,i,a)=>a.indexOf(id)===i):[];return save.seventhMarks;}
 function secretEligibleRooms(w){const exit=w.rooms.indexOf(w.exit),blocked=new Set([0,exit,w.storyRoom,...(w.echoSanctuaries||[]),...(w.specialEncounters||[]).map(o=>o.roomIndex)]);return w.rooms.map((r,i)=>({r,i,depth:d2(r.cx,r.cy,w.rooms[0].cx,w.rooms[0].cy)})).filter(o=>!blocked.has(o.i)&&o.r.w>=8&&o.r.h>=7).sort((a,b)=>b.depth-a.depth);}
-function secretShouldAppear(f,run){if(f<=2||bossFloorAt(f)||run.guardianMode)return false;if(!run.secretRoomsFound)return true;if(run.secretFloorGap>=4)return true;const odds=f<=10?.27:f<=50?.32:.36;return chance(odds);}
+function secretShouldAppear(f,run){if(f<=3||bossFloorAt(f)||run.guardianMode)return false;const pity=run.secretRoomsFound?9:6;if(run.secretFloorGap>=pity)return true;const odds=f<=10?.08:f<=50?.1:.12;return chance(odds);}
 function secretTypeFor(f,run,seed){
  if(!run.secretRoomsFound)return'cache';
  if(run.secretMarks>=3&&f-run.secretLastShopFloor>=5&&((seed+f)%7===0||run.secretRoomsFound-run.secretShopsSeen*4>=5))return'shop';
@@ -52,9 +52,9 @@ function planSecretRoom(w=G.world,f=G.floor){
  const run=secretRun();if(!w||!run||w.secretRoom!==undefined)return w?.secretRoom||null;
  if(!secretShouldAppear(f,run)){w.secretRoom=null;run.secretFloorGap++;return null;}
  const candidates=secretEligibleRooms(w);if(!candidates.length){w.secretRoom=null;run.secretFloorGap++;return null;}
- const pick=candidates[Math.min(candidates.length-1,Math.floor(Math.random()*Math.min(4,candidates.length)))],seed=Math.floor(Math.random()*1000000),type=secretTypeFor(f,run,seed),r=pick.r;
- const x=(r.cx+.5)*TILE,y=(r.y+.48)*TILE;
- w.secretRoom={version:SECRET_ROOM_VERSION,id:'secret-'+f+'-'+pick.i+'-'+seed,type,region:secretRegionKey(f),roomIndex:pick.i,x,y,seed,discovered:false,opened:false,claimed:false,trialStarted:false,trialComplete:false,purchased:[],wagerResolved:false,entered:0};
+ const pick=candidates[Math.min(candidates.length-1,Math.floor(Math.random()*Math.min(2,candidates.length)))],seed=Math.floor(Math.random()*1000000),type=secretTypeFor(f,run,seed),r=pick.r,side=seed%4;
+ const x=(side===0?r.x+.72:side===1?r.x+r.w-.72:r.cx+.5)*TILE,y=(side===2?r.y+.72:side===3?r.y+r.h-.72:r.cy+.48)*TILE;
+ w.secretRoom={version:SECRET_ROOM_VERSION,id:'secret-'+f+'-'+pick.i+'-'+seed,type,region:secretRegionKey(f),roomIndex:pick.i,x,y,seed,discovered:false,opened:false,claimed:false,trialStarted:false,trialComplete:false,purchased:[],wagerResolved:false,entered:0,listen:0,seals:0,sealReady:false};
  run.secretFloorGap=0;return w.secretRoom;
 }
 function currentSecret(){return G.world?.secretRoom||null;}
@@ -63,11 +63,12 @@ function revealSecret(s=currentSecret()){
  if(!s||s.discovered)return false;s.discovered=true;s.revealedAt=G.t;const run=secretRun();run.secretRoomsFound++;G.world.mmDirty=true;burst(s.x,s.y+12,28,SECRET_REGIONS[s.region].accent,175,.8,3,true);toast('A HIDDEN WAY OPENS',SECRET_ROOM_TYPES[s.type].name.toLowerCase());fieldNote('The wall has a seam now. Step closer and use it.',3.4);sfx('secretReveal');saveNow();return true;
 }
 function secretNear(range=86){const s=currentSecret();return s&&secretDistance(s)<range?s:null;}
-function secretFlareReveal(){const s=currentSecret();if(s&&!s.discovered&&secretDistance(s)<145)revealSecret(s);}
+function secretRoomClear(s=currentSecret()){if(!s||!G.world?.rooms)return false;const r=G.world.rooms[s.roomIndex];return !G.enemies.some(e=>!e.dead&&!e.isBoss&&e.x>r.x*TILE&&e.x<(r.x+r.w)*TILE&&e.y>r.y*TILE&&e.y<(r.y+r.h)*TILE);}
+function secretFlareReveal(){const s=currentSecret();if(!s||s.discovered||secretDistance(s)>=74||!secretRoomClear(s))return false;if(!s.sealReady){fieldNote('The stone keeps the heat. Listen first.',1.8);return false;}s.seals=Math.min(3,(s.seals||0)+1);burst(s.x,s.y,6,SECRET_REGIONS[s.region].accent,70,.35,1.4,true);if(s.seals<3)fieldNote(['One hidden seal gives.','A second seal loosens.'][s.seals-1],1.7);else fieldNote('The last seal has gone quiet.',2.2);sfx('secretReveal');saveNow();return true;}
 function secretMarks(n,label){const run=secretRun();run.secretMarks=Math.max(0,run.secretMarks+n);T('secretMarks').textContent=run.secretMarks;addText(G.player.x,G.player.y-28,(n>0?'+':'')+n+' MARK'+(Math.abs(n)===1?'':'S'),'#edcf83',13);if(label)fieldNote(label,2.4);}
 function secretOwnedMarkFor(s){
  const owned=secretMarkList(),next=SEVENTH_MARKS.find(m=>G.floor>=m.min&&!owned.includes(m.id));if(!next||!['echo','deep'].includes(s.type))return null;
- const force=G.floor>=next.min+8,roll=((s.seed%100)/100)<(s.type==='deep'?.42:.25);return force||roll?next:null;
+ const force=G.floor>=next.min+4,roll=((s.seed%100)/100)<(s.type==='deep'?.68:.42);return force||roll?next:null;
 }
 function grantSeventhMark(s){
  const mark=secretOwnedMarkFor(s);if(!mark)return false;secretMarkList().push(mark.id);markSave();T('secretMarkCount').textContent=save.seventhMarks.length+' / 7';toast(mark.name,save.seventhMarks.length===7?'the hidden lock is complete':'one line of the hidden lock');sfx('secretMark');return true;
@@ -80,30 +81,30 @@ function revealWholeFloor(){const w=G.world;w.reveal.fill(1);w.mmDirty=true;G.po
 function randomOwnedUpgradable(){const list=POOL.filter(o=>(G.run.up[o.id]||0)>0&&(G.run.up[o.id]||0)<o.max);return list.length?pickA(list):null;}
 function finishSecretReward(s,marks=2,ess=0){if(s.claimed)return;s.claimed=true;if(marks)secretMarks(marks);if(ess)addEss(ess);grantSeventhMark(s);sfx('secretClaim');saveNow();renderSecretRoom();}
 function forgeChoice(kind,s){
- const f=secretRun().secretForge;if(kind==='bright'){f.damage=(f.damage||0)+.09;toast('BRIGHTENED CORE','+9% ability damage this descent');}
- else if(kind==='vessel'){f.health=(f.health||0)+10;toast('WIDENED VESSEL','+10 maximum health this descent');}
- else{f.speed=(f.speed||0)+.06;toast('SURE STEP','+6% movement speed this descent');}
- recalc();if(kind==='vessel')G.player.hp=Math.min(G.player.maxHp,G.player.hp+10);finishSecretReward(s,2,Math.round(2+G.floor*.2));
+ const f=secretRun().secretForge;if(kind==='bright'){f.damage=(f.damage||0)+.18;toast('BRIGHTENED CORE','+18% ability damage this descent');}
+ else if(kind==='vessel'){f.health=(f.health||0)+24;toast('WIDENED VESSEL','+24 maximum health this descent');}
+ else{f.speed=(f.speed||0)+.12;toast('SURE STEP','+12% movement speed this descent');}
+ recalc();if(kind==='vessel')G.player.hp=Math.min(G.player.maxHp,G.player.hp+24);finishSecretReward(s,6,Math.round(15+G.floor*1.2));
 }
 function beginSecretTrial(s){
- if(s.trialStarted)return;s.trialStarted=true;s.opened=true;const r=G.world.rooms[s.roomIndex],roster=specialEncounterRoster(),count=G.floor<=10?2:Math.min(6,3+Math.floor(G.floor/20));let made=0;for(let i=0;i<count;i++){const type=roster[(s.seed+i*3)%roster.length],rad=ETYPES[type]?.r||12,pos=safePosition(G.world,rand((r.x+1.2)*TILE,(r.x+r.w-1.2)*TILE),rand((r.y+1.8)*TILE,(r.y+r.h-1.2)*TILE),rad);if(!pos)continue;const e=spawnEnemy(type,pos.x,pos.y,G.floor>20&&i===count-1);e.secretTrialId=s.id;e.aggro=true;e.max*=1.2;e.hp=e.max;made++;}if(!made)s.trialComplete=true;
+ if(s.trialStarted)return;s.trialStarted=true;s.opened=true;const r=G.world.rooms[s.roomIndex],roster=specialEncounterRoster(),count=G.floor<=10?4:Math.min(9,5+Math.floor(G.floor/16));let made=0;for(let i=0;i<count;i++){const type=roster[(s.seed+i*3)%roster.length],rad=ETYPES[type]?.r||12,pos=safePosition(G.world,rand((r.x+1.2)*TILE,(r.x+r.w-1.2)*TILE),rand((r.y+1.8)*TILE,(r.y+r.h-1.2)*TILE),rad);if(!pos)continue;const e=spawnEnemy(type,pos.x,pos.y,G.floor>12&&i>=count-2);e.secretTrialId=s.id;e.aggro=true;e.max*=1.55;e.hp=e.max;e.dmg*=1.2;made++;}if(!made)s.trialComplete=true;
  closeSecretRoom();toast('THE CLOSED TRIAL','clear the room');fieldNote('The hidden seal is awake.',2.5);sfx('roomSeal');saveNow();
 }
 function resolveWager(s){
- if(s.wagerResolved||secretRun().secretMarks<2)return;s.wagerResolved=true;secretMarks(-2);const roll=s.seed%5;if(roll===0){secretMarks(9,'The wheel stops on seven.');grantSecretBlessing(2);}else if(roll<=2){secretMarks(5,'The little pointer lands crooked.');grantSecretBlessing(1);}else{secretMarks(3,'Moth would call that a win.');addEss(8+Math.floor(G.floor*.35));}s.claimed=true;sfx('secretClaim');saveNow();renderSecretRoom();
+ if(s.wagerResolved||secretRun().secretMarks<3)return;s.wagerResolved=true;secretMarks(-3);const roll=s.seed%5;if(roll===0){secretMarks(18,'The wheel stops on seven.');grantSecretBlessing(3);}else if(roll<=2){secretMarks(12,'The little pointer lands crooked.');grantSecretBlessing(2);}else{secretMarks(7,'Moth would call that a win.');addEss(35+Math.floor(G.floor*1.4));}s.claimed=true;sfx('secretClaim');saveNow();renderSecretRoom();
 }
 function secretPrimaryAction(){
  const s=currentSecret();if(!s||s.claimed)return;
- if(s.type==='cache'){grantSecretBlessing(G.floor>=20?1:0);finishSecretReward(s,4,5+Math.floor(G.floor*.3));}
- else if(s.type==='quiet'){G.player.hp=Math.min(G.player.maxHp,G.player.hp+G.player.maxHp*.55);G.player.hitCd=Math.max(G.player.hitCd,2);finishSecretReward(s,1,0);}
- else if(s.type==='shrine'){const cost=Math.max(1,Math.round(G.player.maxHp*.12));G.player.hp=Math.max(1,G.player.hp-cost);secretRun().secretForge.damage=(secretRun().secretForge.damage||0)+.06;recalc();finishSecretReward(s,5,0);}
- else if(s.type==='cartographer'){revealWholeFloor();finishSecretReward(s,2,0);}
- else if(s.type==='armory'){const o=randomOwnedUpgradable();if(o){G.run.up[o.id]++;recalc();addChip(o);toast(o.name.toUpperCase(),'blessing strengthened');}else grantSecretBlessing(1);finishSecretReward(s,3,0);}
- else if(s.type==='false'){grantSecretBlessing(1);finishSecretReward(s,3,Math.round(4+G.floor*.25));}
- else if(s.type==='deep'){grantSecretBlessing(2);finishSecretReward(s,7,Math.round(8+G.floor*.45));}
- else if(s.type==='echo'){finishSecretReward(s,2,Math.round(3+G.floor*.2));}
+ if(s.type==='cache'){grantSecretBlessing(G.floor>=20?2:1);finishSecretReward(s,9,24+Math.floor(G.floor*1.4));}
+ else if(s.type==='quiet'){G.player.hp=G.player.maxHp;G.player.cardWard=Math.max(G.player.cardWard||0,G.player.maxHp*.25);G.player.hitCd=Math.max(G.player.hitCd,3);finishSecretReward(s,4,Math.round(10+G.floor*.7));}
+ else if(s.type==='shrine'){const cost=Math.max(1,Math.round(G.player.maxHp*.18));G.player.hp=Math.max(1,G.player.hp-cost);secretRun().secretForge.damage=(secretRun().secretForge.damage||0)+.14;recalc();grantSecretBlessing(2);finishSecretReward(s,12,Math.round(12+G.floor));}
+ else if(s.type==='cartographer'){revealWholeFloor();finishSecretReward(s,6,Math.round(18+G.floor));}
+ else if(s.type==='armory'){for(let i=0;i<2;i++){const o=randomOwnedUpgradable();if(o){G.run.up[o.id]++;recalc();addChip(o);toast(o.name.toUpperCase(),'blessing strengthened');}else grantSecretBlessing(2);}finishSecretReward(s,8,Math.round(18+G.floor));}
+ else if(s.type==='false'){grantSecretBlessing(2);finishSecretReward(s,8,Math.round(24+G.floor*1.25));}
+ else if(s.type==='deep'){grantSecretBlessing(3);finishSecretReward(s,15,Math.round(45+G.floor*2.2));}
+ else if(s.type==='echo'){grantSecretBlessing(1);finishSecretReward(s,7,Math.round(18+G.floor));}
  else if(s.type==='wager')resolveWager(s);
- else if(s.type==='trial'){if(s.trialComplete)finishSecretReward(s,6,Math.round(7+G.floor*.35));else beginSecretTrial(s);}
+ else if(s.type==='trial'){if(s.trialComplete){grantSecretBlessing(2);finishSecretReward(s,14,Math.round(40+G.floor*1.8));}else beginSecretTrial(s);}
 }
 function secretShopStock(s){
  const all=[
@@ -120,11 +121,11 @@ function buySecretItem(id){
 }
 function secretChoiceButtons(s){
  const wrap=T('secretChoices');wrap.replaceChildren();if(s.claimed)return;
- if(s.type==='workshop')for(const [id,name,desc]of[['bright','BRIGHTEN THE CORE','+9% ability damage'],['vessel','WIDEN THE VESSEL','+10 maximum health'],['step','TRUE THE STEP','+6% movement speed']]){const b=document.createElement('button');b.className='secret-choice';b.innerHTML='<strong>'+name+'</strong><span>'+desc+'</span>';on(b,'click',()=>forgeChoice(id,s));wrap.appendChild(b);}
+ if(s.type==='workshop')for(const [id,name,desc]of[['bright','BRIGHTEN THE CORE','+18% ability damage'],['vessel','WIDEN THE VESSEL','+24 maximum health'],['step','TRUE THE STEP','+12% movement speed']]){const b=document.createElement('button');b.className='secret-choice';b.innerHTML='<strong>'+name+'</strong><span>'+desc+'</span>';on(b,'click',()=>forgeChoice(id,s));wrap.appendChild(b);}
  if(s.type==='shop')for(const item of secretShopStock(s)){const bought=s.purchased.includes(item.id),can=secretRun().secretMarks>=item.cost,b=document.createElement('button');b.className='secret-stock';b.disabled=bought||!can;b.innerHTML='<span class="secret-stock-glyph">'+(item.id==='seventh'?'✦':'◇')+'</span><span><strong>'+item.name+'</strong><small>'+item.desc+'</small></span><b>'+ (bought?'TAKEN':item.cost+' ◆')+'</b>';on(b,'click',()=>buySecretItem(item.id));wrap.appendChild(b);}
 }
 function renderSecretRoom(){
- const s=currentSecret();if(!s)return;const info=SECRET_ROOM_TYPES[s.type],region=SECRET_REGIONS[s.region],run=secretRun(),title=T('secretTitle');secretOverlay.style.setProperty('--secret-accent',region.accent);secretOverlay.style.setProperty('--secret-hot',region.hot);T('secretRegion').textContent=region.name;title.textContent=info.name;title.classList.toggle('long',info.name.length>19);T('secretLine').textContent=s.type==='shop'?['"You found the hinge. Most don’t."','"Marks first. Questions after."','"Don’t touch the blue wax."'][s.entered%3]:info.line;T('secretReward').textContent=s.claimed?'THIS ROOM HAS GIVEN WHAT IT KEPT':info.reward;T('secretMarks').textContent=run.secretMarks;T('secretMarkCount').textContent=secretMarkList().length+' / 7';const action=T('secretAction');action.hidden=s.type==='workshop'||s.type==='shop'||s.claimed;action.textContent=s.type==='wager'&&run.secretMarks<2?'NEED 2 MARKS':s.type==='trial'&&s.trialStarted&&!s.trialComplete?'TRIAL IN PROGRESS':info.verb;action.disabled=(s.type==='wager'&&run.secretMarks<2)||(s.type==='trial'&&s.trialStarted&&!s.trialComplete);secretChoiceButtons(s);T('secretRoomState').textContent=s.type==='shop'?'MOTH · KEEPER OF THE BACK ROOM':s.claimed?'THE ROOM IS QUIET':s.discovered?'PASSAGE FOUND':'UNREAD';
+ const s=currentSecret();if(!s)return;const info=SECRET_ROOM_TYPES[s.type],region=SECRET_REGIONS[s.region],run=secretRun(),title=T('secretTitle');secretOverlay.style.setProperty('--secret-accent',region.accent);secretOverlay.style.setProperty('--secret-hot',region.hot);T('secretRegion').textContent=region.name;title.textContent=info.name;title.classList.toggle('long',info.name.length>19);T('secretLine').textContent=s.type==='shop'?['"You found the hinge. Most don’t."','"Marks first. Questions after."','"Don’t touch the blue wax."'][s.entered%3]:info.line;T('secretReward').textContent=s.claimed?'THIS ROOM HAS GIVEN WHAT IT KEPT':info.reward;T('secretMarks').textContent=run.secretMarks;T('secretMarkCount').textContent=secretMarkList().length+' / 7';const action=T('secretAction');action.hidden=s.type==='workshop'||s.type==='shop'||s.claimed;action.textContent=s.type==='wager'&&run.secretMarks<3?'NEED 3 MARKS':s.type==='trial'&&s.trialStarted&&!s.trialComplete?'TRIAL IN PROGRESS':info.verb;action.disabled=(s.type==='wager'&&run.secretMarks<3)||(s.type==='trial'&&s.trialStarted&&!s.trialComplete);secretChoiceButtons(s);T('secretRoomState').textContent=s.type==='shop'?'MOTH · KEEPER OF THE BACK ROOM':s.claimed?'THE ROOM IS QUIET':s.discovered?'PASSAGE FOUND':'UNREAD';
 }
 function enterSecretRoom(s=currentSecret()){
  if(!s||!s.discovered)return;s.opened=true;s.entered=(s.entered||0)+1;if(s.type==='shop'){const run=secretRun();if(!s.shopCounted){s.shopCounted=true;run.secretShopsSeen++;run.secretLastShopFloor=G.floor;}}secretPreviousState=G.state;G.state='secret';G.paused=true;clearInput();document.body.classList.add('secret-open');show('secretRoom');renderSecretRoom();secretOpenAt=performance.now();cancelAnimationFrame(secretAnim);secretAnim=requestAnimationFrame(drawSecretFrame);sfx('secretOpen');saveNow();setTimeout(()=>T('secretLeave').focus({preventScroll:true}),60);
@@ -172,7 +173,7 @@ function drawSecretFrame(now){
  if(!secretOverlay.classList.contains('open'))return;const s=currentSecret();if(!s)return;const p=SECRET_REGIONS[s.region],c=secretCtx,w=secretCanvas.width,h=secretCanvas.height,t=save.motion?2400:now-secretOpenAt;secretPerspective(c,p,w,h,t);drawSecretArchitecture(c,s,p,w,h,t);drawSecretFocal(c,s,p,w,h,t);const v=c.createRadialGradient(w*.5,h*.48,80,w*.5,h*.5,w*.58);v.addColorStop(0,'transparent');v.addColorStop(1,'rgba(0,0,0,.78)');c.fillStyle=v;c.fillRect(0,0,w,h);secretAnim=requestAnimationFrame(drawSecretFrame);
 }
 function drawSecretEntrance(ctx){
- const s=currentSecret();if(!s)return;const p=SECRET_REGIONS[s.region],t=save.motion?0:G.tAll,x=Math.round(s.x),y=Math.round(s.y),known=s.discovered;ctx.save();ctx.translate(x,y);ctx.imageSmoothingEnabled=false;ctx.globalCompositeOperation='source-over';ctx.fillStyle='#05070a';ctx.globalAlpha=known?.96:.24;ctx.fillRect(-43,-12,86,72);ctx.fillStyle=p.dark;ctx.fillRect(-37,-7,74,64);for(let i=0;i<7;i++){ctx.fillStyle=i%2?p.accent+'35':p.hot+'25';ctx.fillRect(-35+i*11,-5+(i%2)*4,7,known?55:37);}ctx.strokeStyle=known?p.accent:p.accent+'55';ctx.lineWidth=known?3:1;ctx.strokeRect(-41,-10,82,70);ctx.beginPath();ctx.moveTo(-28,58);ctx.lineTo(-28,12);ctx.quadraticCurveTo(0,-25,28,12);ctx.lineTo(28,58);ctx.stroke();
+ const s=currentSecret();if(!s)return;const p=SECRET_REGIONS[s.region],t=save.motion?0:G.tAll,x=Math.round(s.x),y=Math.round(s.y),known=s.discovered,dist=secretDistance(s);if(!known){if(dist>210)return;const near=clamp(1-dist/230,.05,.55);ctx.save();ctx.translate(x,y);ctx.imageSmoothingEnabled=false;ctx.globalAlpha=near;ctx.strokeStyle=p.accent;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-4,-18);ctx.lineTo(2,-7);ctx.lineTo(-2,7);ctx.lineTo(5,22);ctx.stroke();ctx.fillStyle=p.hot;for(let i=0;i<(s.seals||0);i++){const a=i*TAU/3-Math.PI/2;ctx.fillRect(Math.round(Math.cos(a)*17)-1,Math.round(Math.sin(a)*17)-1,3,3);}if(s.sealReady){ctx.globalAlpha=near*.6;ctx.strokeStyle=p.hot;ctx.beginPath();ctx.arc(0,2,24,0,TAU);ctx.stroke();}ctx.restore();return;}ctx.save();ctx.translate(x,y);ctx.imageSmoothingEnabled=false;ctx.globalCompositeOperation='source-over';ctx.fillStyle='#05070a';ctx.globalAlpha=.96;ctx.fillRect(-43,-12,86,72);ctx.fillStyle=p.dark;ctx.fillRect(-37,-7,74,64);for(let i=0;i<7;i++){ctx.fillStyle=i%2?p.accent+'35':p.hot+'25';ctx.fillRect(-35+i*11,-5+(i%2)*4,7,55);}ctx.strokeStyle=p.accent;ctx.lineWidth=3;ctx.strokeRect(-41,-10,82,70);ctx.beginPath();ctx.moveTo(-28,58);ctx.lineTo(-28,12);ctx.quadraticCurveTo(0,-25,28,12);ctx.lineTo(28,58);ctx.stroke();
  if(s.region==='garden'){ctx.strokeStyle=p.accent;ctx.lineWidth=5;for(const q of[-1,1]){ctx.beginPath();ctx.moveTo(q*43,61);ctx.bezierCurveTo(q*55,26,q*16,16,q*27,-15);ctx.stroke();}}
  else if(s.region==='reservoir'){ctx.fillStyle=p.accent+'66';for(let i=0;i<5;i++)ctx.fillRect(-34+i*17,54,11,3);ctx.fillStyle=p.hot;ctx.fillRect(-29,-3,58,3);}
  else if(s.region==='foundry'){ctx.fillStyle=p.accent+'55';ctx.fillRect(-35,39,70,13);for(let i=0;i<5;i++)ctx.fillRect(-31+i*15,7,7,28);}
@@ -191,7 +192,7 @@ const secretStrikeMelee=strikeMelee;
 strikeMelee=function(){const out=secretStrikeMelee();secretFlareReveal();return out;};
 const secretUpdateBase=update;
 update=function(dt){
- if(G.state==='playing'&&!G.descending){const s=secretNear(88);if(s&&interactQueued){interactQueued=false;if(!s.discovered)revealSecret(s);else enterSecretRoom(s);return;}}
+ if(G.state==='playing'&&!G.descending){const s=secretNear(78);if(s){if(s.discovered&&interactQueued){interactQueued=false;enterSecretRoom(s);return;}if(!s.discovered&&secretRoomClear(s)){const moved=Math.hypot(G.player.x-(s.listenX??G.player.x),G.player.y-(s.listenY??G.player.y));s.listenX=G.player.x;s.listenY=G.player.y;if(secretDistance(s)<56&&moved<1.2)s.listen=Math.min(2.4,(s.listen||0)+dt);else s.listen=Math.max(0,(s.listen||0)-dt*.6);if(s.listen>=2.25&&!s.sealReady){s.sealReady=true;fieldNote('Something behind the stone answered.',2.3);sfx('secretOpen');saveNow();}if(interactQueued){interactQueued=false;if((s.seals||0)>=3)revealSecret(s);else if(s.sealReady)fieldNote('Three cold points. Wake them with Flare.',2.2);else fieldNote('The stone sounds hollow. Be still and listen.',2.2);return;}}}}
  return secretUpdateBase(dt);
 };
 const secretKillEnemy=killEnemy;
@@ -203,7 +204,7 @@ drawProps=function(ctx){secretDrawPropsBase(ctx);drawSecretEntrance(ctx);};
 const secretDrawMinimapBase=drawMinimap;
 drawMinimap=function(){secretDrawMinimapBase();drawSecretMinimap();};
 const secretUpdateHUDBase=updateHUD;
-updateHUD=function(dt){secretUpdateHUDBase(dt);if(!G.player||G.state!=='playing')return;const s=secretNear(96);if(!s)return;T('promptTxt').textContent=s.discovered?'ENTER THE HIDDEN PASSAGE':'A DRAFT MOVES THROUGH THE WALL · USE OR FLARE';T('prompt').classList.add('on');};
+updateHUD=function(dt){secretUpdateHUDBase(dt);if(!G.player||G.state!=='playing')return;const s=secretNear(58);if(!s||!s.discovered&&!secretRoomClear(s))return;T('promptTxt').textContent=s.discovered?'ENTER THE HIDDEN PASSAGE':(s.seals||0)>=3?'THE SEALS ARE QUIET · USE':s.sealReady?'A COLD SEAL · FLARE':(s.listen||0)>1?'KEEP STILL':'THE STONE SOUNDS HOLLOW';T('prompt').classList.add('on');};
 const secretSnapshotBase=snapshotRun;
 snapshotRun=function(){const state=G.state;if(state==='secret')G.state='paused';try{secretSnapshotBase();}finally{G.state=state;}if(save.resume&&G.world){save.resume.world.secretRoom=deepCopy(G.world.secretRoom??null);}};
 const secretResumeBase=resumeRun;
@@ -222,4 +223,4 @@ sfx=function(name,a){if(!['secretReveal','secretOpen','secretClaim','secretBuy',
 on(T('secretAction'),'click',secretPrimaryAction);
 on(T('secretLeave'),'click',closeSecretRoom);
 secretMarkList();
-document.documentElement.dataset.secretRooms='v1';
+document.documentElement.dataset.secretRooms='v2';
