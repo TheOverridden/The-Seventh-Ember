@@ -130,6 +130,8 @@ function expansionState(){
  if(!Array.isArray(s.suns))s.suns=[];
  if(!Array.isArray(s.returnShots))s.returnShots=[];
  if(!Array.isArray(s.wishLevels))s.wishLevels=[];
+ if(!Array.isArray(s.wishTakenIds))s.wishTakenIds=[];
+ if(!Array.isArray(s.hearthBlocks))s.hearthBlocks=[];
  if(!s.visitedRooms||typeof s.visitedRooms!=='object')s.visitedRooms={};
  return s;
 }
@@ -137,7 +139,7 @@ function expansionLiving(){return (G.enemies||[]).filter(e=>!e.dead);}
 function expansionNearest(x,y,filter=()=>true){let found=null,best=Infinity;for(const e of expansionLiving()){if(!filter(e))continue;const d=d2(x,y,e.x,e.y);if(d<best){best=d;found=e;}}return found;}
 function expansionRoomIndex(x=G.player?.x,y=G.player?.y){return G.world?.rooms?.findIndex(r=>x>=r.x*TILE&&x<=(r.x+r.w)*TILE&&y>=r.y*TILE&&y<=(r.y+r.h)*TILE)??-1;}
 function expansionRoomEnemies(index=expansionRoomIndex()){const r=G.world?.rooms?.[index];return !r?[]:expansionLiving().filter(e=>e.x>=r.x*TILE&&e.x<=(r.x+r.w)*TILE&&e.y>=r.y*TILE&&e.y<=(r.y+r.h)*TILE);}
-function expansionHeal(amount,label){if(!G.player||amount<=0)return 0;const p=G.player,before=p.hp;p.hp=Math.min(p.maxHp,p.hp+amount);const gained=p.hp-before;if(gained>0){addText(p.x,p.y-23,'+'+Math.round(gained),'#ffb18c',12);if(label)fieldNote(label,1.6);sfx('heart');}return gained;}
+function expansionHeal(amount,label){if(!G.player||amount<=0)return 0;const before=G.player.hp;cardHeal(amount,label);return G.player.hp-before;}
 function expansionFriendlyShot(x,y,a,dmg,options={}){const speed=options.speed||BASE.bulletSpd;G.bullets.push({x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,r:options.r||6,dmg,pierce:options.pierce||0,ric:options.ric||0,life:options.life||1.2,hits:null,seeking:options.seeking||0,late:true,whiteStar:false,expansion:true,...options});}
 function expansionAction(action){
  const s=expansionState(),rank=blessingRank('clockworkFlame');if(!s||!rank)return;
@@ -170,7 +172,7 @@ function starstitchCollapse(){
  else nova(cx,cy,105+pins.length*16,G.player.dmg*(.8+pins.length*.32));
  s.pins=[];return true;
 }
-function expansionPointInTriangle(px,py,a,b,c){const sign=(p1x,p1y,p2x,p2y,p3x,p3y)=>(p1x-p3x)*(p2y-p3y)-(p2x-p3x)*(p1y-p3y),d1=sign(px,py,a.x,a.y,b.x,b.y),d2v=sign(px,py,b.x,b.y,c.x,c.y),d3=sign(px,py,c.x,c.y,a.x,a.y),neg=d1<0||d2v<0||d3<0,pos=d1>0||d2v>0||d3>0;return !(neg&&pos);}
+function expansionPointInTriangle(px,py,a,b,c){const sign=(p1x,p1y,p2x,p2y,p3x,p3y)=>(p1x-p3x)*(p2y-p3y)-(p2x-p3x)*(p1y-p3y),area=sign(a.x,a.y,b.x,b.y,c.x,c.y),max=260+70*blessingRank('longThread'),d1=sign(px,py,a.x,a.y,b.x,b.y),d2v=sign(px,py,b.x,b.y,c.x,c.y),d3=sign(px,py,c.x,c.y,a.x,a.y),neg=d1<0||d2v<0||d3<0,pos=d1>0||d2v>0||d3>0;return Math.abs(area)>=16&&d2(a.x,a.y,b.x,b.y)<=max*max&&d2(b.x,b.y,c.x,c.y)<=max*max&&d2(c.x,c.y,a.x,a.y)<=max*max&&!(neg&&pos);}
 
 function expansionRhythm(action){
  const rank=blessingRank('emberRhythm'),s=expansionState();if(!rank||!s)return;
@@ -188,20 +190,23 @@ function expansionRenderCard(card,index){
 const expansionBuildCards=buildCards;
 buildCards=function(){
  const restoring=Array.isArray(G.restoreCardIds)&&G.restoreCardIds.length>0;expansionBuildCards();
- const s=expansionState(),wish=blessingRank('seventhWish')&&!G.opts.freeChoice&&!restoring&&G.run.level%7===0&&!s.wishLevels.includes(G.run.level);
+ const s=expansionState(),wish=blessingRank('seventhWish')&&!G.opts.freeChoice&&G.run.level%7===0&&!s.wishLevels.includes(G.run.level);
  T('luWrap').classList.toggle('seventh-wish-draft',wish);
  if(!wish)return;
- let pool=POOL.filter(o=>(G.run.up[o.id]||0)<o.max&&(!o.unlock||armoryData()[o.unlock])&&G.floor>=(o.minFloor||1)&&!G.cardPool.includes(o));
- while(G.cardPool.length<7&&pool.length){let rarity=rollRarity(pool);if(G.cardPool.some(o=>o.r===3)&&rarity===3)rarity=2;let tier=pool.filter(o=>o.r===rarity);if(!tier.length)tier=pool;let total=tier.reduce((n,o)=>n+o.w,0),roll=Math.random()*total,selected=tier[0];for(const o of tier){roll-=o.w;if(roll<=0){selected=o;break;}}G.cardPool.push(selected);pool=pool.filter(o=>o!==selected);}
+ if(!restoring||s.wishLevel!==G.run.level||!s.wishRemaining){s.wishRemaining=2;s.wishLevel=G.run.level;s.wishTakenIds=[];}
+ let pool=POOL.filter(o=>(G.run.up[o.id]||0)<o.max&&(!o.unlock||armoryData()[o.unlock])&&G.floor>=(o.minFloor||1)&&!G.cardPool.includes(o)&&(!G.cardPool.some(c=>c.r===3)||o.r!==3));
+ while(G.cardPool.length<7&&pool.length){let rarity=rollRarity(pool);if(G.cardPool.some(o=>o.r===3)&&rarity===3)rarity=2;let tier=pool.filter(o=>o.r===rarity);if(!tier.length)tier=pool;let total=tier.reduce((n,o)=>n+o.w,0),roll=Math.random()*total,selected=tier[0];for(const o of tier){roll-=o.w;if(roll<=0){selected=o;break;}}G.cardPool.push(selected);pool=pool.filter(o=>o!==selected&&(selected.r!==3||o.r!==3));}
  const wrap=T('cards');for(let i=wrap.children.length;i<G.cardPool.length;i++)wrap.appendChild(expansionRenderCard(G.cardPool[i],i));
- s.wishRemaining=2;s.wishLevel=G.run.level;T('luSub').textContent='THE SEVENTH WISH · CHOOSE TWO';refreshIcons();
+ for(let i=0;i<G.cardPool.length;i++)if(s.wishTakenIds.includes(G.cardPool[i].id)){const el=wrap.children[i];el.disabled=true;el.classList.add('wish-taken');el.querySelector('.card-rank').textContent='TAKEN';}
+ const available=G.cardPool.filter(o=>!s.wishTakenIds.includes(o.id)&&(o.consumable||(G.run.up[o.id]||0)<o.max)).length;s.wishRemaining=Math.min(s.wishRemaining,available||1);T('luSub').textContent=s.wishRemaining>1?'THE SEVENTH WISH · CHOOSE TWO':'THE SEVENTH WISH · CHOOSE ONE MORE';refreshIcons();
 };
 
 const expansionChooseCard=chooseCard;
 chooseCard=function(i){
  const s=expansionState(),card=G.state==='levelup'&&G.cardPool?.[i];if(!card)return expansionChooseCard(i);
- if(s.wishRemaining>1){G.run.up[card.id]=(G.run.up[card.id]||0)+1;if(card.id==='hp')G.player.hp+=25;recalc();addChip(card);sfx('buy');if(card.r===3){G.run.mythicsFound=(G.run.mythicsFound||0)+1;toast('MYTHIC · '+card.name,'the dark gave up something rare');sfx('mythicClaim');}s.wishRemaining=1;const el=T('cards').children[i];if(el){el.disabled=true;el.classList.add('wish-taken');el.querySelector('.card-rank').textContent='TAKEN';}T('luSub').textContent='THE SEVENTH WISH · CHOOSE ONE MORE';if(typeof checkEvolutions==='function')checkEvolutions(true);saveNow();return;}
- if(s.wishRemaining===1){s.wishRemaining=0;if(!s.wishLevels.includes(s.wishLevel))s.wishLevels.push(s.wishLevel);T('luWrap').classList.remove('seventh-wish-draft');}
+ if(s.wishRemaining&&(s.wishTakenIds.includes(card.id)||(!card.consumable&&(G.run.up[card.id]||0)>=card.max)))return;
+ if(s.wishRemaining>1){s.wishTakenIds.push(card.id);if(card.consumable)cardHeal(G.player.maxHp*.15);else G.run.up[card.id]=(G.run.up[card.id]||0)+1;if(card.id==='hp')G.player.hp+=25;recalc();addChip(card);sfx('buy');if(card.r===3){G.run.mythicsFound=(G.run.mythicsFound||0)+1;toast('MYTHIC · '+card.name,'the dark gave up something rare');sfx('mythicClaim');}s.wishRemaining=1;const el=T('cards').children[i];if(el){el.disabled=true;el.classList.add('wish-taken');el.querySelector('.card-rank').textContent='TAKEN';}T('luSub').textContent='THE SEVENTH WISH · CHOOSE ONE MORE';if(typeof checkEvolutions==='function')checkEvolutions(true);saveNow();return;}
+ if(s.wishRemaining===1){s.wishRemaining=0;s.wishTakenIds=[];if(!s.wishLevels.includes(s.wishLevel))s.wishLevels.push(s.wishLevel);T('luWrap').classList.remove('seventh-wish-draft');}
  return expansionChooseCard(i);
 };
 
@@ -217,12 +222,12 @@ function expansionRestoreBorrowed(){
  const s=expansionState();if(!s?.archiveBorrowed)return;const b=s.archiveBorrowed;if(b.previous>0)G.run.up[b.id]=b.previous;else delete G.run.up[b.id];s.archiveBorrowed=null;
 }
 function expansionBorrowBlessing(){
- if(!blessingRank('archiveFire'))return;const s=expansionState(),pool=POOL.filter(o=>o.max>0&&o.r<3&&G.floor>=(o.minFloor||1)&&!(G.run.up[o.id]||0)&&o.id!=='archiveFire');if(!pool.length)return;const card=pool[Math.abs((G.run.seedHash||G.floor*7919)+G.floor*37)%pool.length],previous=G.run.up[card.id]||0;G.run.up[card.id]=card.max;s.archiveBorrowed={id:card.id,previous};toast('ARCHIVE FIRE',card.name+' · borrowed for this floor');
+ if(!blessingRank('archiveFire'))return;const s=expansionState(),pool=POOL.filter(o=>o.max>0&&o.r<3&&G.floor>=(o.minFloor||1)&&!(G.run.up[o.id]||0)&&(!o.unlock||armoryData()[o.unlock])&&o.id!=='archiveFire');if(!pool.length)return;const card=pool[Math.abs((G.run.seedHash||G.floor*7919)+G.floor*37)%pool.length],previous=G.run.up[card.id]||0;G.run.up[card.id]=card.max;s.archiveBorrowed={id:card.id,previous};toast('ARCHIVE FIRE',card.name+' · borrowed for this floor');
 }
 const expansionSetupFloor=setupFloor;
 setupFloor=function(f){
  if(G.run)expansionRestoreBorrowed();const out=expansionSetupFloor(f);if(!G.run)return out;const s=expansionState();
- s.floor=f;s.roomIndex=-1;s.roomAge=0;s.roomHit=false;s.roomCombat=false;s.visitedRooms={};s.ashMemoryType='';s.crownlessPower=null;s.crownTaken=false;s.phoenixReady=f>=(s.phoenixLastFloor||-9)+5;s.firstRoomCast=true;s.firstSparkChain=s.firstSparkChain||0;s.pins=[];s.mines=[];s.lines=[];s.shatteredFragments=0;s.guardianFinalUid=0;
+ s.floor=f;s.roomIndex=-1;s.roomAge=0;s.roomHit=false;s.roomCombat=false;s.visitedRooms={};s.ashMemoryType='';s.crownlessPower=null;s.crownTaken=false;s.phoenixReady=f>=(s.phoenixLastFloor||-9)+5;s.firstRoomCast=true;s.firstSparkChain=s.firstSparkChain||0;s.pins=[];s.mines=[];s.lines=[];s.echoShots=[];s.echoFlares=[];s.bankStars=[];s.suns=[];s.returnShots=[];s.portal=null;s.portalStart=null;s.wasDashing=false;s.wasReloading=false;s.freezeT=0;s.emptyChamberT=0;s.shatteredFragments=0;s.guardianFinalUid=0;
  expansionBorrowBlessing();recalc();return out;
 };
 
@@ -231,9 +236,10 @@ startRun=function(){const out=expansionStartRun();if(G.run){G.run.blessingExpans
 const expansionResumeRun=resumeRun;
 resumeRun=function(){const out=expansionResumeRun();if(G.run){expansionState();recalc();}return out;};
 
+function recordPerfectRekindle(){const s=expansionState();s.perfectReloads=(s.perfectReloads||0)+1;}
 const expansionBeginReload=beginReload;
 beginReload=function(){
- const p=G.player,rank=blessingRank('perfectRekindle');if(p&&p.reloadT>0&&rank){const progress=1-p.reloadT/Math.max(.01,p.reloadDuration),window=.16+.07*rank;if(progress>=1-window){p.reloadT=0;p.ammo=p.magSize;p.shotT=0;nova(p.x,p.y,110+25*rank,p.dmg*(1.2+.8*rank));burst(p.x,p.y,22,'#fff1b1',210,.55,3,true);addText(p.x,p.y-26,'PERFECT','#fff0ad',13);sfx('mythic');return true;}return false;}return expansionBeginReload();
+ const p=G.player,rank=blessingRank('perfectRekindle');if(p&&p.reloadT>0&&rank){const progress=1-p.reloadT/Math.max(.01,p.reloadDuration),window=.16+.07*rank;if(progress>=1-window){p.reloadT=0;p.ammo=p.magSize;p.shotT=0;recordPerfectRekindle();nova(p.x,p.y,110+25*rank,p.dmg*(1.2+.8*rank));burst(p.x,p.y,22,'#fff1b1',210,.55,3,true);addText(p.x,p.y-26,'PERFECT','#fff0ad',13);sfx('mythic');return true;}return false;}return expansionBeginReload();
 };
 
 const expansionFireVolley=fireVolley;
@@ -243,10 +249,8 @@ fireVolley=function(){
  let power=1;
  if(blessingRank('lastCoal')&&beforeAmmo===1)power*=1+.3*blessingRank('lastCoal');
  if(blessingRank('followThrough')&&G.t-(s.lastFlare||-9)<1.15)power*=1+.18*blessingRank('followThrough');
- if((s.rhythmBuff||0)>0)power*=1+.12*blessingRank('emberRhythm');
- if((s.roomToneBuff||0)>0)power*=1+.12*blessingRank('roomTone');
  if((s.firstRoomCast||false)&&blessingRank('firstSparkReturned')){power*=3.8+Math.min(4,(s.firstSparkChain||0)*.35);for(const b of created){b.r+=7;b.pierce=(b.pierce||0)+6;b.firstReturned=true;}s.firstRoomCast=false;}
- for(const b of created){b.dmg*=power;if(blessingRank('lastCoal')&&beforeAmmo===1)b.r+=2*blessingRank('lastCoal');if(blessingRank('turningSpark'))b.turningSpark=blessingRank('turningSpark');}
+ for(const b of created){b.dmg*=power;if(blessingRank('glassThread')&&(s.glassHits||0)>=3)b.pierce=(b.pierce||0)+blessingRank('glassThread');if(blessingRank('lastCoal')&&beforeAmmo===1)b.r+=2*blessingRank('lastCoal');if(blessingRank('turningSpark'))b.turningSpark=blessingRank('turningSpark');}
  if(s.quickdrawReady&&blessingRank('quickdraw')){s.quickdrawReady=false;p.ammo=Math.min(p.magSize,p.ammo+1);if(p.reloadT>0)p.reloadT=0;for(const b of created){b.seeking=Math.max(b.seeking||0,.18+.05*blessingRank('quickdraw'));b.dmg*=1+.12*blessingRank('quickdraw');}}
  if(blessingRank('bellTiming')&&s.totalCasts%7===0){p.meleeCdT=Math.max(0,p.meleeCdT-.32*blessingRank('bellTiming'));p.dashCdT=Math.max(0,p.dashCdT-.28*blessingRank('bellTiming'));}
  if(blessingRank('crossroads')&&Number.isFinite(s.lastCastAngle)&&Math.abs(angleDiff(beforeAngle,s.lastCastAngle))>.72){for(const src of created.slice(0,2))for(const turn of [-.48,.48]){const speed=Math.hypot(src.vx,src.vy),a=beforeAngle+turn;G.bullets.push({...src,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,dmg:src.dmg*(.52+.14*blessingRank('crossroads')),hits:null,whiteStar:false});}}s.lastCastAngle=beforeAngle;
@@ -265,12 +269,12 @@ function expansionReflectShot(radius,all=false){
 }
 const expansionStrikeMelee=strikeMelee;
 strikeMelee=function(){
- const p=G.player;if(!p||!G.run)return expansionStrikeMelee();const s=expansionState(),targets=expansionFlareTargets(),oldDamage=MELEE.damage;let mult=1;
- if(blessingRank('counterstep')&&G.t-(s.lastDashEnd||-9)<.9)mult*=1+.18*blessingRank('counterstep');
- if(blessingRank('crucible')&&(s.crucible||0)>0){mult*=1+Math.min(1.8,s.crucible*.035*blessingRank('crucible'));s.crucible=0;}
+ const p=G.player;if(!p||!G.run)return expansionStrikeMelee();const s=expansionState(),oldDamage=MELEE.damage,oldReach=MELEE.reach;let mult=1;
+ if(blessingRank('counterstep')&&G.t-(s.lastDashEnd||-9)<.9){mult*=1+.18*blessingRank('counterstep');MELEE.reach+=12*blessingRank('counterstep');}
+ if(blessingRank('crucible')&&(s.crucible||0)>0){mult*=1+Math.min(1.8,s.crucible*.035*blessingRank('crucible'));MELEE.reach+=Math.min(50,s.crucible*1.25);s.crucible=0;}
  if(blessingRank('heatSink')&&(s.heatSink||0)>0){mult*=1+Math.min(2,s.heatSink/Math.max(1,p.maxHp)*2*blessingRank('heatSink'));s.heatSink=0;}
  if(blessingRank('duelistEmber')&&expansionLiving().length===1)mult*=1+.48*blessingRank('duelistEmber');
- MELEE.damage*=mult;expansionStrikeMelee();MELEE.damage=oldDamage;s.lastFlare=G.t;expansionAction('flare');expansionRhythm('flare');s.flareCount=(s.flareCount||0)+1;
+ const targets=expansionFlareTargets();MELEE.damage*=mult;try{expansionStrikeMelee();}finally{MELEE.damage=oldDamage;MELEE.reach=oldReach;}s.lastFlare=G.t;expansionAction('flare');expansionRhythm('flare');s.flareCount=(s.flareCount||0)+1;
  const open=blessingRank('openHand');if(open&&targets.length)p.dashCdT=Math.max(0,p.dashCdT-.14*open*Math.min(4,targets.length));
  const relay=blessingRank('emberRelay');if(relay&&targets.length)p.ammo=Math.min(p.magSize,p.ammo+Math.min(relay,1+Math.floor(targets.length/4)));
  const heavy=blessingRank('heavyArc'),sever=blessingRank('severingLight'),cracked=blessingRank('crackedBell');
@@ -288,7 +292,6 @@ strikeMelee=function(){
 const expansionDamageEnemy=damageEnemy;
 damageEnemy=function(e,dmg,ang,crit,kb,kind='shot'){
  if(!e||e.dead)return;const s=expansionState(),p=G.player,u=G.run?.up||{};let amount=dmg;
- if(s&&s.roomAge<6&&blessingRank('warmStart'))amount*=1+.06*blessingRank('warmStart');
  if(s?.rhythmBuff>0)amount*=1+.12*blessingRank('emberRhythm');
  if(s?.roomToneBuff>0)amount*=1+.12*blessingRank('roomTone');
  if(s?.chainStacks)amount*=1+s.chainStacks*.04*blessingRank('chainRooms');
@@ -309,20 +312,23 @@ damageEnemy=function(e,dmg,ang,crit,kb,kind='shot'){
  const wasDead=e.dead;expansionDamageEnemy(e,amount,ang,crit,kb,kind);
  if(wasDead||!s)return;
  if(kind==='shot'&&starstitchActive()&&!e.dead){s.stitchHits=(s.stitchHits||0)+1;const form=typeof activeForm==='function'?activeForm('primary').id:'emberBolt',every=form==='sunlance'?1:Math.max(2,9-2*blessingRank('brightNeedle')-(form==='cinderburst'?2:form==='starweaver'?1:0));if(s.stitchHits%every===0&&(!e.expPinT||e.expPinT<=G.t)){e.expPinT=G.t+(form==='sunlance'?.22:.06);starstitchPin(e.x,e.y,e);}}
- if(blessingRank('redThread')&&kind!=='redThread'&&!e.dead){if(!e.expRedThread){e.expRedThread=true;const near=expansionLiving().filter(q=>q!==e).sort((a,b)=>d2(a.x,a.y,e.x,e.y)-d2(b.x,b.y,e.x,e.y)).slice(0,1+blessingRank('redThread'));for(const q of near)q.expRedThread=true;}for(const q of expansionLiving())if(q!==e&&q.expRedThread)expansionDamageEnemy(q,amount*(.16+.08*blessingRank('redThread')),ang,false,0,'redThread');}
+ if(blessingRank('redThread')&&kind!=='redThread'&&!e.dead){if(!s.redThreadSet){s.redThreadSet=true;e.expRedThread=true;const near=expansionLiving().filter(q=>q!==e).sort((a,b)=>d2(a.x,a.y,e.x,e.y)-d2(b.x,b.y,e.x,e.y)).slice(0,1+blessingRank('redThread'));for(const q of near)q.expRedThread=true;}if(e.expRedThread)for(const q of expansionLiving())if(q!==e&&q.expRedThread)expansionDamageEnemy(q,amount*(.16+.08*blessingRank('redThread')),ang,false,0,'redThread');}
  if(crit&&blessingRank('goldenThread')&&kind!=='goldenThread'){e.expGolden=true;const near=expansionLiving().filter(q=>q!==e).sort((a,b)=>d2(a.x,a.y,e.x,e.y)-d2(b.x,b.y,e.x,e.y)).slice(0,5);for(const q of near)q.expGolden=true;for(const q of expansionLiving())if(q!==e&&q.expGolden)expansionDamageEnemy(q,amount*.35,ang,false,0,'goldenThread');}
 };
 
 const expansionHurtPlayer=hurtPlayer;
 hurtPlayer=function(dmg,sx,sy){
- const p=G.player,s=expansionState();if(!p||!s)return expansionHurtPlayer(dmg,sx,sy);const valid=p.hitCd<=0&&p.dashT<=0&&G.state==='playing'&&!G.dead;let amount=dmg;
+ const p=G.player,s=expansionState();if(!p||!s)return expansionHurtPlayer(dmg,sx,sy);const valid=p.hitCd<=0&&p.dashT<=0&&G.state==='playing'&&!G.dead;if(!valid)return;let amount=dmg;
  if(valid&&blessingRank('quietCore')&&G.t-(s.lastHurt||-99)>5)amount*=1-.08*blessingRank('quietCore');
  if(valid&&blessingRank('cinderSkin')&&expansionLiving().some(e=>d2(e.x,e.y,sx,sy)<70**2))amount*=1-.07*blessingRank('cinderSkin');
- if(valid&&p.hp-amount<=0&&blessingRank('phoenixLaw')&&G.floor>=(s.phoenixLastFloor||-9)+5){s.phoenixLastFloor=G.floor;p.hp=p.maxHp;p.hitCd=4;p.reloadT=0;p.ammo=p.magSize;for(const e of expansionLiving()){e.burnT=Math.max(e.burnT||0,9);e.burnRank=Math.max(e.burnRank||0,6);}nova(p.x,p.y,360,p.dmg*9);toast('PHOENIX LAW','the room burns before you do');sfx('mythic');saveNow();return;}
- const hp=p.hp,ward=p.cardWard||0;expansionHurtPlayer(amount,sx,sy);const lost=Math.max(0,hp-p.hp),absorbed=Math.max(0,ward-(p.cardWard||0));if(!lost&&!absorbed)return;
+
+ const hp=p.hp,ward=p.cardWard||0;expansionHurtPlayer(amount,sx,sy);const lost=Math.max(0,hp-p.hp),absorbed=Math.max(0,ward-(p.cardWard||0));if(!lost&&!absorbed&&!(p.hp>hp&&p.hitCd>0))return;
  s.lastHurt=G.t;s.roomHit=true;s.chainStacks=Math.max(0,(s.chainStacks||0)-1);s.unbrokenStacks=0;s.keptStacks=0;if(absorbed&&blessingRank('heatSink'))s.heatSink=Math.min(p.maxHp,(s.heatSink||0)+absorbed);
  if(blessingRank('ashenHour')&&!s.ashenHourRoom&&p.hp>0&&p.hp<p.maxHp*.4){s.ashenHourRoom=true;s.freezeT=3.2;p.meleeCdT=0;expansionHeal(p.maxHp*.16,'THE ASHEN HOUR');burst(p.x,p.y,38,'#d7ecff',260,.9,4,true);sfx('mythic');}
 };
+
+const expansionDie=die;
+die=function(){const p=G.player,s=expansionState();if(p&&s&&p.hp<=0&&blessingRank('phoenixLaw')&&G.floor>=(s.phoenixLastFloor||-9)+5){s.phoenixLastFloor=G.floor;p.hp=p.maxHp;p.hitCd=4;p.reloadT=0;p.ammo=p.magSize;for(const e of expansionLiving()){e.burnT=Math.max(e.burnT||0,9);e.burnRank=Math.max(e.burnRank||0,6);}nova(p.x,p.y,360,p.dmg*9);toast('PHOENIX LAW','the room burns before you do');sfx('mythic');saveNow();return;}return expansionDie();};
 
 const expansionKillEnemy=killEnemy;
 killEnemy=function(e){
@@ -338,15 +344,29 @@ killEnemy=function(e){
  if(blessingRank('keptPromise')&&s.keptStacks){if(chance(Math.min(.45,s.keptStacks*.025*blessingRank('keptPromise'))))spawnPick('heart',x,y,10+2*blessingRank('keptPromise'));if(chance(Math.min(.55,s.keptStacks*.035*blessingRank('keptPromise'))))spawnPick('ess',x+6,y,1+blessingRank('keptPromise'));}
 };
 
+function expansionOverheal(excess){
+ const p=G.player,s=expansionState();if(!p||!s||!blessingRank('hearthWorld')||excess<=0)return;
+ s.hearthWorldCarry=(s.hearthWorldCarry||0)+excess*.25;const gain=Math.floor(s.hearthWorldCarry);if(!gain)return;
+ s.hearthWorldCarry-=gain;s.hearthWorldHp=(s.hearthWorldHp||0)+gain;p.maxHp+=gain;p.hp+=gain;
+ if(Math.floor(s.hearthWorldHp/50)>(s.hearthWorldFlames||0)){s.hearthWorldFlames=Math.floor(s.hearthWorldHp/50);toast('HEARTH OF THE WORLD','another flame joins the orbit');}
+}
+const expansionCardHeal=cardHeal;
+cardHeal=function(amount,label){const p=G.player;if(!p||!Number.isFinite(amount)||amount<=0)return;const excess=Math.max(0,p.hp+amount-p.maxHp),out=expansionCardHeal(amount,label);expansionOverheal(excess);return out;};
 const expansionUpdatePicks=updatePicks;
 updatePicks=function(dt){
- const p=G.player,s=expansionState();if(!p||!s)return expansionUpdatePicks(dt);const beforeHp=p.hp,before=new Map(G.picks.map(o=>[o,{kind:o.kind,val:o.val}]));expansionUpdatePicks(dt);const collected=[...before].filter(([o])=>!G.picks.includes(o));
- for(const [,item]of collected){if(item.kind==='ess'&&blessingRank('warmTrail'))s.warmTrailT=Math.min(6,(s.warmTrailT||0)+1.2*blessingRank('warmTrail'));if(item.kind==='heart'){const room=Math.max(0,p.maxHp-beforeHp),excess=Math.max(0,item.val-room);if(blessingRank('hearthTax')&&beforeHp>=p.maxHp-1)addEss(blessingRank('hearthTax'));if(excess&&blessingRank('hearthWorld')){s.hearthWorldCarry=(s.hearthWorldCarry||0)+excess*.25;const gain=Math.floor(s.hearthWorldCarry);if(gain){s.hearthWorldCarry-=gain;s.hearthWorldHp=(s.hearthWorldHp||0)+gain;p.maxHp+=gain;p.hp+=gain;if(Math.floor(s.hearthWorldHp/50)>(s.hearthWorldFlames||0)){s.hearthWorldFlames=Math.floor(s.hearthWorldHp/50);toast('HEARTH OF THE WORLD','another flame joins the orbit');}}}}}
+ const p=G.player,s=expansionState();if(!p||!s)return expansionUpdatePicks(dt);
+ let room=Math.max(0,p.maxHp-p.hp),excess=0;const before=new Map(G.picks.map(o=>[o,{kind:o.kind,val:o.val}]));
+ expansionUpdatePicks(dt);
+ for(const [pick,item]of before){if(G.picks.includes(pick))continue;
+  if(item.kind==='ess'&&blessingRank('warmTrail'))s.warmTrailT=Math.min(6,(s.warmTrailT||0)+1.2*blessingRank('warmTrail'));
+  if(item.kind==='heart'){if(room<=0&&blessingRank('hearthTax'))addEss(blessingRank('hearthTax'));excess+=Math.max(0,item.val-room);room=Math.max(0,room-item.val);}
+ }
+ expansionOverheal(excess);
 };
 
 function expansionRoomTick(dt){
  const s=expansionState(),p=G.player;if(!s||!p)return;const index=expansionRoomIndex(),enemies=expansionRoomEnemies(index);
- if(index!==s.roomIndex){s.roomIndex=index;s.roomAge=0;s.roomHit=false;s.roomCombat=enemies.length>0;s.ashenHourRoom=false;s.firstRoomCast=true;for(const e of expansionLiving()){e.expRedThread=false;e.expGolden=false;}if(index>=0&&!s.visitedRooms[index]){s.visitedRooms[index]=true;if(enemies.length&&blessingRank('pilgrimHeat'))p.cardWard=(p.cardWard||0)+p.maxHp*(.025+.015*blessingRank('pilgrimHeat'))*(1+.15*blessingRank('temperedGlow'));}}
+ if(index!==s.roomIndex){s.roomIndex=index;s.roomAge=0;s.roomHit=false;s.roomCombat=enemies.length>0;s.ashenHourRoom=false;s.firstRoomCast=true;s.redThreadSet=false;for(const e of expansionLiving()){e.expRedThread=false;e.expGolden=false;}if(index>=0&&!s.visitedRooms[index]){s.visitedRooms[index]=true;if(enemies.length&&blessingRank('pilgrimHeat'))p.cardWard=(p.cardWard||0)+p.maxHp*(.025+.015*blessingRank('pilgrimHeat'))*(1+.15*blessingRank('temperedGlow'));}}
  s.roomAge=(s.roomAge||0)+dt;
  if(enemies.length)s.roomCombat=true;
  if(s.roomCombat&&!enemies.length){s.roomCombat=false;const clean=!s.roomHit;if(blessingRank('roomTone')&&s.roomAge<=25)s.roomToneBuff=7+blessingRank('roomTone');if(blessingRank('keptPromise')&&clean)s.keptStacks=Math.min(12,(s.keptStacks||0)+1);if(blessingRank('chainRooms')&&clean)s.chainStacks=Math.min(8,(s.chainStacks||0)+1);if(blessingRank('firstSparkReturned'))s.firstSparkChain=clean?Math.min(12,(s.firstSparkChain||0)+1):0;}
@@ -372,7 +392,7 @@ function expansionDashTick(dt){
  if(!dashing&&s.wasDashing){s.lastDashEnd=G.t;s.quickdrawReady=!!blessingRank('quickdraw');s.doppelReady=blessingRank('ashDoppelganger')?1+blessingRank('ashDoppelganger'):0;s.doppelX=s.dashStartX;s.doppelY=s.dashStartY;s.hollowDash=false;s.smokeDash=false;if(s.dashDanger&&blessingRank('unbrokenStep'))s.unbrokenStacks=Math.min(8,(s.unbrokenStacks||0)+1);
   if(blessingRank('coronaStep'))for(const turn of [-Math.PI/2,Math.PI/2])expansionFriendlyShot(p.x,p.y,(p.face||0)+turn,p.dmg*(.75+.35*blessingRank('coronaStep')),{r:12,pierce:5,life:1,corona:true});
   if(blessingRank('gravityWake'))nova(p.x,p.y,75+25*blessingRank('gravityWake'),p.dmg*(.6+.45*blessingRank('gravityWake')));
-  if(blessingRank('doorStars')&&s.portalStart)s.portal={ax:s.portalStart.x,ay:s.portalStart.y,bx:p.x,by:p.y,t:7};
+  if(blessingRank('doorStars')&&s.portalStart)s.portal={id:(s.portalSerial=(s.portalSerial||0)+1),ax:s.portalStart.x,ay:s.portalStart.y,bx:p.x,by:p.y,t:7};
   if(blessingRank('onlyEmber')&&G.bossActive&&expansionLiving().filter(e=>!e.isBoss).length===0){s.onlyEmberDashes=(s.onlyEmberDashes||0)+1;if(s.onlyEmberDashes%3===0){p.meleeCdT=0;s.echoFlares.push({delay:.08,x:p.x,y:p.y,a:p.face,power:1.25});}}
  }
  s.wasDashing=dashing;
@@ -388,7 +408,7 @@ function expansionFieldsTick(dt){
  for(const q of s.livingStars){q.a+=dt*(.45+s.livingStars.length*.03);q.shot-=dt;if(q.shot<=0){q.shot=1.15;const x=p.x+Math.cos(q.a)*(72+s.livingStars.indexOf(q)*3),y=p.y+Math.sin(q.a)*(52+s.livingStars.indexOf(q)*2),target=expansionNearest(x,y);if(target)expansionFriendlyShot(x,y,Math.atan2(target.y-y,target.x-x),p.dmg*.72,{r:5,seeking:.18,life:1.4,livingStar:true});}}
  for(let i=s.suns.length-1;i>=0;i--){const q=s.suns[i];q.t-=dt;q.a+=dt*.85;q.shot-=dt;if(q.shot<=0){q.shot=.52;const x=p.x+Math.cos(q.a)*92,y=p.y+Math.sin(q.a)*68,target=expansionNearest(x,y);if(target)damageEnemy(target,p.dmg*.62,Math.atan2(target.y-y,target.x-x),false,0,'sevenSuns');}if(q.t<=0)s.suns.splice(i,1);}
  for(let i=s.returnShots.length-1;i>=0;i--){const q=s.returnShots[i];q.t-=dt;q.a+=dt*2.5;if(q.t<=0){const x=p.x+Math.cos(q.a)*74,y=p.y+Math.sin(q.a)*54,target=expansionNearest(x,y);if(target)expansionFriendlyShot(x,y,Math.atan2(target.y-y,target.x-x),p.dmg*2.1,{r:7,seeking:.18,pierce:2});s.returnShots.splice(i,1);}}
- if(s.portal){s.portal.t-=dt;if(s.portal.t<=0)s.portal=null;else for(const b of G.bullets){if(b.portalCd>G.t)continue;const da=d2(b.x,b.y,s.portal.ax,s.portal.ay),db=d2(b.x,b.y,s.portal.bx,s.portal.by);if(da<24**2||db<24**2){const fromA=da<db;b.x=(fromA?s.portal.bx:s.portal.ax)+b.vx*.04;b.y=(fromA?s.portal.by:s.portal.ay)+b.vy*.04;b.vx*=1.35;b.vy*=1.35;b.dmg*=1.5;b.portalCd=G.t+.25;burst(b.x,b.y,7,'#bfbcff',130,.35,2,true);}}}
+ if(s.portal){if(!Number.isInteger(s.portal.id))s.portal.id=(s.portalSerial=(s.portalSerial||0)+1);s.portal.t-=dt;if(s.portal.t<=0)s.portal=null;else for(const b of G.bullets){if(b.portalCd>G.t||b.portalPair===s.portal.id)continue;const da=d2(b.x,b.y,s.portal.ax,s.portal.ay),db=d2(b.x,b.y,s.portal.bx,s.portal.by);if(da<24**2||db<24**2){const fromA=da<db;b.x=(fromA?s.portal.bx:s.portal.ax)+b.vx*.04;b.y=(fromA?s.portal.by:s.portal.ay)+b.vy*.04;b.vx*=1.35;b.vy*=1.35;b.dmg*=1.5;b.portalCd=G.t+.25;b.portalPair=s.portal.id;burst(b.x,b.y,7,'#bfbcff',130,.35,2,true);}}}
 }
 
 function starstitchTick(dt){
@@ -397,7 +417,7 @@ function starstitchTick(dt){
  const lines=starstitchLines(),wire=blessingRank('hotWire');
  for(const e of expansionLiving()){
   if((e.expStitchT||0)<=G.t&&lines.some(([a,b])=>expansionSegmentDistance(e.x,e.y,a.x,a.y,b.x,b.y)<e.r+9)){e.expStitchT=G.t+.28;damageEnemy(e,p.dmg*(.09+.075*wire),0,false,0,'starstitch');}
-  if(blessingRank('knottedLight')&&s.pins.some(q=>d2(q.x,q.y,e.x,e.y)<(e.r+42)**2)){e.kbx*=.78;e.kby*=.78;if((e.expKnotT||0)<=G.t){e.expKnotT=G.t+.45;damageEnemy(e,p.dmg*.08*blessingRank('knottedLight'),0,false,0,'knottedLight');}}
+  if(blessingRank('knottedLight')&&s.pins.some(q=>d2(q.x,q.y,e.x,e.y)<(e.r+42)**2)){e.expSlowUntil=G.t+.12;e.expSlowMul=Math.max(.4,1-.15*blessingRank('knottedLight'));if((e.expKnotT||0)<=G.t){e.expKnotT=G.t+.45;damageEnemy(e,p.dmg*.08*blessingRank('knottedLight'),0,false,0,'knottedLight');}}
  }
  if(blessingRank('constellationCage')&&s.pins.length>=3){const a=s.pins[0],b=s.pins[1],c=s.pins[2];for(const e of expansionLiving())if((e.expCageT||0)<=G.t&&expansionPointInTriangle(e.x,e.y,a,b,c)){e.expCageT=G.t+.34;damageEnemy(e,p.dmg*.12*blessingRank('constellationCage'),0,false,0,'constellationCage');}}
  if(blessingRank('cinderThread')){const burning=s.pins.find(q=>{const e=G.enemies.find(x=>x.uid===q.uid&&!x.dead);return e?.burnT>0;});if(burning)for(const pin of s.pins){const e=G.enemies.find(x=>x.uid===pin.uid&&!x.dead);if(e){e.burnT=Math.max(e.burnT||0,1.8+blessingRank('cinderThread'));e.burnRank=Math.max(e.burnRank||0,blessingRank('cinderThread'));}}}
@@ -409,18 +429,18 @@ tickBlessings=function(dt){
  const p=G.player,s=expansionState();if(!p||!s)return expansionTickBlessings(dt);const ward=p.cardWard||0;expansionTickBlessings(dt);
  for(const key of ['rhythmBuff','roomToneBuff','warmTrailT','ashDividendT','clockBuff','furnaceT','finalMatchT','emptyChamberT'])s[key]=Math.max(0,(s[key]||0)-dt);
  if(s.cinderLadderT>0)s.cinderLadderT-=dt;else s.cinderLadder=Math.max(0,(s.cinderLadder||0)-dt*2);
- let speed=1;if(blessingRank('ashenPace')){s.movingT=p.moving?Math.min(4,(s.movingT||0)+dt):0;speed+=Math.min(.18,s.movingT*.018*blessingRank('ashenPace'));}if(s.warmTrailT>0)speed+=.06*blessingRank('warmTrail');if(s.unbrokenStacks)speed+=.025*s.unbrokenStacks*blessingRank('unbrokenStep');if(blessingRank('onlyEmber')&&G.bossActive&&expansionLiving().filter(e=>!e.isBoss).length===0)speed+=.2;p.pathSpeed=(p.pathSpeed||1)*speed;
+ let speed=1;if(s.roomCombat&&s.roomAge<6&&blessingRank('warmStart')){speed+=.06*blessingRank('warmStart');p.shotT-=dt*.08*blessingRank('warmStart');}if(blessingRank('ashenPace')){s.movingT=p.moving?Math.min(4,(s.movingT||0)+dt):0;speed+=Math.min(.18,s.movingT*.018*blessingRank('ashenPace'));}if(s.warmTrailT>0)speed+=.06*blessingRank('warmTrail');if(s.unbrokenStacks)speed+=.025*s.unbrokenStacks*blessingRank('unbrokenStep');if(blessingRank('onlyEmber')&&G.bossActive&&expansionLiving().filter(e=>!e.isBoss).length===0)speed+=.2;p.pathSpeed=(p.pathSpeed||1)*speed;
  p.magnet=p.expansionBaseMagnet||p.magnet;if(blessingRank('lowLantern')&&p.hp<p.maxHp*.35)p.magnet*=1+.45*blessingRank('lowLantern');
  if(blessingRank('temperedGlow')&&ward>(p.cardWard||0)&&p.hitCd<=0)p.cardWard=Math.min(ward,(p.cardWard||0)+dt*.22*blessingRank('temperedGlow'));
  if((s.cinderLadder||0)>0)p.shotT-=dt*Math.min(.28,s.cinderLadder*.012*blessingRank('cinderLadder'));
  expansionRoomTick(dt);expansionReloadTick();expansionDashTick(dt);expansionFieldsTick(dt);starstitchTick(dt);
- if(blessingRank('longDawn')){s.longDawnT=(s.longDawnT||45)-dt;if(s.longDawnT<=0){s.longDawnT=45;s.longDawnActive=true;for(const e of expansionLiving())damageEnemy(e,p.dmg*6,0,false,1,'longDawn');s.longDawnActive=false;burst(p.x,p.y,60,'#fff0a8',420,1.2,6,true);toast('THE LONG DAWN','morning crosses the room');sfx('mythic');}}
+ if(blessingRank('longDawn')){s.longDawnT=(s.longDawnT??45)-dt;if(s.longDawnT<=0){s.longDawnT=45;s.longDawnActive=true;for(const e of expansionLiving())damageEnemy(e,p.dmg*6,0,false,1,'longDawn');s.longDawnActive=false;burst(p.x,p.y,60,'#fff0a8',420,1.2,6,true);toast('THE LONG DAWN','morning crosses the room');sfx('mythic');}}
  if(blessingRank('finalMatch')&&G.boss&&!G.boss.dead&&G.boss.hp/G.boss.max<.32&&s.guardianFinalUid!==G.boss.uid){s.guardianFinalUid=G.boss.uid;s.finalMatchT=8;p.ammo=p.magSize;p.reloadT=0;p.meleeCdT=0;p.dashCdT=0;toast('THE FINAL MATCH','burn brighter than the ending');sfx('mythic');}
  if(s.finalMatchT>0){p.ammo=p.magSize;p.reloadT=0;p.shotT-=dt*.5;p.meleeCdT=Math.max(0,p.meleeCdT-dt*.7);}
 };
 
 const expansionUpdateEnemies=updateEnemies;
-updateEnemies=function(dt){const s=expansionState();if(s?.freezeT>0){s.freezeT=Math.max(0,s.freezeT-dt);return;}return expansionUpdateEnemies(dt);};
+updateEnemies=function(dt){const s=expansionState();if(s?.freezeT>0){s.freezeT=Math.max(0,s.freezeT-dt);return;}const slowed=[];for(const e of G.enemies)if(!e.dead&&e.expSlowUntil>G.t){slowed.push([e,e.spd]);e.spd*=e.expSlowMul||1;}try{return expansionUpdateEnemies(dt);}finally{for(const [e,spd]of slowed)e.spd=spd;}};
 
 const expansionUpdateBullets=updateBullets;
 updateBullets=function(dt){
@@ -442,10 +462,10 @@ updateEBullets=function(dt){
  const lines=starstitchLines();G.ebul=G.ebul.filter(b=>{
   const hearths=Math.min(7,s.hearthWorldFlames||0);for(let i=0;i<hearths;i++){const a=(save.motion?0:G.tAll)*(.58+i*.025)+i*TAU/hearths,r=46+(i%2)*12,x=p.x+Math.cos(a)*r,y=p.y+Math.sin(a)*r*.72;if(!(s.hearthBlocks?.[i]>0)&&d2(b.x,b.y,x,y)<(b.r+10)**2){s.hearthBlocks[i]=1.5;burst(x,y,9,'#ffd78b',125,.36,2,true);return false;}}
   const dist=Math.sqrt(d2(b.x,b.y,p.x,p.y));if(dist>p.r+12&&dist<66&&!b.expNear&&((b.x-p.x)*b.vx+(b.y-p.y)*b.vy)>0){b.expNear=true;if(blessingRank('nearMiss'))p.meleeCdT=Math.max(0,p.meleeCdT-.16*blessingRank('nearMiss'));if(blessingRank('starlessCrown')){s.returnShots.push({a:Math.atan2(b.y-p.y,b.x-p.x),t:.8});return false;}}
-  if(blessingRank('counterweave')&&lines.some(([a,c])=>expansionSegmentDistance(b.x,b.y,a.x,a.y,c.x,c.y)<b.r+5)){b.expWeave=(b.expWeave||0)+1;if(blessingRank('counterweave')>=2||b.expWeave>=2)return false;b.vx*=.45;b.vy*=.45;}
+  if(blessingRank('counterweave')){const touching=lines.map(([a,c],i)=>expansionSegmentDistance(b.x,b.y,a.x,a.y,c.x,c.y)<b.r+5?i:-1).filter(i=>i>=0),crossed=touching.filter(i=>!b.expWeaveTouch?.includes(i));b.expWeaveTouch=touching;if(crossed.length){b.expWeave=(b.expWeave||0)+crossed.length;if(blessingRank('counterweave')>=2||b.expWeave>=2)return false;b.vx*=.45;b.vy*=.45;}}
   return true;
  });
- return expansionUpdateEBullets(s.emptyChamberT>0?dt*.16:dt);
+ if(s.emptyChamberT>0)return;return expansionUpdateEBullets(dt);
 };
 
 const expansionDrawCombatFX=drawCombatFX;
@@ -472,3 +492,13 @@ function blessingExpansionAudit(){
 window.blessingExpansionAudit=blessingExpansionAudit;
 document.documentElement.dataset.blessingExpansion='v'+BLESSING_EXPANSION_VERSION;
 document.documentElement.dataset.blessingExpansionAudit=JSON.stringify(blessingExpansionAudit());
+
+const expansionSyncWeaponHUD=syncWeaponHUD;
+syncWeaponHUD=function(){
+ expansionSyncWeaponHUD();const p=G.player;if(!p)return;
+ const active=p.reloadT>0&&blessingRank('perfectRekindle')>0,ready=active&&1-p.reloadT/Math.max(.01,p.reloadDuration)>=1-(.16+.07*blessingRank('perfectRekindle'));
+ T('weaponHUD').classList.toggle('perfect-rekindle-ready',!!ready);
+ if(active){T('btnReload').disabled=false;T('btnReload').setAttribute('aria-label',ready?'Perfect Rekindle: press now':'Rekindling: wait for the gold window');const el=T('touchReload');el.classList.toggle('cooling',!ready);el.setAttribute('aria-disabled','false');el.querySelector('.touch-state').textContent=ready?'TAP NOW':'WAIT FOR GOLD';}
+ else T('btnReload').setAttribute('aria-label','Rekindle ember charges');
+};
+addEventListener('keydown',e=>{if(e.repeat||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||G.state!=='levelup'||anyBlockingOverlay())return;const m=/^(?:Digit|Numpad)([4-7])$/.exec(e.code);if(m&&G.cardPool?.[Number(m[1])-1]){e.preventDefault();chooseCard(Number(m[1])-1);}});

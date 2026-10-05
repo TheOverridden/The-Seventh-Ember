@@ -15,9 +15,10 @@ let meleeQueued=false,meleeBufferT=0,reloadQueued=false,armoryNotices=[];
 function queueMelee(){meleeQueued=true;meleeBufferT=.16;}
 function armoryData(){if(!save.armory)save.armory={};return save.armory;}
 function unlockArmory(id){if(armoryData()[id])return;armoryData()[id]=true;armoryNotices.push(id);markSave();}
+function emberCapacity(){const u=G.run?.up||{},wells=G.run?.guardianMode?.boons?.wells||0;return 6+2*(u.magazine||0)+(u.reserve||0)+Math.round(META.charges||0)+2*wells;}
 function initCombat(){
   const p=G.player;if(!p||!G.run)return;
-  p.magSize=6+(G.run.up.magazine||0)*2;p.reloadDuration=1.65*Math.pow(.82,G.run.up.quickload||0);
+  p.magSize=emberCapacity();p.reloadDuration=1.65*Math.pow(.82,G.run.up.quickload||0);
   p.ammo=Number.isFinite(p.ammo)?clamp(Math.floor(p.ammo),0,p.magSize):p.magSize;
   for(const key of ['reloadT','meleeCdT','meleeWindT','meleeHitT','meleeAngle'])if(!Number.isFinite(p[key]))p[key]=0;
 }
@@ -136,7 +137,7 @@ updateHUD=function(dt){beforeCombat.updateHUD(dt);syncWeaponHUD();if(G.boss?.war
 renderMemories=function(){beforeCombat.renderMemories();renderArmory();};
 chooseCard=function(i){beforeCombat.chooseCard(i);if(G.player&&G.run)updateHUD(0);};
 validateSave=function(raw){const clean=beforeCombat.validateSave(raw);clean.armory={};for(const id of Object.keys(ARMORY))if(raw.armory?.[id]===true)clean.armory[id]=true;return clean;};
-validateCheckpoint=function(r){beforeCombat.validateCheckpoint(r);for(const k of ['ammo','reloadT','meleeCdT','meleeWindT','meleeHitT','meleeAngle'])if(r.player[k]!==undefined&&(typeof r.player[k]!=='number'||!Number.isFinite(r.player[k])||Math.abs(r.player[k])>1e6))throw Error('Invalid ability state');if(r.player.ammo!==undefined&&(r.player.ammo<0||!Number.isInteger(r.player.ammo)||r.player.ammo>12))throw Error('Invalid charge count');for(const e of r.enemies)for(const k of ['balanceVersion','guardHits','staggerCd'])if(e[k]!==undefined&&(!Number.isFinite(e[k])||e[k]<0||e[k]>1e6))throw Error('Invalid enemy state');return r;};
+validateCheckpoint=function(r){beforeCombat.validateCheckpoint(r);for(const k of ['ammo','reloadT','meleeCdT','meleeWindT','meleeHitT','meleeAngle'])if(r.player[k]!==undefined&&(typeof r.player[k]!=='number'||!Number.isFinite(r.player[k])||Math.abs(r.player[k])>1e6))throw Error('Invalid ability state');if(r.player.ammo!==undefined&&(r.player.ammo<0||!Number.isInteger(r.player.ammo)||r.player.ammo>256||(Number.isFinite(r.player.magSize)&&r.player.ammo>r.player.magSize)))throw Error('Invalid charge count');for(const e of r.enemies)for(const k of ['balanceVersion','guardHits','staggerCd'])if(e[k]!==undefined&&(!Number.isFinite(e[k])||e[k]<0||e[k]>1e6))throw Error('Invalid enemy state');return r;};
 function migrateEnemyBalance(){
   if(!G.run||!G.enemies)return;
   let changed=false;

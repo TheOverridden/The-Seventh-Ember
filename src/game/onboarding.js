@@ -61,7 +61,7 @@ const onboardingFlame=useRestingFlame;
 useRestingFlame=function(o){const fresh=!o.lit,out=onboardingFlame(o);if(fresh)learnOnboarding('interact');return out;};
 const onboardingCard=chooseCard;
 chooseCard=function(i){const valid=G.state==='levelup'&&G.cardPool?.[i],out=onboardingCard(i);if(valid)learnOnboarding('blessing');return out;};
-function firstBlessingPrompt(){if(!onboardingData().blessing)T('luSub').textContent='BLESSINGS LAST FOR THIS DESCENT · CHOOSE HOW YOUR EMBER CHANGES';}
+function firstBlessingPrompt(){if(!onboardingData().blessing&&!T('luWrap').classList.contains('seventh-wish-draft'))T('luSub').textContent='BLESSINGS LAST FOR THIS DESCENT · CHOOSE HOW YOUR EMBER CHANGES';}
 const onboardingTriggerLevel=triggerLevelup;
 triggerLevelup=function(){const out=onboardingTriggerLevel();firstBlessingPrompt();return out;};
 const onboardingOpenLevel=openLevelup;

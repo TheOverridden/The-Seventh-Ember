@@ -124,15 +124,13 @@ function drawEnemies(ctx){
     ctx.beginPath(); ctx.ellipse(e.x,e.y+e.r*.85,e.r*.85,e.r*.36,0,0,TAU); ctx.fill();
     glowImg(EGLOW[e.type]||'violet',e.x,e.y,e.r*2.1,(e.isBoss ? .4 : .24));
     let s=1, rot=0;
-    if(e.type==='bat') rot=Math.sin(t*8+e.seed)*.18;
-    else if(e.type==='spitter') rot=Math.atan2(G.player.y-e.y,G.player.x-e.x);
-    else if(e.type==='wisp') s=1+Math.sin(t*5+e.seed)*.05;
+    if(e.type==='spitter') rot=Math.atan2(G.player.y-e.y,G.player.x-e.x);
     if(e.isBoss){
       rot=t*.4;
       if(e.phase===1){ s=1+Math.sin(t*30)*.05; }
       s*=1+Math.sin(t*2)*.03;
     }
-    drawSpr(e.spr,e.x,e.y,s*(e.elite&&!e.isBoss?1.18:1),rot,1,e.seed);
+    drawCreatureSprite(ctx,e,e.spr,e.x,e.y,s*(e.elite&&!e.isBoss?1.18:1),rot,1,e.seed);
     if(e.elite&&!e.isBoss){
       ctx.save(); ctx.globalCompositeOperation='lighter';
       ctx.strokeStyle='rgba(255,207,107,.8)'; ctx.lineWidth=1.6;

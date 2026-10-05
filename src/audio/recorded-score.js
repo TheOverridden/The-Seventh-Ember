@@ -1,31 +1,47 @@
 'use strict';
 
-const TSE_RECORDED_TRACKS=Object.freeze({
- title:{title:'Ash at the Door',file:'assets/music/01_Ash_at_the_Door.wav'},
- hollow:{title:'Ash at the Door',file:'assets/music/01_Ash_at_the_Door.wav'},
- garden:{title:'Moss Has Teeth',file:'assets/music/02_Moss_Has_Teeth.wav'},
- reservoir:{title:'Flooded Bellworks',file:'assets/music/03_Flooded_Bellworks.wav'},
- foundry:{title:'Slagline Seven',file:'assets/music/04_Slagline_Seven.wav'},
- observatory:{title:'Parallax Bloom',file:'assets/music/05_Parallax_Bloom.wav'},
- archive:{title:'The Pale Minuet',file:'assets/music/06_The_Pale_Minuet.wav'},
- court:{title:'Two Blades, One Vow',file:'assets/music/07_Two_Blades_One_Vow.wav'},
- choir:{title:'Breathless Choir',file:'assets/music/08_Breathless_Choir.wav'},
- citadel:{title:'Blackstone Procession',file:'assets/music/09_Blackstone_Procession.wav'},
- heart:{title:'The Seventh Dawn',file:'assets/music/10_The_Seventh_Dawn.wav'},
- endless:{title:'Stair Without End',file:'assets/music/11_Stair_Without_End.wav'},
- moth:{title:'Moth Counts Twice',file:'assets/music/12_Moth_Counts_Twice.wav'}
+const TSE_RECORDED_POOLS=Object.freeze({
+ title:['01_Ash_at_the_Door','13_Before_the_First_Bell'],
+ hollow:['01_Ash_at_the_Door','13_Before_the_First_Bell'],
+ garden:['02_Moss_Has_Teeth','14_Roots_Under_Rain'],
+ reservoir:['03_Flooded_Bellworks','15_The_Sluice_Opens'],
+ foundry:['04_Slagline_Seven','16_Copper_Teeth'],
+ observatory:['05_Parallax_Bloom','17_A_Window_Without_Sky'],
+ archive:['06_The_Pale_Minuet','18_Ink_Between_the_Lines'],
+ court:['07_Two_Blades_One_Vow','19_The_Empty_Ballroom'],
+ choir:['08_Breathless_Choir','20_Bells_Above_the_Wind'],
+ citadel:['09_Blackstone_Procession','21_Siege_at_Blackstone'],
+ heart:['10_The_Seventh_Dawn','22_The_Room_That_Kept_the_Light'],
+ endless:['11_Stair_Without_End','23_The_Weight_Below','16_Copper_Teeth','21_Siege_at_Blackstone'],
+ moth:['12_Moth_Counts_Twice','24_No_Refunds_After_Dawn'],
+ memory:['25_A_House_Remembered','26_Dust_in_the_Sunlight'],
+ guardian:['27_The_Bell_Does_Not_Yield','28_Keep_the_Flame']
 });
 
-const TSE_RECORDED_SCORE={decks:[],active:null,currentKey:'',pendingKey:'',token:0,timer:0,muted:true,nextLoopAt:0};
+const TSE_RECORDED_SCORE={decks:[],active:null,currentKey:'',pendingKey:'',token:0,timer:0,muted:true,pauseToken:0,cache:new Map(),positions:new Map(),failures:new Map(),error:''};
 
 function tseRecordedRegion(){
+ if(G.state==='echo')return'memory';
  if(G.state==='secret'&&typeof currentSecret==='function'&&currentSecret()?.type==='shop')return'moth';
- if(G.run?.infinite&&G.floor>50)return'endless';
  if(!G.run)return'title';
- return G.world?.region==='late'?(G.world.lateKey||'heart'):G.floor<=5?'hollow':'garden';
+ const region=G.run.infinite&&G.floor>50?'endless':G.world?.region==='late'?(G.world.lateKey||'heart'):G.floor<=5?'hollow':'garden';
+ if(G.bossActive){if(region==='court')return'court';if(region==='heart')return'heart';return'guardian';}
+ return region;
 }
 
-function tseRecordedCanPlay(){return !!(AC&&save.music&&AC.state==='running'&&!document.hidden);}
+function tseRecordedTrack(){
+ if(G.state==='ending'||G.bossActive&&tseRecordedRegion()==='heart')return'10_The_Seventh_Dawn';
+ const region=tseRecordedRegion(),pool=TSE_RECORDED_POOLS[region]||TSE_RECORDED_POOLS.title;
+ let variation=save.totalRuns||0;
+ if(region==='memory'&&typeof activeMemoryEcho!=='undefined')for(const c of activeMemoryEcho?.id||'')variation+=c.charCodeAt(0);
+ else if(region==='endless')variation+=Math.floor(Math.max(0,G.floor-51)/10);
+ else if(region==='guardian')variation+=Math.floor(G.floor/5);
+ else if(region!=='title')variation+=Math.floor((G.floor-1)/5);
+ if(region==='court'&&G.bossActive)return TSE_RECORDED_POOLS.court[0];
+ return pool[Math.abs(variation)%pool.length];
+}
+
+function tseRecordedCanPlay(){return !!(AC&&save.music&&(save.musicVolume??.82)>0&&AC.state==='running'&&!document.hidden);}
 
 function tseRecordedHold(param,now){
  if(typeof param.cancelAndHoldAtTime==='function')param.cancelAndHoldAtTime(now);
@@ -37,6 +53,8 @@ function tseRecordedRamp(deck,value,time){
 }
 
 function tseRecordedSilenceOldScore(){
+ if(longScoreTimer){clearInterval(longScoreTimer);longScoreTimer=0;}
+ if(AUDIO_SCORE.timer){clearInterval(AUDIO_SCORE.timer);AUDIO_SCORE.timer=0;}
  if(TSE_SCORE.timer){clearInterval(TSE_SCORE.timer);TSE_SCORE.timer=0;}
  if(TSE_SCORE.bus&&AC)TSE_SCORE.bus.gain.setTargetAtTime(0,AC.currentTime,.02);
  if(TSE_SCORE.bassBus&&AC)TSE_SCORE.bassBus.gain.setTargetAtTime(0,AC.currentTime,.02);
@@ -44,53 +62,101 @@ function tseRecordedSilenceOldScore(){
 }
 
 function tseRecordedDeck(){
- const audio=new Audio(),gain=AC.createGain(),room=AC.createGain(),source=AC.createMediaElementSource(audio);
- audio.preload='metadata';audio.playsInline=true;audio.loop=false;audio.volume=1;
- gain.gain.value=0;room.gain.value=.48;source.connect(gain);gain.connect(musDry);gain.connect(room);room.connect(musSend);
- return{audio,gain,room,key:''};
+ const gain=AC.createGain();gain.gain.value=0;gain.connect(musDry);
+ return{gain,key:'',buffer:null,source:null,audio:null,media:null,offset:0,startedAt:0,startedOffset:0,generation:0};
 }
 
-function tseRecordedPrepare(){
- if(TSE_RECORDED_SCORE.decks.length||!AC)return;
- TSE_RECORDED_SCORE.decks=[tseRecordedDeck(),tseRecordedDeck()];
+function tseRecordedPrepare(){if(!TSE_RECORDED_SCORE.decks.length&&AC)TSE_RECORDED_SCORE.decks=[tseRecordedDeck(),tseRecordedDeck()];}
+
+function tseRecordedPosition(deck){
+ if(deck.audio&&!deck.buffer)return deck.audio.currentTime||0;
+ if(!deck.buffer)return 0;
+ return(deck.source?deck.startedOffset+Math.max(0,AC.currentTime-deck.startedAt):deck.offset)%deck.buffer.duration;
 }
 
-function tseRecordedSwitch(key,restart=false){
- const score=TSE_RECORDED_SCORE,track=TSE_RECORDED_TRACKS[key]||TSE_RECORDED_TRACKS.title;
- if(!AC||!score.decks.length)return;
- if(!restart&&(score.currentKey===key||score.pendingKey===key)){tseRecordedResume();return;}
- const old=score.active,next=score.decks.find(deck=>deck!==old)||score.decks[0],token=++score.token;
- score.pendingKey=key;score.nextLoopAt=performance.now()+2500;next.audio.pause();next.gain.gain.cancelScheduledValues(AC.currentTime);next.gain.gain.setValueAtTime(0,AC.currentTime);next.key=key;next.audio.src=track.file+'?v=2026092201';next.audio.load();
- const begin=()=>{
-  if(token!==score.token){next.audio.pause();return;}
-  score.active=next;score.currentKey=key;score.pendingKey='';score.muted=false;tseRecordedRamp(next,1,old?1.35:.8);
-  if(old){tseRecordedRamp(old,0,1.35);setTimeout(()=>{if(score.active!==old){old.audio.pause();old.audio.removeAttribute('src');old.audio.load();old.key='';}},1500);}
- };
- const started=next.audio.play();
- if(started&&typeof started.then==='function')started.then(begin).catch(()=>{if(token===score.token)score.pendingKey='';});
- else begin();
+function tseRecordedStop(deck){
+ if(!deck)return;deck.generation++;deck.offset=tseRecordedPosition(deck);
+ if(deck.key)TSE_RECORDED_SCORE.positions.set(deck.key,deck.offset);
+ if(deck.source){deck.source.stop();deck.source=null;}
+ if(deck.audio)deck.audio.pause();
+}
+
+function tseRecordedRelease(deck){
+ tseRecordedStop(deck);deck.buffer=null;deck.key='';
+ if(deck.audio){deck.audio.removeAttribute('src');deck.audio.load();}
+}
+
+function tseRecordedStart(deck){
+ if(deck.audio&&!deck.buffer){const promise=deck.audio.play();if(promise)promise.catch(()=>{if(deck===TSE_RECORDED_SCORE.active)TSE_RECORDED_SCORE.muted=true;});return;}
+ if(!deck.buffer||deck.source)return;
+ const source=AC.createBufferSource();source.buffer=deck.buffer;source.loop=true;source.loopStart=0;source.loopEnd=deck.buffer.duration;source.connect(deck.gain);
+ deck.startedAt=AC.currentTime+.015;deck.startedOffset=deck.offset%deck.buffer.duration;deck.source=source;
+ source.onended=()=>source.disconnect();source.start(deck.startedAt,deck.startedOffset);
+}
+
+function tseRecordedTrimCache(){
+ const score=TSE_RECORDED_SCORE;
+ for(const [key,entry]of score.cache){if(score.cache.size<=2)break;if(entry.buffer&&key!==score.currentKey&&key!==score.pendingKey)score.cache.delete(key);}
+}
+
+async function tseRecordedLoad(key){
+ const score=TSE_RECORDED_SCORE;
+ if(score.cache.has(key)){const entry=score.cache.get(key);score.cache.delete(key);score.cache.set(key,entry);return entry.promise;}
+ const entry={buffer:null,promise:null};
+ entry.promise=(async()=>{
+  const response=await fetch('assets/music/'+key+'.ogg?v=2026100501',{credentials:'same-origin'});
+  if(!response.ok)throw new Error('Music '+response.status);
+  const buffer=await AC.decodeAudioData(await response.arrayBuffer());entry.buffer=buffer;tseRecordedTrimCache();return buffer;
+ })().catch(error=>{score.cache.delete(key);throw error;});
+ score.cache.set(key,entry);return entry.promise;
+}
+
+function tseRecordedNative(deck,key){
+ if(!deck.audio){deck.audio=new Audio();deck.audio.preload='auto';deck.audio.playsInline=true;deck.audio.loop=true;deck.media=AC.createMediaElementSource(deck.audio);deck.media.connect(deck.gain);}
+ deck.audio.src='assets/music/'+key+'.ogg?v=2026100501';deck.audio.load();
+ const restore=()=>{if(deck.audio.duration>deck.offset)deck.audio.currentTime=deck.offset;};
+ deck.audio.addEventListener('loadedmetadata',restore,{once:true});
+}
+
+async function tseRecordedSwitch(key,restart=false){
+ const score=TSE_RECORDED_SCORE;
+ if(!AC)return;tseRecordedPrepare();
+ if(!restart&&score.currentKey===key){score.pendingKey='';score.token++;tseRecordedResume();return;}
+ if(!restart&&score.pendingKey===key)return;
+ if((score.failures.get(key)||0)>Date.now())return;
+ const token=++score.token;score.pendingKey=key;
+ let buffer=null;
+ try{if(location.protocol!=='file:')buffer=await tseRecordedLoad(key);}
+ catch(error){if(token===score.token){score.pendingKey='';score.error=error.message;score.failures.set(key,Date.now()+15000);}return;}
+ if(token!==score.token)return;
+ const old=score.active,next=score.decks.find(deck=>deck!==old)||score.decks[0];tseRecordedRelease(next);
+ next.key=key;next.buffer=buffer;next.offset=restart?0:score.positions.get(key)||0;next.gain.gain.cancelScheduledValues(AC.currentTime);next.gain.gain.setValueAtTime(0,AC.currentTime);
+ if(!buffer)tseRecordedNative(next,key);
+ score.active=next;score.currentKey=key;score.pendingKey='';score.error='';score.muted=!tseRecordedCanPlay();score.pauseToken++;
+ if(!score.muted){tseRecordedStart(next);tseRecordedRamp(next,1,old?1.5:.6);}
+ if(old){tseRecordedRamp(old,0,1.5);const generation=old.generation;setTimeout(()=>{if(score.active!==old&&old.generation===generation)tseRecordedRelease(old);},1550);}
+ tseRecordedTrimCache();
 }
 
 function tseRecordedPause(){
- const score=TSE_RECORDED_SCORE;if(score.muted)return;score.muted=true;
- for(const deck of score.decks)tseRecordedRamp(deck,0,.22);
- setTimeout(()=>{if(score.muted)for(const deck of score.decks)deck.audio.pause();},260);
+ const score=TSE_RECORDED_SCORE;if(score.muted)return;score.muted=true;const token=++score.pauseToken;
+ for(const deck of score.decks)tseRecordedRamp(deck,0,.15);
+ setTimeout(()=>{if(score.muted&&score.pauseToken===token)for(const deck of score.decks)tseRecordedStop(deck);},170);
 }
 
 function tseRecordedResume(){
  const score=TSE_RECORDED_SCORE,deck=score.active;if(!deck||!tseRecordedCanPlay())return;
- if(!score.muted&&!deck.audio.paused)return;score.muted=false;
- deck.audio.play().then(()=>tseRecordedRamp(deck,1,.35)).catch(()=>{});
+ if(!score.muted&&(deck.source||deck.audio&&!deck.audio.paused&&!deck.buffer))return;
+ score.muted=false;score.pauseToken++;tseRecordedStart(deck);tseRecordedRamp(deck,1,.3);
+ for(const other of score.decks)if(other!==deck)tseRecordedStop(other);
 }
 
 function tseRecordedTick(){
- tseRecordedSilenceOldScore();
- if(!tseRecordedCanPlay()){tseRecordedPause();return;}
- const score=TSE_RECORDED_SCORE,key=tseRecordedRegion();
- if(score.currentKey!==key&&!score.pendingKey){tseRecordedSwitch(key);return;}
+ tseRecordedSilenceOldScore();if(!tseRecordedCanPlay()){tseRecordedPause();return;}
+ const score=TSE_RECORDED_SCORE,key=tseRecordedTrack();
+ if(score.currentKey!==key&&score.pendingKey!==key){tseRecordedSwitch(key);return;}
+ if(score.currentKey===key&&score.pendingKey){score.token++;score.pendingKey='';}
  tseRecordedResume();
- const deck=score.active,audio=deck?.audio,remaining=audio&&Number.isFinite(audio.duration)?audio.duration-audio.currentTime:Infinity;
- if(deck&&!score.pendingKey&&remaining<2.25&&audio.currentTime>4&&performance.now()>score.nextLoopAt)tseRecordedSwitch(key,true);
 }
 
 const tseRecordedInitAudio=initAudio;
@@ -102,9 +168,9 @@ initAudio=function(){
 const tseRecordedApplyAudioSettings=applyAudioSettings;
 applyAudioSettings=function(){
  tseRecordedApplyAudioSettings();if(!AC)return;const now=AC.currentTime,music=save.music?clamp(save.musicVolume??.82,0,1):0;
- musDry.gain.setTargetAtTime(.86*music,now,.12);musSend.gain.setTargetAtTime(.12*music,now,.16);tseRecordedSilenceOldScore();
+ musDry.gain.setTargetAtTime(.86*music,now,.12);musSend.gain.setTargetAtTime(0,now,.12);tseRecordedSilenceOldScore();
  if(!music)tseRecordedPause();else tseRecordedTick();
 };
 
-endingMusic=function(){if(AC&&save.music)tseRecordedSwitch('heart',true);};
+endingMusic=function(){if(AC&&save.music)tseRecordedSwitch('10_The_Seventh_Dawn',true);};
 document.addEventListener('visibilitychange',tseRecordedTick);

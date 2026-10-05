@@ -94,9 +94,15 @@ loadSave=function(){
 saveNow=function(reason='auto'){
  const previousResume=save.resume,previousGuardian=save.guardianSession;
  try{snapshotRun();}catch(_){save.resume=previousResume;save.guardianSession=previousGuardian;}
- let payload;try{payload=validateSave(JSON.parse(JSON.stringify(save)));}
+ let payload,checkpointWarning='';try{payload=validateSave(JSON.parse(JSON.stringify(save)));}
  catch(_){
-   try{payload=validateSave({...JSON.parse(JSON.stringify(save)),resume:null,guardianSession:null});}
+   try{
+    payload=validateSave({...JSON.parse(JSON.stringify(save)),resume:null,guardianSession:null});
+    const candidates=readSaveCandidates(),previous=candidates.find(c=>c.payload.totalRuns===payload.totalRuns&&c.hasRun&&(!save.resume?.run?.runner?.seed||c.payload.resume.run.runner?.seed===save.resume.run.runner.seed)),guardian=candidates.find(c=>c.payload.totalRuns===payload.totalRuns&&c.hasGuardian);
+    if(save.resume&&previous)payload.resume=deepCopy(previous.payload.resume);
+    if(save.guardianSession&&guardian)payload.guardianSession=deepCopy(guardian.payload.guardianSession);
+    checkpointWarning='The current run checkpoint could not be verified. Permanent progress was saved'+(payload.resume||payload.guardianSession?', and the last valid checkpoint was kept.':'. Export a backup in Settings.');
+   }
    catch(__){storageMessage='This save could not be verified. Your last good copy is still safe.';syncSaveStatus();return false;}
  }
  const body=JSON.stringify(payload),hash=saveHash(body),manifest=currentManifest();
@@ -104,7 +110,7 @@ saveNow=function(reason='auto'){
  if(manifest&&manifest.writer!==SAVE_WRITER&&Number(manifest.seq)>saveRevision){
    saveRemoteRevision=Number(manifest.seq);storageMessage='A newer save is open in another tab. This tab was blocked from overwriting it.';if(G.state==='playing')pauseGame(true);syncSaveStatus();return false;
  }
- if(hash===saveLastHash&&saveRevision>0){saveDirty=false;syncSaveStatus();return true;}
+ if(hash===saveLastHash&&saveRevision>0){saveDirty=false;storageMessage=checkpointWarning;syncSaveStatus();return true;}
  const seq=newest+1,envelope=saveEnvelope(payload,seq,reason),packed=JSON.stringify(envelope),emergency=saveEnvelope(permanentSaveCopy(payload),seq,'emergency'),emergencyPacked=JSON.stringify(emergency);
  let fullGood=false,primaryGood=false,emergencyGood=false,active=manifest?.active===0?0:1,next=active===0?1:0;
  try{emergencyGood=verifiedSet(SAVE_EMERGENCY_KEY,emergencyPacked)&&!!parseSaveEnvelope(localStorage.getItem(SAVE_EMERGENCY_KEY),'emergency',10);}catch(_){ }
@@ -115,7 +121,7 @@ saveNow=function(reason='auto'){
  }catch(_){ }
  if(fullGood||primaryGood){
    try{verifiedSet(SAVE_MANIFEST_KEY,JSON.stringify({schema:SAVE_SCHEMA,active:fullGood?next:active,seq,savedAt:envelope.savedAt,writer:SAVE_WRITER}));}catch(_){ }
-   save=payload;saveRevision=seq;saveRemoteRevision=seq;saveLastHash=hash;saveLastTime=envelope.savedAt;saveDirty=false;storageMessage='';saveRecovered=false;syncSaveStatus();return true;
+   save=payload;saveRevision=seq;saveRemoteRevision=seq;saveLastHash=hash;saveLastTime=envelope.savedAt;saveDirty=false;storageMessage=checkpointWarning;saveRecovered=false;syncSaveStatus();return true;
  }
  storageMessage=emergencyGood?'The full run checkpoint could not be saved, but permanent progress is protected.':'Automatic saving is unavailable. Export a save to keep your progress.';syncSaveStatus();return false;
 };

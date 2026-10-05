@@ -275,7 +275,7 @@ closeTrace=function(){if(!closeRememberedTrace())staticCloseTrace();};
 
 function memorySound(step){
  if(!AC||!save.sfx)return;air(.5,.035,step?900:180,step?2100:750,.65);if(step<9){bell([220,261.63,329.63,392][step%4],1.1,.022,.06,true);scoreTone([110,146.83,196,220][step%4],1.8,.018,.02,'sine');}
- if(musDry)musDry.gain.setTargetAtTime(save.music?.035:0,AC.currentTime,.35);if(musSend)musSend.gain.setTargetAtTime(save.music?.08:0,AC.currentTime,.35);
+ if(musDry)musDry.gain.setTargetAtTime(save.music?.6*(save.musicVolume??.82):0,AC.currentTime,.35);if(musSend)musSend.gain.setTargetAtTime(0,AC.currentTime,.35);
 }
 
 function echoObjectKind(title=''){

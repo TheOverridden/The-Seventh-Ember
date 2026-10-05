@@ -1,0 +1,254 @@
+[
+  {
+    "id": "01_Ash_at_the_Door",
+    "title": "Ash at the Door",
+    "region": "hollow",
+    "bpm": 70,
+    "meter": "5/4",
+    "duration": 274.286,
+    "file": "assets/music/01_Ash_at_the_Door.ogg"
+  },
+  {
+    "id": "02_Moss_Has_Teeth",
+    "title": "Moss Has Teeth",
+    "region": "garden",
+    "bpm": 84,
+    "meter": "6/4",
+    "duration": 274.286,
+    "file": "assets/music/02_Moss_Has_Teeth.ogg"
+  },
+  {
+    "id": "03_Flooded_Bellworks",
+    "title": "Flooded Bellworks",
+    "region": "reservoir",
+    "bpm": 64,
+    "meter": "4/4",
+    "duration": 240.0,
+    "file": "assets/music/03_Flooded_Bellworks.ogg"
+  },
+  {
+    "id": "04_Slagline_Seven",
+    "title": "Slagline Seven",
+    "region": "foundry",
+    "bpm": 114,
+    "meter": "7/8",
+    "duration": 206.316,
+    "file": "assets/music/04_Slagline_Seven.ogg"
+  },
+  {
+    "id": "05_Parallax_Bloom",
+    "title": "Parallax Bloom",
+    "region": "observatory",
+    "bpm": 86,
+    "meter": "11/8",
+    "duration": 245.581,
+    "file": "assets/music/05_Parallax_Bloom.ogg"
+  },
+  {
+    "id": "06_The_Pale_Minuet",
+    "title": "The Pale Minuet",
+    "region": "archive",
+    "bpm": 104,
+    "meter": "3/4",
+    "duration": 221.538,
+    "file": "assets/music/06_The_Pale_Minuet.ogg"
+  },
+  {
+    "id": "07_Two_Blades_One_Vow",
+    "title": "Two Blades, One Vow",
+    "region": "court",
+    "bpm": 122,
+    "meter": "3/4",
+    "duration": 212.459,
+    "file": "assets/music/07_Two_Blades_One_Vow.ogg"
+  },
+  {
+    "id": "08_Breathless_Choir",
+    "title": "Breathless Choir",
+    "region": "choir",
+    "bpm": 58,
+    "meter": "4/4",
+    "duration": 264.828,
+    "file": "assets/music/08_Breathless_Choir.ogg"
+  },
+  {
+    "id": "09_Blackstone_Procession",
+    "title": "Blackstone Procession",
+    "region": "citadel",
+    "bpm": 96,
+    "meter": "4/4",
+    "duration": 200.0,
+    "file": "assets/music/09_Blackstone_Procession.ogg"
+  },
+  {
+    "id": "10_The_Seventh_Dawn",
+    "title": "The Seventh Dawn",
+    "region": "heart",
+    "bpm": 96,
+    "meter": "4/4",
+    "duration": 240.0,
+    "file": "assets/music/10_The_Seventh_Dawn.ogg"
+  },
+  {
+    "id": "11_Stair_Without_End",
+    "title": "Stair Without End",
+    "region": "endless",
+    "bpm": 122,
+    "meter": "13/8",
+    "duration": 255.738,
+    "file": "assets/music/11_Stair_Without_End.ogg"
+  },
+  {
+    "id": "12_Moth_Counts_Twice",
+    "title": "Moth Counts Twice",
+    "region": "moth",
+    "bpm": 128,
+    "meter": "7/4",
+    "duration": 210.0,
+    "file": "assets/music/12_Moth_Counts_Twice.ogg"
+  },
+  {
+    "id": "13_Before_the_First_Bell",
+    "title": "Before the First Bell",
+    "region": "hollow",
+    "bpm": 78,
+    "meter": "4/4",
+    "duration": 196.923,
+    "file": "assets/music/13_Before_the_First_Bell.ogg"
+  },
+  {
+    "id": "14_Roots_Under_Rain",
+    "title": "Roots Under Rain",
+    "region": "garden",
+    "bpm": 92,
+    "meter": "5/4",
+    "duration": 208.696,
+    "file": "assets/music/14_Roots_Under_Rain.ogg"
+  },
+  {
+    "id": "15_The_Sluice_Opens",
+    "title": "The Sluice Opens",
+    "region": "reservoir",
+    "bpm": 72,
+    "meter": "6/4",
+    "duration": 320.0,
+    "file": "assets/music/15_The_Sluice_Opens.ogg"
+  },
+  {
+    "id": "16_Copper_Teeth",
+    "title": "Copper Teeth",
+    "region": "foundry",
+    "bpm": 108,
+    "meter": "4/4",
+    "duration": 213.333,
+    "file": "assets/music/16_Copper_Teeth.ogg"
+  },
+  {
+    "id": "17_A_Window_Without_Sky",
+    "title": "A Window Without Sky",
+    "region": "observatory",
+    "bpm": 76,
+    "meter": "4/4",
+    "duration": 202.105,
+    "file": "assets/music/17_A_Window_Without_Sky.ogg"
+  },
+  {
+    "id": "18_Ink_Between_the_Lines",
+    "title": "Ink Between the Lines",
+    "region": "archive",
+    "bpm": 82,
+    "meter": "5/4",
+    "duration": 234.146,
+    "file": "assets/music/18_Ink_Between_the_Lines.ogg"
+  },
+  {
+    "id": "19_The_Empty_Ballroom",
+    "title": "The Empty Ballroom",
+    "region": "court",
+    "bpm": 90,
+    "meter": "3/4",
+    "duration": 192.0,
+    "file": "assets/music/19_The_Empty_Ballroom.ogg"
+  },
+  {
+    "id": "20_Bells_Above_the_Wind",
+    "title": "Bells Above the Wind",
+    "region": "choir",
+    "bpm": 68,
+    "meter": "5/4",
+    "duration": 282.353,
+    "file": "assets/music/20_Bells_Above_the_Wind.ogg"
+  },
+  {
+    "id": "21_Siege_at_Blackstone",
+    "title": "Siege at Blackstone",
+    "region": "citadel",
+    "bpm": 112,
+    "meter": "4/4",
+    "duration": 205.714,
+    "file": "assets/music/21_Siege_at_Blackstone.ogg"
+  },
+  {
+    "id": "22_The_Room_That_Kept_the_Light",
+    "title": "The Room That Kept the Light",
+    "region": "heart",
+    "bpm": 74,
+    "meter": "6/4",
+    "duration": 311.351,
+    "file": "assets/music/22_The_Room_That_Kept_the_Light.ogg"
+  },
+  {
+    "id": "23_The_Weight_Below",
+    "title": "The Weight Below",
+    "region": "endless",
+    "bpm": 136,
+    "meter": "4/4",
+    "duration": 225.882,
+    "file": "assets/music/23_The_Weight_Below.ogg"
+  },
+  {
+    "id": "24_No_Refunds_After_Dawn",
+    "title": "No Refunds After Dawn",
+    "region": "moth",
+    "bpm": 116,
+    "meter": "4/4",
+    "duration": 198.621,
+    "file": "assets/music/24_No_Refunds_After_Dawn.ogg"
+  },
+  {
+    "id": "25_A_House_Remembered",
+    "title": "A House Remembered",
+    "region": "memory",
+    "bpm": 62,
+    "meter": "3/4",
+    "duration": 232.258,
+    "file": "assets/music/25_A_House_Remembered.ogg"
+  },
+  {
+    "id": "26_Dust_in_the_Sunlight",
+    "title": "Dust in the Sunlight",
+    "region": "memory",
+    "bpm": 66,
+    "meter": "4/4",
+    "duration": 232.727,
+    "file": "assets/music/26_Dust_in_the_Sunlight.ogg"
+  },
+  {
+    "id": "27_The_Bell_Does_Not_Yield",
+    "title": "The Bell Does Not Yield",
+    "region": "guardian",
+    "bpm": 126,
+    "meter": "5/4",
+    "duration": 190.476,
+    "file": "assets/music/27_The_Bell_Does_Not_Yield.ogg"
+  },
+  {
+    "id": "28_Keep_the_Flame",
+    "title": "Keep the Flame",
+    "region": "guardian",
+    "bpm": 144,
+    "meter": "4/4",
+    "duration": 213.333,
+    "file": "assets/music/28_Keep_the_Flame.ogg"
+  }
+]

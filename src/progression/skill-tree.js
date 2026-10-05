@@ -160,7 +160,7 @@ computeMeta=function(){
 const beforeMasteryInitCombat=initCombat;
 initCombat=function(){
  beforeMasteryInitCombat();if(!G.player||!G.run)return;const p=G.player,u=G.run.up||{};
- p.magSize=6+2*(u.magazine||0)+(u.reserve||0)+Math.round(META.charges||0);
+ p.magSize=emberCapacity();
  p.reloadDuration=1.65*Math.pow(.82,u.quickload||0)*(META.reload||1);
  p.ammo=Math.min(p.ammo??p.magSize,p.magSize);
 };
