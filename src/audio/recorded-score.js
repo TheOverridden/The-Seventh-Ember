@@ -104,7 +104,7 @@ async function tseRecordedLoad(key){
  if(score.cache.has(key)){const entry=score.cache.get(key);score.cache.delete(key);score.cache.set(key,entry);return entry.promise;}
  const entry={buffer:null,promise:null};
  entry.promise=(async()=>{
-  const response=await fetch('assets/music/'+key+'.ogg?v=2026100601',{credentials:'same-origin'});
+  const response=await fetch('assets/music/'+key+'.ogg?v=2026100602',{credentials:'same-origin'});
   if(!response.ok)throw new Error('Music '+response.status);
   const buffer=await AC.decodeAudioData(await response.arrayBuffer());entry.buffer=buffer;tseRecordedTrimCache();return buffer;
  })().catch(error=>{score.cache.delete(key);throw error;});
@@ -113,7 +113,7 @@ async function tseRecordedLoad(key){
 
 function tseRecordedNative(deck,key){
  if(!deck.audio){deck.audio=new Audio();deck.audio.preload='auto';deck.audio.playsInline=true;deck.audio.loop=true;deck.media=AC.createMediaElementSource(deck.audio);deck.media.connect(deck.gain);}
- deck.audio.src='assets/music/'+key+'.ogg?v=2026100601';deck.audio.load();
+ deck.audio.src='assets/music/'+key+'.ogg?v=2026100602';deck.audio.load();
  const restore=()=>{if(deck.audio.duration>deck.offset)deck.audio.currentTime=deck.offset;};
  deck.audio.addEventListener('loadedmetadata',restore,{once:true});
 }
