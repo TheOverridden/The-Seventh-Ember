@@ -22,7 +22,7 @@ validateSave=function(raw){const result=recapValidate(raw);result.lastRunRecap=c
 const recapKillBoss=killBoss;
 killBoss=function(b){if(G.run){G.run.recapGuardians=G.run.recapGuardians||[];const name=b.name||b.bossKey||'Guardian';if(!G.run.recapGuardians.some(x=>x.floor===G.floor&&x.name===name))G.run.recapGuardians.push({floor:G.floor,name});G.run.recapGuardians=G.run.recapGuardians.slice(-60);}return recapKillBoss(b);};
 const recapDie=die;
-die=function(){if(!G.dead&&G.run){save.lastRunRecap=cleanRunRecap(makeRunRecap());markSave();}return recapDie();};
+die=function(){if(!G.dead&&G.run){save.lastRunRecap=cleanRunRecap(makeRunRecap());}return recapDie();};
 function recapNextGoal(){
  const goal=formGoal(),path=goal?formGoalPath(goal):null;
  const options=TREE_NODES.filter(n=>!save.nodes[n.id]&&masteryParents(n).every(p=>save.nodes[p.id])&&(!path||path.has(n.id))).sort((a,b)=>a.cost-b.cost);

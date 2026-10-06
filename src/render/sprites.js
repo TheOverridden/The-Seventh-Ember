@@ -258,13 +258,7 @@ function bakeAll(){
   SPR.pIdle=mkP(4,{rx:6.0,ry:8.6,plume:7.5,pw:2.9,wob:0.45,pulse:3.3,bob:true, fps:5});
   SPR.pMove=mkP(4,{rx:6.3,ry:8.2,plume:10, pw:3.4,wob:1.15,pulse:3.9,bob:true, fps:11});
   SPR.pDash=mkP(2,{rx:5.1,ry:9.6,plume:9,  pw:3.7,wob:1.5, pulse:4.7,bob:false,fps:16});
-  SPR.pShard=pxGen(7,7,2,(i,j,f)=>{
-    const d=Math.abs(i-3)+Math.abs(j-3);
-    if(d>3) return null;
-    if(d>2) return '#6a4a1a';
-    if(d>1) return f?'#ffe9b8':'#ffcf6b';
-    return '#fff6d8';
-  },{fps:6,sc:2});
+
   SPR.slime=px([
    ["....oooooo......","...obbbbbbo.....","..obllllllbo....","..oblllllbbo....",".obblbbbbbbbo...",".obwwkbbbwwkbo..",".obwwkbbbwwkbo..",".obbbbbbbbbbbo..",".obbbbkbbbkbbo..",".obbbbbbbbbbbo..","..obbbbbbbbo....","...obbbbboo.....","....ooooo......."],
    ["................","................","................","...oooooooo.....","..obllllllbbo...",".obllllllllbbo..",".obwwkbbbbwwkbo.",".obwwkbbbbwwkbo.",".obbbbbbkbbbbbo.",".obbbbbbbbbbbbo.","..obbbbbbbbbbo..","..ooooooooooo...","................"]

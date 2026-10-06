@@ -84,9 +84,9 @@ function combatFinaleTick(dt){
  if(COMBAT_FINALE.calloutT>0){COMBAT_FINALE.calloutT-=dt;if(COMBAT_FINALE.calloutT<=0)phaseCallout.classList.remove('visible');}
  combatFinaleScanPhases();
 }
-let combatMusicIntensity=0;
+
 const combatFinaleUpdate=update;
-update=function(dt){const result=combatFinaleUpdate(dt);combatFinaleTick(Math.min(dt,.05));combatMusicIntensity=COMBAT_FINALE.intensity;return result;};
+update=function(dt){const result=combatFinaleUpdate(dt);combatFinaleTick(Math.min(dt,.05));return result;};
 const combatFinaleSetup=setupFloor;
 setupFloor=function(f){COMBAT_FINALE.finishers.length=0;COMBAT_FINALE.waves.length=0;COMBAT_FINALE.phaseByUid.clear();COMBAT_FINALE.clearedRooms.clear();COMBAT_FINALE.intensity=COMBAT_FINALE.target=0;phaseCallout.classList.remove('visible');return combatFinaleSetup(f);};
 if(typeof combatFeelColor==='function'){

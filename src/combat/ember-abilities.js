@@ -14,7 +14,7 @@ const MELEE={damage:2.25,reach:74,halfArc:.9,windup:.16,swing:.23,cooldown:.82,b
 let meleeQueued=false,meleeBufferT=0,reloadQueued=false,armoryNotices=[];
 function queueMelee(){meleeQueued=true;meleeBufferT=.16;}
 function armoryData(){if(!save.armory)save.armory={};return save.armory;}
-function unlockArmory(id){if(armoryData()[id])return;armoryData()[id]=true;armoryNotices.push(id);markSave();}
+function unlockArmory(id){if(armoryData()[id])return;armoryData()[id]=true;armoryNotices.push(id);}
 function emberCapacity(){const u=G.run?.up||{},wells=G.run?.guardianMode?.boons?.wells||0;return 6+2*(u.magazine||0)+(u.reserve||0)+Math.round(META.charges||0)+2*wells;}
 function initCombat(){
   const p=G.player;if(!p||!G.run)return;

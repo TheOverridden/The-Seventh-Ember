@@ -246,7 +246,7 @@ function damageEnemy(e,dmg,ang,isCrit,kbMul){
 function killEnemy(e){
   if(e.dead) return; e.dead=true;
   const run=G.run;
-  run.kills++; save.totalKills++; markSave();
+  run.kills++; save.totalKills++;
   burst(e.x,e.y,14,e.col,210,.5,2.6,true);
   burst(e.x,e.y,6,'#ffffff',120,.3,1.8,false);
   G.cam.shake=Math.min(.5,G.cam.shake+.12);
@@ -298,7 +298,7 @@ function spawnPick(kind,x,y,val){
 }
 
 function killBoss(b){
-  save.guardians++;markSave();
+  save.guardians++;
   G.boss=null; G.bossActive=false;
   T('bossbar').classList.remove('on');
   burst(b.x,b.y,40,'#ff5d7e',320,.8,3.2,true);

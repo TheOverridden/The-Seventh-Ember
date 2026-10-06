@@ -20,7 +20,7 @@
  function portalTileSeen(){
   const p=G.portal,w=G.world;if(!p||!w)return false;
   const x=Math.floor(p.x/TILE),y=Math.floor(p.y/TILE),seen=!!w.reveal?.[y*w.W+x];
-  if(seen&&!p.discovered){p.discovered=true;markSave();saveNow('portal-found');}
+  if(seen&&!p.discovered){p.discovered=true;saveNow('portal-found');}
   return !!p.discovered||seen;
  }
  function realInteractionNear(){

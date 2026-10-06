@@ -168,7 +168,7 @@ function plantGrowth(b,type){
   }
 }
 function matriarchAI(b,dt,d,dx,dy){
-  if(!b.introduced)return;const a=b.ms,p=G.player,w=G.world;a.t-=dt;musicInt=.85;
+  if(!b.introduced)return;const a=b.ms,p=G.player,w=G.world;a.t-=dt;
   const maxSpeed=p.speed*1.1;
   a.vx=lerp(a.vx||0,clamp((p.x-(a.px??p.x))/Math.max(.001,dt),-maxSpeed,maxSpeed),.3);
   a.vy=lerp(a.vy||0,clamp((p.y-(a.py??p.y))/Math.max(.001,dt),-maxSpeed,maxSpeed),.3);a.px=p.x;a.py=p.y;
@@ -240,21 +240,7 @@ validateCheckpoint=function(r){
 
 function bakeGardenSprites(){
   bakeGardenCreatureVariants();
-  SPR.gardenMatriarch=pxGen(54,40,4,(i,j,f)=>{
-    const x=i-26.5,y=j-23,phase=f*TAU/4;
-    for(let s of [-1,1])for(let k=0;k<3;k++){
-      const rootY=18+k*5,tipX=26.5+s*(23-k*2),tipY=rootY+7+Math.sin(phase+k)*1.1;
-      if(segmentDistance(i,j,26.5+s*10,rootY,tipX,tipY)<1.9)return j<tipY?'#819667':'#293628';
-    }
-    const body=x*x/210+y*y/95;
-    if(body<1.08){if(body>.93)return '#182821';if(body>.73)return y<0?'#88a779':'#334e39';
-      if(Math.abs(x)<7&&y>1&&y<7)return Math.floor(x+y)%5===0?'#d1b8a4':'#87726e';
-      if((Math.floor(i/4)+Math.floor(j/3))%4===0)return '#71876a';return y<0?'#587b55':'#304b38';}
-    const hx=i-26.5,hy=j-11,rad=Math.hypot(hx,hy),a=Math.atan2(hy,hx),edge=9.3+Math.sin(a*6+phase*.08)*2.5;
-    if(rad<edge){if(rad>edge-1.3)return '#432c45';if(rad>6)return hy<0?'#d6a3b1':'#9c667f';
-      if(rad>4.8)return '#e2ceba';if((i===24||i===25||i===28||i===29)&&j>=9&&j<=10)return '#f5e6b9';return '#202329';}
-    return null;
-  },{fps:4,sc:2.3});
+
   SPR.gardenMatriarch=pxGen(60,48,8,(i,j,f)=>{
     const phase=0,x=i-29.5,y=j,stepX=[0,0,1,1,0,0,-1,-1],stepY=[0,-1,-1,0,0,0,0,0];
     for(let side of [-1,1])for(let k=0;k<3;k++){

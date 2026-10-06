@@ -84,7 +84,7 @@ function installEmberFormsUI(){
  addEventListener('keydown',e=>{if(e.code==='Escape'&&T('forms').classList.contains('open')){e.preventDefault();e.stopImmediatePropagation();closeForms();}},true);
  if(!formsPreviewStarted){formsPreviewStarted=true;requestAnimationFrame(animateFormPreviews);}
 }
-function openForms(from='menu'){formsFrom=from;formData();if(from==='skills'){G.skillsOpen=false;hide('skills');hideTip();}else hide(from);renderForms();show('forms');T('btnFormsBack').focus({preventScroll:true});}
+function openForms(from='menu'){formsFrom=from;formData();if(from==='skills'){G.skillsOpen=false;hide('skills');}else hide(from);renderForms();show('forms');T('btnFormsBack').focus({preventScroll:true});}
 function closeForms(){hide('forms');if(formsFrom==='skills'){show('skills');G.skillsOpen=true;fitTree();refreshTreeEss();}else show(formsFrom||'menu');}
 function formGoal(){const f=FORM_BY_ID[save.formGoal];return f&&f.req.length&&!formOwned(f.id)?f:null;}
 function formGoalPath(f=formGoal()){
@@ -92,7 +92,7 @@ function formGoalPath(f=formGoal()){
 }
 function formGoalProgress(f=formGoal()){const path=formGoalPath(f),owned=[...path].filter(id=>save.nodes?.[id]).length;return{owned,total:path.size,targets:f?f.req.filter(id=>save.nodes?.[id]).length:0,targetTotal:f?.req.length||0};}
 function setFormGoal(id){
- const f=FORM_BY_ID[id];save.formGoal=f&&f.req.length&&!formOwned(id)&&save.formGoal!==id?id:null;markSave();saveNow();refreshFormGoalHighlights();if(T('forms')?.classList.contains('open'))renderForms();const goal=formGoal();if(goal){toast('FORM GOAL · '+goal.name,'required sigils now glow in the Skill Tree');sfx('formGoal');}else sfx('ui');
+ const f=FORM_BY_ID[id];save.formGoal=f&&f.req.length&&!formOwned(id)&&save.formGoal!==id?id:null;saveNow();refreshFormGoalHighlights();if(T('forms')?.classList.contains('open'))renderForms();const goal=formGoal();if(goal){toast('FORM GOAL · '+goal.name,'required sigils now glow in the Skill Tree');sfx('formGoal');}else sfx('ui');
 }
 function refreshFormGoalHighlights(){
  const f=formGoal(),path=formGoalPath(f),targets=new Set(f?.req||[]),progress=formGoalProgress(f),pill=T('treeFormGoal');if(pill){pill.hidden=!f;if(f){setTxt('treeFormGoalName',f.name);setTxt('treeFormGoalCount',progress.owned+' / '+progress.total);}}
@@ -100,8 +100,8 @@ function refreshFormGoalHighlights(){
 }
 function unlockOrEquipForm(id){
  const f=FORM_BY_ID[id];if(!f)return;formData();
- if(!formOwned(id)){if(!formRequirementsMet(f)||save.essence<f.cost){sfx('deny');return;}save.essence-=f.cost;save.forms[id]=true;markSave();saveNow();sfx('formUnlock');}
- save.loadout[f.slot]=id;if(save.formGoal===id){save.formGoal=null;toast('FORM AWAKENED · '+f.name,'goal complete');}markSave();saveNow();renderForms();refreshFormGoalHighlights();refreshMenuStats();sfx('buy');
+ if(!formOwned(id)){if(!formRequirementsMet(f)||save.essence<f.cost){sfx('deny');return;}save.essence-=f.cost;save.forms[id]=true;saveNow();sfx('formUnlock');}
+ save.loadout[f.slot]=id;if(save.formGoal===id){save.formGoal=null;toast('FORM AWAKENED · '+f.name,'goal complete');}saveNow();renderForms();refreshFormGoalHighlights();refreshMenuStats();sfx('buy');
 }
 function renderForms(){
  formData();setTxt('formsEssence','◆ '+fmt(save.essence));const load=T('formsLoadout');load.innerHTML=FORM_SLOTS.map(([slot,label])=>`<div><small>${label}</small><b>${FORM_BY_ID[save.loadout[slot]].name}</b></div>`).join('');

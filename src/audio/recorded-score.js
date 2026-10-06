@@ -52,15 +52,6 @@ function tseRecordedRamp(deck,value,time){
  if(!AC||!deck)return;const now=AC.currentTime;tseRecordedHold(deck.gain.gain,now);deck.gain.gain.linearRampToValueAtTime(value,now+time);
 }
 
-function tseRecordedSilenceOldScore(){
- if(longScoreTimer){clearInterval(longScoreTimer);longScoreTimer=0;}
- if(AUDIO_SCORE.timer){clearInterval(AUDIO_SCORE.timer);AUDIO_SCORE.timer=0;}
- if(TSE_SCORE.timer){clearInterval(TSE_SCORE.timer);TSE_SCORE.timer=0;}
- if(TSE_SCORE.bus&&AC)TSE_SCORE.bus.gain.setTargetAtTime(0,AC.currentTime,.02);
- if(TSE_SCORE.bassBus&&AC)TSE_SCORE.bassBus.gain.setTargetAtTime(0,AC.currentTime,.02);
- if(droneG&&AC)droneG.gain.setTargetAtTime(0,AC.currentTime,.02);
-}
-
 function tseRecordedDeck(){
  const gain=AC.createGain();gain.gain.value=0;gain.connect(musDry);
  return{gain,key:'',buffer:null,source:null,audio:null,media:null,offset:0,startedAt:0,startedOffset:0,generation:0};
@@ -152,7 +143,7 @@ function tseRecordedResume(){
 }
 
 function tseRecordedTick(){
- tseRecordedSilenceOldScore();if(!tseRecordedCanPlay()){tseRecordedPause();return;}
+ if(!tseRecordedCanPlay()){tseRecordedPause();return;}
  const score=TSE_RECORDED_SCORE,key=tseRecordedTrack();
  if(score.currentKey!==key&&score.pendingKey!==key){tseRecordedSwitch(key);return;}
  if(score.currentKey===key&&score.pendingKey){score.token++;score.pendingKey='';}
@@ -161,16 +152,16 @@ function tseRecordedTick(){
 
 const tseRecordedInitAudio=initAudio;
 initAudio=function(){
- tseRecordedInitAudio();if(!AC)return;tseRecordedSilenceOldScore();tseRecordedPrepare();applyAudioSettings();tseRecordedTick();
+ tseRecordedInitAudio();if(!AC)return;tseRecordedPrepare();applyAudioSettings();tseRecordedTick();
  if(!TSE_RECORDED_SCORE.timer)TSE_RECORDED_SCORE.timer=setInterval(tseRecordedTick,250);
 };
 
-const tseRecordedApplyAudioSettings=applyAudioSettings;
-applyAudioSettings=function(){
- tseRecordedApplyAudioSettings();if(!AC)return;const now=AC.currentTime,music=save.music?clamp(save.musicVolume??.82,0,1):0;
- musDry.gain.setTargetAtTime(.86*music,now,.12);musSend.gain.setTargetAtTime(0,now,.12);tseRecordedSilenceOldScore();
+function applyAudioSettings(){
+ if(!AC)return;const now=AC.currentTime,music=save.music?clamp(save.musicVolume??.82,0,1):0,effects=save.sfx?clamp(save.sfxVolume??.86,0,1):0;
+ sfxDry.gain.setTargetAtTime(.58*effects,now,.1);sfxSend.gain.setTargetAtTime(.27*effects,now,.1);
+ musDry.gain.setTargetAtTime(.86*music,now,.12);
  if(!music)tseRecordedPause();else tseRecordedTick();
-};
+}
 
-endingMusic=function(){if(AC&&save.music)tseRecordedSwitch('10_The_Seventh_Dawn',true);};
+function endingMusic(){if(AC&&save.music)tseRecordedSwitch('10_The_Seventh_Dawn',true);}
 document.addEventListener('visibilitychange',tseRecordedTick);

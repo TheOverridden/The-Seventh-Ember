@@ -97,7 +97,7 @@ function secretOwnedMarkFor(s){
  const force=G.floor>=next.min+4,roll=((s.seed%100)/100)<(s.type==='deep'?.68:.42);return force||roll?next:null;
 }
 function grantSeventhMark(s){
- const mark=secretOwnedMarkFor(s);if(!mark)return false;secretMarkList().push(mark.id);markSave();T('secretMarkCount').textContent=save.seventhMarks.length+' / 7';toast(mark.name,save.seventhMarks.length===7?'the hidden lock is complete':'one line of the hidden lock');sfx('secretMark');return true;
+ const mark=secretOwnedMarkFor(s);if(!mark)return false;secretMarkList().push(mark.id);T('secretMarkCount').textContent=save.seventhMarks.length+' / 7';toast(mark.name,save.seventhMarks.length===7?'the hidden lock is complete':'one line of the hidden lock');sfx('secretMark');return true;
 }
 function eligibleSecretCards(minR=0){return POOL.filter(o=>o.r>=minR&&(G.run.up[o.id]||0)<o.max&&(!o.unlock||armoryData()[o.unlock])&&G.floor>=(o.minFloor||1));}
 function grantSecretBlessing(minR=0){

@@ -53,27 +53,6 @@ const ECHO_TABLEAUS={
  trace50:{mood:'before Wick had a voice',actors:[memoryActor('lamplighter',.35,.67,'read',1,0,1.05),memoryActor('wick',.63,.51,'learn',-1,0,1)],props:[memoryProp('desk',.45,.63,100),memoryProp('book',.42,.54,38),memoryProp('star',.78,.30,48)]}
 };
 
-const MEMORY_ROLE_STYLE={
- lamplighter:{coat:'#765b54',trim:'#e1bd78',hair:'#342a2b',skin:'#c99872'},
- warden:{coat:'#596b76',trim:'#d8c58e',hair:'#242733',skin:'#b98267'},
- watcher:{coat:'#465b68',trim:'#9eb2b2',hair:'#4a302a',skin:'#d2a17c'},
- child:{coat:'#8b6571',trim:'#e1bb83',hair:'#4a3027',skin:'#d9a47d'},
- caretaker:{coat:'#6d7162',trim:'#c2b689',hair:'#6a4a38',skin:'#c89470'},
- civilian:{coat:'#6d586f',trim:'#c7a9b8',hair:'#2b2b33',skin:'#b97f64'},
- gardener:{coat:'#637456',trim:'#b9c17d',hair:'#493327',skin:'#c9946e'},
- engineer:{coat:'#665a53',trim:'#d39b5e',hair:'#302d2c',skin:'#c38d69'},
- worker:{coat:'#725048',trim:'#ba885c',hair:'#493329',skin:'#ce966f'},
- bellkeeper:{coat:'#41636e',trim:'#add2cc',hair:'#273842',skin:'#b98266'},
- astronomer:{coat:'#4c6574',trim:'#b9d5cf',hair:'#37334a',skin:'#c89173'},
- scribe:{coat:'#71685b',trim:'#d7c59b',hair:'#393139',skin:'#bd866b'},
- servant:{coat:'#66566d',trim:'#bca9c3',hair:'#332a35',skin:'#c99270'},
- regent:{coat:'#76516c',trim:'#e3be7b',hair:'#372938',skin:'#c78e6e'},
- singer:{coat:'#596681',trim:'#c6d4f3',hair:'#39334b',skin:'#c58e72'},
- cantor:{coat:'#4d5874',trim:'#d2c89f',hair:'#292b3d',skin:'#b98267'},
- soldier:{coat:'#4b4852',trim:'#b47c5e',hair:'#24252c',skin:'#bd8568'},
- keeper:{coat:'#665764',trim:'#f0ce86',hair:'#ddd0ad',skin:'#b9876d'},
- vessel:{coat:'#6d5d69',trim:'#e4bf7e',hair:'#3b3034',skin:'#c89170'}
-};
 function memoryStyle(a,key,index){
  const shift=(a.tone+index)%4,tones=[
   {coat:'#8fc9d9',trim:'#efffff',shade:'#416d87',ghost:'#c8f4fa',core:'#ffffff'},

@@ -7,20 +7,7 @@ function tickCombatFeel(dt){
  for(const list of [COMBAT_FEEL.casts,COMBAT_FEEL.impacts,COMBAT_FEEL.deaths])for(let i=list.length-1;i>=0;i--){list[i].life-=dt;if(list[i].life<=0)list.splice(i,1);}
  COMBAT_FEEL.hurtT=Math.max(0,COMBAT_FEEL.hurtT-dt);const p=G.player;if(p){p.feelShotT=Math.max(0,(p.feelShotT||0)-dt);p.feelFlareT=Math.max(0,(p.feelFlareT||0)-dt);p.feelReadyT=Math.max(0,(p.feelReadyT||0)-dt);}for(const e of G.enemies||[])e.feelHitT=Math.max(0,(e.feelHitT||0)-dt);
 }
-const combatFeelSfx=sfx;
-sfx=function(name,a){
- if(name==='feelBoltImpact'||name==='feelFlareImpact'||name==='feelBreak'||name==='feelReload'){
-  if(!AC||!save.sfx)return;
-  if(name==='feelBoltImpact'){air(.055,.018,2100,780,.85,0);thump(225,105,.07,.024);}
-  else if(name==='feelFlareImpact'){air(.15,.033,3300,470,.9,0);thump(285,68,.14,.075);bell(523.25,.22,.015,0,false);}
-  else if(name==='feelBreak'){air(.28,.04,1700,180,.72,0,'lowpass');thump(185,46,.25,.075);}
-  else{bell(659.25,.26,.018,0,false);bell(987.77,.18,.011,.035,false);}
-  return;
- }
- combatFeelSfx(name,a);if(!AC||!save.sfx)return;
- if(name==='shoot')bell(784,.12,.009,0,false);
- else if(name==='dash')thump(245,92,.08,.018);
-};
+
 const combatFeelFireVolley=fireVolley;
 fireVolley=function(){
  const p=G.player;if(!p)return combatFeelFireVolley();const start=G.bullets.length,ammo=p.ammo;combatFeelFireVolley();const made=G.bullets.slice(start);if(!made.length||p.ammo===ammo)return;

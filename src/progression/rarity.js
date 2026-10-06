@@ -37,13 +37,7 @@ chooseCard=function(i){
  const chosen=G.state==='levelup'&&G.cardPool?.[i],mythic=chosen?.r===3?chosen:null;rarityFeelChooseCard(i);
  if(mythic){G.run.mythicsFound=(G.run.mythicsFound||0)+1;toast('MYTHIC · '+mythic.name,'the dark gave up something rare');sfx('mythicClaim');saveNow();}
 };
-const rarityFeelSfx=sfx;
-sfx=function(name,a){
- if(name!=='mythicReveal'&&name!=='mythicClaim')return rarityFeelSfx(name,a);
- if(!AC||!save.sfx)return;
- if(name==='mythicReveal'){air(1.35,.045,360,3100,.65,0);swell([110,164.81,220,329.63,440,659.25],2.05,.036,.04);bell(1318.5,1.45,.025,.34,false);bell(1760,1.05,.015,.56,false);}
- else{thump(185,48,.42,.09);swell([220,329.63,440,659.25,880],1.35,.043,0);bell(1760,1.1,.024,.16,false);}
-};
+
 const rarityFeelStyle=document.createElement('style');rarityFeelStyle.textContent=`
 #levelup.mythic-offer{background:radial-gradient(ellipse at 50% 38%,#6e431f45,#1a102a9c 42%,#03050bed 86%)}
 #luWrap.mythic-draft{border-color:#ffd58bd4;box-shadow:0 24px 90px #000d,0 0 42px #ffad4b38,0 0 110px #9e5cff24,inset 0 0 45px #d8902a13;animation:mythicFrameWake 1.15s cubic-bezier(.16,.8,.2,1) both}

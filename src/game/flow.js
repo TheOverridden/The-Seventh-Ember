@@ -27,7 +27,7 @@ function recalc(){
 function startRun(){
   G.run=null; save.resume=null; clearInput(); G.victoryPending=0;
   META=computeMeta();
-  save.totalRuns++; markSave(); saveNow();
+  save.totalRuns++;  saveNow();
   G.run={level:1,xp:0,up:{},ess:0,kills:0,t:0,revUsed:false,won:false};
   G.floor=1; G.boss=null; G.bossActive=false; G.dead=false; G.pendingLevels=0; G.descending=false;
   G.player={x:0,y:0,r:12,hp:1,maxHp:1,shotT:0,hitCd:0,dashT:0,dashCdT:0,kbx:0,kby:0,
@@ -39,13 +39,13 @@ function startRun(){
   hide('howto'); hide('confirmRun'); hide('menu'); hide('dead'); hide('win'); hide('pause'); hide('levelup'); hide('skills'); G.skillsOpen=false; G.treeFrom='menu';
   setupFloor(1);
   setState('playing');
-  musicInt=.2; mouse.x=G.w/2+100;mouse.y=G.h/2; updateHUD(0); saveNow();
-  if(!save.tut){save.tut=1;markSave();saveNow();}
+   mouse.x=G.w/2+100;mouse.y=G.h/2; updateHUD(0); saveNow();
+  if(!save.tut){save.tut=1;saveNow();}
   else toast(floorName(1),'floor 1');
   G.tutQ=0;
 }
 function setupFloor(f){
-  G.floor=f; save.bestFloor=Math.max(save.bestFloor,f); markSave();
+  G.floor=f; save.bestFloor=Math.max(save.bestFloor,f);
   const w=G.world=genFloor(f);
   G.enemies.length=0; G.bullets.length=0; G.ebul.length=0; G.picks.length=0;
   G.chests.length=0; G.parts.length=0; G.texts.length=0;
@@ -80,14 +80,14 @@ function setupFloor(f){
     }
   }
   for(let i=0;i<26;i++) part(rand(0,w.W*TILE),rand(0,w.H*TILE),rand(-6,6),rand(-14,-4),rand(3,7),rand(1,2.4),'rgba(255,180,94,.5)',true);
-  musicInt=clamp(.15+f*.07,0,.75);
+
 }
 function descend(){
   if(G.descending || G.state!=="playing" || G.dead || (G.run.won&&!G.run.wonShown)) return; G.descending=true;
   const f=G.floor, token=G.run;
   sfx('portal');
   G.player.hp=Math.min(G.player.maxHp, G.player.hp+Math.round(G.player.maxHp*(G.floor<=10?.15:.08)));
-  save.bestFloor=Math.max(save.bestFloor,f); markSave();
+  save.bestFloor=Math.max(save.bestFloor,f);
   const bonus=Math.round(f<=10?4+2*f:8+f*.7);
   addEss(bonus);
   addText(G.player.x,G.player.y-30,'+'+bonus+' DESCENT ESSENCE','#d8bdff',13);
@@ -97,13 +97,13 @@ function descend(){
     setupFloor(f+1);
     G.descending=false;
     toast(floorName(f+1), (bossFloorAt(f+1)?'floor '+(f+1)+' · guardian awaits':'floor '+(f+1)));
-    musicInt=clamp(.15+(f+1)*.07,0,.75);
+
     T('fade').style.opacity=0; saveNow();
   },520);
 }
 function addEss(v){
   v=Math.round(v*META.ess); if(v<=0)return;
-  G.run.ess+=v; save.essence+=v; save.totalEssence+=v; markSave();
+  G.run.ess+=v; save.essence+=v; save.totalEssence+=v;
 }
 function gainXP(v){
   const run=G.run;
@@ -220,7 +220,7 @@ function die(){
     statBoxes(T('dStats'),G.floor,G.run.level,G.run.kills,G.run.t);
     T('dEssBox').innerHTML=`ESSENCE GATHERED&nbsp;&nbsp;<b>◆ ${fmt(G.run.ess)}</b>`;
     show('dead');
-    musicInt=.1;
+
   },1300);
 }
 function victory(){
@@ -256,7 +256,7 @@ function backToMenu(){
   G.run=null; G.world=null; G.parts=[]; clearInput(); setState('menu');
   show('menu');
   refreshMenuStats();
-  musicInt=0;
+
 }
 function onEscKey(){
   if(T('confirmRun').classList.contains('open')){hide('confirmRun');return;}
@@ -441,7 +441,7 @@ function bossAI(b,dt,d,dx,dy){
     toast(b.name,'slay the guardian to break the seal');
     sfx('boss');
   }
-  musicInt=.95;
+
   const enrage=b.hp<b.max*.5;
   b.t2-=dt; b.t3-=dt; b.summonT-=dt;
   if(b.burstLeft>0){b.burstTimer-=dt;if(b.burstTimer<=0){for(let a=-1;a<=1;a++)enemyShoot(b,b.burstAngle+a*.13,215+b.tier*10,Math.floor(b.dmg*.6)+1);b.burstLeft--;b.burstTimer=.14;}}

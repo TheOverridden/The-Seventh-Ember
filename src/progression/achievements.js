@@ -135,9 +135,9 @@ function cleanAchievements(raw){
  return out;
 }
 function achievementData(){if(save.achievements?.version!==1)save.achievements=cleanAchievements(save.achievements);return save.achievements;}
-function achievementMax(key,value){const a=achievementData(),n=Math.max(0,Math.floor(Number(value)||0));if(n>(a.stats[key]||0)){a.stats[key]=Math.min(n,1e12);achievementRevision++;markSave();}}
+function achievementMax(key,value){const a=achievementData(),n=Math.max(0,Math.floor(Number(value)||0));if(n>(a.stats[key]||0)){a.stats[key]=Math.min(n,1e12);achievementRevision++;}}
 function achievementAdd(key,n=1){achievementMax(key,(achievementData().stats[key]||0)+n);}
-function achievementRemember(key,id){const a=achievementData();if(!a[key].includes(id)){a[key].push(id);achievementRevision++;markSave();}}
+function achievementRemember(key,id){const a=achievementData();if(!a[key].includes(id)){a[key].push(id);achievementRevision++;}}
 function achievementSync(){
  const a=achievementData(),stats={runs:save.totalRuns,floor:save.bestFloor,victories:Math.max(save.victories||0,save.campaignMedal?1:0),level:save.bestLevel,kills:save.totalKills,essence:save.totalEssence,depth:save.bestEndless,sigils:TREE_NODES.filter(n=>save.nodes?.[n.id]).length,forms:EMBER_FORMS.filter(f=>f.req.length&&save.forms?.[f.id]).length,marks:save.seventhMarks?.length||0};
  for(const g of GUARDIAN_ROSTER){const records=save.guardianRecords?.[g.key];if(records?.standard?.wins||records?.ascendant?.wins||save.campaignMedal)achievementRemember('guardians',g.key);}
@@ -163,7 +163,7 @@ function achievementSync(){
 function checkAchievements(silent=false){
  achievementSync();const data=achievementData();let changed=false;
  for(const a of ACHIEVEMENTS)if(!data.unlocked[a.id]&&(data.stats[a.stat]||0)>=a.target){data.unlocked[a.id]=Date.now();changed=true;if(!silent)achievementQueue.push(a.id);}
- if(changed){achievementRevision++;markSave();updateAchievementButtons();}
+ if(changed){achievementRevision++;updateAchievementButtons();}
  return changed;
 }
 function updateAchievementButtons(){const count=Object.keys(achievementData().unlocked).length;const b=T('btnAchievements');if(b){b.querySelector('small').textContent=count+' / '+ACHIEVEMENTS.length;b.setAttribute('aria-label','Achievements: '+count+' of '+ACHIEVEMENTS.length+' unlocked');}}
@@ -215,7 +215,7 @@ refreshMenuStats=function(){achievementMenu();checkAchievements(true);updateAchi
 const achievementReset=resetEverything;
 resetEverything=function(){achievementQueue.length=0;achievementClock=achievementToastClock=0;closeAchievements();achievementReset();updateAchievementButtons();};
 const achievementHurt=hurtPlayer;
-hurtPlayer=function(...args){const p=G.player,before=p?.hp,hitCd=p?.hitCd,valid=p&&p.hitCd<=0&&p.dashT<=0&&G.state==='playing'&&!G.dead;const out=achievementHurt(...args);if(p&&valid&&(p.hp<before||p.hitCd>hitCd)&&G.run){const track=G.run.achievementTrack||(G.run.achievementTrack={});track.floorHits=(track.floorHits||0)+1;markSave();}return out;};
+hurtPlayer=function(...args){const p=G.player,before=p?.hp,hitCd=p?.hitCd,valid=p&&p.hitCd<=0&&p.dashT<=0&&G.state==='playing'&&!G.dead;const out=achievementHurt(...args);if(p&&valid&&(p.hp<before||p.hitCd>hitCd)&&G.run){const track=G.run.achievementTrack||(G.run.achievementTrack={});track.floorHits=(track.floorHits||0)+1;}return out;};
 const achievementSetupFloor=setupFloor;
 setupFloor=function(f){const out=achievementSetupFloor(f);if(G.run){G.run.achievementTrack=G.run.achievementTrack||{};G.run.achievementTrack.floorHits=0;}checkAchievements();return out;};
 const achievementDamage=damageEnemy;
@@ -239,7 +239,7 @@ chooseCard=function(i){const out=achievementChooseCard(i);checkAchievements();re
 const achievementPin=starstitchPin;
 starstitchPin=function(...args){const out=achievementPin(...args);achievementMax('stitchPins',G.run?.blessingExpansion?.pins?.length||0);return out;};
 const achievementTick=hollowTick;
-hollowTick=function(dt){achievementTick(dt);achievementClock-=dt;achievementToastClock-=dt;if(achievementClock<=0){achievementClock=1;checkAchievements();if(T('achievements')?.classList.contains('open')&&achievementRendered!==achievementRevision)renderAchievements();}if(achievementToastClock<=0&&achievementQueue.length&&!document.hidden&&G.state!=='menu'&&!anyBlockingOverlay()&&G.state!=='dialogue'){const a=ACHIEVEMENT_BY_ID[achievementQueue.shift()];toast('ACHIEVEMENT · '+a.name,a.description);achievementToastClock=5;markSave();}};
+hollowTick=function(dt){achievementTick(dt);achievementClock-=dt;achievementToastClock-=dt;if(achievementClock<=0){achievementClock=1;checkAchievements();if(T('achievements')?.classList.contains('open')&&achievementRendered!==achievementRevision)renderAchievements();}if(achievementToastClock<=0&&achievementQueue.length&&!document.hidden&&G.state!=='menu'&&!anyBlockingOverlay()&&G.state!=='dialogue'){const a=ACHIEVEMENT_BY_ID[achievementQueue.shift()];toast('ACHIEVEMENT · '+a.name,a.description);achievementToastClock=5;}};
 
 const achievementEsc=onEscKey;
 onEscKey=function(){if(T('achievements')?.classList.contains('open')){closeAchievements();return;}return achievementEsc();};

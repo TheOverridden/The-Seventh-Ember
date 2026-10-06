@@ -16,6 +16,8 @@ The Seventh Ember is a modular browser roguelike with a fifty-floor campaign, pe
 - `assets/music/` contains twenty-eight recorded pieces, with longer arrangements and continuous loop boundaries. Regional alternates, memories, Guardian encounters, and Endless use separate selections. Hosted playback uses looping audio buffers and keeps a small cache; local files use the browser media transport.
 - `src/input/`, `src/combat/`, `src/audio/`, and `src/interface/` contain focused supporting systems.
 
+`src/audio/recorded-score.js` is the music transport. `effects.js` and `scene-effects.js` handle sound effects and remembered-room cues. The public music directory contains only the current OGG loops and their metadata and credits; editing masters are kept outside the game.
+
 Scripts load in dependency order at the bottom of `index.html`. Each directory owns a distinct part of the game while sharing the same browser runtime.
 
 The Living Archive records behavior rather than presenting an alignment meter. Echo attention, interrupted memories, protected rooms, Resting Flames, and guardian finishes can alter later dialogue, guardian adaptation, environmental details, and the campaign ending. Echo rooms remain enemy-free and let the player move or tap toward the people or evidence inside each restored tableau.

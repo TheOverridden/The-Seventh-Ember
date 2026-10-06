@@ -11,7 +11,7 @@ function cleanOnboarding(raw,totalRuns=0){
 const onboardingValidate=validateSave;
 validateSave=function(raw){const out=onboardingValidate(raw);out.onboarding=cleanOnboarding(raw?.onboarding,out.totalRuns);return out;};
 function onboardingData(){return save.onboarding||(save.onboarding=cleanOnboarding(null,save.totalRuns));}
-function learnOnboarding(id){const data=onboardingData();if(data[id])return;data[id]=true;markSave();saveNow();if(T('onboardingCoach')?.dataset.step===id)hideOnboardingCoach();}
+function learnOnboarding(id){const data=onboardingData();if(data[id])return;data[id]=true;saveNow();if(T('onboardingCoach')?.dataset.step===id)hideOnboardingCoach();}
 function onboardingTouch(){return document.body.classList.contains('touch');}
 const ONBOARDING_COPY={
  move:['MOVE FIRST',()=>onboardingTouch()?'Drag the left ember-ring to move.':'Use WASD or the arrow keys to move.'],

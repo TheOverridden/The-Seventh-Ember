@@ -400,7 +400,7 @@ const BRANCH_ENDS=[
   {id:'d3',t:'PHANTOM STEP',dx:0,dy:78},
   {id:'a4',t:'AVARICE',    dx:0, dy:78}
 ];
-let treeHover=null, treePulse=0;
+let treeHover=null;
 function openTree(from){
   G.skillsOpen=true; G.treeFrom=from||'menu';
   if(from==='menu') hide('menu');
@@ -411,29 +411,11 @@ function openTree(from){
   wrap.scrollTop=Math.max(0,(980-wrap.clientHeight)/2);
 }
 function closeTree(){
-  G.skillsOpen=false; hide('skills'); hideTip();
+  G.skillsOpen=false; hide('skills');
   if(G.treeFrom==='menu') show('menu');
 }
 function refreshTreeEss(){ T('treeEss').querySelector('b').textContent=fmt(save.essence); }
-function nodeAt(mx,my){
-  for(const n of TREE_NODES){ const r=(n.r||20)+6;
-    if(d2(mx,my,n.x,n.y)<r*r) return n; }
-  return null;
-}
-function showTip(n,mx,my){
-  const tip=T('treeTip'), st=nodeState(n);
-  let status='';
-  if(st===2) status='<span style="color:#8fe3a0">UNLOCKED</span>';
-  else if(st===0) status='<span style="color:#8a98b4">LOCKED — unlock the previous node</span>';
-  else if(st===1) status='<span style="color:#ff9d8a">NOT ENOUGH ESSENCE</span>';
-  else status='<span style="color:#8ff7ff">CLICK TO UNLOCK</span>';
-  tip.innerHTML=`<div class="tn">${n.name}</div><div class="td">${n.desc}</div>
-    <div class="tc">${st===2?'':'◆ '+n.cost+' essence · '}${status}</div>`;
-  tip.style.display='block';
-  const tx=Math.max(8,Math.min(innerWidth-262,mx+18)), ty=Math.min(innerHeight-140,my+16);
-  tip.style.left=tx+'px'; tip.style.top=ty+'px';
-}
-function hideTip(){ T('treeTip').style.display='none'; }
+
 function tryBuyNode(n){
   const st=nodeState(n);
   if(st===2){ return; }
@@ -539,7 +521,7 @@ function drawTree(t){
   }
   x.imageSmoothingEnabled=true;
   x.textBaseline='alphabetic';
-  treePulse=t;
+
 }
 function wireTree(){
   const wrap=T('treeNodes');
@@ -558,11 +540,11 @@ function refreshMenuStats(){
   syncContinue();
 }
 function toggleMusic(){
-  save.music=save.music?0:1; markSave(); saveNow();
+  save.music=save.music?0:1;  saveNow();
   T('btnMusic').classList.toggle('off',!save.music); applyAudioSettings();syncSettings();
 }
 function toggleSfx(){
-  save.sfx=save.sfx?0:1; markSave(); saveNow();
+  save.sfx=save.sfx?0:1;  saveNow();
   T('btnSfx').classList.toggle('off',!save.sfx);
   if(save.sfx) sfx('ui');syncSettings();
 }

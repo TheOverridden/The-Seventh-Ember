@@ -115,5 +115,3 @@ const specialDrawProps=drawProps;
 drawProps=function(ctx){specialDrawProps(ctx);drawSpecialEncounters(ctx);};
 const specialUpdateHUD=updateHUD;
 updateHUD=function(dt){specialUpdateHUD(dt);if(!G.player||!G.world||G.boss?.introduced)return;const sc=G.world.specialEncounters?.find(o=>o.active&&!o.complete)||specialEncounterAt();if(sc&&(sc.active||sc.complete))setTxt('floorObjective',specialEncounterObjective(sc));};
-const specialSfx=sfx;
-sfx=function(name,a){if(!['roomSeal','roomWave','roomClear'].includes(name))return specialSfx(name,a);if(!AC||!save.sfx)return;if(name==='roomSeal'){thump(118,48,.32,.05);air(.34,.028,340,1450,.72,0,'bandpass');}else if(name==='roomWave'){air(.18,.018,1200,340,.7,0);bell(220,.28,.008,0,true);}else{swell([196,293.66,392,587.33],.85,.022,0);bell(880,.55,.014,.1,false);}};

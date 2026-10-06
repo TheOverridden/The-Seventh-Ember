@@ -26,7 +26,7 @@ function beginDialogue(id,replay=false,index=0,returnState){
   dialogue.index=clamp(index,0,dialogue.lines.length-1);
   setState('dialogue');clearInput();document.body.classList.add('conversing');T('conversation').hidden=false;
   renderDialogueLine();T('dialogueNext').focus({preventScroll:true});
-  if(AC){musDry.gain.setTargetAtTime(save.music?.055:0,AC.currentTime,.15);musSend.gain.setTargetAtTime(save.music?.1:0,AC.currentTime,.15);}
+  if(AC){musDry.gain.setTargetAtTime(save.music?.055:0,AC.currentTime,.15);}
   saveNow();return true;
 }
 function renderDialogueLine(){
@@ -152,7 +152,7 @@ Object.assign(ETYPES,{
   gateShield:{hp:90,spd:45,dmg:14,r:18,xp:13,spr:'gateShield',ai:'gate',col:'#8f75cf',ess:.75,kb:.2}
 });
 function setupHollowFloor(f){
-  G.floor=f;save.bestFloor=Math.max(save.bestFloor,f);markSave();G.world=genHollowFloor(f);
+  G.floor=f;save.bestFloor=Math.max(save.bestFloor,f);G.world=genHollowFloor(f);
   for(const k of ['enemies','bullets','ebul','picks','chests','parts','texts'])G[k]=[];
   G.boss=null;G.bossActive=false;T('bossbar').classList.remove('on');G.cardPool=null;
   const w=G.world,s=w.rooms[0],p=G.player;p.x=s.cx*TILE+18;p.y=s.cy*TILE+18;p.kbx=p.kby=0;p.hitCd=1;p.dashT=0;
@@ -172,7 +172,7 @@ function setupHollowFloor(f){
   }
   if(f===5){const b=spawnBossAt(w.exit.cx*TILE+18,(w.exit.cy-2)*TILE+18);b.warden=true;b.ai='warden';b.name='THE STAR WARDEN';b.hp=b.max=WARDEN_HP;b.balanceVersion=2;b.r=29;b.dmg=19;b.spd=74;b.xp=85;b.col='#d8c389';b.kb=0;b.tier=1;b.introduced=false;b.wb={mode:'wait',t:1.3,a:Math.PI/2,kind:'',step:0,marks:[],second:false,final:false};}
   if(f===10)spawnMatriarch();
-  musicInt=Math.min(.7,.18+f*.06);announceHollowFloor();if(f===2)queueStory('walks');
+  announceHollowFloor();if(f===2)queueStory('walks');
 }
 function bakeHollowSprites(){
   SPR.gateHound=SPR.bat;
@@ -181,7 +181,7 @@ function bakeHollowSprites(){
   SPR.gateShield=SPR.brute;
   const armor={k:'#101824',s:'#344755',m:'#69808a',l:'#c6d0c5',g:'#bba06c',e:'#fae4ad',c:'#344457',b:'#252d3b'};
   const warden=['...........g...........','.......g...g...g.......','.......gg..g..gg.......','........ggggggg........','........glllllg........','........smeemss........','........ksssssk........','.......gmlllllmg.......','....ggmmslllllsmmgg....','...gmssssmmmmsssssmg...','..gmmssccgggggccssmmg..','..mssscccllllcccssssm..','..msskcccllllcccksssm..','...sskcccggggccckss....','...kkmccccccccccmkk....','.....mcccllllcccm......','.....mcggggggggcm......','.....mccccccccccm......','.....sccccccccccs......','.....scccckkccccs......','.....sccsskkssccs......','.....ssssk..kssss......','......mssk..kssm.......','......mssk..kssm.......','.....gmmmk..kmmmg......'];
-  SPR.gateWarden=px([warden],armor,{fps:1,sc:3.1});
+
   SPR.gateWarden=pxGen(38,43,6,(i,j,f)=>{
     const beat=Math.sin(f/6*TAU),x=i-18.5-beat*(j>17?(j-17)/60:0),y=j;
     if(y<=7){const ray=(Math.abs(x)<1.5&&y<5)||(Math.abs(x-5)<1.3&&y>1)||(Math.abs(x+5)<1.3&&y>1)||(Math.abs(x)<7&&Math.abs(y-(5-Math.abs(x)*.45))<1.2);if(ray)return y<2?'#f8df9d':'#a58b59';}
@@ -220,7 +220,6 @@ function bakeHollowSprites(){
   ]],{o:'#211535',l:'#6e5da0',w:'#cbbaff',b:'#39234f',g:'#ffc575'},{fps:1,sc:2});
 }
 
-
 function gateEnemyAI(e,dt,d,dx,dy){
   const p=G.player,w=G.world;e.staggerCd=Math.max(0,(e.staggerCd||0)-dt);e.face=e.face??Math.atan2(dy,dx);e.action=e.action||'stalk';e.actionT=(e.actionT??.5)-dt;
   if(e.action==='warn'){
@@ -253,7 +252,7 @@ function activateWarden(b){b.introduced=true;b.aggro=true;G.bossActive=true;G.eb
 const WARDEN_HP=1850;
 const WARDEN_REACH=134;
 function wardenAI(b,dt,d,dx,dy){
-  if(!b.introduced)return;musicInt=.88;const a=b.wb,p=G.player,w=G.world;a.t-=dt;
+  if(!b.introduced)return;const a=b.wb,p=G.player,w=G.world;a.t-=dt;
   if(!a.second&&b.hp<=b.max*.56){
     a.second=true;a.mode='break';a.t=1.05;a.marks=[];G.ebul=[];
     burst(b.x,b.y,24,'#b491dc',200,.65,3,false);sfx('roar2');return;

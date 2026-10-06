@@ -76,7 +76,7 @@ function selectNode(n){
   document.querySelectorAll('[data-node]').forEach(el=>{const node=NODE_BY_ID[el.dataset.node],state=nodeState(node);el.classList.toggle('selected',node===n);el.setAttribute('aria-pressed',String(node===n));el.setAttribute('aria-label',node.name+' · '+(state===2?'owned':node.cost+' essence'+(state===0?' · locked':'')));});
   const m=computeMeta();T('metaTotal').innerHTML=`NEXT DESCENT<br><b>+${Math.round((m.dmg-1)*100)}%</b> damage · <b>+${m.hp}</b> health<br><b>+${Math.round((m.rate-1)*100)}%</b> casting rate · <b>+${Math.round((m.speed-1)*100)}%</b> speed<br>${Object.keys(save.nodes).length} / ${TREE_NODES.length} sigils awakened`;
 }
-function applyAudioSettings(){if(!AC)return;const t=AC.currentTime;musDry.gain.setTargetAtTime(save.music?.14:0,t,.08);musSend.gain.setTargetAtTime(save.music?.26:0,t,.08);if(droneG)droneG.gain.setTargetAtTime(save.music?.5:0,t,.08);}
+
 function syncSettings(){
   for(const [id,key] of [['setMusic','music'],['setSfx','sfx'],['setMotion','motion'],['setTouch','touch']])T(id).checked=!!save[key];
   const touchDevice=(typeof navigator!=='undefined'&&navigator.maxTouchPoints>0)||(typeof matchMedia==='function'&&matchMedia('(pointer:coarse)').matches);
@@ -112,7 +112,7 @@ function resumeRun(){
   G.ebul=x.ebul;G.picks=x.picks;G.chests=x.chests;G.portal=x.portal;G.parts=[];G.texts=[];G.dead=false;G.paused=false;G.descending=false;G.t=x.elapsed;G.victoryPending=0;G.pendingLevels=x.pendingLevels;G.opts.freeChoice=x.freeChoice;G.cardPool=null;G.skillsOpen=false;
   G.cam={x:G.player.x-G.w/2,y:G.player.y-G.h/2,shake:0};G.player.face=0;mouse.x=G.w/2+100;mouse.y=G.h/2;
   for(const id of ['menu','pause','dead','win','skills','settings','levelup'])hide(id);T('fade').style.opacity=0;T('chips').innerHTML='';
-  for(const o of POOL)if(G.run.up[o.id])addChip(o);musicInt=clamp(.15+G.floor*.07,0,.75);
+  for(const o of POOL)if(G.run.up[o.id])addChip(o);
   if(x.descendTo)setupFloor(x.descendTo);
   T('bossbar').classList.toggle('on',!!G.bossActive);if(G.boss)T('bossname').textContent=G.boss.name;
   setState('playing');updateHUD(0);

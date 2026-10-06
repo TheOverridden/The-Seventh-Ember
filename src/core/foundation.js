@@ -22,13 +22,12 @@ const SAVE_KEY='the_seventh_ember_save_v1';
 const SAVE_PROGRESSION_EPOCH=2;
 const DEF_SAVE = ()=>({v:1, progressionEpoch:SAVE_PROGRESSION_EPOCH, essence:0, nodes:{}, bestFloor:0, bestLevel:0, totalRuns:0, totalKills:0, totalEssence:0, victories:0, guardians:0, tut:0, music:1, sfx:1, musicVolume:.82, sfxVolume:.86, motion:0, touch:0, quality:"full", runTimer:0, runSeed:'', resume:null});
 let save = DEF_SAVE();
-let saveDirty=false, saveTimer=0;
+let saveTimer=0;
 function loadSave(){
   try{const raw=localStorage.getItem(SAVE_KEY);if(raw){const p=JSON.parse(raw),r=p.resume;save=validateSave({...p,resume:null});if(r){try{save.resume=validateCheckpoint(r);}catch(e){storageMessage='The unfinished run could not be restored. Your permanent progress is safe.';}}}}
   catch(e){storageMessage='Saved progress could not be loaded. You can import a backup in Settings.';}
 }
-function saveNow(){ snapshotRun(); try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); saveDirty=false; storageMessage=''; }catch(e){ storageMessage='Automatic saving is unavailable. Export a save to keep your progress.'; } syncSaveStatus(); }
-function markSave(){ saveDirty=true; }
+function saveNow(){ snapshotRun(); try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save));  storageMessage=''; }catch(e){ storageMessage='Automatic saving is unavailable. Export a save to keep your progress.'; } syncSaveStatus(); }
 
 const TREE_NODES=[
  {id:'awaken', L:'A', x:620, y:470, r:24, cost:5,  req:null,      name:'Awakening',      desc:'Open your eyes in the dark. +5% damage, +10 max HP.'},
@@ -88,8 +87,7 @@ function computeMeta(){
 }
 let META = computeMeta();
 
-let AC=null, masterG=null, sfxDry=null, sfxSend=null, musDry=null, musSend=null,
-    noiseBuf=null, revNode=null, musLP=null, musicInt=0, droneG=null, droneLP=null;
+let AC=null, masterG=null, sfxDry=null, sfxSend=null, musDry=null, noiseBuf=null, revNode=null, musLP=null;
 function makeIR(dur,decay){
   const rate=AC.sampleRate, len=Math.max(1,Math.floor(rate*dur));
   const buf=AC.createBuffer(2,len,rate);
@@ -122,13 +120,11 @@ function initAudio(){
     sfxSend=AC.createGain(); sfxSend.gain.value=.3; sfxSend.connect(revNode);
     musLP=AC.createBiquadFilter(); musLP.type='lowpass'; musLP.frequency.value=900; musLP.Q.value=.4;
     musDry=AC.createGain(); musDry.gain.value=.34; musLP.connect(musDry); musDry.connect(comp);
-    musSend=AC.createGain(); musSend.gain.value=.55; musLP.connect(musSend); musSend.connect(revNode);
     const len=AC.sampleRate*2; noiseBuf=AC.createBuffer(1,len,AC.sampleRate);
     const d=noiseBuf.getChannelData(0);
     let last=0;
     for(let i=0;i<len;i++){ const w=Math.random()*2-1; last=last*.34+w*.66; d[i]=last; }
-    startDrone();
-    musicLoop();
+
   }catch(e){ AC=null; }
 }
 function bell(f,dur,vol,delay,warm){
@@ -191,118 +187,11 @@ function swell(freqs,dur,vol,delay){
   });
 }
 let xpCombo=0, xpComboT=0;
-const PENT=[261.63,293.66,349.23,392.00,440.00,523.25,587.33,698.46];
-function sfx(name,a){
+
+function sfx(name){
   if(!AC||!save.sfx) return;
   switch(name){
-    case 'shoot': air(.13,.05,1500,420,.7,0); thump(190,95,.10,.045); break;
-    case 'hit':   air(.07,.05,780,300,1.1,0,'lowpass'); thump(165,78,.09,.06); break;
-    case 'die':   air(.34,.055,900,150,.7,0,'lowpass'); thump(150,52,.26,.06); break;
-    case 'hurt':  air(.34,.075,520,120,.6,0,'lowpass'); thump(120,48,.38,.13); break;
-    case 'xp':    { const f=PENT[Math.min(xpCombo,PENT.length-1)]*2; bell(f,.5,.038,0,false); xpCombo++; xpComboT=1.1; break; }
-    case 'ess':   bell(1046.5,.85,.042,0,false); bell(1568,.5,.018,.02,false); break;
-    case 'heart': bell(392,.9,.05,0,true); bell(587.33,.7,.026,.05,true); break;
-    case 'levelup': swell([261.63,329.63,392,523.25],2.0,.052,0); bell(1046.5,1.4,.03,.18,false); air(.9,.012,4200,1800,.5,.1); break;
-    case 'dash':  air(.30,.06,380,2400,.9,0); air(.22,.03,2200,500,1.1,.05); break;
-    case 'portal':swell([98,146.83,196,293.66],2.6,.06,0); [392,523.25,659.25,784].forEach((f,i)=>bell(f,1.5,.032,.25+i*.13,true)); break;
-    case 'chest': air(.10,.05,420,180,1.4,0,'lowpass'); thump(150,88,.14,.05); bell(659.25,1.0,.03,.09,true); bell(987.77,.8,.02,.15,true); break;
     case 'ui':    air(.05,.022,2400,1300,1.2,0); break;
     case 'deny':  thump(110,72,.22,.055); air(.14,.02,300,160,.9,0,'lowpass'); break;
-    case 'buy':   bell(523.25,1.1,.045,0,true); bell(784,.9,.03,.07,true); air(.5,.012,3600,1600,.6,.05); break;
-    case 'boss':  swell([41.2,61.74,82.41],3.2,.10,0); air(1.8,.05,220,70,.5,0,'lowpass'); break;
-    case 'roar2': air(.7,.06,340,90,.6,0,'lowpass'); thump(96,44,.7,.09); break;
-    case 'nova':  thump(220,48,.5,.11); air(.5,.05,1400,300,.7,0,'lowpass'); break;
-    case 'death': swell([220,164.81,130.81],3.4,.055,0); [329.63,261.63,196,146.83].forEach((f,i)=>bell(f,2.2,.032,i*.42,true)); break;
-    case 'victory':swell([261.63,392,523.25,659.25],3.0,.055,0); [523.25,659.25,784,1046.5].forEach((f,i)=>bell(f,1.8,.034,i*.16,true)); break;
-    case 'eshoot':air(.12,.028,900,320,.9,0); break;
-    case 'charge':air(.55,.05,180,1500,.8,0); thump(70,150,.5,.045); break;
   }
-}
-const CHORDS=[
-  [55,82.41,130.81,164.81],
-  [49,73.42,116.54,146.83],
-  [43.65,65.41,103.83,130.81],
-  [48.99,73.42,123.47,146.83]
-];
-const MEL=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
-let chordI=0, padT=0, melT=6, breathT=9;
-function startDrone(){
-  droneLP=AC.createBiquadFilter(); droneLP.type='lowpass'; droneLP.frequency.value=220; droneLP.Q.value=.6;
-  droneG=AC.createGain(); droneG.gain.value=0;
-  droneLP.connect(droneG); droneG.connect(musLP);
-  [55,55.2,82.41].forEach((f,i)=>{
-    const o=AC.createOscillator(), g=AC.createGain();
-    o.type='sine'; o.frequency.value=f; o.detune.value=i===1?7:-5;
-    g.gain.value=(i===2 ? .10 : .22);
-    o.connect(g); g.connect(droneLP); o.start();
-  });
-  const lfo=AC.createOscillator(), lg=AC.createGain();
-  lfo.type='sine'; lfo.frequency.value=.055; lg.gain.value=.05;
-  lfo.connect(lg); lg.connect(droneG.gain); lfo.start();
-}
-function padChord(fs){
-  const t0=AC.currentTime, dur=13;
-  const lp=AC.createBiquadFilter(); lp.type='lowpass';
-  lp.frequency.setValueAtTime(420+musicInt*280,t0);
-  lp.frequency.linearRampToValueAtTime(760+musicInt*900,t0+dur*.45);
-  lp.frequency.linearRampToValueAtTime(430+musicInt*260,t0+dur);
-  lp.Q.value=.5; lp.connect(musLP);
-  fs.forEach((f,i)=>{
-    [-6,6].forEach(det=>{
-      const o=AC.createOscillator(), g=AC.createGain();
-      o.type= i<2 ? 'sine' : 'triangle';
-      o.frequency.value=f; o.detune.value=det;
-      const v=(i<2 ? .05 : .028)*(1-musicInt*.15);
-      g.gain.setValueAtTime(0,t0);
-      g.gain.linearRampToValueAtTime(v,t0+4.5);
-      g.gain.linearRampToValueAtTime(v*.85,t0+dur*.7);
-      g.gain.linearRampToValueAtTime(0,t0+dur);
-      o.connect(g); g.connect(lp);
-      o.start(t0); o.stop(t0+dur+.4);
-    });
-  });
-}
-function musicLoop(){
-  if(!AC) return;
-  setInterval(()=>{
-    if(!AC) return;
-    const want = save.music ? (0.32+musicInt*0.34) : 0;
-    musDry.gain.setTargetAtTime(want*.62, AC.currentTime, 1.2);
-    musSend.gain.setTargetAtTime(want*.9, AC.currentTime, 1.2);
-    if(droneG) droneG.gain.setTargetAtTime(save.music?(.5+musicInt*.5):0, AC.currentTime, 2.0);
-    if(musLP) musLP.frequency.setTargetAtTime(760+musicInt*1500, AC.currentTime, 1.5);
-    if(!save.music||document.hidden||AC.state!=='running'||G.state==='ending') return;
-    padT-=0.5; melT-=0.5; breathT-=0.5;
-    if(padT<=0){ padChord(CHORDS[chordI%CHORDS.length]); chordI++; padT=10.5; }
-    if(melT<=0){
-      melT = 5.5+Math.random()*7 - musicInt*2.2;
-      if(chance(.55+musicInt*.2)){
-        const f=pickA(MEL)*(chance(.35) ? .5 : 1);
-        const t0=AC.currentTime;
-        [[1,1],[2.01,.3],[3.02,.12]].forEach(([mul,amp])=>{
-          const o=AC.createOscillator(), g=AC.createGain();
-          o.type='sine'; o.frequency.value=f*mul;
-          g.gain.setValueAtTime(0,t0);
-          g.gain.linearRampToValueAtTime(.026*amp,t0+.25);
-          g.gain.exponentialRampToValueAtTime(.00008,t0+3.2);
-          o.connect(g); g.connect(musLP); o.start(t0); o.stop(t0+3.4);
-        });
-      }
-    }
-    if(breathT<=0){
-      breathT=7+Math.random()*9;
-      const t0=AC.currentTime, dur=5+Math.random()*4;
-      const s=AC.createBufferSource(); s.buffer=noiseBuf; s.loop=true;
-      const bp=AC.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=.55;
-      bp.frequency.setValueAtTime(260,t0);
-      bp.frequency.linearRampToValueAtTime(520,t0+dur*.5);
-      bp.frequency.linearRampToValueAtTime(240,t0+dur);
-      const g=AC.createGain();
-      g.gain.setValueAtTime(0,t0);
-      g.gain.linearRampToValueAtTime(.012+musicInt*.012,t0+dur*.45);
-      g.gain.linearRampToValueAtTime(0,t0+dur);
-      s.connect(bp); bp.connect(g); g.connect(musLP);
-      s.start(t0); s.stop(t0+dur+.2);
-    }
-  },500);
 }

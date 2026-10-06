@@ -4,12 +4,6 @@ const ADAPTIVE_GUARDIAN_VERSION=2;
 const ADAPTIVE_REQUIREMENT=[0,.02,.06,.10,.16,.23,.30,.37,.44,.52];
 const ADAPTIVE_BUDGET=[.18,.135,.105,.08,.052,.044,.036,.03,.024,.019];
 const ADAPTIVE_HIT_CAP=[.10,.08,.065,.055,.042,.036,.03,.026,.021,.017];
-const ADAPTIVE_NAMES={
- warden:'THE STAR WARDEN',matriarch:'THE HOLLOW MATRIARCH',bellkeeper:'THE BELLKEEPER',
- colossus:'THE EMBER COLOSSUS',astronomer:'THE GLASS ASTRONOMER',scribe:'THE PALE SCRIBE',
- regents:'THE TWIN REGENTS',seraph:'THE VOID SERAPH',tyrant:'THE OBSIDIAN TYRANT',keeper:'THE FIRST KEEPER',
- uncounted:'THE UNCOUNTED'
-};
 
 function adaptiveClamp(v,a,b){return Math.max(a,Math.min(b,v));}
 function adaptiveTier(b,floor=G.floor){

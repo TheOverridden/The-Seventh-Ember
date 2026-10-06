@@ -87,7 +87,7 @@ function keeperAI(b,dt,d,dx,dy){
   if(s.mode==='dive'){s.t-=dt;const a=Math.atan2(s.targetY-b.y,s.targetX-b.x),hit=moveEnt(G.world,b,Math.cos(a)*(s.second?720:630)*dt,Math.sin(a)*(s.second?720:630)*dt);if(!s.hit&&d2(b.x,b.y,p.x,p.y)<(b.r+p.r+14)**2){hurtPlayer(b.dmg,b.x,b.y);s.hit=true;}if(s.t<=0||hit)finishBossMove(b,.62);return;}
   if(s.mode==='recover'){s.t-=dt;if(s.t<=0){s.mode='wait';s.t=s.second?.1:.28;}return;}if(!s.second&&b.hp<b.max*.5){s.second=true;s.mode='shift';s.t=1.1;G.ebul=[];burst(b.x,b.y,30,b.col,230,.8,3,true);return;}if(s.mode==='shift'){s.t-=dt;if(s.t<=0)finishBossMove(b,.2);return;}s.t-=dt;const sway=Math.sin(G.t*.9);moveEnt(G.world,b,(dx/d*.45-dy/d*sway*.35)*b.spd*dt,(dy/d*.45+dx/d*sway*.35)*b.spd*dt);if(s.t<=0){const list=s.second?['beam','glyph','dive','siege','ring','beam']:['beam','ring','glyph','dive','siege'];beginBossMove(b,list[s.step++%list.length],s.second?.48:.65);}
 }
-function lateBossAI(b,dt,d,dx,dy){if(!b.introduced)return;musicInt=1;({bellkeeper:bellkeeperAI,colossus:colossusAI,astronomer:astronomerAI,scribe:scribeAI,regents:regentAI,seraph:seraphAI,tyrant:tyrantAI,keeper:keeperAI}[b.bossKey]||keeperAI)(b,dt,d,dx,dy);}
+function lateBossAI(b,dt,d,dx,dy){if(!b.introduced)return;({bellkeeper:bellkeeperAI,colossus:colossusAI,astronomer:astronomerAI,scribe:scribeAI,regents:regentAI,seraph:seraphAI,tyrant:tyrantAI,keeper:keeperAI}[b.bossKey]||keeperAI)(b,dt,d,dx,dy);}
 
 const beforeLateKillBoss=killBoss;
 killBoss=function(b){

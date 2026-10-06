@@ -69,13 +69,13 @@ function setupLateFloor(f){
   for(let pass=0;pass<3&&spawned<target;pass++)for(let ri=0;ri<rooms.length&&spawned<target;ri++){if(pass>0&&ri<2)continue;const room=rooms[ri],type=roster[(ri+pass+within)%roster.length],pos=latePlace(w,room,ETYPES[type].r);if(pos){spawnEnemy(type,pos.x,pos.y,chance(eliteChance));spawned++;}}
   if(!bossFloorAt(f)&&(within===1||within===3)&&rooms.length){const room=rooms[(region.stage+within*2)%rooms.length],pos=latePlace(w,room,17);if(pos)G.chests.push({...pos,opened:false,lateCache:true});}
   if(bossFloorAt(f))spawnLateBoss(region);G.player.ammo=Math.min(G.player.ammo??G.player.magSize,G.player.magSize);G.run.lateClearShown=G.run.lateClearShown===f?0:G.run.lateClearShown;
-  const arrivals={reservoir:'reservoirArrival',foundry:'foundryArrival',observatory:'obsArrival',archive:'archiveArrival',court:'courtArrival',choir:'choirArrival',citadel:'citadelArrival',heart:'heartArrival'};if(f===region.from)queueStory(arrivals[region.key]);announceLateFloor();musicInt=.56+region.stage*.04;saveNow();
+  const arrivals={reservoir:'reservoirArrival',foundry:'foundryArrival',observatory:'obsArrival',archive:'archiveArrival',court:'courtArrival',choir:'choirArrival',citadel:'citadelArrival',heart:'heartArrival'};if(f===region.from)queueStory(arrivals[region.key]);announceLateFloor();saveNow();
 }
 const beforeLateSetupFloor=setupFloor;
 setupFloor=function(f){beforeLateSetupFloor(f);if(lateRegion(f))setupLateFloor(f);};
 
 function lateShot(e,a,speed,dmg,color=e.col){enemyShoot(e,a,speed,dmg);const b=G.ebul[G.ebul.length-1];b.lateColor=color;b.r=5;b.life=3.5;return b;}
-const COMBAT_AUDIT_VERSION=7;
+
 const LATE_SPECIALS={
  rippleLeech:{name:'undertow lunge',cd:4.2,range:190,tell:.28},pumpCrawler:{name:'pump suction',cd:6.2,range:250,tell:.55},lampEel:{name:'forked current',cd:4.8,range:390,tell:.38},sluiceGuard:{name:'sluice wave',cd:6.5,range:310,tell:.62},
  coalMite:{name:'coal burst',cd:4.4,range:170,tell:.25},slagRunner:{name:'slag trail',cd:5.4,range:230,tell:.42},cinderValve:{name:'rotary volley',cd:5.8,range:420,tell:.52},hammerFrame:{name:'hammerfall',cd:6.8,range:145,tell:.68},

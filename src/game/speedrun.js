@@ -22,7 +22,7 @@ function runnerCleanData(raw,legacy=false){if(!raw||typeof raw!=='object')throw 
 function runnerUpdateHud(){const hud=T('runTimerHud'),run=G.run,data=runnerData(),visible=!!save.runTimer&&!!run&&G.state!=='menu';hud.hidden=!visible;if(!visible)return;T('runTimerValue').textContent=runnerFormat(run.t);T('runTimerSeed').textContent=data?.seed||'UNSEEDED RUN';hud.setAttribute('aria-label',data?'Copy current run seed '+data.seed:'Run timer');}
 function runnerSyncSettings(){const timer=T('setRunTimer'),input=T('setRunSeed'),copy=T('runnerCopySeed'),status=T('runnerSeedStatus');if(!timer||!input)return;timer.checked=!!save.runTimer;if(document.activeElement!==input)input.value=runnerCleanSeed(save.runSeed);copy.disabled=!runnerCleanSeed(save.runSeed);const data=G.run?.runner;if(data)status.textContent='Current descent: '+data.seed+'. Seed changes apply to the next new descent.';else if(G.run)status.textContent='This existing descent predates seeded runs. Your choice applies next time.';else status.textContent=save.runSeed?'The next new descent will use '+runnerCleanSeed(save.runSeed)+'.':'The next new descent will receive a fresh random seed.';runnerUpdateHud();}
 function runnerQueueSave(){clearTimeout(runnerSeedSaveTimer);runnerSeedSaveTimer=setTimeout(()=>{runnerSeedSaveTimer=0;saveNow();},250);}
-function runnerSetSeed(value){clearTimeout(runnerSeedSaveTimer);runnerSeedSaveTimer=0;save.runSeed=runnerCleanSeed(value);markSave();runnerSyncSettings();saveNow();}
+function runnerSetSeed(value){clearTimeout(runnerSeedSaveTimer);runnerSeedSaveTimer=0;save.runSeed=runnerCleanSeed(value);runnerSyncSettings();saveNow();}
 
 const runnerValidateSaveBase=validateSave;
 validateSave=function(raw){const clean=runnerValidateSaveBase(raw);clean.runTimer=raw?.runTimer?1:0;clean.runSeed=runnerCleanSeed(raw?.runSeed);return clean;};
@@ -50,8 +50,8 @@ syncSettings=function(){runnerSyncSettingsBase();runnerSyncSettings();};
 const runnerUpdateHudBase=updateHUD;
 updateHUD=function(dt){const result=runnerUpdateHudBase(dt);runnerUpdateHud();return result;};
 
-on(T('setRunTimer'),'change',()=>{save.runTimer=T('setRunTimer').checked?1:0;markSave();runnerSyncSettings();saveNow();});
-on(T('setRunSeed'),'input',()=>{const input=T('setRunSeed');input.value=String(input.value||'').toUpperCase().replace(/[^A-Z0-9-]+/g,'-').replace(/-+/g,'-').replace(/^-+/,'').slice(0,28);save.runSeed=input.value;markSave();runnerSyncSettings();runnerQueueSave();});
+on(T('setRunTimer'),'change',()=>{save.runTimer=T('setRunTimer').checked?1:0;runnerSyncSettings();saveNow();});
+on(T('setRunSeed'),'input',()=>{const input=T('setRunSeed');input.value=String(input.value||'').toUpperCase().replace(/[^A-Z0-9-]+/g,'-').replace(/-+/g,'-').replace(/^-+/,'').slice(0,28);save.runSeed=input.value;runnerSyncSettings();runnerQueueSave();});
 on(T('setRunSeed'),'change',()=>runnerSetSeed(T('setRunSeed').value));
 on(T('runnerRandomSeed'),'click',()=>runnerSetSeed(runnerRandomSeed()));
 on(T('runnerDailySeed'),'click',()=>runnerSetSeed(runnerDailySeed()));

@@ -28,10 +28,7 @@ const beforeLateValidateSave=validateSave;
 validateSave=function(raw){const clean=beforeLateValidateSave(raw);if(raw.story?.seen)for(const id of Object.keys(TRACE_RECORDS))if(raw.story.seen[id]===true)clean.story.seen[id]=true;return clean;};
 const beforeLateResume=resumeRun;
 resumeRun=function(){const pending=save.resume?deepCopy(save.resume):null;beforeLateResume();if(!G.run)return;if(G.floor>=11&&G.floor<=50&&G.world.region!=='late'){const hp=G.player.hp,level=G.run.level,xp=G.run.xp,up=deepCopy(G.run.up),ess=save.essence;setupFloor(G.floor);G.run.level=level;G.run.xp=xp;G.run.up=up;save.essence=ess;recalc();G.player.hp=Math.min(G.player.maxHp,hp);setState('playing');pauseGame(true);saveNow();}else if(G.world.region==='late'){G.world.pal=PALETTES[G.world.pi];updateHUD(0);}};
-const beforeLateAnyBlocking=anyBlockingOverlay;anyBlockingOverlay=function(){return beforeLateAnyBlocking()||T('traceRecord').classList.contains('open');};
-const beforeLateReset=resetEverything;resetEverything=function(){T('traceRecord').classList.remove('open');activeTrace=null;beforeLateReset();};
+
 function wireLate(){
-  on(T('traceClose'),'click',closeTrace);
-  addEventListener('keydown',e=>{if(T('traceRecord').classList.contains('open')&&['Escape','Enter','Space'].includes(e.code)){e.preventDefault();e.stopImmediatePropagation();closeTrace();}},true);
   T('chapterContinue').addEventListener('click',e=>{if(G.floor===50&&G.state==='chapter'){e.preventDefault();e.stopImmediatePropagation();hide('chapterClear');setState('playing');victory();}},true);
 }

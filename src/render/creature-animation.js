@@ -43,10 +43,10 @@ const CREATURE_PROFILES={
  matriarch:{kind:'authored',rate:1.25,stride:105}
 };
 const CREATURE_ALIASES={gateSentry:'slime',mossSlime:'slime',gateHound:'bat',petalBat:'bat',gateLantern:'spitter',thornSpitter:'spitter',gateShield:'brute',barkback:'brute',gardenMite:'mite'};
-const CREATURE_GAITS=Object.fromEntries([...Object.entries(CREATURE_PROFILES).filter(([key])=>key!=='warden'&&key!=='matriarch').map(([key,p])=>[key,p.kind]),...Object.entries(CREATURE_ALIASES).map(([key,target])=>[key,CREATURE_PROFILES[target].kind])]);
+
 const CREATURE_FALLBACK_PROFILE={kind:'float',rate:.5};
 function creatureProfile(e){return CREATURE_PROFILES[e.warden?'warden':e.matriarch?'matriarch':CREATURE_ALIASES[e.type]||e.type]||CREATURE_FALLBACK_PROFILE;}
-function creatureGait(e){return creatureProfile(e).kind;}
+
 function creatureAirborne(profile){return ['wing','float','ghost','cloth','bell'].includes(profile.kind);}
 function creaturePhase(e,time=G.tAll){const p=creatureProfile(e);return creatureAirborne(p)?((time*p.rate+(e.seed||0)*.159)%1+1)%1:(((CREATURE_MOTION.get(e)?.phase||0)%1+1)%1);}
 function creatureMotionFrame(e){return save.motion?0:Math.floor(creaturePhase(e)*8)%8;}

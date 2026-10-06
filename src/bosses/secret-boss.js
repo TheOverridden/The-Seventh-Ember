@@ -2,7 +2,7 @@ const UNCOUNTED_CONFIG={key:'uncounted',hp:12800,r:43,dmg:49,spd:88,col:'#9ce7e3
 ETYPES.unrecorded={hp:12800,spd:88,dmg:49,r:43,xp:0,spr:'unrecorded',ai:'lateBoss',col:'#9ce7e3',ess:0,kb:0};
 
 function startUncountedGuardian(){
- const gm=G.run?.guardianMode;if(!gm||G.run.mode!=='rush')return;gm.secret=true;gm.secretDefeated=false;gm.fightStart=G.run.t;setState('paused');clearInput();G.ebul=[];G.bullets=[];const fade=T('fade');fade.style.transition='opacity .75s ease';fade.style.opacity='1';musicInt=.05;
+ const gm=G.run?.guardianMode;if(!gm||G.run.mode!=='rush')return;gm.secret=true;gm.secretDefeated=false;gm.fightStart=G.run.t;setState('paused');clearInput();G.ebul=[];G.bullets=[];const fade=T('fade');fade.style.transition='opacity .75s ease';fade.style.opacity='1';
  setTimeout(revealUncountedGuardian,1150);
 }
 function revealUncountedGuardian(){const gm=G.run?.guardianMode;if(!gm?.secret||G.dead)return;const a=arenaBounds();LATE_BOSSES.unrecorded=UNCOUNTED_CONFIG;ENDGAME_HP.uncounted=48000;ENDGAME_DAMAGE.uncounted=49;const b=makeLateBoss('unrecorded',a.cx,a.cy-38,'THE UNCOUNTED');delete LATE_BOSSES.unrecorded;delete ENDGAME_HP.uncounted;delete ENDGAME_DAMAGE.uncounted;b.introduced=true;b.aggro=true;b.bs.t=1.15;b.bs.duration=1.15;b.bs.secretPhase=0;b.bs.echoA=0;const mul=gm.difficulty==='nightfall'?1.7:1.45;b.max=Math.round(b.max*mul);b.hp=b.max;b.dmg=Math.round(b.dmg*(gm.difficulty==='nightfall'?1.32:1.12));if(gm.difficulty==='nightfall')b.spd*=1.08;G.enemies=[b];G.boss=b;G.bossActive=true;G.player.hp=Math.min(G.player.maxHp,G.player.hp+Math.ceil(G.player.maxHp*(gm.difficulty==='nightfall'?.22:.35)));G.player.hitCd=2;G.player.x=a.cx;G.player.y=a.bottom-72;sealLateArena(true);T('bossname').textContent=b.name;T('bossbar').classList.add('on');T('bossfill').style.width='100%';T('fade').style.opacity='0';setState('playing');burst(b.x,b.y,46,b.col,280,1,3,true);sfx('boss');toast('THE COUNT WAS WRONG','something answered the last bell');}
@@ -22,7 +22,7 @@ function uncountedAI(b,dt,d,dx,dy){
 }
 
 const uncountedLateBossAI=lateBossAI;
-lateBossAI=function(b,dt,d,dx,dy){if(b.bossKey==='uncounted'){if(b.introduced){musicInt=1;uncountedAI(b,dt,d,dx,dy);}return;}return uncountedLateBossAI(b,dt,d,dx,dy);};
+lateBossAI=function(b,dt,d,dx,dy){if(b.bossKey==='uncounted'){if(b.introduced){uncountedAI(b,dt,d,dx,dy);}return;}return uncountedLateBossAI(b,dt,d,dx,dy);};
 const uncountedTickHazards=tickLateHazards;
 tickLateHazards=function(dt){if(G.world?.lateHazards)for(const h of G.world.lateHazards){if(h.spin&&(h.phase==='warn'||h.phase==='active'))h.a+=h.spin*dt;if(h.followOwner){const b=G.enemies.find(e=>e.uid===h.ownerUid&&!e.dead);if(b){h.x=b.x;h.y=b.y;}}}return uncountedTickHazards(dt);};
 const uncountedDrawBoss=drawLateBossBody;

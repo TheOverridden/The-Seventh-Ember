@@ -1,4 +1,4 @@
-const FLOOR_CHARACTER_ART_VERSION=6;
+
 function lateVariant(){
   const r=lateRegion(G.floor);return r?clamp(G.floor-r.from,0,4):0;
 }
