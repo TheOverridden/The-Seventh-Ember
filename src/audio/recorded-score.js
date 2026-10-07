@@ -1,7 +1,8 @@
 'use strict';
 
 const TSE_RECORDED_POOLS=Object.freeze({
- title:['01_Ash_at_the_Door','13_Before_the_First_Bell'],
+ title:['13_Before_the_First_Bell'],
+ pause:['26_Dust_in_the_Sunlight'],
  hollow:['01_Ash_at_the_Door','13_Before_the_First_Bell'],
  garden:['02_Moss_Has_Teeth','14_Roots_Under_Rain'],
  reservoir:['03_Flooded_Bellworks','15_The_Sluice_Opens'],
@@ -24,6 +25,7 @@ function tseRecordedRegion(){
  if(G.state==='echo')return'memory';
  if(G.state==='secret'&&typeof currentSecret==='function'&&currentSecret()?.type==='shop')return'moth';
  if(!G.run)return'title';
+ if(G.state==='paused'&&T('pause').classList.contains('open'))return'pause';
  const region=G.run.infinite&&G.floor>50?'endless':G.world?.region==='late'?(G.world.lateKey||'heart'):G.floor<=5?'hollow':'garden';
  if(G.bossActive){if(region==='court')return'court';if(region==='heart')return'heart';return'guardian';}
  return region;
@@ -153,7 +155,7 @@ function tseRecordedTick(){
 const tseRecordedInitAudio=initAudio;
 initAudio=function(){
  tseRecordedInitAudio();if(!AC)return;tseRecordedPrepare();applyAudioSettings();tseRecordedTick();
- if(!TSE_RECORDED_SCORE.timer)TSE_RECORDED_SCORE.timer=setInterval(tseRecordedTick,250);
+ if(!TSE_RECORDED_SCORE.timer){TSE_RECORDED_SCORE.timer=setInterval(tseRecordedTick,250);AC.addEventListener('statechange',tseRecordedTick);}
 };
 
 function applyAudioSettings(){
@@ -164,4 +166,10 @@ function applyAudioSettings(){
 }
 
 function endingMusic(){if(AC&&save.music)tseRecordedSwitch('10_The_Seventh_Dawn',true);}
+const tseRecordedSetState=setState;
+setState=function(state){tseRecordedSetState(state);if(['menu','paused','playing'].includes(state))applyAudioSettings();else tseRecordedTick();};
+function tseRecordedUnlock(){if(!AC||AC.state!=='running'||TSE_RECORDED_SCORE.muted&&tseRecordedCanPlay())initAudio();}
+document.addEventListener('pointerdown',tseRecordedUnlock,{capture:true,passive:true});
+document.addEventListener('keydown',tseRecordedUnlock,{capture:true});
+window.addEventListener('load',()=>{initAudio();if(AC&&save.music&&location.protocol!=='file:')tseRecordedLoad(TSE_RECORDED_POOLS.title[0]).catch(()=>{});},{once:true});
 document.addEventListener('visibilitychange',tseRecordedTick);

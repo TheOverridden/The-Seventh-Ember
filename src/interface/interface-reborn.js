@@ -6,7 +6,7 @@ function tseUiRange(id,label,detail,value){
 }
 function tseUiBuildAudioSettings(){
  if(T('setMusicVolume'))return;const musicRow=T('setMusic')?.closest('.settings-row'),sfxRow=T('setSfx')?.closest('.settings-row');if(!musicRow||!sfxRow)return;
- const music=tseUiRange('setMusicVolume','Music volume','Exploration and combat music.',save.musicVolume??.82),effects=tseUiRange('setSfxVolume','Effects volume','Combat, pickups, menus, and dialogue.',save.sfxVolume??.86);musicRow.after(music);sfxRow.after(effects);
+ const music=tseUiRange('setMusicVolume','Music volume','Menus, pause, exploration, and combat.',save.musicVolume??.82),effects=tseUiRange('setSfxVolume','Effects volume','Combat, pickups, menus, and dialogue.',save.sfxVolume??.86);musicRow.after(music);sfxRow.after(effects);
  const bind=(id,key)=>{const input=T(id),value=T(id+'Value');on(input,'input',()=>{save[key]=Number(input.value)/100;value.textContent=input.value+'%';initAudio();applyAudioSettings();});on(input,'change',saveNow);};bind('setMusicVolume','musicVolume');bind('setSfxVolume','sfxVolume');
 }
 function tseUiSyncRanges(){for(const [id,key,fallback] of [['setMusicVolume','musicVolume',.82],['setSfxVolume','sfxVolume',.86]]){const el=T(id),value=T(id+'Value');if(!el)continue;const n=Math.round(clamp(save[key]??fallback,0,1)*100);el.value=n;if(value)value.textContent=n+'%';}}
