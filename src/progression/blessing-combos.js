@@ -1,12 +1,14 @@
 const BLESSING_COMBOS=[
- {id:'thermalShock',name:'Thermal Shock',cards:['firstSpark','burn'],ds:'Freezing a burning enemy releases a 120% damage blast. The fire keeps burning.'},
- {id:'shatter',name:'Shatter',cards:['firstSpark','quickdraw'],ds:'Flare shatters frozen enemies, releasing a 160% damage blast. Chilled Guardians also trigger it.'},
- {id:'stormfront',name:'Stormfront',cards:['firstSpark','shockChain'],ds:'Critical Bolts against frozen or chilled enemies spread frost and lightning to two nearby targets. Once per second per target.'},
- {id:'cinderwheel',name:'Cinderwheel',cards:['orbital','burn'],ds:'Orbiting cinders ignite every enemy they touch.'},
- {id:'collapsedSun',name:'Collapsed Sun',cards:['blackHole','sunspot'],ds:'Black Stars erupt with an extra 100% damage fire pulse every 0.8 seconds.'},
- {id:'echoChamber',name:'Echo Chamber',cards:['doubleCast','ric'],ds:'Echo Cast’s repeated Bolts gain an extra ricochet and 35% damage.'}
+ {id:'thermalShock',name:'Thermal Shock',family:'frost',cards:['firstSpark','burn'],ds:'Freezing a burning enemy releases a 120% damage blast. The fire keeps burning.'},
+ {id:'shatter',name:'Shatter',family:'frost',cards:['firstSpark','quickdraw'],ds:'Flare shatters frozen enemies, releasing a 160% damage blast. Chilled Guardians also trigger it.'},
+ {id:'stormfront',name:'Stormfront',family:'storm',cards:['firstSpark','shockChain'],ds:'Critical Bolts against frozen or chilled enemies spread frost and lightning to two nearby targets. Once per second per target.'},
+ {id:'cinderwheel',name:'Cinderwheel',family:'blade',cards:['orbital','burn'],ds:'Orbiting cinders ignite every enemy they touch.'},
+ {id:'collapsedSun',name:'Collapsed Sun',family:'meteor',cards:['blackHole','sunspot'],ds:'Black Stars erupt with an extra 100% damage fire pulse every 0.8 seconds.'},
+ {id:'echoChamber',name:'Echo Chamber',family:'prism',cards:['doubleCast','ric'],ds:'Echo Cast’s repeated Bolts gain an extra ricochet and 35% damage.'},
+ ...COMBO_RECIPES
 ];
-function blessingComboActive(id){const combo=BLESSING_COMBOS.find(c=>c.id===id);return !!combo&&combo.cards.every(card=>blessingRank(card)>0);}
+const COMBO_BY_ID=Object.fromEntries(BLESSING_COMBOS.map(c=>[c.id,c]));
+function blessingComboActive(id){const combo=COMBO_BY_ID[id];return !!combo&&combo.cards.every(card=>blessingRank(card)>0);}
 function blessingComboState(){
  if(!G.run)return null;const s=G.run.blessingCombos||(G.run.blessingCombos={counts:{},seen:[],effects:[]});
  if(!s.counts||typeof s.counts!=='object')s.counts={};if(!Array.isArray(s.seen))s.seen=[];if(!Array.isArray(s.effects))s.effects=[];return s;
@@ -25,9 +27,9 @@ function blessingFreeze(e,duration=1.1){
  if(e.burnT>0&&blessingComboActive('thermalShock')&&!(e.thermalShockUntil>G.t)){e.thermalShockUntil=G.t+.75;blessingBurst(e.x,e.y,95,G.player.dmg*1.2,'thermalShock','#eff9ff');}
  return true;
 }
-function blessingEffect(effect){const s=blessingComboState();if(!s)return;s.effects.push({...effect,t:.28,max:.28});if(s.effects.length>40)s.effects.shift();}
+function blessingEffect(effect){const s=blessingComboState();if(!s)return;const life=effect.max||.55;s.effects.push({...effect,t:life,max:life});if(s.effects.length>64)s.effects.shift();}
 function blessingBurst(x,y,radius,damage,kind,color='#ffc780'){
- blessingEffect({type:'ring',x,y,radius,color});burst(x,y,12,color,160,.4,2.5,true);
+ blessingEffect({type:kind,x,y,radius,color});burst(x,y,12,color,160,.4,2.5,true);
  for(const enemy of [...G.enemies])if(!enemy.dead&&d2(enemy.x,enemy.y,x,y)<(radius+enemy.r)**2&&los(G.world,x,y,enemy.x,enemy.y))damageEnemy(enemy,damage,Math.atan2(enemy.y-y,enemy.x-x),false,.3,kind);
 }
 function blessingLightning(source,rank=1,freeze=false){
@@ -83,42 +85,10 @@ updateEnemies=function(dt){
  const slowed=[];for(const e of G.enemies)if(!e.dead&&e.isBoss&&e.chilledUntil>G.t){slowed.push([e,e.spd]);e.spd*=.65;}
  try{return comboUpdateEnemies(dt);}finally{for(const [e,speed]of slowed)e.spd=speed;}
 };
-function blessingComboRefresh(){
- const list=T('comboList');if(!list)return;
- list.replaceChildren();for(const combo of BLESSING_COMBOS){const active=blessingComboActive(combo.id),el=document.createElement('article');el.className='combo-entry'+(active?' active':'');el.innerHTML='<h4>'+combo.name+'</h4><div class="combo-parts">'+combo.cards.map(id=>'<span class="'+(blessingRank(id)?'owned':'')+'">'+(blessingRank(id)?'✓ ':'')+POOL.find(c=>c.id===id).name+'</span>').join('')+'</div><p>'+combo.ds+'</p><div class="combo-state">'+(active?'ACTIVE':'COLLECT BOTH BLESSINGS')+'</div>';list.appendChild(el);}
-}
-function blessingComboClose(){hide('blessingCombos');clearInput();T('btnCombos')?.focus({preventScroll:true});}
-const comboBlockingOverlay=anyBlockingOverlay;
-anyBlockingOverlay=function(){return !!T('blessingCombos')?.classList.contains('open')||comboBlockingOverlay();};
-const comboEscape=onEscKey;
-onEscKey=function(){if(T('blessingCombos')?.classList.contains('open'))return blessingComboClose();return comboEscape();};
-const comboBuildCards=buildCards;
-buildCards=function(){
- const result=comboBuildCards();for(const el of T('cards').children){const card=el._up;if(!card)continue;const relevant=BLESSING_COMBOS.filter(c=>c.cards.includes(card.id)),completes=relevant.filter(c=>!blessingComboActive(c.id)&&c.cards.every(id=>id===card.id||blessingRank(id)>0));
-  if(!relevant.length)continue;const text=document.createElement('div');text.className='combo-preview'+(completes.length?' complete':'');text.textContent=completes.length?'Completes '+completes.map(c=>c.name).join(' · '):'Pairs with '+[...new Set(relevant.flatMap(c=>c.cards.filter(id=>id!==card.id)))].map(id=>POOL.find(c=>c.id===id).name).join(' · ');el.appendChild(text);
- }return result;
-};
 const comboTickBlessings=tickBlessings;
 tickBlessings=function(dt){
  const result=comboTickBlessings(dt),s=blessingComboState();if(!s||!G.player)return result;
- for(const combo of BLESSING_COMBOS)if(blessingComboActive(combo.id)&&!s.seen.includes(combo.id)){s.seen.push(combo.id);toast(combo.name.toUpperCase(),'Blessing combination active');sfx('buy');}
+ for(const combo of BLESSING_COMBOS)if(blessingComboActive(combo.id)&&!s.seen.includes(combo.id)){s.seen.push(combo.id);buildAnnounce(combo.name);}
  for(const f of G.run.cardFields||[])if(f.kind==='blackHole'&&blessingComboActive('collapsedSun')){f.comboPulse=(f.comboPulse||0)-dt;if(f.comboPulse<=0){f.comboPulse=.8;blessingBurst(f.x,f.y,175,G.player.dmg,'collapsedSun','#ffdc91');for(const e of expansionLiving())if(d2(e.x,e.y,f.x,f.y)<175**2)blessingIgnite(e,1,2);}}
  s.effects=s.effects.filter(effect=>{effect.t-=dt;return effect.t>0;});return result;
 };
-const comboDrawCombatFX=drawCombatFX;
-drawCombatFX=function(ctx){
- comboDrawCombatFX(ctx);if(!G.player)return;ctx.save();
- for(const e of G.enemies)if(!e.dead&&blessingChilled(e)){
-  const radius=e.r+5;ctx.fillStyle='#b9e4f7';ctx.globalAlpha=.75;
-  for(let i=0;i<6;i++){const a=i*TAU/6,x=Math.round(e.x+Math.cos(a)*radius)-2,y=Math.round(e.y+Math.sin(a)*radius)-3;ctx.fillRect(x,y,4,6);ctx.fillStyle='#e9faff';ctx.fillRect(x+1,y-3,2,4);ctx.fillStyle='#b9e4f7';}
- }
- for(const effect of blessingComboState()?.effects||[]){ctx.globalAlpha=effect.t/effect.max;ctx.strokeStyle=effect.color;ctx.lineWidth=2;
-  if(effect.type==='arc'){ctx.beginPath();ctx.moveTo(effect.x,effect.y);for(let i=1;i<=5;i++){const t=i/5,offset=i===5?0:i%2?8:-8;ctx.lineTo(Math.round(lerp(effect.x,effect.x2,t))+offset,Math.round(lerp(effect.y,effect.y2,t))-offset);}ctx.stroke();}
-  else{const radius=effect.radius*(1-effect.t/effect.max*.65);ctx.beginPath();for(let i=0;i<=12;i++){const a=i*TAU/12,x=Math.round(effect.x+Math.cos(a)*radius),y=Math.round(effect.y+Math.sin(a)*radius);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.stroke();}
- }ctx.restore();
-};
-{
- const button=document.createElement('button');button.id='btnCombos';button.className='btn';button.textContent='BLESSING COMBINATIONS';T('btnPauseMemories').after(button);
- const overlay=document.createElement('div');overlay.id='blessingCombos';overlay.className='ov';overlay.style.zIndex='150';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','comboTitle');overlay.innerHTML='<div class="panel combo-panel"><div class="combo-heading"><header><span>YOUR DESCENT</span><h3 id="comboTitle">Blessing combinations</h3></header><button class="btn" id="comboClose">BACK</button></div><p class="controller-guide">Combinations activate automatically when you hold both blessings. You keep each blessing’s usual effect.</p><div id="comboList" class="combo-list"></div></div>';document.body.appendChild(overlay);
- button.addEventListener('click',()=>{clearInput();blessingComboRefresh();show('blessingCombos');T('comboClose').focus({preventScroll:true});});T('comboClose').addEventListener('click',blessingComboClose);
-}

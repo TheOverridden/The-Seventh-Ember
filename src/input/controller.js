@@ -29,7 +29,7 @@ function controllerScope(){
  if(overlays.length)return overlays[overlays.length-1];
  return null;
 }
-function controllerTargets(scope){return [...scope.querySelectorAll('button,input:not([type=file]),select,a[href],[role=button][tabindex]')].filter(el=>!el.disabled&&el.tabIndex>=0&&controllerVisible(el));}
+function controllerTargets(scope){return [...scope.querySelectorAll('button,input:not([type=file]),select,a[href],[tabindex="0"]')].filter(el=>!el.disabled&&el.tabIndex>=0&&controllerVisible(el));}
 function controllerFocus(scope){
  const targets=controllerTargets(scope);let focus=document.activeElement;
  if(!targets.includes(focus)){focus=targets.find(el=>el.id==='dialogueNext')||targets.find(el=>el.classList.contains('primary'))||targets[0];focus?.focus({preventScroll:true});}

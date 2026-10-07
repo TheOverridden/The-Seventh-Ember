@@ -68,7 +68,7 @@ updateBullets=function(dt){
       b.x+=b.vx*dt/steps;b.y+=b.vy*dt/steps;if(solidPx(w,b.x,b.y)){burst(b.x,b.y,3,'#ffc46b',90,.2,1.6,true);remove=true;break;}
       for(const e of G.enemies){
         if(e.dead||b.hits?.has(e)||d2(b.x,b.y,e.x,e.y)>=(e.r+b.r)**2)continue;
-        const crit=chance(G.player.critC);damageEnemy(e,b.dmg*(crit?2:1),Math.atan2(b.vy,b.vx),crit,1,b.melee?'meleeWave':'shot');
+        const crit=chance(G.player.critC);damageEnemy(e,b.dmg*(crit?2:1),Math.atan2(b.vy,b.vx),crit,1,b.comboKind||(b.melee?'meleeWave':'shot'));
         if(!b.hits)b.hits=new Set();b.hits.add(e);
         if(b.whiteStar){nova(e.x,e.y,170,G.player.dmg*2.8);burst(e.x,e.y,32,'#fff1bc',285,.72,3.8,true);b.whiteStar=false;sfx('mythic');}
         if(b.fork){forkBolts(b,e,1+b.fork);b.fork=0;}

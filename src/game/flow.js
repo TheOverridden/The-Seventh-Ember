@@ -496,7 +496,7 @@ function updateBullets(dt){
       if(solidPx(w,b.x,b.y)){burst(b.x,b.y,3,'#ffc46b',90,.2,1.6,true);remove=true;break;}
       for(const e of G.enemies){
         if(e.dead||b.hits?.has(e)||d2(b.x,b.y,e.x,e.y)>=(e.r+b.r)**2)continue;
-        const crit=chance(G.player.critC);damageEnemy(e,b.dmg*(crit?2:1),Math.atan2(b.vy,b.vx),crit,1,b.melee?'meleeWave':'shot');
+        const crit=chance(G.player.critC);damageEnemy(e,b.dmg*(crit?2:1),Math.atan2(b.vy,b.vx),crit,1,b.comboKind||(b.melee?'meleeWave':'shot'));
         if(!b.hits)b.hits=new Set();b.hits.add(e);
         if(b.pierce>0)b.pierce--;
         else if(b.ric>0){
