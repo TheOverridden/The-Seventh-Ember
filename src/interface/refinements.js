@@ -26,7 +26,8 @@ function offlineIcons(){
     map:'M2 5l7-3 6 3 7-3v17l-7 3-6-3-7 3zM9 2v17M15 5v17',
     home:'M2 11 12 2l10 9M5 9v13h14V9M10 22v-8h4v8',
     trophy:'M7 2h10v8a5 5 0 0 1-10 0zM7 4H2v3q0 5 5 5m10-8h5v3q0 5-5 5M12 15v7M7 22h10',
-    mouse:'M7 10V7a5 5 0 0 1 10 0v10a5 5 0 0 1-10 0zM12 3v6'
+    mouse:'M7 10V7a5 5 0 0 1 10 0v10a5 5 0 0 1-10 0zM12 3v6',
+    snowflake:'M12 2v20M3.34 7l17.32 10M3.34 17 20.66 7M8 4l4 4 4-4M8 20l4-4 4 4M3 11l5-1-1-5M17 19l-1-5 5-1M3 13l5 1-1 5M17 5l-1 5 5 1'
   };
   document.querySelectorAll('i[data-lucide]').forEach(el=>{
     const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
@@ -45,6 +46,7 @@ function nearestTarget(){
 function aimAngle(){
   const p=G.player;
   if(touchInput.aimActive&&Math.hypot(touchInput.aimX,touchInput.aimY)>.12)return Math.atan2(touchInput.aimY,touchInput.aimX);
+  if(controllerInput.active)return Math.atan2(controllerInput.aimY,controllerInput.aimX);
   if(keys.KeyJ&&aimTarget&&!aimTarget.dead)return Math.atan2(aimTarget.y-p.y,aimTarget.x-p.x);
   if(keys.KeyJ)return p.face||0;
   return Math.atan2(mouse.y+G.cam.y-p.y,mouse.x+G.cam.x-p.x);

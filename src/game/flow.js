@@ -280,8 +280,8 @@ function update(dt){
   if(keys.KeyS||keys.ArrowDown)my+=1;
   if(keys.KeyA||keys.ArrowLeft)mx-=1;
   if(keys.KeyD||keys.ArrowRight)mx+=1;
-  mx+=touchInput.moveX;my+=touchInput.moveY;
-  if(mx||my){ const l=Math.hypot(mx,my); mx/=l; my/=l; }
+  mx+=touchInput.moveX+controllerInput.moveX;my+=touchInput.moveY+controllerInput.moveY;
+  if(mx||my){ const l=Math.hypot(mx,my); if(l>1){mx/=l;my/=l;} }
   p.moving=!!(mx||my);
   p.dashCdT-=dt;
   dashBufferT=Math.max(0,dashBufferT-dt);
@@ -316,7 +316,7 @@ function update(dt){
   }
   if(p.regen>0&&p.hp<p.maxHp) p.hp=Math.min(p.maxHp,p.hp+p.regen*dt);
   p.face=aimAngle();
-  if((mouse.down || keys.KeyJ || touchInput.fire) && p.shotT<=0) fireVolley();
+  if((mouse.down || keys.KeyJ || touchInput.fire || controllerInput.fire) && p.shotT<=0) fireVolley();
   if(p.orbN>0){
     p.orbA+=dt*2.7*(p.orbitRate||1);
     for(let i=0;i<p.orbN;i++){
@@ -365,7 +365,9 @@ function updateEnemies(dt){
   for(let idx=es.length-1;idx>=0;idx--){
     const e=es[idx];
     if(e.dead){ es.splice(idx,1); continue; }
-    e.hitT-=dt; e.orbT-=dt; e.atkT-=dt; e.t1-=dt;
+    e.hitT-=dt; e.orbT-=dt;
+    if(!e.isBoss&&e.frozenUntil>G.t){e.kbx=e.kby=0;continue;}
+    e.atkT-=dt; e.t1-=dt;
     const dx=p.x-e.x, dy=p.y-e.y, dd=dx*dx+dy*dy, d=Math.sqrt(dd)||.0001;
     if(!e.aggro && d<enemyNoticeRange(e) && los(w,e.x,e.y,p.x,p.y) && canWakeEnemy(e)) e.aggro=true;
     let vx=0, vy=0;

@@ -1,11 +1,11 @@
 const BLESSING_EXPANSION_VERSION=1;
 const EXPANDED_CARD_ROWS=[
- ['lastCoal',0,3,7,3,'circle-dot','Last Coal','The final Bolt before Rekindling grows larger and deals +30% damage per rank'],
- ['warmStart',0,3,7,5,'sunrise','Warm Start','Gain movement and casting speed during the opening seconds of combat'],
+ ['lastCoal',0,3,7,3,'circle-dot','Heavy Ember','Every fifth Bolt hit explodes for 80% damage per rank'],
+ ['warmStart',0,3,7,5,'zap','Steady Heat','Cast Bolts 8% faster per rank'],
  ['openHand',0,3,7,7,'hand','Open Hand','Flare hits restore part of Dash recovery'],
  ['heavyArc',0,3,7,9,'waves','Heavy Arc','Flare inflicts stronger knockback and briefly disrupts ordinary enemies'],
- ['followThrough',0,3,7,11,'arrow-up-right','Follow-Through','A Bolt cast shortly after Flare deals bonus damage'],
- ['counterstep',0,3,7,13,'corner-up-right','Counterstep','Flare gains reach and damage immediately after Dash'],
+ ['followThrough',0,3,7,11,'flame','Searing Arc','Flare ignites enemies for 3s. Ranks strengthen and extend the burn'],
+ ['counterstep',0,3,7,13,'waves','Wide Flare','Flare gains 12% damage and 12 reach per rank'],
  ['emberRhythm',0,3,7,15,'repeat-2','Ember Rhythm','Alternating Bolt and Flare builds a short damage bonus'],
  ['ashenPace',0,3,7,17,'footprints','Ashen Pace','Continuous movement gradually increases movement speed'],
  ['backdraft',0,3,7,19,'wind','Backdraft','Dash damages burning enemies and refreshes their fire'],
@@ -21,12 +21,12 @@ const EXPANDED_CARD_ROWS=[
  ['ashMemory',0,3,7,39,'brain','Ash Memory','The first enemy kind defeated each floor takes more damage afterward'],
  ['hollowStep',0,3,7,41,'feather','Hollow Step','Dashing through a hostile shot shortens Dash recovery'],
 
- ['quickdraw',1,3,5,9,'navigation','Quickdraw','The first Bolt after Dash costs no charge and strongly seeks an enemy'],
+ ['quickdraw',1,3,5,9,'snowflake','Frostbite','Deal 20% more damage per rank to frozen or chilled enemies'],
  ['emberRelay',1,3,5,11,'refresh-ccw','Ember Relay','The first enemy struck by Flare restores an Ember charge'],
  ['cinderLadder',1,3,5,13,'trending-up','Cinder Ladder','Rapid kills build casting speed'],
  ['glassThread',1,3,5,15,'crosshair','Glass Thread','Repeated Bolts against one target gain damage and piercing power'],
  ['turningSpark',1,3,5,17,'undo-2','Turning Spark','A Bolt that misses turns around once and searches for an enemy'],
- ['furnaceMouth',1,3,5,19,'flame-kindling','Furnace Mouth','Completing Rekindle releases a cone of fire'],
+ ['furnaceMouth',1,3,5,19,'flame-kindling','Furnace Mouth','Every third Flare erupts in a broad burning cone for 150% damage per rank'],
  ['nearMiss',1,3,5,21,'circle-dashed','Near Miss','Hostile shots passing narrowly beside the Ember charge Flare'],
  ['brushfire',1,3,5,23,'trees','Brushfire','Dashing near burning enemies spreads their fire'],
  ['severingLight',1,3,5,25,'scissors','Severing Light','Flare temporarily strips enemy armor and resistance'],
@@ -35,7 +35,7 @@ const EXPANDED_CARD_ROWS=[
  ['loopingSigil',1,3,5,31,'rotate-cw','Looping Sigil','The first wall struck bends a Bolt toward a new target'],
  ['emberLine',1,3,5,33,'minus','Ember Line','Every third aimed volley leaves a damaging thread through the room'],
  ['forkedArc',1,3,5,35,'git-branch','Forked Arc','The first enemy struck by Flare releases two side crescents'],
- ['roomTone',1,3,5,37,'music-2','Room Tone','Clearing a room quickly empowers the opening of the next fight'],
+ ['roomTone',1,3,5,37,'snowflake','Cold Front','Defeating a frozen enemy freezes nearby creatures for 1s per rank. Guardians are chilled'],
  ['keptPromise',1,3,5,39,'badge-check','Kept Promise','Untouched room clears improve Heart and Essence drops'],
  ['siegeEmber',1,3,5,41,'target','Siege Ember','Maintaining pressure against one elite or Guardian raises damage'],
  ['wardenPalm',1,3,5,43,'shield-check','Warden’s Palm','Flare reflects the first hostile projectile it touches'],
@@ -52,19 +52,19 @@ const EXPANDED_CARD_ROWS=[
  ['gravityWake',2,2,3,38,'move','Gravity Wake','Dash drags ordinary enemies along its path and throws them outward'],
  ['closingArgument',2,2,3,41,'badge-x','Closing Argument','Flare executes badly wounded ordinary enemies'],
  ['redThread',2,2,3,44,'share-2','Red Thread','The first target in a room shares damage with nearby creatures'],
- ['bankedConstellation',2,2,3,47,'asterisk','Banked Constellation','Rekindling early turns unused charges into firing stars'],
+ ['bankedConstellation',2,2,3,47,'asterisk','Banked Constellation','Every twelfth Bolt hit summons four seeking stars. Rank two adds a star and damage'],
  ['heatSink',2,2,3,50,'shield-half','Heat Sink','Damage absorbed by wards charges the next Flare'],
  ['clockworkFlame',2,2,3,53,'settings','Clockwork Flame','Using Bolt, Flare, and Dash in order empowers the completed cycle'],
  ['unbrokenStep',2,2,3,56,'chevrons-right','Unbroken Step','Dashing through danger builds damage and speed until hit'],
  ['smokeBetween',2,2,3,59,'cloud','Smoke Between','A perfectly timed Dash erases nearby shots and leaves a safe space'],
  ['shatteredCrown',2,2,3,62,'crown','Shattered Crown','Guardian mechanisms leave fragments that strengthen the fight'],
- ['emptyChamber',2,2,3,65,'pause','Empty Chamber','The final Ember charge briefly suspends hostile projectiles'],
+ ['emptyChamber',2,2,3,65,'pause','Still Pulse','Every sixth Bolt hit suspends hostile shots for 0.6s. Rank two adds 0.15s. Recharges in 3s'],
  ['wildfirePact',2,2,3,68,'flame-kindling','Wildfire Pact','Burning enemies take more damage for each nearby burning creature'],
- ['crossroads',2,2,3,71,'split','Crossroads','A sharp change in aim splits the next Bolt into intersecting paths'],
+ ['crossroads',2,2,3,71,'split','Crossroads','Every fifth cast splits into three paths. Ranks strengthen the side Bolts'],
  ['duelistEmber',2,2,3,74,'swords','Duelist’s Ember','Against one remaining enemy, Flare grows stronger and restores Dash'],
 
  ['seventhHand',3,1,1,24,'hand','The Seventh Hand','A spectral Ember follows behind and repeats every Bolt and Flare'],
- ['solarRequiem',3,1,1,28,'sun','Solar Requiem','Every completed Rekindle summons seven seeking solar lances'],
+ ['solarRequiem',3,1,1,28,'sun','Solar Requiem','Every eighth cast summons seven seeking, piercing solar lances for 235% damage each'],
  ['ashenHour',3,1,1,32,'hourglass','The Ashen Hour','Once per room, low health freezes danger, restores health, and resets Flare'],
  ['hearthWorld',3,1,1,36,'heart-handshake','Hearth of the World','Excess healing permanently becomes maximum health and orbiting hearths'],
  ['longDawn',3,1,1,40,'sunrise','The Long Dawn','A recurring sunrise crosses the room, destroys enemies, and restores health'],
@@ -75,8 +75,8 @@ const EXPANDED_CARD_ROWS=[
  ['doorStars',3,1,1,60,'between-horizontal-start','Door Between Stars','Dash leaves linked portals that strengthen friendly projectiles'],
  ['livingConstellation',3,1,1,64,'sparkles','Living Constellation','Defeated enemies become following stars that cast their own Bolts'],
  ['blackBell',3,1,1,68,'bell','The Black Bell','Every twenty-five kills tolls catastrophic damage through the room'],
- ['furnaceEnd',3,1,1,70,'infinity','Furnace Without End','After Rekindling, Bolts cost no charges and cast faster for seven seconds'],
- ['firstSparkReturned',3,1,1,72,'sun','The First Spark Returned','The first Bolt of each room becomes colossal and grows through no-hit clears'],
+ ['furnaceEnd',3,1,1,70,'infinity','Furnace Without End','Every twentieth Bolt hit grants 7s of free, faster casting. Recharges in 18s'],
+ ['firstSparkReturned',3,1,1,72,'sun','The First Spark Returned','Every eighth cast becomes a colossal, piercing Bolt for 500% damage'],
  ['goldenThread',3,1,1,74,'network','The Golden Thread','Critical hits bind enemies so damage echoes through the entire group'],
  ['onlyEmber',3,1,1,76,'flame','The Only Ember Left','Fighting a lone Guardian grants power, speed, and free Flares after dodges'],
  ['archiveFire',3,1,1,77,'library','Archive Fire','Each floor lends a fully ranked blessing you do not own'],
@@ -103,14 +103,17 @@ for(const card of EXPANDED_BLESSINGS)if(!POOL.some(o=>o.id===card.id))POOL.push(
 
 const STARSTITCH_IDS=['brightNeedle','longThread','heldPattern','hotWire','runningStitch','cinderThread','knottedLight','wallscript','constellationCage','drawnTight','counterweave','unfinishedPattern','seventhConstellation'];
 const EXPANDED_EFFECT_GROUPS={
- fire:['lastCoal','followThrough','emberRhythm','quickdraw','turningSpark','bellTiming','loopingSigil','emberLine','kindredSparks','ashDoppelganger','crossroads','slingshotRune','seventhHand','firstSparkReturned'],
- flare:['openHand','heavyArc','counterstep','emberRhythm','emberRelay','severingLight','crackedBell','forkedArc','wardenPalm','crucible','lanternEater','closingArgument','heatSink','duelistEmber','seventhHand','unmakingFlame','sevenSuns'],
+ fire:['emberRhythm','turningSpark','bellTiming','loopingSigil','emberLine','kindredSparks','ashDoppelganger','crossroads','slingshotRune','seventhHand','firstSparkReturned','solarRequiem'],
+ hits:['lastCoal','bankedConstellation','emptyChamber','furnaceEnd'],
+ stats:['warmStart','counterstep','quickdraw'],
+ flare:['openHand','heavyArc','followThrough','furnaceMouth','emberRhythm','emberRelay','severingLight','crackedBell','forkedArc','wardenPalm','crucible','lanternEater','closingArgument','heatSink','duelistEmber','seventhHand','unmakingFlame','sevenSuns'],
  dash:['backdraft','hollowStep','brushfire','smolderstep','coronaStep','gravityWake','clockworkFlame','unbrokenStep','smokeBetween','doorStars','onlyEmber'],
- room:['warmStart','pilgrimHeat','roomTone','keptPromise','chainRooms','ashenHour','firstSparkReturned','archiveFire'],
+ room:['pilgrimHeat','keptPromise','chainRooms','ashenHour','archiveFire'],
+ frost:['roomTone'],
  defense:['quietCore','temperedGlow','cinderSkin','lowLantern','nearMiss','emptyChamber','phoenixLaw','starlessCrown'],
  rewards:['hearthTax','warmTrail','ashMemory','cinderLadder','ashDividend','hearthWorld','crownlessKing','livingConstellation','blackBell','seventhWish'],
  damage:['hammerSpark','glassThread','siegeEmber','redThread','wildfirePact','shatteredCrown','goldenThread','onlyEmber','finalMatch'],
- reload:['furnaceMouth','perfectRekindle','bankedConstellation','solarRequiem','furnaceEnd'],
+ reload:['perfectRekindle'],
  motion:['ashenPace','warmTrail','unbrokenStep'],
  fields:['turningSpark','loopingSigil','emberLine','smolderstep','coronaStep','ashDoppelganger','bankedConstellation','doorStars','livingConstellation','longDawn'],
  stitch:STARSTITCH_IDS
@@ -227,7 +230,7 @@ function expansionBorrowBlessing(){
 const expansionSetupFloor=setupFloor;
 setupFloor=function(f){
  if(G.run)expansionRestoreBorrowed();const out=expansionSetupFloor(f);if(!G.run)return out;const s=expansionState();
- s.floor=f;s.roomIndex=-1;s.roomAge=0;s.roomHit=false;s.roomCombat=false;s.visitedRooms={};s.ashMemoryType='';s.crownlessPower=null;s.crownTaken=false;s.phoenixReady=f>=(s.phoenixLastFloor||-9)+5;s.firstRoomCast=true;s.firstSparkChain=s.firstSparkChain||0;s.pins=[];s.mines=[];s.lines=[];s.echoShots=[];s.echoFlares=[];s.bankStars=[];s.suns=[];s.returnShots=[];s.portal=null;s.portalStart=null;s.wasDashing=false;s.wasReloading=false;s.freezeT=0;s.emptyChamberT=0;s.shatteredFragments=0;s.guardianFinalUid=0;
+ s.floor=f;s.roomIndex=-1;s.roomAge=0;s.roomHit=false;s.roomCombat=false;s.visitedRooms={};s.ashMemoryType='';s.crownlessPower=null;s.crownTaken=false;s.phoenixReady=f>=(s.phoenixLastFloor||-9)+5;s.pins=[];s.mines=[];s.lines=[];s.echoShots=[];s.echoFlares=[];s.bankStars=[];s.suns=[];s.returnShots=[];s.portal=null;s.portalStart=null;s.wasDashing=false;s.freezeT=0;s.emptyChamberT=0;s.shatteredFragments=0;s.guardianFinalUid=0;
  expansionBorrowBlessing();recalc();return out;
 };
 
@@ -244,20 +247,14 @@ beginReload=function(){
 
 const expansionFireVolley=fireVolley;
 fireVolley=function(){
- const p=G.player;if(!p||!G.run)return expansionFireVolley();const s=expansionState(),start=G.bullets.length,beforeAmmo=p.ammo,beforeAngle=aimAngle();expansionFireVolley();const created=G.bullets.slice(start);if(!created.length)return;
+ const p=G.player;if(!p||!G.run)return expansionFireVolley();const s=expansionState(),start=G.bullets.length,beforeAngle=aimAngle();expansionFireVolley();const created=G.bullets.slice(start);if(!created.length)return;
  expansionAction('bolt');expansionRhythm('bolt');s.totalCasts=(s.totalCasts||0)+1;
- let power=1;
- if(blessingRank('lastCoal')&&beforeAmmo===1)power*=1+.3*blessingRank('lastCoal');
- if(blessingRank('followThrough')&&G.t-(s.lastFlare||-9)<1.15)power*=1+.18*blessingRank('followThrough');
- if((s.firstRoomCast||false)&&blessingRank('firstSparkReturned')){power*=3.8+Math.min(4,(s.firstSparkChain||0)*.35);for(const b of created){b.r+=7;b.pierce=(b.pierce||0)+6;b.firstReturned=true;}s.firstRoomCast=false;}
- for(const b of created){b.dmg*=power;if(blessingRank('glassThread')&&(s.glassHits||0)>=3)b.pierce=(b.pierce||0)+blessingRank('glassThread');if(blessingRank('lastCoal')&&beforeAmmo===1)b.r+=2*blessingRank('lastCoal');if(blessingRank('turningSpark'))b.turningSpark=blessingRank('turningSpark');}
- if(s.quickdrawReady&&blessingRank('quickdraw')){s.quickdrawReady=false;p.ammo=Math.min(p.magSize,p.ammo+1);if(p.reloadT>0)p.reloadT=0;for(const b of created){b.seeking=Math.max(b.seeking||0,.18+.05*blessingRank('quickdraw'));b.dmg*=1+.12*blessingRank('quickdraw');}}
+ for(const b of created){if(blessingRank('glassThread')&&(s.glassHits||0)>=3)b.pierce=(b.pierce||0)+blessingRank('glassThread');if(blessingRank('turningSpark'))b.turningSpark=blessingRank('turningSpark');}
  if(blessingRank('bellTiming')&&s.totalCasts%7===0){p.meleeCdT=Math.max(0,p.meleeCdT-.32*blessingRank('bellTiming'));p.dashCdT=Math.max(0,p.dashCdT-.28*blessingRank('bellTiming'));}
- if(blessingRank('crossroads')&&Number.isFinite(s.lastCastAngle)&&Math.abs(angleDiff(beforeAngle,s.lastCastAngle))>.72){for(const src of created.slice(0,2))for(const turn of [-.48,.48]){const speed=Math.hypot(src.vx,src.vy),a=beforeAngle+turn;G.bullets.push({...src,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,dmg:src.dmg*(.52+.14*blessingRank('crossroads')),hits:null,whiteStar:false});}}s.lastCastAngle=beforeAngle;
+ if(blessingRank('crossroads')&&s.totalCasts%5===0){for(const src of created.slice(0,2))for(const turn of [-.48,.48]){const speed=Math.hypot(src.vx,src.vy),a=beforeAngle+turn;G.bullets.push({...src,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,dmg:src.dmg*(.52+.14*blessingRank('crossroads')),hits:null,whiteStar:false});}}
  if(blessingRank('emberLine')&&s.totalCasts%3===0)s.lines.push({x1:p.x,y1:p.y,x2:p.x+Math.cos(beforeAngle)*(330+55*blessingRank('emberLine')),y2:p.y+Math.sin(beforeAngle)*(330+55*blessingRank('emberLine')),t:2.4+.8*blessingRank('emberLine'),tick:0});
  if(s.doppelReady>0&&blessingRank('ashDoppelganger')){const count=Math.min(created.length,2);for(const b of created.slice(0,count))s.echoShots.push({delay:.28,x:s.doppelX,y:s.doppelY,b:{...b,hits:null,dmg:b.dmg*(.45+.18*blessingRank('ashDoppelganger')),whiteStar:false}});s.doppelReady--;}
  if(blessingRank('seventhHand'))for(const b of created.slice(0,3))s.echoShots.push({delay:.34,x:s.handX??p.x,y:s.handY??p.y,b:{...b,hits:null,dmg:b.dmg*.55,whiteStar:false}});
- if(blessingRank('emptyChamber')&&beforeAmmo===1)s.emptyChamberT=.44+.18*blessingRank('emptyChamber');
  if((s.furnaceT||0)>0){p.ammo=Math.min(p.magSize,p.ammo+1);p.reloadT=0;p.shotT*=.7;}
 };
 
@@ -270,7 +267,6 @@ function expansionReflectShot(radius,all=false){
 const expansionStrikeMelee=strikeMelee;
 strikeMelee=function(){
  const p=G.player;if(!p||!G.run)return expansionStrikeMelee();const s=expansionState(),oldDamage=MELEE.damage,oldReach=MELEE.reach;let mult=1;
- if(blessingRank('counterstep')&&G.t-(s.lastDashEnd||-9)<.9){mult*=1+.18*blessingRank('counterstep');MELEE.reach+=12*blessingRank('counterstep');}
  if(blessingRank('crucible')&&(s.crucible||0)>0){mult*=1+Math.min(1.8,s.crucible*.035*blessingRank('crucible'));MELEE.reach+=Math.min(50,s.crucible*1.25);s.crucible=0;}
  if(blessingRank('heatSink')&&(s.heatSink||0)>0){mult*=1+Math.min(2,s.heatSink/Math.max(1,p.maxHp)*2*blessingRank('heatSink'));s.heatSink=0;}
  if(blessingRank('duelistEmber')&&expansionLiving().length===1)mult*=1+.48*blessingRank('duelistEmber');
@@ -293,7 +289,6 @@ const expansionDamageEnemy=damageEnemy;
 damageEnemy=function(e,dmg,ang,crit,kb,kind='shot'){
  if(!e||e.dead)return;const s=expansionState(),p=G.player,u=G.run?.up||{};let amount=dmg;
  if(s?.rhythmBuff>0)amount*=1+.12*blessingRank('emberRhythm');
- if(s?.roomToneBuff>0)amount*=1+.12*blessingRank('roomTone');
  if(s?.chainStacks)amount*=1+s.chainStacks*.04*blessingRank('chainRooms');
  if(s?.unbrokenStacks)amount*=1+s.unbrokenStacks*.045*blessingRank('unbrokenStep');
  if(s?.clockBuff>0)amount*=1+.3*blessingRank('clockworkFlame');
@@ -366,20 +361,10 @@ updatePicks=function(dt){
 
 function expansionRoomTick(dt){
  const s=expansionState(),p=G.player;if(!s||!p)return;const index=expansionRoomIndex(),enemies=expansionRoomEnemies(index);
- if(index!==s.roomIndex){s.roomIndex=index;s.roomAge=0;s.roomHit=false;s.roomCombat=enemies.length>0;s.ashenHourRoom=false;s.firstRoomCast=true;s.redThreadSet=false;for(const e of expansionLiving()){e.expRedThread=false;e.expGolden=false;}if(index>=0&&!s.visitedRooms[index]){s.visitedRooms[index]=true;if(enemies.length&&blessingRank('pilgrimHeat'))p.cardWard=(p.cardWard||0)+p.maxHp*(.025+.015*blessingRank('pilgrimHeat'))*(1+.15*blessingRank('temperedGlow'));}}
+ if(index!==s.roomIndex){s.roomIndex=index;s.roomAge=0;s.roomHit=false;s.roomCombat=enemies.length>0;s.ashenHourRoom=false;s.redThreadSet=false;for(const e of expansionLiving()){e.expRedThread=false;e.expGolden=false;}if(index>=0&&!s.visitedRooms[index]){s.visitedRooms[index]=true;if(enemies.length&&blessingRank('pilgrimHeat'))p.cardWard=(p.cardWard||0)+p.maxHp*(.025+.015*blessingRank('pilgrimHeat'))*(1+.15*blessingRank('temperedGlow'));}}
  s.roomAge=(s.roomAge||0)+dt;
  if(enemies.length)s.roomCombat=true;
- if(s.roomCombat&&!enemies.length){s.roomCombat=false;const clean=!s.roomHit;if(blessingRank('roomTone')&&s.roomAge<=25)s.roomToneBuff=7+blessingRank('roomTone');if(blessingRank('keptPromise')&&clean)s.keptStacks=Math.min(12,(s.keptStacks||0)+1);if(blessingRank('chainRooms')&&clean)s.chainStacks=Math.min(8,(s.chainStacks||0)+1);if(blessingRank('firstSparkReturned'))s.firstSparkChain=clean?Math.min(12,(s.firstSparkChain||0)+1):0;}
-}
-function expansionReloadTick(){
- const s=expansionState(),p=G.player;if(!s||!p)return;const reloading=p.reloadT>0;
- if(reloading&&!s.wasReloading){s.reloadStartAmmo=p.ammo;if(blessingRank('bankedConstellation')&&p.ammo>0){for(let i=0;i<Math.min(7,p.ammo);i++)s.bankStars.push({a:i*TAU/Math.max(1,p.ammo),t:5+blessingRank('bankedConstellation'),shot:.18+i*.09,power:.7+.25*blessingRank('bankedConstellation')});}}
- if(s.wasReloading&&!reloading){
-  if(blessingRank('furnaceMouth')){const a=p.face||0;for(const e of expansionLiving()){const d=Math.hypot(e.x-p.x,e.y-p.y),diff=Math.abs(angleDiff(Math.atan2(e.y-p.y,e.x-p.x),a));if(d<175+25*blessingRank('furnaceMouth')&&diff<.72)damageEnemy(e,p.dmg*(.55+.32*blessingRank('furnaceMouth')),a,false,.4,'furnaceMouth');}burst(p.x+Math.cos(a)*55,p.y+Math.sin(a)*55,16,'#ff9b58',190,.45,2.7,true);}
-  if(blessingRank('solarRequiem'))for(let i=0;i<7;i++){const a=i*TAU/7,target=expansionNearest(p.x+Math.cos(a)*45,p.y+Math.sin(a)*45),aim=target?Math.atan2(target.y-p.y,target.x-p.x):a;expansionFriendlyShot(p.x+Math.cos(a)*42,p.y+Math.sin(a)*42,aim,p.dmg*2.35,{r:10,pierce:4,seeking:.16,life:1.8,solarRequiem:true});}
-  if(blessingRank('furnaceEnd')){s.furnaceT=7;p.shotT=0;toast('FURNACE WITHOUT END','seven seconds without darkness');sfx('mythic');}
- }
- s.wasReloading=reloading;
+ if(s.roomCombat&&!enemies.length){s.roomCombat=false;const clean=!s.roomHit;if(blessingRank('keptPromise')&&clean)s.keptStacks=Math.min(12,(s.keptStacks||0)+1);if(blessingRank('chainRooms')&&clean)s.chainStacks=Math.min(8,(s.chainStacks||0)+1);}
 }
 function expansionDashTick(dt){
  const s=expansionState(),p=G.player;if(!s||!p)return;const dashing=p.dashT>0;
@@ -389,7 +374,7 @@ function expansionDashTick(dt){
   if(blessingRank('backdraft')||blessingRank('brushfire')||blessingRank('gravityWake'))for(const e of expansionLiving()){const near=d2(e.x,e.y,p.x,p.y)<(e.r+34)**2;if(!near)continue;if(blessingRank('backdraft')&&e.burnT>0&&e.expBackDash!==s.dashStartX){e.expBackDash=s.dashStartX;e.burnT+=1.2*blessingRank('backdraft');damageEnemy(e,p.dmg*.32*blessingRank('backdraft'),p.face,false,.2,'backdraft');}if(blessingRank('brushfire')&&e.burnT>0)for(const q of expansionLiving())if(q!==e&&d2(q.x,q.y,e.x,e.y)<150**2){q.burnT=Math.max(q.burnT||0,2+blessingRank('brushfire'));q.burnRank=Math.max(q.burnRank||0,blessingRank('brushfire'));}if(blessingRank('gravityWake')&&!e.isBoss){e.kbx+=(p.x-e.x)*.9*blessingRank('gravityWake');e.kby+=(p.y-e.y)*.9*blessingRank('gravityWake');}}
   if(blessingRank('runningStitch')&&!s.dashLinePulse)for(const [a,b]of starstitchLines())if(expansionSegmentDistance(p.x,p.y,a.x,a.y,b.x,b.y)<22){s.dashLinePulse=true;for(const e of expansionLiving())if(starstitchLines().some(([q,r])=>expansionSegmentDistance(e.x,e.y,q.x,q.y,r.x,r.y)<e.r+22))damageEnemy(e,p.dmg*(.35+.3*blessingRank('runningStitch')),0,false,.25,'runningStitch');break;}
  }
- if(!dashing&&s.wasDashing){s.lastDashEnd=G.t;s.quickdrawReady=!!blessingRank('quickdraw');s.doppelReady=blessingRank('ashDoppelganger')?1+blessingRank('ashDoppelganger'):0;s.doppelX=s.dashStartX;s.doppelY=s.dashStartY;s.hollowDash=false;s.smokeDash=false;if(s.dashDanger&&blessingRank('unbrokenStep'))s.unbrokenStacks=Math.min(8,(s.unbrokenStacks||0)+1);
+ if(!dashing&&s.wasDashing){s.lastDashEnd=G.t;s.doppelReady=blessingRank('ashDoppelganger')?1+blessingRank('ashDoppelganger'):0;s.doppelX=s.dashStartX;s.doppelY=s.dashStartY;s.hollowDash=false;s.smokeDash=false;if(s.dashDanger&&blessingRank('unbrokenStep'))s.unbrokenStacks=Math.min(8,(s.unbrokenStacks||0)+1);
   if(blessingRank('coronaStep'))for(const turn of [-Math.PI/2,Math.PI/2])expansionFriendlyShot(p.x,p.y,(p.face||0)+turn,p.dmg*(.75+.35*blessingRank('coronaStep')),{r:12,pierce:5,life:1,corona:true});
   if(blessingRank('gravityWake'))nova(p.x,p.y,75+25*blessingRank('gravityWake'),p.dmg*(.6+.45*blessingRank('gravityWake')));
   if(blessingRank('doorStars')&&s.portalStart)s.portal={id:(s.portalSerial=(s.portalSerial||0)+1),ax:s.portalStart.x,ay:s.portalStart.y,bx:p.x,by:p.y,t:7};
@@ -427,13 +412,13 @@ function starstitchTick(dt){
 const expansionTickBlessings=tickBlessings;
 tickBlessings=function(dt){
  const p=G.player,s=expansionState();if(!p||!s)return expansionTickBlessings(dt);const ward=p.cardWard||0;expansionTickBlessings(dt);
- for(const key of ['rhythmBuff','roomToneBuff','warmTrailT','ashDividendT','clockBuff','furnaceT','finalMatchT','emptyChamberT'])s[key]=Math.max(0,(s[key]||0)-dt);
+ for(const key of ['rhythmBuff','warmTrailT','ashDividendT','clockBuff','furnaceT','finalMatchT','emptyChamberT'])s[key]=Math.max(0,(s[key]||0)-dt);
  if(s.cinderLadderT>0)s.cinderLadderT-=dt;else s.cinderLadder=Math.max(0,(s.cinderLadder||0)-dt*2);
- let speed=1;if(s.roomCombat&&s.roomAge<6&&blessingRank('warmStart')){speed+=.06*blessingRank('warmStart');p.shotT-=dt*.08*blessingRank('warmStart');}if(blessingRank('ashenPace')){s.movingT=p.moving?Math.min(4,(s.movingT||0)+dt):0;speed+=Math.min(.18,s.movingT*.018*blessingRank('ashenPace'));}if(s.warmTrailT>0)speed+=.06*blessingRank('warmTrail');if(s.unbrokenStacks)speed+=.025*s.unbrokenStacks*blessingRank('unbrokenStep');if(blessingRank('onlyEmber')&&G.bossActive&&expansionLiving().filter(e=>!e.isBoss).length===0)speed+=.2;p.pathSpeed=(p.pathSpeed||1)*speed;
+ let speed=1;if(blessingRank('ashenPace')){s.movingT=p.moving?Math.min(4,(s.movingT||0)+dt):0;speed+=Math.min(.18,s.movingT*.018*blessingRank('ashenPace'));}if(s.warmTrailT>0)speed+=.06*blessingRank('warmTrail');if(s.unbrokenStacks)speed+=.025*s.unbrokenStacks*blessingRank('unbrokenStep');if(blessingRank('onlyEmber')&&G.bossActive&&expansionLiving().filter(e=>!e.isBoss).length===0)speed+=.2;p.pathSpeed=(p.pathSpeed||1)*speed;
  p.magnet=p.expansionBaseMagnet||p.magnet;if(blessingRank('lowLantern')&&p.hp<p.maxHp*.35)p.magnet*=1+.45*blessingRank('lowLantern');
  if(blessingRank('temperedGlow')&&ward>(p.cardWard||0)&&p.hitCd<=0)p.cardWard=Math.min(ward,(p.cardWard||0)+dt*.22*blessingRank('temperedGlow'));
  if((s.cinderLadder||0)>0)p.shotT-=dt*Math.min(.28,s.cinderLadder*.012*blessingRank('cinderLadder'));
- expansionRoomTick(dt);expansionReloadTick();expansionDashTick(dt);expansionFieldsTick(dt);starstitchTick(dt);
+ expansionRoomTick(dt);expansionDashTick(dt);expansionFieldsTick(dt);starstitchTick(dt);
  if(blessingRank('longDawn')){s.longDawnT=(s.longDawnT??45)-dt;if(s.longDawnT<=0){s.longDawnT=45;s.longDawnActive=true;for(const e of expansionLiving())damageEnemy(e,p.dmg*6,0,false,1,'longDawn');s.longDawnActive=false;burst(p.x,p.y,60,'#fff0a8',420,1.2,6,true);toast('THE LONG DAWN','morning crosses the room');sfx('mythic');}}
  if(blessingRank('finalMatch')&&G.boss&&!G.boss.dead&&G.boss.hp/G.boss.max<.32&&s.guardianFinalUid!==G.boss.uid){s.guardianFinalUid=G.boss.uid;s.finalMatchT=8;p.ammo=p.magSize;p.reloadT=0;p.meleeCdT=0;p.dashCdT=0;toast('THE FINAL MATCH','burn brighter than the ending');sfx('mythic');}
  if(s.finalMatchT>0){p.ammo=p.magSize;p.reloadT=0;p.shotT-=dt*.5;p.meleeCdT=Math.max(0,p.meleeCdT-dt*.7);}

@@ -3,13 +3,13 @@ const LONG_DESCENT_BLESSINGS=[
  {id:'longFuse',r:0,max:3,w:8,minFloor:3,icon:'arrow-up-right',name:'Long Fuse',ds:'+20% Ember Bolt range'},
  {id:'quickStep',r:0,max:3,w:8,minFloor:4,icon:'feather',name:'Lightfoot',ds:'+10% dash distance'},
  {id:'ironAsh',r:0,max:3,w:7,minFloor:5,icon:'shield',name:'Iron Ash',ds:'Take 4% less damage'},
- {id:'firstSpark',r:0,max:3,w:7,minFloor:6,icon:'sun',name:'First Spark',ds:'The first Bolt after Rekindling deals +45% damage'},
+ {id:'firstSpark',r:0,max:3,w:7,minFloor:6,icon:'snowflake',name:'Rime Ember',ds:'Every fourth Bolt hit on an enemy freezes it for 1.1s. Ranks add 0.3s. Guardians are briefly chilled'},
  {id:'flarePractice',r:0,max:3,w:8,minFloor:7,icon:'flame',name:'Practiced Flare',ds:'Flare recovers 9% faster'},
  {id:'emberReach',r:0,max:3,w:7,minFloor:8,icon:'circle',name:'Heavy Sparks',ds:'Ember Bolts grow larger and easier to land'},
  {id:'lowGlow',r:0,max:3,w:6,minFloor:9,icon:'activity',name:'Low Glow',ds:'Regenerate faster while below 40% health'},
  {id:'pathfinder',r:0,max:3,w:7,minFloor:10,icon:'compass',name:'Pathfinder',ds:'Move faster for the first 10 seconds of each floor'},
  {id:'clearPath',r:0,max:3,w:7,minFloor:11,icon:'wind',name:'Clear the Way',ds:'Flare can strike one additional enemy'},
- {id:'patientAim',r:0,max:3,w:6,minFloor:12,icon:'crosshair',name:'Patient Aim',ds:'Bolts gain damage while you have not cast recently'},
+ {id:'patientAim',r:0,max:3,w:6,minFloor:12,icon:'zap',name:'Thunderhead',ds:'Every sixth Bolt hit arcs lightning to two nearby enemies for 65% damage. Ranks add 20%'},
  {id:'warmPocket',r:0,max:3,w:6,minFloor:13,icon:'gem',name:'Warm Pocket',ds:'Essence pickups have a chance to be worth one more'},
 
  {id:'seeking',r:1,max:2,w:6,minFloor:9,icon:'navigation',name:'Seeking Embers',ds:'Bolts gently curve toward nearby enemies'},
@@ -66,10 +66,9 @@ rarityOdds=function(){const depth=clamp((G.floor-1)/79,0,1),treasure=G.opts.free
 const longRecalc=recalc;
 recalc=function(){longRecalc();if(!G.player||!G.run)return;const p=G.player,u=G.run.up,g=id=>u[id]||0;p.dmg*=1+g('radiantDebt');p.dmg*=Math.pow(1.05,G.run.endlessStacks||0);p.shotInt*=Math.pow(.98,G.run.endlessStacks||0);MELEE.cooldown=MELEE.baseCooldown*Math.pow(.91,g('flarePractice'));MELEE.cleave=[1,.72,.55,.4,...Array(g('clearPath')).fill(.35)];p.dashDistance=1+.10*g('quickStep');p.cardArmor=.04*g('ironAsh');p.bulletLife=1+.20*g('longFuse');p.bulletSize=1+g('emberReach');p.orbitPower=(1+.25*g('orbitSpeed'))*(g('ashCrown')?1.8:1);p.orbitRate=1+.18*g('orbitSpeed');};
 const longFire=fireVolley;
-fireVolley=function(){const p=G.player,u=G.run.up,start=G.bullets.length,beforeAmmo=p.ammo;longFire();if(G.bullets.length===start)return;const created=G.bullets.slice(start);p.cardCasts=(p.cardCasts||0)+1;const patient=Math.max(0,Math.min(.45,(G.t-(p.lastCardCast||-9))*.06))*(u.patientAim||0);p.lastCardCast=G.t;for(const b of created){b.life*=p.bulletLife||1;b.r+=(p.bulletSize||1)-1;b.dmg*=1+patient;if(u.seeking)b.seeking=.055*u.seeking;if(u.closeQuarters)b.closeQuarters=u.closeQuarters;if(u.emberMine)b.emberMine=u.emberMine;if(u.prismBolt){b.ricRange=330+70*u.prismBolt;b.ricPower=.82+.07*u.prismBolt;}}
- if(u.firstSpark&&p.ammo===p.magSize-1)for(const b of created)b.dmg*=1+.45*u.firstSpark;
+fireVolley=function(){const p=G.player,u=G.run.up,start=G.bullets.length,beforeAmmo=p.ammo;longFire();if(G.bullets.length===start)return;const created=G.bullets.slice(start);p.cardCasts=(p.cardCasts||0)+1;for(const b of created){b.life*=p.bulletLife||1;b.r+=(p.bulletSize||1)-1;if(u.seeking)b.seeking=.055*u.seeking;if(u.closeQuarters)b.closeQuarters=u.closeQuarters;if(u.emberMine)b.emberMine=u.emberMine;if(u.prismBolt){b.ricRange=330+70*u.prismBolt;b.ricPower=.82+.07*u.prismBolt;}}
  if(u.comet&&p.cardCasts%9===0){const b=created[0];G.bullets.push({...b,r:10+2*u.comet,dmg:b.dmg*(1.4+.5*u.comet),pierce:7,life:1.8,comet:true,hits:null});sfx('comet');}
- if(u.doubleCast&&p.cardCasts%5===0)for(const b of created)G.bullets.push({...b,x:p.x,y:p.y,dmg:b.dmg*(.62+.18*u.doubleCast),hits:null,whiteStar:false});
+ if(u.doubleCast&&p.cardCasts%5===0)for(const b of created)G.bullets.push({...b,x:p.x,y:p.y,dmg:b.dmg*(.62+.18*u.doubleCast),hits:null,whiteStar:false,echoCast:true});
  if(u.sevenfold&&p.cardCasts%4===0){const a=aimAngle();for(let i=-4;i<=4;i++)G.bullets.push({x:p.x,y:p.y,vx:Math.cos(a+i*.14)*BASE.bulletSpd,vy:Math.sin(a+i*.14)*BASE.bulletSpd,r:6,dmg:p.dmg*.82,pierce:2,ric:0,life:1.25,hits:null,late:true});sfx('mythic');}
  if(u.blackHole&&p.cardCasts%8===0){G.run.cardFields=G.run.cardFields||[];G.run.cardFields.push({x:p.x+Math.cos(aimAngle())*150,y:p.y+Math.sin(aimAngle())*150,t:7,tick:0,kind:'blackHole',rank:2.4,mythicReforged:true});sfx('mythic');}
  if(u.refund&&beforeAmmo>p.ammo&&chance(.10*u.refund+p.critC*.2))p.ammo=Math.min(p.magSize,p.ammo+1);

@@ -1,0 +1,26 @@
+.controller-settings{margin:22px 0;padding:20px 0;border-top:1px solid #725035;border-bottom:1px solid #725035}
+.controller-settings h3,.combo-panel h3{margin:4px 0 12px;color:#ffe0a4;font-size:20px}
+.controller-settings header>span,.combo-panel header>span{color:#bba583;letter-spacing:.16em;font-size:10px}
+#controllerStatus{color:#ffd48c;line-height:1.5;font-size:13px}
+.controller-guide{font-size:12px;color:#c6bda9;line-height:1.7}
+.controller-bindings{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
+.controller-bindings>div{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px;background:#211d18;border:1px solid #514234;font-size:12px}
+.controller-bindings button{background:#352a1e;color:#ffe2b3;border:1px solid #917044;padding:8px 12px;min-width:64px;cursor:pointer;font:inherit}
+.controller-bindings button.listening{color:#18100a;background:#ffe0a4}
+#controllerDeadzone{width:110px;min-width:60px;accent-color:#eab774}#controllerDeadzoneValue{font-size:12px;min-width:28px;color:#ffe0a4}
+.controller-active :is(button,input,select,a,[role=button]):focus{outline:3px solid #ffdfa1!important;outline-offset:4px;box-shadow:0 0 18px #f5b35e55!important}
+#controllerHint{display:none;position:fixed;bottom:12px;left:50%;transform:translateX(-50%);padding:8px 14px;background:#18130eed;border:1px solid #876641;color:#ebd3a7;font-size:11px;white-space:nowrap;pointer-events:none;z-index:14}
+.controller-active.controller-playing #controllerHint{display:block}
+.controller-active #touchControls{display:none!important}
+#controllerAudio{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:160;font-size:10px}#controllerAudio[hidden]{display:none}
+.combo-panel{width:min(720px,94vw);max-height:88dvh;overflow:auto;text-align:left}
+.combo-heading{display:flex;align-items:start;justify-content:space-between;gap:18px}
+.combo-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+.combo-entry{padding:16px;border:1px solid #554839;background:#1d1a16;opacity:.8}
+.combo-entry.active{border-color:#b9975c;background:linear-gradient(125deg,#332719,#191815);opacity:1}
+.combo-entry h4{margin:0 0 8px;font-size:16px;color:#ffdea0}.combo-entry p{font-size:12px;line-height:1.65;color:#d3c9b5;margin:10px 0 0}
+.combo-panel button:focus-visible{outline:2px solid #ffdfa1;outline-offset:4px}
+.combo-parts{display:flex;flex-wrap:wrap;gap:6px;font-size:10px;letter-spacing:.03em}.combo-parts span{border:1px solid #65513a;padding:5px 7px;color:#968873}.combo-parts .owned{color:#ffdfa1;border-color:#b08b4e;background:#463422}
+.combo-state{margin-top:12px;color:#b2a58c;font-size:10px;letter-spacing:.1em}.active .combo-state{color:#efc878}
+.card .combo-preview{border-top:1px solid #9c764d66;margin:10px 0 0;padding-top:9px;font-size:11px;line-height:1.5;color:#eac890}.card .combo-preview.complete{color:#ffdf8c}
+@media(max-width:540px){.combo-list{grid-template-columns:1fr}.controller-bindings{grid-template-columns:1fr}#controllerHint{font-size:9px;max-width:92vw;white-space:normal;text-align:center;bottom:6px}}

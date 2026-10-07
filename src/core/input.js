@@ -1,5 +1,6 @@
 const keys={}; const mouse={x:0,y:0,down:false};
 const touchInput={moveX:0,moveY:0,aimX:0,aimY:0,aimActive:false,fire:false,movePointer:null,aimPointer:null};
+const controllerInput={moveX:0,moveY:0,aimX:1,aimY:0,active:false,fire:false};
 let interactQueued=false, dashQueued=false, dashBufferT=0;
 function queueDash(){dashQueued=true;dashBufferT=.16;}
 addEventListener('keydown', e=>{

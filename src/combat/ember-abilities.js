@@ -28,7 +28,7 @@ function beginReload(){
 }
 function beginMelee(){
   const p=G.player;if(G.state!=='playing'||!p||p.meleeCdT>0||p.dashT>0)return false;
-  const target=nearestTarget();p.meleeAngle=target&&d2(p.x,p.y,target.x,target.y)<160**2?Math.atan2(target.y-p.y,target.x-p.x):aimAngle();
+  const target=controllerInput.active?null:nearestTarget();p.meleeAngle=target&&d2(p.x,p.y,target.x,target.y)<160**2?Math.atan2(target.y-p.y,target.x-p.x):aimAngle();
   p.meleeWindT=MELEE.windup;p.meleeCdT=MELEE.cooldown;p.shotT=Math.max(p.shotT,.4);return true;
 }
 function strikeMelee(){

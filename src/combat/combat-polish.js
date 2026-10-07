@@ -17,7 +17,7 @@ function combatPolishRumble(duration,strong,weak){
   const touch=document.body?.classList.contains('touch');
   try{if(touch&&navigator.vibrate)navigator.vibrate(Math.min(45,duration));}catch(_){ }
   try{
-    const pads=navigator.getGamepads?.()||[];
+    const pads=save.controller?.rumble===false?[]:navigator.getGamepads?.()||[];
     for(const pad of pads){
       const motor=pad?.vibrationActuator;
       if(motor?.playEffect)motor.playEffect('dual-rumble',{duration,startDelay:0,strongMagnitude:strong,weakMagnitude:weak}).catch?.(()=>{});
