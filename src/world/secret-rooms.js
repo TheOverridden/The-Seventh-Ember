@@ -1,4 +1,6 @@
-const SECRET_ROOM_VERSION=3;
+const SECRET_ROOM_VERSION=4;
+const SECRET_SEARCH_RANGE=86;
+const SECRET_LISTEN_SECONDS=1.35;
 const SECRET_ROOM_TYPES={
  cache:{name:'THE HIDDEN CACHE',verb:'OPEN THE CACHE',line:'A box sits where the room should end.',reward:'A rare blessing, many Marks, and a large Essence cache'},
  workshop:{name:'THE LOST WORKSHOP',verb:'USE THE BENCH',line:'The tools are warm. Nobody has touched them in years.',reward:'Choose one major improvement for this descent'},
@@ -41,10 +43,12 @@ function secretRegionKey(f=G.floor){if(f<=5)return'gate';if(f<=10)return'garden'
 function secretRun(){if(!G.run)return null;G.run.secretMarks=Math.max(0,Math.floor(G.run.secretMarks||0));G.run.secretRoomsFound=Math.max(0,Math.floor(G.run.secretRoomsFound||0));G.run.secretFloorGap=Math.max(0,Math.floor(G.run.secretFloorGap||0));G.run.secretShopsSeen=Math.max(0,Math.floor(G.run.secretShopsSeen||0));G.run.secretLastShopFloor=Number.isInteger(G.run.secretLastShopFloor)?G.run.secretLastShopFloor:-99;G.run.secretForge=G.run.secretForge&&typeof G.run.secretForge==='object'?G.run.secretForge:{};return G.run;}
 function secretMarkList(){save.seventhMarks=Array.isArray(save.seventhMarks)?save.seventhMarks.filter(id=>SEVENTH_MARKS.some(m=>m.id===id)).filter((id,i,a)=>a.indexOf(id)===i):[];return save.seventhMarks;}
 function secretEligibleRooms(w){const exit=w.rooms.indexOf(w.exit),blocked=new Set([0,exit,w.storyRoom,...(w.echoSanctuaries||[]),...(w.specialEncounters||[]).map(o=>o.roomIndex)]);return w.rooms.map((r,i)=>({r,i,depth:d2(r.cx,r.cy,w.rooms[0].cx,w.rooms[0].cy)})).filter(o=>!blocked.has(o.i)&&o.r.w>=8&&o.r.h>=7).sort((a,b)=>b.depth-a.depth);}
-function secretShouldAppear(f,run){if(f<=3||bossFloorAt(f)||run.guardianMode)return false;const pity=run.secretRoomsFound?9:6;if(run.secretFloorGap>=pity)return true;const odds=f<=10?.08:f<=50?.1:.12;return chance(odds);}
+function secretFloorEligible(f,run){return f>3&&!bossFloorAt(f)&&!run.guardianMode;}
+function secretShouldAppear(f,run){if(!secretFloorEligible(f,run))return false;if(!run.secretRoomsFound&&f===4||run.secretFloorGap>=3)return true;return chance(f<=10?.18:f<=50?.22:.26);}
 function secretTypeFor(f,run,seed){
  if(!run.secretRoomsFound)return'cache';
- if(run.secretMarks>=3&&f-run.secretLastShopFloor>=5&&((seed+f)%7===0||run.secretRoomsFound-run.secretShopsSeen*4>=5))return'shop';
+ const shopDue=run.secretShopsSeen===0?run.secretRoomsFound>=2:f-run.secretLastShopFloor>=16;
+ if(f>=8&&run.secretMarks>=3&&f-run.secretLastShopFloor>=8&&(shopDue||(seed+f)%4===0))return'shop';
  const early=['cache','workshop','quiet','cartographer','false'],middle=['cache','workshop','shrine','trial','wager','echo','cartographer','armory','false'],late=['workshop','shrine','trial','wager','echo','armory','deep','false'];
  const pool=f<=10?early:f<=30?middle:late;return pool[(seed+f*3+run.secretRoomsFound)%pool.length];
 }
@@ -70,13 +74,14 @@ function secretWallPosition(s){
  return {x:(wall.tx+(vertical?.5:1))*TILE,y:(wall.ty+(vertical?1:.5))*TILE,nx,ny,angle:[0,Math.PI/2,Math.PI,-Math.PI/2][wall.side]};
 }
 function anchorSecretRoom(s,w=G.world){
- if(!s||s.wall||!w)return s;const r=w.rooms[s.roomIndex];if(!r)return s;
+ if(s?.wall){s.version=SECRET_ROOM_VERSION;return s;}if(!s||!w)return s;const r=w.rooms[s.roomIndex];if(!r)return s;
  let sites=secretWallSites(w,r);if(!sites.length)sites=secretWallSites(w,r,false);sites.sort((a,b)=>d2(a.x,a.y,s.x,s.y)-d2(b.x,b.y,s.x,s.y));
  if(sites.length){const site=sites[0];s.wall={tx:site.tx,ty:site.ty,side:site.side};s.x=site.x;s.y=site.y;s.version=SECRET_ROOM_VERSION;s.inspected=!!(s.sealReady||s.listen>0||s.seals>0);}
  return s;
 }
 function planSecretRoom(w=G.world,f=G.floor){
  const run=secretRun();if(!w||!run||w.secretRoom!==undefined)return w?.secretRoom||null;
+ if(!secretFloorEligible(f,run)){w.secretRoom=null;return null;}
  if(!secretShouldAppear(f,run)){w.secretRoom=null;run.secretFloorGap++;return null;}
  const candidates=secretEligibleRooms(w).map(o=>({...o,sites:secretWallSites(w,o.r)})).filter(o=>o.sites.length);if(!candidates.length){w.secretRoom=null;run.secretFloorGap++;return null;}
  const pick=candidates[Math.min(candidates.length-1,Math.floor(Math.random()*Math.min(2,candidates.length)))],seed=Math.floor(Math.random()*1000000),type=secretTypeFor(f,run,seed),site=pick.sites[seed%pick.sites.length];
@@ -88,9 +93,9 @@ function secretDistance(s=currentSecret()){return s&&G.player?Math.sqrt(d2(G.pla
 function revealSecret(s=currentSecret()){
  if(!s||s.discovered)return false;s.discovered=true;s.revealedAt=G.t;const run=secretRun();run.secretRoomsFound++;G.world.mmDirty=true;const wall=secretWallPosition(s);burst(wall?.x??s.x,wall?.y??s.y,28,SECRET_REGIONS[s.region].dust,95,.8,2,false);toast('A HIDDEN WAY OPENS',SECRET_ROOM_TYPES[s.type].name.toLowerCase());fieldNote('The wall slides back. There’s a room behind it.',3.4);sfx('secretReveal');saveNow();return true;
 }
-function secretNear(range=86){const s=currentSecret();if(!s||secretDistance(s)>=range||!G.player)return null;const r=G.world.rooms[s.roomIndex];return roomHasPoint(r,G.player.x,G.player.y)&&los(G.world,G.player.x,G.player.y,s.x,s.y)?s:null;}
+function secretNear(range=SECRET_SEARCH_RANGE){const s=currentSecret();if(!s||secretDistance(s)>=range||!G.player)return null;const r=G.world.rooms[s.roomIndex];return roomHasPoint(r,G.player.x,G.player.y)&&los(G.world,G.player.x,G.player.y,s.x,s.y)?s:null;}
 function secretRoomClear(s=currentSecret()){if(!s||!G.world?.rooms)return false;const r=G.world.rooms[s.roomIndex];return !G.enemies.some(e=>!e.dead&&!e.isBoss&&e.x>r.x*TILE&&e.x<(r.x+r.w)*TILE&&e.y>r.y*TILE&&e.y<(r.y+r.h)*TILE);}
-function secretFlareReveal(){const s=secretNear(58);if(!s||s.discovered||(s.seals||0)>=3||!s.inspected||!s.sealReady||!secretRoomClear(s))return false;const wall=secretWallPosition(s);if(wall&&d2(G.player.x,G.player.y,wall.x,wall.y)>(MELEE.reach+4)**2)return false;const angle=Math.atan2((wall?.y??s.y)-G.player.y,(wall?.x??s.x)-G.player.x);if(Math.abs(angleDiff(angle,G.player.meleeAngle))>MELEE.halfArc)return false;s.seals=Math.min(3,(s.seals||0)+1);const k=s.seals-1,x=wall?wall.x+Math.cos(wall.angle)*[-22,4,22][k]:s.x,y=wall?wall.y+Math.sin(wall.angle)*[-22,4,22][k]:s.y;burst(x,y,6,SECRET_REGIONS[s.region].dust,55,.35,2,false);if(s.seals<3)fieldNote(['One fastening breaks.','A second fastening breaks.'][s.seals-1],1.7);else fieldNote('It’s loose. Give it a push.',2.2);sfx('secretReveal');saveNow();return true;}
+function secretFlareReveal(){const s=secretNear();if(!s||s.discovered||(s.seals||0)>=3||!s.inspected||!s.sealReady||!secretRoomClear(s))return false;const wall=secretWallPosition(s);if(wall&&d2(G.player.x,G.player.y,wall.x,wall.y)>(MELEE.reach+4)**2)return false;const angle=Math.atan2((wall?.y??s.y)-G.player.y,(wall?.x??s.x)-G.player.x);if(Math.abs(angleDiff(angle,G.player.meleeAngle))>MELEE.halfArc)return false;s.seals=Math.min(3,(s.seals||0)+1);const k=s.seals-1,x=wall?wall.x+Math.cos(wall.angle)*[-22,4,22][k]:s.x,y=wall?wall.y+Math.sin(wall.angle)*[-22,4,22][k]:s.y;burst(x,y,6,SECRET_REGIONS[s.region].dust,55,.35,2,false);if(s.seals<3)fieldNote(s.seals===1?'One catch breaks. Two left.':'One catch left.',1.7);else fieldNote('It’s loose. Give it a push with Use.',2.6);sfx('secretCatch');saveNow();return true;}
 function secretMarks(n,label){const run=secretRun();run.secretMarks=Math.max(0,run.secretMarks+n);T('secretMarks').textContent=run.secretMarks;addText(G.player.x,G.player.y-28,(n>0?'+':'')+n+' MARK'+(Math.abs(n)===1?'':'S'),'#edcf83',13);if(label)fieldNote(label,2.4);}
 function secretOwnedMarkFor(s){
  const owned=secretMarkList(),next=SEVENTH_MARKS.find(m=>G.floor>=m.min&&!owned.includes(m.id));if(!next||!['echo','deep'].includes(s.type))return null;
@@ -136,19 +141,21 @@ function secretShopStock(s){
  const all=[
   {id:'mend',name:'RESTITCHED HEART',cost:2,desc:'Restore 45% health.',buy(){G.player.hp=Math.min(G.player.maxHp,G.player.hp+G.player.maxHp*.45);}},
   {id:'map',name:'WARM-STONE MAP',cost:2,desc:'Reveal the entire floor and its portal.',buy(){revealWholeFloor();}},
-  {id:'blessing',name:'BORROWED BLESSING',cost:5,desc:'Receive a rare-or-better run blessing.',buy(){grantSecretBlessing(2);}},
+  {id:'blessing',name:'BORROWED BLESSING',cost:5,desc:'Receive an Epic or Mythic blessing.',buy(){grantSecretBlessing(2);}},
   {id:'temper',name:'TEMPERED MEMORY',cost:4,desc:'Raise one blessing you already carry.',buy(){const o=randomOwnedUpgradable();if(o){G.run.up[o.id]++;recalc();addChip(o);toast(o.name.toUpperCase(),'rank raised');}else grantSecretBlessing(1);}},
   {id:'vessel',name:'EMBERGLASS VESSEL',cost:6,desc:'+14 maximum health for this descent.',buy(){const f=secretRun().secretForge;f.health=(f.health||0)+14;recalc();G.player.hp=Math.min(G.player.maxHp,G.player.hp+14);}}
  ];
  const chosen=[all[(s.seed+1)%all.length],all[(s.seed+3)%all.length],all[(s.seed+4)%all.length]];if(secretMarkList().length===7)chosen.push({id:'seventh',name:'CINDER OF THE SEVENTH',cost:9,desc:'Receive a Mythic blessing. Once each descent.',buy(){grantSecretBlessing(3);}});return chosen;
 }
+function secretItemOwned(s,id){return(s.purchased||[]).includes(id)||id==='seventh'&&G.run.secretCinderClaimed===true;}
 function buySecretItem(id){
- const s=currentSecret(),item=secretShopStock(s).find(o=>o.id===id);if(!item||(s.purchased||[]).includes(id)||secretRun().secretMarks<item.cost)return;secretMarks(-item.cost);s.purchased.push(id);item.buy();s.claimed=s.purchased.length>=secretShopStock(s).length;toast(item.name,'Moth slides it across the table.');sfx('secretBuy');saveNow();renderSecretRoom();
+ const s=currentSecret();if(G.state!=='secret'||!secretOverlay.classList.contains('open')||s?.type!=='shop')return;
+ const item=secretShopStock(s).find(o=>o.id===id);if(!item||secretItemOwned(s,id)||secretRun().secretMarks<item.cost)return;secretMarks(-item.cost);s.purchased.push(id);if(id==='seventh')G.run.secretCinderClaimed=true;item.buy();s.claimed=secretShopStock(s).every(o=>secretItemOwned(s,o.id));toast(item.name,'Moth slides it across the table.');sfx('secretBuy');saveNow();renderSecretRoom();
 }
 function secretChoiceButtons(s){
  const wrap=T('secretChoices');wrap.replaceChildren();if(s.claimed)return;
  if(s.type==='workshop')for(const [id,name,desc]of[['bright','BRIGHTEN THE CORE','+18% ability damage'],['vessel','WIDEN THE VESSEL','+24 maximum health'],['step','TRUE THE STEP','+12% movement speed']]){const b=document.createElement('button');b.className='secret-choice';b.innerHTML='<strong>'+name+'</strong><span>'+desc+'</span>';on(b,'click',()=>forgeChoice(id,s));wrap.appendChild(b);}
- if(s.type==='shop')for(const item of secretShopStock(s)){const bought=s.purchased.includes(item.id),can=secretRun().secretMarks>=item.cost,b=document.createElement('button');b.className='secret-stock';b.disabled=bought||!can;b.innerHTML='<span class="secret-stock-glyph">'+(item.id==='seventh'?'✦':'◇')+'</span><span><strong>'+item.name+'</strong><small>'+item.desc+'</small></span><b>'+ (bought?'TAKEN':item.cost+' ◆')+'</b>';on(b,'click',()=>buySecretItem(item.id));wrap.appendChild(b);}
+ if(s.type==='shop')for(const item of secretShopStock(s)){const bought=secretItemOwned(s,item.id),can=secretRun().secretMarks>=item.cost,b=document.createElement('button');b.className='secret-stock';b.disabled=bought||!can;b.innerHTML='<span class="secret-stock-glyph">'+(item.id==='seventh'?'✦':'◇')+'</span><span><strong>'+item.name+'</strong><small>'+item.desc+'</small></span><b>'+ (bought?'TAKEN':item.cost+' ◆')+'</b>';on(b,'click',()=>buySecretItem(item.id));wrap.appendChild(b);}
 }
 function renderSecretRoom(){
  const s=currentSecret();if(!s)return;const info=SECRET_ROOM_TYPES[s.type],region=SECRET_REGIONS[s.region],run=secretRun(),title=T('secretTitle');secretOverlay.style.setProperty('--secret-accent',region.accent);secretOverlay.style.setProperty('--secret-hot',region.hot);T('secretRegion').textContent=region.name;title.textContent=info.name;title.classList.toggle('long',info.name.length>19);T('secretLine').textContent=s.type==='shop'?['"You found the hinge. Most don’t."','"Marks first. Questions after."','"Don’t touch the blue wax."'][s.entered%3]:info.line;T('secretReward').textContent=s.claimed?'THIS ROOM HAS GIVEN WHAT IT KEPT':info.reward;T('secretMarks').textContent=run.secretMarks;T('secretMarkCount').textContent=secretMarkList().length+' / 7';const action=T('secretAction');action.hidden=s.type==='workshop'||s.type==='shop'||s.claimed;action.textContent=s.type==='wager'&&run.secretMarks<3?'NEED 3 MARKS':s.type==='trial'&&s.trialStarted&&!s.trialComplete?'TRIAL IN PROGRESS':info.verb;action.disabled=(s.type==='wager'&&run.secretMarks<3)||(s.type==='trial'&&s.trialStarted&&!s.trialComplete);secretChoiceButtons(s);T('secretRoomState').textContent=s.type==='shop'?'MOTH · KEEPER OF THE BACK ROOM':s.claimed?'THE ROOM IS QUIET':s.discovered?'PASSAGE FOUND':'UNREAD';
@@ -237,8 +244,13 @@ function drawSecretEntrance(ctx){
  if(wall.x<G.cam.x-80||wall.x>G.cam.x+G.w+80||wall.y<G.cam.y-80||wall.y>G.cam.y+G.h+80)return;
  const r=G.world.rooms[s.roomIndex],visible=roomHasPoint(r,G.player.x,G.player.y)&&los(G.world,G.player.x,G.player.y,s.x,s.y);
  if(!s.discovered&&!visible)return;
- ctx.save();ctx.translate(Math.round(wall.x),Math.round(wall.y));ctx.rotate(wall.angle);ctx.imageSmoothingEnabled=false;ctx.beginPath();ctx.rect(-36,-18,72,36);ctx.clip();
- if(!s.discovered)drawSecretWallTexture(ctx,s);
+ ctx.save();ctx.translate(Math.round(wall.x),Math.round(wall.y));ctx.rotate(wall.angle);ctx.imageSmoothingEnabled=false;ctx.beginPath();ctx.rect(-36,-18,72,s.discovered?36:54);ctx.clip();
+ if(!s.discovered){
+  drawSecretWallTexture(ctx,s);const stone=TILE_PAL[G.world.pi],p=SECRET_REGIONS[s.region];
+  ctx.fillStyle=stone.mo;ctx.fillRect(-18,12,26,3);ctx.fillRect(8,9,10,2);ctx.fillStyle=stone.lip;ctx.fillRect(-18,10,24,2);ctx.fillRect(8,7,10,2);
+  for(let i=0;i<5;i++){const x=-24+(s.seed+i*17)%47,y=21+(s.seed+i*7)%12;ctx.fillStyle=i%2?p.dust:stone.lip;ctx.fillRect(x,y,i%2?3:4,2);ctx.fillStyle=stone.mo;ctx.fillRect(x+1,y+2,3,1);}
+  if(s.type==='shop'){ctx.fillStyle='#aec6cf';ctx.fillRect(-8,23,3,5);ctx.fillRect(-6,27,5,2);ctx.fillRect(5,30,3,2);}
+ }
  else{
   const stone=TILE_PAL[G.world.pi],p=SECRET_REGIONS[s.region],age=G.t-(s.revealedAt??-100),u=save.motion?1:clamp(age/.85,0,1),slide=Math.round((1-Math.pow(1-u,3))*24/2)*2;
   ctx.fillStyle='#05070a';ctx.fillRect(-36,-18,72,36);ctx.fillStyle=p.dark;ctx.fillRect(-20,-14,40,24);ctx.fillStyle='#05070a';ctx.fillRect(-14,-16,28,18);
@@ -253,22 +265,24 @@ function drawSecretMinimap(){
  x.save();x.strokeStyle=SECRET_REGIONS[s.region].dust;x.lineWidth=1;x.beginPath();x.moveTo(ox+s.x/TILE*scale,oy+s.y/TILE*scale);x.lineTo(ox+tx*scale,oy+ty*scale);x.stroke();x.fillStyle=s.claimed?'#776f64':'#f0ce7c';x.fillRect(ox+tx*scale-2,oy+ty*scale-2,4,4);x.restore();
 }
 function inspectSecretRoom(s){
- if(!s.inspected){s.inspected=true;s.listen=0;s.listenX=G.player.x;s.listenY=G.player.y;saveNow();}
+ if(!s.inspected){s.inspected=true;s.listen=0;s.listenX=G.player.x;s.listenY=G.player.y;sfx('secretTap');saveNow();}
  if((s.seals||0)>=3)revealSecret(s);
- else if(s.sealReady)fieldNote('Three fastenings. Break them with Flare.',2.2);
+ else if(s.sealReady)fieldNote('Aim Flare at the wall. '+(3-(s.seals||0))+' catches left.',2.6);
  else fieldNote('That part sounds hollow. Stay still and listen.',2.4);
 }
 function listenAtSecretRoom(s,dt){
  if(!s.inspected||s.sealReady)return;const p=G.player,moved=Math.hypot(p.x-(s.listenX??p.x),p.y-(s.listenY??p.y));s.listenX=p.x;s.listenY=p.y;
- if(secretDistance(s)<48&&moved<1.2)s.listen=Math.min(2.4,(s.listen||0)+dt);else s.listen=Math.max(0,(s.listen||0)-dt*.6);
- if(s.listen>=2.25){s.sealReady=true;fieldNote('Three small catches lifted. Flare can break them.',2.8);sfx('secretOpen');saveNow();}
+ if(secretDistance(s)<SECRET_SEARCH_RANGE&&moved<1.2)s.listen=Math.min(SECRET_LISTEN_SECONDS,(s.listen||0)+dt);else s.listen=Math.max(0,(s.listen||0)-dt*.6);
+ if(s.listen>=SECRET_LISTEN_SECONDS){s.sealReady=true;fieldNote('Three catches lift from the stone. Aim Flare at them.',3.2);sfx('secretTap');saveNow();}
 }
 
+const secretBeginMelee=beginMelee;
+beginMelee=function(){const started=secretBeginMelee(),s=secretNear();if(started&&s?.sealReady&&!s.discovered&&(s.seals||0)<3&&secretRoomClear(s)&&document.body.classList.contains('touch')&&!(touchInput.aimActive&&touchInput.aimPower>.18)){const wall=secretWallPosition(s);G.player.meleeAngle=Math.atan2(wall.y-G.player.y,wall.x-G.player.x);}return started;};
 const secretStrikeMelee=strikeMelee;
 strikeMelee=function(){const out=secretStrikeMelee();secretFlareReveal();return out;};
 const secretUpdateBase=update;
 update=function(dt){
- if(G.state==='playing'&&!G.descending){const s=secretNear(58);if(s){if(s.discovered&&interactQueued){interactQueued=false;enterSecretRoom(s);return;}if(!s.discovered&&secretRoomClear(s)){listenAtSecretRoom(s,dt);if(interactQueued){interactQueued=false;inspectSecretRoom(s);return;}}}}
+ if(G.state==='playing'&&!G.descending){const s=secretNear();if(s){if(s.discovered&&interactQueued){interactQueued=false;enterSecretRoom(s);return;}if(!s.discovered){if(secretRoomClear(s)){listenAtSecretRoom(s,dt);if(interactQueued){interactQueued=false;inspectSecretRoom(s);return;}}else if(interactQueued){interactQueued=false;fieldNote('Too much noise. Clear the room, then check the stone.',2.8);return;}}}}
  return secretUpdateBase(dt);
 };
 const secretKillEnemy=killEnemy;
@@ -280,7 +294,15 @@ drawProps=function(ctx){drawSecretEntrance(ctx);secretDrawPropsBase(ctx);};
 const secretDrawMinimapBase=drawMinimap;
 drawMinimap=function(){secretDrawMinimapBase();drawSecretMinimap();};
 const secretUpdateHUDBase=updateHUD;
-updateHUD=function(dt){secretUpdateHUDBase(dt);if(!G.player||G.state!=='playing')return;const s=secretNear(58);if(!s||!s.discovered&&(!s.inspected||!secretRoomClear(s)))return;T('promptTxt').textContent=s.discovered?'ENTER THE HIDDEN PASSAGE':(s.seals||0)>=3?'PUSH THE LOOSE WALL · USE':s.sealReady?'BREAK THE CATCHES · FLARE':'KEEP STILL AND LISTEN';T('prompt').classList.add('on');};
+updateHUD=function(dt){
+ const key=T('prompt').querySelector('kbd'),touch=document.body.classList.contains('touch');key.textContent=touch?'USE':'E';key.style.display='';secretUpdateHUDBase(dt);const s=G.player&&G.state==='playing'?secretNear():null,searching=s&&(s.discovered||secretRoomClear(s)&&(s.inspected||secretDistance(s)<=68));document.body.classList.toggle('secret-searching',!!searching);if(!searching)return;
+ const wall=secretWallPosition(s),inReach=d2(G.player.x,G.player.y,wall.x,wall.y)<=(MELEE.reach+4)**2;
+ if(s.inspected&&!s.discovered&&(s.seals||0)<3){if(s.sealReady)key.textContent=touch?'FLARE':'K';else key.style.display='none';}
+ T('promptTxt').textContent=s.discovered?'ENTER THE HIDDEN PASSAGE':!s.inspected?'EXAMINE THE UNEVEN STONE':(s.seals||0)>=3?'PUSH THE LOOSE STONE':s.sealReady?(inReach?'FLARE THE CATCHES · '+(3-(s.seals||0))+' LEFT':'MOVE CLOSER · FLARE THE CATCHES'):'LISTENING · KEEP STILL · '+Math.floor(clamp((s.listen||0)/SECRET_LISTEN_SECONDS,0,1)*100)+'%';T('prompt').classList.add('on');
+ if(!s.discovered&&!save.secretSearchTip){save.secretSearchTip=true;fieldNote('Some walls sound hollow. Examine unusual stone with Use.',4.5);saveNow();}
+};
+const secretSyncWeaponHUDBase=syncWeaponHUD;
+syncWeaponHUD=function(){secretSyncWeaponHUDBase();const s=secretNear();if(typeof setPrecisionTouchButton!=='function'||!s||!s.discovered&&!secretRoomClear(s)||!s.inspected&&!s.discovered&&secretDistance(s)>68)return;setPrecisionTouchButton('touchEnter',1,s.discovered?'ENTER':!s.inspected?'EXAMINE':(s.seals||0)>=3?'PUSH':'USE',s.inspected&&!s.sealReady?'LISTEN':'READY');};
 const secretSnapshotBase=snapshotRun;
 snapshotRun=function(){const state=G.state;if(state==='secret')G.state='paused';try{secretSnapshotBase();}finally{G.state=state;}if(save.resume&&G.world){save.resume.world.secretRoom=deepCopy(G.world.secretRoom??null);}};
 const secretResumeBase=resumeRun;
@@ -288,15 +310,15 @@ resumeRun=function(){secretResumeBase();if(!G.run||!G.world)return;secretRun();s
 const secretValidateCheckpointBase=validateCheckpoint;
 validateCheckpoint=function(r){const out=secretValidateCheckpointBase(r),s=r.world?.secretRoom;if(s!==undefined&&s!==null){if(typeof s!=='object'||!SECRET_ROOM_TYPES[s.type]||!SECRET_REGIONS[s.region]||!Number.isInteger(s.roomIndex)||s.roomIndex<0||s.roomIndex>=r.world.rooms.length||!Number.isFinite(s.x)||s.x<0||s.x>r.world.W*TILE||!Number.isFinite(s.y)||s.y<0||s.y>r.world.H*TILE||!Number.isInteger(s.seed)||!Array.isArray(s.purchased)||s.purchased.length>12||s.purchased.some(id=>typeof id!=='string'||id.length>40))throw Error('Invalid hidden room data');if(s.wall!==undefined){const a=s.wall;if(!a||!Number.isInteger(a.tx)||!Number.isInteger(a.ty)||!Number.isInteger(a.side)||a.side<0||a.side>3||a.tx<1||a.ty<1||a.tx>=r.world.W-1||a.ty>=r.world.H-1)throw Error('Invalid hidden wall');const vertical=a.side%2===1,[nx,ny]=[[0,1],[-1,0],[0,-1],[1,0]][a.side],x=(a.tx+(vertical?.5:1))*TILE+nx*TILE,y=(a.ty+(vertical?1:.5))*TILE+ny*TILE;if(Math.abs(s.x-x)>.01||Math.abs(s.y-y)>.01||!roomHasPoint(r.world.rooms[s.roomIndex],x,y,12))throw Error('Invalid hidden wall position');for(let k=0;k<2;k++)if(r.world.grid[(a.ty+(vertical?k:0))*r.world.W+a.tx+(vertical?0:k)]!==0)throw Error('Invalid hidden wall');}if(s.inspected!==undefined&&typeof s.inspected!=='boolean')throw Error('Invalid hidden room inspection');}if(r.run.secretMarks!==undefined&&(!Number.isInteger(r.run.secretMarks)||r.run.secretMarks<0||r.run.secretMarks>9999))throw Error('Invalid hidden room marks');if(r.run.secretLastShopFloor!==undefined&&(!Number.isInteger(r.run.secretLastShopFloor)||r.run.secretLastShopFloor< -99||r.run.secretLastShopFloor>1000000))throw Error('Invalid hidden shop record');const forge=r.run.secretForge;if(forge!==undefined){if(!forge||typeof forge!=='object'||Array.isArray(forge))throw Error('Invalid hidden room forge');for(const [key,value]of Object.entries(forge))if(!['damage','health','speed'].includes(key)||!Number.isFinite(value)||value<0||value>10000)throw Error('Invalid hidden room forge');}return out;};
 const secretValidateSaveBase=validateSave;
-validateSave=function(raw){const clean=secretValidateSaveBase(raw);clean.seventhMarks=Array.isArray(raw?.seventhMarks)?raw.seventhMarks.filter(id=>SEVENTH_MARKS.some(m=>m.id===id)).filter((id,i,a)=>a.indexOf(id)===i):[];return clean;};
+validateSave=function(raw){const clean=secretValidateSaveBase(raw);clean.seventhMarks=Array.isArray(raw?.seventhMarks)?raw.seventhMarks.filter(id=>SEVENTH_MARKS.some(m=>m.id===id)).filter((id,i,a)=>a.indexOf(id)===i):[];clean.secretSearchTip=raw?.secretSearchTip===true;return clean;};
 const secretBlockingBase=anyBlockingOverlay;
 anyBlockingOverlay=function(){return secretOverlay.classList.contains('open')||secretBlockingBase();};
 const secretEscBase=onEscKey;
 onEscKey=function(){if(secretOverlay.classList.contains('open')){closeSecretRoom();return;}return secretEscBase();};
 const secretSfxBase=sfx;
-sfx=function(name,a){if(!['secretReveal','secretOpen','secretClaim','secretBuy','secretMark'].includes(name))return secretSfxBase(name,a);if(!AC||!save.sfx)return;if(name==='secretReveal'){thump(88,38,.42,.05);air(.7,.025,180,1280,.7,0,'bandpass');bell(392,.55,.012,.18,true);}else if(name==='secretOpen'){swell([98,146.83,196,293.66],1,.016,0);bell(587.33,.7,.009,.2,false);}else if(name==='secretBuy'){bell(523.25,.25,.012,0,false);bell(783.99,.35,.009,.08,false);}else if(name==='secretMark'){swell([130.81,196,261.63,392,523.25],1.2,.024,0);bell(1046.5,.9,.012,.3,true);}else{swell([174.61,261.63,349.23,523.25],.8,.018,0);}};
+sfx=function(name,a){if(!['secretReveal','secretOpen','secretClaim','secretBuy','secretMark','secretTap','secretCatch'].includes(name))return secretSfxBase(name,a);if(!AC||!save.sfx)return;if(name==='secretTap'){thump(130,70,.12,.042);air(.12,.014,460,180,.7,0,'lowpass');}else if(name==='secretCatch'){thump(185,95,.08,.032);bell(620,.18,.009,.015,true);air(.13,.012,780,220,.8,0,'lowpass');}else if(name==='secretReveal'){thump(88,38,.42,.05);air(.7,.025,180,1280,.7,0,'bandpass');bell(392,.55,.012,.18,true);}else if(name==='secretOpen'){swell([98,146.83,196,293.66],1,.016,0);bell(587.33,.7,.009,.2,false);}else if(name==='secretBuy'){bell(523.25,.25,.012,0,false);bell(783.99,.35,.009,.08,false);}else if(name==='secretMark'){swell([130.81,196,261.63,392,523.25],1.2,.024,0);bell(1046.5,.9,.012,.3,true);}else{swell([174.61,261.63,349.23,523.25],.8,.018,0);}};
 
 on(T('secretAction'),'click',secretPrimaryAction);
 on(T('secretLeave'),'click',closeSecretRoom);
 secretMarkList();
-document.documentElement.dataset.secretRooms='v3';
+document.documentElement.dataset.secretRooms='v4';
