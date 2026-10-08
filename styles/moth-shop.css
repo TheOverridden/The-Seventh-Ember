@@ -1,0 +1,17 @@
+#secretRoom.moth-shop .secret-shell{width:min(1340px,98vw);grid-template-columns:minmax(0,1.05fr) minmax(350px,.95fr);border-color:#a18655;background:#172021}
+#secretRoom.moth-shop .secret-view{background:#152124;display:flex;align-items:center;min-height:560px;overflow:hidden}
+#secretRoom.moth-shop #secretCanvas{height:auto;min-height:0;width:100%;aspect-ratio:8/7;object-fit:contain;border-top:1px solid #716849;border-bottom:1px solid #716849}
+#secretRoom.moth-shop .secret-copy{padding:28px 24px;overflow:auto;max-height:90dvh;background:linear-gradient(160deg,#2d2b20,#152125 70%)}
+#secretRoom.moth-shop #secretChoices{display:grid;gap:8px;margin:15px 0}
+#secretRoom.moth-shop .moth-stock{display:grid;grid-template-columns:52px minmax(0,1fr) 46px;align-items:center;gap:10px;padding:12px 9px;text-align:left;border:1px solid #686247;background:linear-gradient(115deg,#3b3928,#1e2d2d);width:100%;min-height:94px;cursor:pointer}
+#secretRoom.moth-shop .moth-stock.moth-exclusive{border-color:#a59461;box-shadow:inset 3px 0 #c1ab71}
+#secretRoom.moth-shop .moth-stock strong{font:600 15px Georgia,serif;letter-spacing:.5px;display:block;color:#f2dcaa}
+#secretRoom.moth-shop .moth-stock small{font-size:11px;line-height:1.6;display:block;color:#c0c6ae;margin-top:5px}
+#secretRoom.moth-shop .moth-stock b{font-size:12px;color:#ffe0a4;text-align:right}
+.moth-item-icon{width:52px;height:52px;image-rendering:pixelated}
+#secretRoom.moth-shop .moth-stock:disabled{opacity:.45;cursor:default}.moth-stock-note{font-size:10px;color:#b2b49c;line-height:1.7;margin:4px 0}
+.moth-draft-header{font:600 17px Georgia,serif;color:#ffe0a0;margin:5px 0 10px}.moth-offer{padding:17px;text-align:left;background:#273730;border:1px solid #c0a976;color:#ead7af;cursor:pointer}.moth-offer strong{display:block;font:600 18px Georgia,serif}.moth-offer small{display:block;font-size:12px;line-height:1.8;margin-top:9px;color:#bac9b7}
+#secretRoom.moth-shop button:focus-visible{outline:2px solid #ffe8b4;outline-offset:3px}
+@media(max-width:900px){#secretRoom.moth-shop .secret-shell{grid-template-columns:1fr;overflow:auto}#secretRoom.moth-shop .secret-view{min-height:0;padding:0;background:#152124}#secretRoom.moth-shop .secret-copy{overflow:visible;max-height:none}#secretRoom.moth-shop #secretChoices{grid-template-columns:repeat(2,minmax(0,1fr))}#secretRoom.moth-shop .moth-stock{grid-template-columns:40px minmax(0,1fr);gap:8px}#secretRoom.moth-shop .moth-stock b{grid-column:2;text-align:left}.moth-item-icon{width:40px;height:40px}.moth-stock-note,.moth-draft-header{grid-column:1/-1}}
+@media(max-width:560px){#secretRoom.moth-shop .secret-copy{padding:23px 16px}#secretRoom.moth-shop #secretChoices{grid-template-columns:1fr}#secretRoom.moth-shop .moth-stock{grid-template-columns:42px minmax(0,1fr) 36px;min-height:91px}#secretRoom.moth-shop .moth-stock b{grid-column:3;font-size:10px}#secretRoom.moth-shop .moth-stock strong{font-size:14px}#secretRoom.moth-shop .moth-stock small{font-size:11px}#secretRoom.moth-shop #secretRoomState{left:12px;bottom:12px;font-size:7px}}
+@media(max-height:560px) and (min-width:800px){#secretRoom.moth-shop .secret-shell{grid-template-columns:1fr 1fr;max-height:96dvh}#secretRoom.moth-shop .secret-view{min-height:0}#secretRoom.moth-shop .secret-copy{max-height:96dvh;overflow:auto}#secretRoom.moth-shop #secretChoices{grid-template-columns:1fr}}

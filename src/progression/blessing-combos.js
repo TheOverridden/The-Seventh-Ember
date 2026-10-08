@@ -54,7 +54,7 @@ damageEnemy=function(e,damage,angle,crit,kb,kind='shot'){
  if(blessingCount('emptyChamber',6)&&!(s.stillCooldown>G.t)){s.stillCooldown=G.t+3;expansionState().emptyChamberT=.6+.15*(blessingRank('emptyChamber')-1);blessingEffect({type:'ring',x:G.player.x,y:G.player.y,radius:130,color:'#d7e8ff'});sfx('shield');}
  if(blessingCount('bankedConstellation',12)){const rank=blessingRank('bankedConstellation'),stars=expansionState().bankStars;for(let i=0;i<3+rank;i++)stars.push({a:i*TAU/(3+rank),t:2,shot:.2+i*.15,power:.9+.3*rank});while(stars.length>7)stars.shift();sfx('stitchPin');}
  if(blessingCount('furnaceEnd',20)&&!(s.furnaceCooldown>G.t)){s.furnaceCooldown=G.t+18;expansionState().furnaceT=7;G.player.ammo=G.player.magSize;G.player.reloadT=0;burst(G.player.x,G.player.y,24,'#ffb75c',180,.6,3,true);sfx('mythic');}
- if(crit&&!e.dead&&blessingChilled(e)&&blessingComboActive('stormfront')&&!(e.stormfrontUntil>G.t)){e.stormfrontUntil=G.t+1;blessingLightning(e,blessingRank('shockChain'),true);}
+ if(crit&&!e.dead&&blessingChilled(e)&&blessingComboActive('stormfront')&&!(e.stormfrontUntil>G.t)){e.stormfrontUntil=G.t+1;comboTrialEvent('stormfront');blessingLightning(e,blessingRank('shockChain'),true);}
  return result;
 };
 const comboKillEnemy=killEnemy;
@@ -66,7 +66,7 @@ killEnemy=function(e){
 const comboFireVolley=fireVolley;
 fireVolley=function(){
  const p=G.player;if(!p||!G.run)return comboFireVolley();const start=G.bullets.length;const result=comboFireVolley(),created=G.bullets.slice(start);if(!created.length)return result;
- if(blessingComboActive('echoChamber'))for(const bullet of created)if(bullet.echoCast){bullet.ric=(bullet.ric||0)+1;bullet.dmg*=1.35;}
+ if(blessingComboActive('echoChamber'))for(const bullet of created)if(bullet.echoCast){bullet.ric=(bullet.ric||0)+1;bullet.dmg*=1.35;comboTrialEvent('echoChamber');}
  if(blessingCount('firstSparkReturned',8)){for(const b of created){b.r+=7;b.pierce=(b.pierce||0)+6;b.dmg*=5;b.firstReturned=true;}sfx('mythic');}
  if(blessingCount('solarRequiem',8)){for(let i=0;i<7;i++){const a=i*TAU/7,x=p.x+Math.cos(a)*42,y=p.y+Math.sin(a)*42,target=expansionNearest(x,y),aim=target?Math.atan2(target.y-y,target.x-x):a;expansionFriendlyShot(x,y,aim,p.dmg*2.35,{r:10,pierce:4,seeking:.16,life:1.8,solarRequiem:true});}sfx('mythic');}
  return result;
