@@ -80,4 +80,4 @@ function refreshFirstDeathGuide(){
 const onboardingDie=die;
 die=function(){const out=onboardingDie();setTimeout(()=>{if(G.dead)refreshFirstDeathGuide();},1350);return out;};
 const onboardingChapter=showChapterClear;
-showChapterClear=function(){onboardingChapter();if(G.floor===5){T('chapterCompleteLabel').textContent='THE FIRST GATE OPENS';T('chapterCompleteText').textContent='Mara lowers her glaive. Roots have split the stairs below.';T('chapterContinue').textContent='ENTER THE ROOTBOUND GARDENS';}};
+showChapterClear=function(){onboardingChapter();if(G.floor===5){T('chapterCompleteLabel').textContent='THE FIRST GATE OPENS';T('chapterCompleteText').textContent=CHAPTER_EXIT_TEXT[5];T('chapterContinue').textContent='ENTER THE ROOTBOUND GARDENS';}};
