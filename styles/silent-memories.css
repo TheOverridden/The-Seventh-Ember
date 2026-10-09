@@ -1,0 +1,11 @@
+#memoryStage.silent-memory .memory-caption{left:50%;top:auto;bottom:max(18px,env(safe-area-inset-bottom));width:auto;min-width:0;max-width:calc(100% - 32px);padding:6px;background:#0b1014d9;clip-path:none;border:1px solid #c9e5e633;box-shadow:none;transform:translate(-50%,0)}
+#memoryStage.silent-memory .memory-caption:before,#memoryStage.silent-memory .memory-speaker,#memoryStage.silent-memory .memory-object,#memoryStage.silent-memory .memory-line,#memoryStage.silent-memory .memory-progress,#memoryStage.silent-memory .memory-discovery{display:none!important}
+#memoryStage.silent-memory .memory-head small{font-size:0}
+#memoryStage.silent-memory .memory-head small:after{content:'MEMORY';font:9px system-ui;letter-spacing:.25em;color:#d7eff2}
+#memoryStage.silent-memory .memory-bottom{gap:0}
+#memoryStage.silent-memory .memory-head{left:50%;width:min(760px,90vw)}
+#memoryStage.silent-memory.ready .memory-caption{transform:translate(-50%,0);right:auto}
+#memoryStage.silent-memory #memoryAdvance{min-width:120px;min-height:42px}
+#memoryStage.silent-memory .memory-guidance{left:50%;top:auto;bottom:80px;width:max-content;max-width:88vw;height:auto;font-size:9px;letter-spacing:.16em}
+#memoryStage.silent-memory.leaving .memory-caption{opacity:0;transform:translate(-50%,10px)}
+@media(max-width:540px){#memoryStage.silent-memory .memory-head{top:20px}#memoryStage.silent-memory .memory-head span{font-size:9px}#memoryStage.silent-memory .memory-guidance{bottom:76px;font-size:8px}}

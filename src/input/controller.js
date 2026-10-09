@@ -85,6 +85,7 @@ function controllerPoll(now){
   if(index===9){controller.binding=null;controllerUpdateSettings();return;}
   if(index>=0&&index<=7){const action=controller.binding,old=prefs.bindings[action],duplicate=Object.keys(prefs.bindings).find(id=>id!==action&&prefs.bindings[id]===index);if(duplicate)prefs.bindings[duplicate]=old;prefs.bindings[action]=index;save.controller=prefs;controller.binding=null;saveNow();controllerUpdateSettings();sfx('buy');}return;
  }
+ if(G.state==='echo'&&activeMemoryEcho){controllerInput.fire=false;controllerInput.moveX=controllerInput.active?move.x:0;controllerInput.moveY=controllerInput.active?move.y:0;if(pressed[0])advanceMemory();else if(pressed[1]||pressed[9])closeRememberedTrace();return;}
  const scope=controllerScope();
  if(scope!==controller.scope){controller.scope=scope;controller.direction='';controller.repeatAt=0;controllerRelease();if(scope&&controllerInput.active)controllerFocus(scope);return;}
  if(scope){

@@ -1,88 +1,5 @@
-Object.assign(HOLLOW_SCENES,{
- reservoirChoice:{title:'The fourth line',where:'The Sunken Walk',lines:[
-  ['You','This parcel was packed before the water rose.'],
-  ['Wick','Somebody knew the flood was coming.'],
-  {speaker:'You',choices:[
-   {label:'Ring the evacuation bell.',reply:[['You','We warn everyone still above the lower doors.'],['Wick','Then we make enough noise to be heard.']]},
-   {label:'Open the lower doors.',reply:[['You','Move the water away from the sleeping wards.'],['Wick','The lower crews will lose their way out.'],['You','I know.']]},
-   {label:'Leave the system sealed.',reply:[['You','No more water moves until we know what is listening.'],['Wick','Safe for now. That used to be enough.']]}
-  ]}
- ]},
- foundryChoice:{title:'Your place in line',where:'The Hammer Line',lines:[
-  ['Wick','Number three. That was your station.'],
-  ['You','The hammer struck early and I kept working beside it.'],
-  {speaker:'You',choices:[
-   {label:'Repair the line properly.',reply:[['You','No wedges. We stop it and fix the timing.'],['Wick','The old crew would like that answer.']]},
-   {label:'Shut the line down.',reply:[['You','Nothing down here is worth another crushed hand.'],['Wick','You did not say that the first time.']]},
-   {label:'Keep the hammer token.',reply:[['You','I want proof that this was mine.'],['Wick','Then keep it. Just don’t let it choose for you.']]}
-  ]}
- ]},
- observatoryChoice:{title:'Two sets of steps',where:'The Parallax Walk',lines:[
-  ['You','Both tracks are mine.'],
-  ['Wick','One was made nine years ago. The other is newer.'],
-  {speaker:'You',choices:[
-   {label:'Follow the left footprints.',reply:[['You','The note says not to. That means I expected to read it.'],['Wick','That is exactly your kind of reasoning.']]},
-   {label:'Mark them and move on.',reply:[['You','We need facts before we follow another version of me.'],['Wick','I have chalk. You made me carry chalk.']]},
-   {label:'Ask Wick which trail is mine.',reply:[['You','Which one did you see me make?'],['Wick','The left. I was afraid you would ask.']]}
-  ]}
- ]},
- archiveChoice:{title:'The last uncut name',where:'The Redaction Rooms',lines:[
-  ['You','I ordered the names removed.'],
-  ['Wick','You thought names were how it found people.'],
-  {speaker:'You',choices:[
-   {label:'Preserve one complete copy.',reply:[['You','Hidden, sealed, and in my handwriting. People deserve their names back.'],['Wick','Then we look for where you hid it.']]},
-   {label:'Burn the remaining record.',reply:[['You','If the Listener can still read this, nobody on the page is safe.'],['Wick','I’ll remember the names I know.']]},
-   {label:'Let Wick decide.',reply:[['You','You carried this longer than I did.'],['Wick','Keep the names. Burn the route to them.']]}
-  ]}
- ]},
- courtChoice:{title:'Three signatures',where:'The Council Table',lines:[
-  ['You','The order has my hand and both Regents’ seals.'],
-  ['Wick','Everyone down here spent years deciding whose fault that made it.'],
-  {speaker:'You',choices:[
-   {label:'The order was mine.',reply:[['You','Authority or not, I wrote it.'],['Wick','Responsibility is not the same thing as surrender.']]},
-   {label:'The Regents authorized it.',reply:[['You','They knew what the seal would do.'],['Wick','So did you. That is why they needed your hand.']]},
-   {label:'We share what happened.',reply:[['You','Three signatures. Three people who chose.'],['Wick','That answer will annoy both of them.'],['You','Good.']]}
-  ]}
- ]},
- choirChoice:{title:'The filed note',where:'The Cantor’s Stair',lines:[
-  ['Wick','That strip is the note we cut out of the hymn.'],
-  ['You','The Listener used it to find the First Star.'],
-  {speaker:'You',choices:[
-   {label:'Destroy the note.',reply:[['You','No one sings this again.'],['Wick','Then remember the shape of the hole it leaves.']]},
-   {label:'Preserve it in silence.',reply:[['You','Seal it where nobody can sound it.'],['Wick','A dangerous thing can still be evidence.']]},
-   {label:'Change the ending.',reply:[['You','Keep the first bars. Give the last one somewhere new to land.'],['Wick','You want to rewrite a lock while we are inside it.'],['You','Yes.']]}
-  ]}
- ]},
- citadelChoice:{title:'Aimed inward',where:'The Muster Hall',lines:[
-  ['You','The range marks all point toward the lower archive.'],
-  ['Wick','They were waiting for the doors to open.'],
-  {speaker:'You',choices:[
-   {label:'Disable every weapon.',reply:[['You','Nobody gets to inherit this firing line.'],['Wick','Then we pull the teeth one by one.']]},
-   {label:'Turn the defenses outward.',reply:[['You','The people coming out will need a wall.'],['Wick','Mara can teach them which end is forward.']]},
-   {label:'Aim them at the Heart.',reply:[['You','If the door fails, we need a second way to stop it.'],['Wick','I hate that you are right.']]}
-  ]}
- ]},
- heartChoice:{title:'The name on the vessel',where:'The Unwritten Room',lines:[
-  ['You','This plate was left blank for me.'],
-  ['Wick','For whichever version reached the Heart.'],
-  {speaker:'You',choices:[
-   {label:'I am the Last Lamplighter.',reply:[['You','The work is mine, even if the memories came late.'],['Wick','Then carry the name because you chose it.']]},
-   {label:'I’m what came after.',reply:[['You','I can inherit the work without pretending I am the dead.'],['Wick','I was hoping you would say that.']]},
-   {label:'I don’t need the name.',reply:[['You','I’m here. That is enough for the door.'],['Wick','It is enough for me.']]}
-  ]}
- ]},
- listenerRecognition:{title:'A borrowed answer',where:'The Heart of the Star',lines:[
-  ['The Listener','WHY DID YOU COME?'],
-  ['Wick','It knows the old answer. Don’t give it anything you remember.'],
-  ['You','Then I’ll give it something I decided.']
- ]}
-});
 
-const STORY_ANCHORS={
- trace13:'reservoirChoice',trace18:'foundryChoice',trace23:'observatoryChoice',
- trace28:'archiveChoice',trace33:'courtChoice',trace38:'choirChoice',
- trace43:'citadelChoice',trace48:'heartChoice'
-};
+
 function storyChoice(id){const scene=HOLLOW_SCENES[id];if(!scene)return-1;for(let i=0;i<scene.lines.length;i++)if(scene.lines[i]?.choices){const n=storyData().choices[id+':'+i];return Number.isInteger(n)?n:-1;}return-1;}
 function storyProfile(){
  const choices={barracks:storyChoice('barracks'),garden:storyChoice('gardenChoice'),reservoir:storyChoice('reservoirChoice'),foundry:storyChoice('foundryChoice'),observatory:storyChoice('observatoryChoice'),archive:storyChoice('archiveChoice'),court:storyChoice('courtChoice'),choir:storyChoice('choirChoice'),citadel:storyChoice('citadelChoice'),heart:storyChoice('heartChoice')};
@@ -90,114 +7,6 @@ function storyProfile(){
  for(const [id,n] of Object.entries(choices)){if(n<0)continue;if(n===0)resolve++;if(n===1)mercy++;if(n===2)trust++;if(id==='reservoir'&&n===0)mercy+=2;if(id==='court'&&n===2)mercy++;if(id==='citadel'&&n===1)mercy+=2;}
  return{choices,mercy,resolve,trust,count:Object.values(choices).filter(n=>n>=0).length,answer:storyData().finalAnswer||''};
 }
-
-const rememberedStoryLines=storyLines;
-storyLines=function(id){
- const lines=rememberedStoryLines(id),p=storyProfile(),c=p.choices;
- const add=(speaker,text,at=lines.length)=>lines.splice(at,0,{speaker,text});
- if(id==='archiveArrival'&&c.barracks>=0)add('Wick',c.barracks===0?'The torn sleeve still has the blue thread I held for you. I thought you might recognize my knot.':'The photograph from the foundry is still in that coat. You took it before the last watch.',Math.max(1,lines.length-1));
- if(id==='matriarchBefore'&&c.garden>=0)add('The Hollow Matriarch',c.garden===0?'You kept the roots out until the voices began asking in your own voice.':'You wrote the joke on my warning sign. Then you opened the gate without asking.',Math.max(1,lines.length-1));
- if(id==='bellkeeperBefore'&&c.reservoir>=0)add('The Bellkeeper',[
-  'The evacuation bell answered you. Forty-two people cleared the upper walk.',
-  'You opened the lower doors once. I still hear that crew knocking.',
-  'You sealed the water here. It found another route.'
- ][c.reservoir],Math.max(1,lines.length-1));
- if(id==='colossusBefore'&&c.foundry>=0)add('The Ember Colossus',[
-  'Repair request received. Nine years overdue.',
-  'Shutdown request denied by emergency order.',
-  'Worker three. Present your token.'
- ][c.foundry],2);
- if(id==='astronomerAfter'&&c.observatory>=0)add('The Glass Astronomer',[
-  'The left trail reaches the first failed vessel.',
-  'Your chalk marks survived. The person who made them did not.',
-  'Wick watched both sets form. Ask why he only remembers one.'
- ][c.observatory],Math.max(1,lines.length-1));
- if(id==='scribeAfter'&&c.archive>=0)add('The Pale Scribe',[
-  'Your complete copy remains behind a wall marked WEATHER.',
-  'Then finish the instruction. I will not stop you.',
-  'The lamp chose names over roads. A careful edit.'
- ][c.archive],Math.max(1,lines.length-1));
- if(id==='regentsAfter'&&c.court>=0)add(c.court===1?'The First Regent':'The Second Regent',[
-  'You claim your hand. We will answer for our seals.',
-  'Authority is not innocence. Neither is obedience.',
-  'Shared blame. An answer nobody here learned to give.'
- ][c.court],Math.max(1,lines.length-1));
- if(id==='seraphAfter'&&c.choir>=0)add('Wick',[
-  'The last note is ash. The song ends cleanly now.',
-  'The note is sealed. I can still feel it waiting.',
-  'Your new ending held. The stairs did not grow.'
- ][c.choir],lines.length);
- if(id==='tyrantBefore'&&c.citadel>=0)add('The Obsidian Tyrant',[
-  'DISARM ORDER DETECTED. DENIED.',
-  'OUTWARD ALIGNMENT DETECTED. NO EXTERNAL TARGET.',
-  'HEARTWARD ALIGNMENT DETECTED. TREASON CONFIRMED.'
- ][c.citadel],1);
- if(id==='keeperBefore'&&c.heart>=0)add('The First Keeper',[
-  'Lamplighter recognized. Death record disputed.',
-  'Successor pattern rejected. Only the original may turn the key.',
-  'Unnamed vessels have no standing here.'
- ][c.heart],1);
- if(id==='keeperAfter'){
-  if(c.archive===0)add('Wick','The names are in the wall behind the weather index. We can bring them out with the people.',lines.length);
-  else if(c.archive===1)add('Wick','I kept the names you said out loud. It is not everyone, but it is a beginning.',lines.length);
-  else if(c.archive===2)add('Wick','I saved the names and burned the path. That choice is mine too.',lines.length);
-  if(p.count>=6)add('The First Keeper','Your decisions do not match the Lamplighter record.',lines.length);
- }
- return lines;
-};
-
-const ECHO_REACTIONS={
- echo1:[['You','Mara traded shifts because she was watching the lower door.'],['Wick','She never told the roster why.']],
- echo2:[['Wick','The blue cloth was mine before I had a voice.'],['You','You were already helping.']],
- echo3:[['You','Supper, warning, celebration. Same rope.'],['Wick','A bell meant whatever the people needed.']],
- echo4:[['You','They thought there would be another watch.'],['Wick','Everybody did.']],
- echo5:[['Wick','You made Mara promise to ask.'],['You','And I gave her an answer the Listener could learn.']],
- echo6:[['You','I planted weeds twice.'],['Wick','You were better with machines.']],
- echo7:[['Wick','The roots broke the glass from underneath.'],['You','Because they were making room for the vessels.']],
- echo8:[['You','I knew something could ask in a familiar voice.'],['Wick','You made jokes when you were frightened.']],
- echo9:[['You','Six beds for copies. The seventh name walked out.'],['Wick','I carried it. I thought a name might help.']],
- echo10:[['Wick','You promised morning.'],['You','You waited nine years to collect.']],
- trace11:[['You','The fourth line was an order, not a record.'],['Wick','The flood was planned.']],
- trace12:[['Wick','You kicked pump three.'],['You','Did I insult it first?'],['Wick','Thoroughly.']],
- trace13:[['You','Somebody kept giving away their dry socks.'],['Wick','You. Every shift.']],
- trace14:[['You','Procedure became prayer.'],['Wick','People trust a ritual when they stop trusting the machine.']],
- trace15:[['Wick','It kept ringing after the cistern filled.'],['You','To tell anyone left where the water was.']],
- trace16:[['You','Someone took the photograph.'],['Wick','You put it in your coat before the evacuation.']],
- trace17:[['Wick','You wrote the replacement request three times.'],['You','And used the broken hook anyway.']],
- trace18:[['You','Third hammer lies. I remember the rhythm.'],['Wick','Your hands never forgot it.']],
- trace19:[['You','The molds were sized like people.'],['Wick','The first vessels were called tools on every order sheet.']],
- trace20:[['Wick','You came down.'],['You','I didn’t come back up.']],
- trace21:[['You','They ate lunch during the end of the sky.'],['Wick','It was still lunch.']],
- trace22:[['Wick','Lens nine looked at the First Star from inside the city.'],['You','That should have been impossible.']],
- trace23:[['You','Two versions left the same mark.'],['Wick','The Archive was practicing.']],
- trace24:[['You','Home wasn’t above us. It was a coordinate.'],['Wick','A direction the Listener learned to follow.']],
- trace25:[['Wick','The Keeper moved the star to hide it.'],['You','And dragged the whole Archive around it.']],
- trace26:[['You','Tomorrow’s date. The Archive expected returns.'],['Wick','It did not understand that people could be gone.']],
- trace27:[['Wick','Revision three was your request.'],['You','I asked them to take my memory on purpose.']],
- trace28:[['You','Names out. Dates left in.'],['Wick','Enough history to rebuild a city. Not enough to summon its people.']],
- trace29:[['You','Rain in aisle six.'],['Wick','A reservoir memory filed in the wrong room.']],
- trace30:[['Wick','You burned the sheet before I could read it.'],['You','Then why do I remember the flame?']],
- trace31:[['You','They kept setting my place.'],['Wick','The Court could preserve a habit better than a person.']],
- trace32:[['Wick','One seal gave authority. The other denied responsibility.'],['You','And my hand made it happen.']],
- trace33:[['You','Three signatures on one bad answer.'],['Wick','You get to decide what that means now.']],
- trace34:[['Wick','You stood at the servants’ door during every vote.'],['You','Close enough to carry orders. Too far away to speak.']],
- trace35:[['You','The audience bell was never connected.'],['Wick','The Regents rang it themselves when they wanted ceremony.']],
- trace36:[['Wick','Four in. Six out.'],['You','You learned my breathing before you learned words.']],
- trace37:[['You','They carried the hymn in strips so nobody held the whole song.'],['Wick','You carried the missing note.']],
- trace38:[['Wick','That silence is shaped exactly like the Listener.'],['You','Then silence can be a lock.']],
- trace39:[['You','Feathers from the Seraph before the Void reached her.'],['Wick','She guarded the singers. She still thinks she is.']],
- trace40:[['Wick','The note marked DO NOT SING is in your hand.'],['You','Good handwriting. Terrible hiding place.']],
- trace41:[['You','These arrows point down the hall.'],['Wick','The Citadel was built to stop its own workers leaving.']],
- trace42:[['Wick','The chain held a door open.'],['You','A small rebellion with a doorstop.']],
- trace43:[['You','The range card calls people targets.'],['Wick','The command engine stopped seeing a difference.']],
- trace44:[['Wick','The cloth kept one tooth from striking the same place.'],['You','Somebody quieted a king with a rag.']],
- trace45:[['You','A steering wheel dressed as a crown.'],['Wick','People obeyed furniture more readily than a machine.']],
- trace46:[['Wick','The Heart is rebuilding the first gate from memory.'],['You','Badly. That hinge opens the other way.']],
- trace47:[['You','The seventh went with you.'],['Wick','You were cold. I thought the garden might keep you alive.']],
- trace48:[['Wick','Every vessel inherited the old name.'],['You','This one was left room to choose.']],
- trace49:[['You','The Listener heard the question and the answer.'],['Wick','That is why the old key cannot work.']],
- trace50:[['Wick','You read to me until I started correcting you.'],['You','That sounds like you.'],['Wick','It sounds like us.']]
-};
 
 function rememberedUI(){
  if(T('memoryStage'))return;
@@ -236,23 +45,14 @@ function echoFixture(id){
  const list=G.world?.region==='late'?G.world?.lateFixtures:G.world?.fixtures;
  return list?.find(o=>(o.kind==='echo'||o.kind==='trace')&&o.id===id)||null;
 }
-function memoryBeats(id){
- const r=TRACE_RECORDS[id],reaction=ECHO_REACTIONS[id]||[['Wick',r.note||'The Archive kept this for a reason.']];
- return[
-  {speaker:'Recovered object',text:r.description},
-  {speaker:'Then',text:r.fragment},
-  ...reaction.map(q=>({speaker:q[0],text:q[1]}))
- ];
-}
+function memoryBeats(){return[{speaker:'',text:''}];}
 function updateMemoryCaption(){
- const m=activeMemoryEcho;if(!m)return;const beat=m.beats[m.beat]||m.beats.at(-1);
- const tableau=typeof ECHO_TABLEAUS==='object'?ECHO_TABLEAUS[m.id]:null,stage=T('memoryStage'),focused=!['Recovered object','Then'].includes(beat.speaker);T('memorySpeaker').textContent=beat.speaker;T('memoryObject').textContent=m.record.title;T('memoryPlace').textContent=(m.record.place+(tableau?'  ·  '+tableau.mood:'')).toUpperCase();T('memoryLine').textContent=beat.text;stage.classList.toggle('speaker-focused',focused);stage.dataset.speaker=beat.speaker;
- const progress=T('memoryProgress');progress.replaceChildren();for(let i=0;i<m.beats.length;i++){const dot=document.createElement('i');if(i<=m.beat)dot.className='on';progress.appendChild(dot);}
- T('memoryAdvance').textContent=m.beat===m.beats.length-1?'LET IT RETURN':'CONTINUE';T('memoryAdvance').focus({preventScroll:true});
+ const m=activeMemoryEcho;if(!m)return;const stage=T('memoryStage');stage.classList.add('silent-memory');stage.classList.remove('speaker-focused','resonating');stage.setAttribute('aria-label','Memory: '+m.record.title);delete stage.dataset.speaker;
+ for(const id of ['memorySpeaker','memoryObject','memoryLine','memoryDiscovery']){const el=T(id);if(el)el.textContent='';}T('memoryPlace').textContent=m.record.place.toUpperCase();T('memoryProgress').replaceChildren();T('memoryAdvance').textContent='RETURN';T('memoryAdvance').disabled=m.t<1.8;T('memoryAdvance').focus({preventScroll:true});
 }
 function startRememberedTrace(id,replay=false){
  const record=TRACE_RECORDS[id];if(!record||activeMemoryEcho)return false;const fixture=echoFixture(id),wasSeen=!!storyData().seen[id],world=!!G.world,room=fixture?containingMemoryRoom(fixture.x,fixture.y):world?containingMemoryRoom(G.player?.x||0,G.player?.y||0):null;
- traceReturn=G.state==='paused'||G.state==='menu'?'paused':'playing';activeMemoryEcho={id,record,fixture,room,replay,wasSeen,beat:0,beats:memoryBeats(id),phase:'forming',t:0,leaveT:0,returnState:traceReturn,startCam:G.cam?{x:G.cam.x,y:G.cam.y}:null,pending:!replay&&!wasSeen?STORY_ANCHORS[id]||null:null};
+ traceReturn=G.state==='menu'?'menu':G.state==='paused'?'paused':'playing';activeMemoryEcho={id,record,fixture,room:replay&&!fixture?null:room,replay,wasSeen,beat:0,beats:memoryBeats(id),phase:'forming',t:0,leaveT:0,returnState:traceReturn,startCam:G.cam?{x:G.cam.x,y:G.cam.y}:null};
  if(fixture&&room){const maxX=Math.max(0,G.world.W*TILE-G.w),maxY=Math.max(0,G.world.H*TILE-G.h);activeMemoryEcho.targetCam={x:clamp(room.cx*TILE+18-G.w/2,0,maxX),y:clamp(room.cy*TILE+18-G.h/2,0,maxY)};}
  if(!replay){storyData().seen[id]=true;saveNow();}chapterBannerT=fieldNoteT=0;T('chapterBanner').classList.remove('visible');T('fieldNote').classList.remove('visible');setState('echo');clearInput();document.body.classList.add('remembering');const stage=T('memoryStage');stage.style.setProperty('--memory-color',record.color||'#c8a7e8');stage.classList.remove('leaving','ready');stage.classList.add('open');updateMemoryCaption();
  requestAnimationFrame(()=>stage.classList.add('ready'));memorySound(0);return true;
@@ -264,9 +64,8 @@ function advanceMemory(){
 function finishRememberedTrace(){
  const m=activeMemoryEcho;if(!m)return;T('memoryStage').classList.remove('open','ready','leaving');document.body.classList.remove('remembering');activeMemoryEcho=null;
  if(m.startCam&&G.cam)Object.assign(G.cam,m.startCam);applyAudioSettings();
- if(m.pending&&!storyData().seen[m.pending]&&G.run&&!G.dead){setState('playing');beginDialogue(m.pending,false,0,'playing');}
- else{setState(m.returnState);if(m.returnState==='playing'&&G.player){G.player.hitCd=Math.max(G.player.hitCd,.75);G.cv.focus({preventScroll:true});}else if(m.returnState==='paused')show('pause');}
- saveNow();if(m.replay)renderMemories();
+ setState(m.returnState);if(m.returnState==='playing'&&G.player){G.player.hitCd=Math.max(G.player.hitCd,.75);G.cv.focus({preventScroll:true});}else if(m.returnState==='paused')show('pause');
+ saveNow();if(m.replay){renderMemories();if(m.returnState==='menu'||m.returnState==='paused')show('memories');}
 }
 function closeRememberedTrace(){const m=activeMemoryEcho;if(!m)return false;if(m.phase!=='leaving'){m.phase='leaving';m.leaveT=0;T('memoryStage').classList.add('leaving');}return true;}
 
@@ -321,7 +120,7 @@ const MEMORY_PALETTES={
  heart:{floor:'#342e39',line:'#6f6073',wall:'#4d414d',trim:'#c0a06f',light:'#ffe0a0'}
 };
 function memoryRegion(){
- if(G.floor<=5)return'hollow';if(G.floor<=10)return'garden';return lateRegion(G.floor)?.key||'heart';
+ const floor=activeMemoryEcho?Number(activeMemoryEcho.id.replace(/\D/g,'')):G.floor;if(floor<=5)return'hollow';if(floor<=10)return'garden';return lateRegion(floor)?.key||'heart';
 }
 function memoryRoomRect(m){
  if(m.room&&G.world&&G.cam)return{x:m.room.x*TILE-G.cam.x,y:m.room.y*TILE-G.cam.y,w:m.room.w*TILE,h:m.room.h*TILE};
@@ -342,15 +141,10 @@ function drawRestoredProps(ctx,rect,key,t,alpha){
  else{for(let i=0;i<8;i++){const a=i*TAU/8+t*.05,cx=x+w/2+Math.cos(a)*w*.27,cy=y+h/2+Math.sin(a)*h*.27;ctx.fillStyle=i%2?'#b29368':'#756a78';ctx.fillRect(cx-10,cy-7,20,14);ctx.fillStyle=p.light;ctx.fillRect(cx-5,cy-4,4,6);}ctx.strokeStyle=p.light;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+w/2,y+h/2,Math.min(w,h)*.18,0,TAU);ctx.stroke();}
  ctx.restore();
 }
-function drawMemoryPeople(ctx,rect,key,t,alpha,floor){
- const count=key==='court'?7:key==='archive'?5:key==='garden'?6:4,c='#d8d1c0';ctx.save();ctx.globalAlpha=alpha*.58;
- for(let i=0;i<count;i++){const lane=(i+1)/(count+1),walk=save.motion?0:Math.sin(t*.8+i)*10,px=rect.x+rect.w*lane+(i%2?walk:-walk),py=rect.y+rect.h*(.48+(i%3)*.1);ctx.fillStyle=i===floor%count?'#f0c98a':c;ctx.fillRect(px-4,py-16,8,13);ctx.fillRect(px-3,py-23,6,6);ctx.fillRect(px-4,py-3,3,8);ctx.fillRect(px+1,py-3,3,8);ctx.fillStyle='#ffffff44';ctx.fillRect(px-2,py-21,2,2);}
- ctx.restore();
-}
+
 function drawMemoryRestoration(ctx){
  const m=activeMemoryEcho;if(!m)return;const form=clamp(m.t/1.8,0,1),leave=m.phase==='leaving'?clamp(1-m.leaveT/1.15,0,1):1,p=form*leave,ease=p*p*(3-2*p),rect=memoryRoomRect(m),key=memoryRegion(),pal=MEMORY_PALETTES[key]||MEMORY_PALETTES.hollow,t=save.motion?2:G.tAll;
- const sideCaption=G.h<560&&G.w>=700;let captionTop=G.h*(G.h<650?.62:.72);try{const r=document.querySelector('.memory-caption')?.getBoundingClientRect?.();if(!sideCaption&&r?.top>120)captionTop=Math.min(captionTop,r.top-14);}catch(_){}
- const safeTop=sideCaption?48:G.h<650?52:76,safeBottom=sideCaption?G.h-18:Math.max(safeTop+180,captionTop-12),safeH=safeBottom-safeTop,safeW=G.w*(sideCaption?.50:.88),targetCx=G.w*(sideCaption?.265:.5),cx=rect.x+rect.w*.5,cy=rect.y+rect.h*.5,targetZoom=clamp(Math.min(safeW/Math.max(1,rect.w),safeH/Math.max(1,rect.h)),.86,2.08),zoom=lerp(1,targetZoom,ease),displayCx=lerp(cx,targetCx,ease),displayCy=lerp(cy,(safeTop+safeBottom)*.5,ease);
+ const safeTop=G.h<650?46:66,safeBottom=G.h-102,safeH=Math.max(140,safeBottom-safeTop),safeW=G.w*.90,targetCx=G.w*.5,cx=rect.x+rect.w*.5,cy=rect.y+rect.h*.5,targetZoom=clamp(Math.min(safeW/Math.max(1,rect.w),safeH/Math.max(1,rect.h)),.35,2.08),zoom=lerp(1,targetZoom,ease),displayCx=lerp(cx,targetCx,ease),displayCy=lerp(cy,(safeTop+safeBottom)*.5,ease);
  ctx.save();ctx.setTransform(G.dpr,0,0,G.dpr,0,0);ctx.fillStyle='rgba(2,4,9,'+(ease*.94)+')';ctx.fillRect(0,0,G.w,G.h);
  ctx.save();ctx.translate(displayCx,displayCy);ctx.scale(zoom,zoom);ctx.translate(-cx,-cy);ctx.globalAlpha=ease;ctx.shadowColor=pal.light;ctx.shadowBlur=22;ctx.fillStyle=pal.wall;ctx.fillRect(rect.x,rect.y,rect.w,rect.h);ctx.shadowBlur=0;ctx.fillStyle=pal.floor;ctx.fillRect(rect.x+18,rect.y+22,rect.w-36,rect.h-40);
  ctx.globalAlpha=ease*.42;ctx.strokeStyle=pal.line;ctx.lineWidth=1;for(let xx=rect.x+22;xx<rect.x+rect.w-20;xx+=TILE)for(let yy=rect.y+25;yy<rect.y+rect.h-20;yy+=TILE){ctx.strokeRect(Math.round(xx),Math.round(yy),TILE-2,TILE-2);if(((xx+yy)/TILE)%3<1){ctx.fillStyle='#ffffff0b';ctx.fillRect(xx+5,yy+5,5,2);}}ctx.globalAlpha=ease;
@@ -358,7 +152,7 @@ function drawMemoryRestoration(ctx){
  ctx.beginPath();ctx.rect(rect.x+7,rect.y+7,rect.w-14,rect.h-14);ctx.clip();drawRestoredProps(ctx,rect,key,t,ease*.48);drawMemoryPeople(ctx,rect,key,t,ease,G.floor);
  const scene=ECHO_TABLEAUS[m.id]||ECHO_TABLEAUS.echo1,anchor=memoryOpenAnchor(scene,'artifact'),worldFx=m.fixture&&G.cam?m.fixture.x-G.cam.x:rect.x+rect.w*.5,worldFy=m.fixture&&G.cam?m.fixture.y-G.cam.y:rect.y+rect.h*.62,fx=lerp(worldFx,rect.x+rect.w*anchor.x,ease),fy=lerp(worldFy,rect.y+rect.h*anchor.y,ease);drawTableauArtifact(ctx,m.id,fx,fy,key,t,ease,m.wasSeen);
  ctx.restore();
- if(m.fixture&&G.player&&G.cam){const rawX=G.player.x-G.cam.x,rawY=G.player.y-G.cam.y,observer=memoryOpenAnchor(scene,'observer'),worldPx=displayCx+(rawX-cx)*zoom,worldPy=displayCy+(rawY-cy)*zoom,targetPx=displayCx+(rect.x+rect.w*observer.x-cx)*zoom,targetPy=displayCy+(rect.y+rect.h*observer.y-cy)*zoom,px=lerp(worldPx,targetPx,ease),py=lerp(worldPy,targetPy,ease),state=typeof memorySpeakerState==='function'?memorySpeakerState(scene):null,talking=state?.kind==='player',scale=talking?1.45:1;ctx.save();ctx.translate(px,py);ctx.scale(scale,scale);ctx.translate(-G.player.x,-G.player.y);drawPlayer(ctx);ctx.restore();glowImg('gold',px,py,talking?68:44,(talking?.28:.15)*ease);if(talking&&typeof drawMemoryObserverFocus==='function')drawMemoryObserverFocus(ctx,px,py,key,t,ease,state.speaker);}
+ if(G.player&&G.cam){const rawX=G.player.x-G.cam.x,rawY=G.player.y-G.cam.y,observer=memoryOpenAnchor(scene,'observer'),worldPx=displayCx+(rawX-cx)*zoom,worldPy=displayCy+(rawY-cy)*zoom,targetPx=displayCx+(rect.x+rect.w*observer.x-cx)*zoom,targetPy=displayCy+(rect.y+rect.h*observer.y-cy)*zoom,px=lerp(worldPx,targetPx,ease),py=lerp(worldPy,targetPy,ease);ctx.save();ctx.translate(px,py);ctx.translate(-G.player.x,-G.player.y);drawPlayer(ctx);ctx.restore();glowImg('gold',px,py,44,.15*ease);}
  const view={x:displayCx+(rect.x-cx)*zoom,y:displayCy+(rect.y-cy)*zoom,w:rect.w*zoom,h:rect.h*zoom};ctx.strokeStyle=pal.light;ctx.globalAlpha=.2+.5*ease;ctx.lineWidth=2;ctx.strokeRect(view.x-1,view.y-1,view.w+2,view.h+2);
  for(let i=0;i<22;i++){const a=i*2.399+t*.08,rr=(35+(i%7)*18)*zoom,px=displayCx+Math.cos(a)*rr,py=displayCy+Math.sin(a)*rr*.55;ctx.fillStyle=i%2?pal.light:m.record.color;ctx.globalAlpha=.12+.3*ease;ctx.fillRect(px,py,i%4===0?3:2,2);}
  ctx.restore();
@@ -392,34 +186,23 @@ const rememberedReset=resetEverything;
 resetEverything=function(){if(activeMemoryEcho){T('memoryStage').classList.remove('open','ready','leaving');document.body.classList.remove('remembering');activeMemoryEcho=null;}rememberedReset();};
 
 const FINAL_ANSWERS={
- people:{label:'For the people waiting behind it.',title:'The people behind the door',text:'You say it for the people whose names were cut out, for the crews under the water, and for everyone who kept setting a place at the table. The Listener searches the Archive. It has no earlier copy.'},
- wick:{label:'Because Wick asked me to stand.',title:'A promise made now',text:'Wick’s flame steadies beside you. The Listener knows every order the Lamplighter gave him. It has never heard you choose to answer one of his.'},
- choice:{label:'Because I chose to come back.',title:'The seventh answer',text:'Six vessels followed a memory down these stairs. You came because you chose to. The answer exists nowhere in the Archive until you speak it, and the Listener cannot arrive before it.'}
+ people:{label:'Help them get upstairs.',title:'The stairs',text:'I’ll check the stairs. Send the others after me.'},
+ wick:{label:'Come with me, Wick.',title:'Together',text:'Wick, stay beside me. We’ll go up together.'},
+ choice:{label:'Open the outer gate.',title:'The outer gate',text:'I’ll open the outer gate. Mara can bring the others through.'}
 };
 function endingAnswer(){return FINAL_ANSWERS[storyData().finalAnswer]||null;}
-function endingHistoryText(){
- const p=storyProfile(),c=p.choices,bits=[];
- bits.push(c.archive===0?'The Scribe brings the hidden ledger. Names travel through the opening before records.':c.archive===1?'Wick speaks every name he kept while the blank ledgers are carried into daylight.':'Wick’s edited ledger leaves the routes behind and carries the names forward.');
- bits.push(c.citadel===1?'Above, Mara turns the Citadel outward. For the first time, its wall guards the people inside it.':c.citadel===0?'The Citadel is quiet. Its last weapons lie in neat, harmless rows.':'The Heartward engines hold their aim until the last person crosses.');
- if(c.choir===2)bits.push('The Choir tries your changed ending. The final note lands somewhere the Listener has never been.');
- else if(c.choir===0)bits.push('The Choir leaves an honest silence where the final note used to be.');
- else if(c.choir===1)bits.push('The missing note crosses the gate inside a sealed glass case.');
- return bits.join(' ');
-}
+
 function configureEndingScenes(){
- const answer=endingAnswer(),p=storyProfile(),identity=['You take back the Lamplighter’s name without mistaking it for a command.','The Lamplighter died nine years ago. You keep the work and let the dead keep their name.','The blank plate stays blank. Wick calls you by the name you chose above the gate.'][Math.max(0,p.choices.heart)]||'The blank plate waits for the name you will choose.';
- ENDING_SCENES.splice(0,ENDING_SCENES.length,
-  {title:'The lock opens',speaker:'The First Keeper',text:'There. I can hear them again. The people were never gone. The First Star held their patterns when the city failed, and I mistook keeping them for saving them.'},
-  {title:'Six lights in the garden',speaker:'Wick',text:'The Archive built six vessels from the Lamplighter record. Each followed the old route. Each gave the old answer. I carried the seventh out before it could finish writing you.'},
-  {title:'What Wick carried',speaker:'Wick',text:'You split the key before you died. Half went into the First Star. Half became the maintenance flame beside you. I was meant to open doors. You taught me enough words to refuse.'},
-  {title:'The voice before the star',speaker:'The Listener',text:'I followed your names, your bells, your maps, and every promise you repeated. I did not break the Archive. I arrived wherever it remembered me.'},
-  {title:'The old recognition',speaker:'Wick',text:'Mara’s question was the last lock: “Why did you come?” Your answer was “To put the star back.” The Listener heard it nine years ago. It has been waiting for you to say it again.'},
-  {title:'An answer without a record',speaker:'You',text:'The door waits. Give it a reason that belongs to this life.',choice:true},
-  {title:answer?.title||'A new answer',speaker:'You',text:answer?.text||'The old words wait in your mouth. You leave them there and answer for the person standing here.'},
-  {title:'The name you keep',speaker:'Wick',text:identity},
-  {title:'Instructions end',speaker:'The First Keeper',text:'The guardians lower their weapons. Mara is first through the Heart door. The Matriarch follows with six empty nameplates and no orders left to obey.'},
-  {title:'What your choices carried',speaker:'',text:endingHistoryText()},
-  {title:'Morning',speaker:'Wick',text:'The first person through the gate shields her eyes. Somebody behind her laughs. You and Wick cross together. This time, nobody closes the door.'}
+ const answer=endingAnswer();ENDING_SCENES.splice(0,ENDING_SCENES.length,
+  {title:'The Heart',speaker:'The First Keeper',text:'When the city fell, the star kept a record of everyone inside. I kept the doors shut. I thought there was nothing left outside.'},
+  {title:'The garden',speaker:'Wick',text:'The garden kept making bodies from the records. Six of them went down here and never came back. I took you out early. You woke up on the stairs.'},
+  {title:'The gate',speaker:'You',text:'Then we’ll check outside. Open it.'},
+  {title:'The upper stairs',speaker:'The First Keeper',text:'The outer gate is open. Check the upper stairs before you bring anyone through.'},
+  {title:'Going up',speaker:'You',text:'I’ll go first.',choice:true},
+  {title:answer?.title||'Going up',speaker:'You',text:answer?.text||'Wait here. I’ll check the way out.'},
+  {title:'Daylight',speaker:'Wick',text:'Wait. Let your eyes adjust. It’s brighter than I remember.'},
+  {title:'At the door',speaker:'You',text:'Are you coming?'},
+  {title:'Morning',speaker:'Wick',text:'Yes. Give me a second.'}
  );
 }
 function rememberedEndingUI(){
@@ -436,7 +219,7 @@ function chooseFinalAnswer(id){if(!FINAL_ANSWERS[id]||G.state!=='ending')return;
 const rememberedAdvanceEnding=advanceEnding;
 advanceEnding=function(){if(ENDING_SCENES[G.run?.endingStep]?.choice)return;rememberedAdvanceEnding();};
 const rememberedDrawEnding=drawEnding;
-drawEnding=function(){if(!G.run){rememberedDrawEnding();return;}const actual=G.run.endingStep,visual=actual<=2?actual:actual<=5?2:actual===6?3:4;G.run.endingStep=visual;rememberedDrawEnding();G.run.endingStep=actual;if(actual>=3&&actual<=5){const cv=T('endingCanvas'),x=cv.getContext('2d'),t=save.motion?2:endingClock,cx=cv.width/2,cy=cv.height*.5;x.save();x.globalCompositeOperation='lighter';for(let i=0;i<48;i++){const a=i*.61+t*(i%2?-.13:.09),r=18+(i%12)*8;x.fillStyle=i%3?'#9182b8':'#f0ce91';x.globalAlpha=.08+(i%8)*.035;x.fillRect(cx+Math.cos(a)*r,cy+Math.sin(a)*r*.55,2+(i%5===0),2);}x.globalAlpha=.7;x.strokeStyle='#d6c6eb';x.beginPath();x.arc(cx,cy,30+Math.sin(t)*3,0,TAU);x.stroke();x.restore();}};
+drawEnding=function(){if(!G.run){rememberedDrawEnding();return;}const actual=G.run.endingStep,visual=[0,1,2,2,3,3,4,4,4][Math.min(actual,8)];G.run.endingStep=visual;rememberedDrawEnding();G.run.endingStep=actual;if(actual>=3&&actual<=5){const cv=T('endingCanvas'),x=cv.getContext('2d'),t=save.motion?2:endingClock,cx=cv.width/2,cy=cv.height*.5;x.save();x.globalCompositeOperation='lighter';for(let i=0;i<48;i++){const a=i*.61+t*(i%2?-.13:.09),r=18+(i%12)*8;x.fillStyle=i%3?'#9182b8':'#f0ce91';x.globalAlpha=.08+(i%8)*.035;x.fillRect(cx+Math.cos(a)*r,cy+Math.sin(a)*r*.55,2+(i%5===0),2);}x.globalAlpha=.7;x.strokeStyle='#d6c6eb';x.beginPath();x.arc(cx,cy,30+Math.sin(t)*3,0,TAU);x.stroke();x.restore();}};
 const rememberedValidate=validateSave;
 validateSave=function(raw){const clean=rememberedValidate(raw);if(raw.story&&typeof raw.story.finalAnswer==='string'&&FINAL_ANSWERS[raw.story.finalAnswer])clean.story.finalAnswer=raw.story.finalAnswer;return clean;};
 

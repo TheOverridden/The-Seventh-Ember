@@ -63,13 +63,7 @@ HOLLOW_FLOORS.push(
   {name:'The Nursery',hint:'Not every rustle is a footstep.'},
   {name:'The Root Chamber',hint:'Something is tending the beds.'}
 );
-Object.assign(HOLLOW_SCENES,{
-  gardenArrival:{title:'Through the gate',where:'The Overgrown Walk',lines:[['You','Roots. All the way through the stone.'],['Wick','Mind where you step.'],['You','Are they alive?'],['Wick','That isn’t the part I’m worried about.']]},
-  gardenChoice:{title:'Your handwriting',where:'The Still Courtyard',lines:[['A memory','A wooden sign hangs crookedly from a branch. KEEP THE GATE CLOSED.'],['You','That’s my handwriting.'],{speaker:'You',choices:[{label:'You knew, didn’t you?',reply:[['Wick','I watched you paint it.'],['You','And you were going to let me walk past?'],['Wick','I wanted you to recognize something on your own.']]},{label:'Turn the sign over.',reply:[['A memory','On the back, smaller: EVEN IF THEY ASK NICELY.'],['You','I was having a bad day.'],['Wick','You were having a very long one.']]}]}]},
-  nurseryTalk:{title:'Count the beds',where:'The Nursery',lines:[['You','These aren’t flower beds.'],['Wick','They used to be.'],['You','What happened?'],['Wick','You stopped coming back.']]},
-  matriarchBefore:{title:'The gardener',where:'The Root Chamber',lines:[['The Hollow Matriarch','Leave the light outside.'],['You','You grew through the gate.'],['The Hollow Matriarch','It was open when you left.'],['You','What’s under those roots?'],['The Hollow Matriarch','What you planted.'],['Wick','Don’t get close to the nests.'],['The Hollow Matriarch','He always says that.']]},
-  matriarchAfter:{title:'Until morning',where:'The Root Chamber',lines:[['You','I remember a spade.'],['The Hollow Matriarch','You left it by the door.'],['You','Did I bury someone?'],['The Hollow Matriarch','You asked me to keep them warm.'],['Wick','We need to go.'],['You','Are they still here?'],['The Hollow Matriarch','Listen.']]}
-});
+
 Object.assign(ETYPES,{
   mossSlime:{hp:74,spd:68,dmg:11,r:13,xp:10,spr:'mossSlime',ai:'garden',col:'#8cbf6f',ess:.4,kb:.8},
   petalBat:{hp:60,spd:106,dmg:10,r:11,xp:9,spr:'petalBat',ai:'garden',col:'#d49ab7',ess:.4,kb:1},

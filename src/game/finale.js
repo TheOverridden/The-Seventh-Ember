@@ -210,13 +210,7 @@ drawLateBossBody=function(ctx,b){depthBossBody(ctx,b);if(b.bossKey==='bellkeeper
 const depthPortrait=drawPortrait;
 drawPortrait=function(){if(!dialogue)return;const name=dialogue.lines[dialogue.index].speaker,key=LATE_BOSS_SPEAKERS.get(name);if(!key){depthPortrait();return;}const x=T('speakerPortrait').getContext('2d');x.clearRect(0,0,120,120);x.imageSmoothingEnabled=false;x.save();x.translate(60,66);const scale=key==='bellkeeper'?.67:key==='seraph'?.68:.73;x.scale(scale,scale);const type=Object.keys(LATE_BOSSES).find(t=>LATE_BOSSES[t].key===key),c=LATE_BOSSES[type],b={x:0,y:0,r:c.r,col:c.col,bossKey:key,twinRole:'blade',bs:{mode:'wait',a:0,t:0,duration:1,phase:0,second:false}};if(key==='regents'){x.scale(.7,.7);b.x=-30;drawLateBossBody(x,b);b.x=35;b.twinRole='bell';drawLateBossBody(x,b);}else drawLateBossBody(x,b);x.restore();};
 
-const ENDING_SCENES=[
- {title:'The lock opens',speaker:'The First Keeper',text:'There. I can hear them again. All this time, I thought the silence meant they were gone.'},
- {title:'What the garden kept',speaker:'Wick',text:'They were still inside the star when it began to fail. You opened the gate to bring them out. The Keeper sealed it behind you. He thought the cold would kill them.'},
- {title:'The missing part',speaker:'Wick',text:'You gave me half your light so I could find the way back. Every time you went out, I carried the rest to the gate. I should have told you. I was afraid you’d ask me to stop.'},
- {title:'A door, at last',speaker:'You',text:'Then stay with me this time. We’re opening it together.'},
- {title:'Morning',speaker:'',text:'The first person through the gate shields her eyes. Behind her, someone laughs. Wick settles beside your shoulder. For once, the stairs are quiet.'}
-];
+const ENDING_SCENES=[];
 let endingClock=0;
 function beginEnding(){if(!G.run||G.dead||G.run.infinite)return;clearInput();meleeQueued=reloadQueued=false;G.descending=false;G.ebul=[];G.bullets=[];G.pendingLevels=0;G.world.lateHazards=[];G.portal.active=false;G.bossActive=false;G.run.campaignComplete=true;
  if(!G.run.campaignStats)G.run.campaignStats={kills:G.run.kills,ess:G.run.ess,time:G.run.t,level:G.run.level,guardians:10};save.campaignMedal=true;

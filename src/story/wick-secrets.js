@@ -2,15 +2,7 @@
 
 (()=>{
  const scenes=['wickPointer1','wickPointer2','wickPointer3','wickPointer4','wickPointer5','wickPointer6'];
- Object.assign(HOLLOW_SCENES,{
-  wickPointer1:{title:'The portal is over there',where:'An open gate',hidden:true,lines:[['Wick','Um. The portal is over there.']]},
-  wickPointer2:{title:'The large glowing thing',where:'An open gate',hidden:true,lines:[['Wick','The large glowing thing. With the stairs.']]},
-  wickPointer3:{title:'It is still there',where:'An open gate',hidden:true,lines:[['Wick','It is still there.']]},
-  wickPointer4:{title:'What do you expect?',where:'An open gate',hidden:true,lines:[['Wick','I don’t know what you expect me to do.']]},
-  wickPointer5:{title:'Mara’s labels',where:'An open gate',hidden:true,lines:[['Wick','I used to wonder why Mara labeled every door.']]},
-  wickPointer6:{title:'Fine',where:'An open gate',hidden:true,lines:[['Wick','...Fine. Take this. It points.']]},
-  wickPointerAfter:{title:'It has opinions',where:'An open gate',hidden:true,lines:[['Wick','At the portal, mostly. It has opinions about enemies.']]}
- });
+
  Object.assign(ARMORY,{wickPointer:{name:'Wick’s Pointer',requirement:'Try Wick’s patience near an open portal',detail:'Marks the room’s greatest threat. Marked enemies take more damage and return one Ember Bolt charge.'}});
  const card={id:'wickPointer',r:2,max:1,w:2,minFloor:1,icon:'target',name:'Wick’s Pointer',ds:'Marks the greatest threat · +18% damage · marked defeats restore one charge',unlock:'wickPointer'};
  POOL.push(card);
@@ -100,7 +92,7 @@
   const out=baseUpdate(dt);if(G.state==='playing'){portalTileSeen();targetClock-=dt;if(pointerActive()&&(targetClock<=0||!markedTarget())){targetClock=.4;chooseTarget();}}return out;
  };
  const baseFinishDialogue=finishDialogue;
- finishDialogue=function(){const id=dialogue?.id;baseFinishDialogue();if(id==='wickPointer6'&&!armoryData().wickPointer)openGift();};
+ finishDialogue=function(){const id=dialogue?.id,replay=dialogue?.replay;baseFinishDialogue();if(id==='wickPointer6'&&!replay&&!armoryData().wickPointer)openGift();};
  const baseDamageEnemy=damageEnemy;
  damageEnemy=function(e,dmg,ang,crit,kb,kind='shot'){if(pointerActive()&&e&&!e.dead&&e.uid===G.run.wickPointerUid)dmg*=1.18;return baseDamageEnemy(e,dmg,ang,crit,kb,kind);};
  const baseKillEnemy=killEnemy;

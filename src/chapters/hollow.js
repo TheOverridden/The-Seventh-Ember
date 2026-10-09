@@ -5,15 +5,7 @@ const HOLLOW_FLOORS=[
   {name:'The Empty Barracks',hint:'The watch has not been relieved.'},
   {name:'The Last Watch',hint:'Someone is waiting at the door.'}
 ];
-const HOLLOW_SCENES={
-  arrival:{title:'A voice in the light',where:'The Gatehouse',lines:[['???','Easy. You’ve been lying there a while.'],['You','Who’s speaking?'],['???','The light in your hand.'],['You','Do you know me?'],['Wick','Call me Wick.'],['You','That wasn’t what I asked.'],['Wick','I know. Can you stand?']]},
-  walks:{title:'The night watch',where:'The Lantern Walks',lines:[['You','There’s a lantern outside every door.'],['Wick','Someone used to come through and light them. Every night.'],['You','And now?'],['Wick','Stay back from the ones that move.']]},
-  barracks:{title:'An empty bed',where:'The Empty Barracks',lines:[['You','This bed has my coat on it.'],['Wick','Leave it. The lining’s full of holes.'],{speaker:'You',choices:[{label:'How would you know?',reply:[['Wick','You complained about it.'],['You','When?'],['Wick','Before you stopped remembering me.']]},{label:'I’m taking it anyway.',reply:[['Wick','All right.'],['You','It fits.'],['Wick','Yes. It does.']]}]}]},
-  wardenBefore:{title:'An old instruction',where:'The Last Watch',lines:[['The Star Warden','Stop there.'],['You','Do you know a way out?'],['The Star Warden','You asked me to stop you.'],['You','I’ve never been here.'],['The Star Warden','Wick. You let them forget.'],['Wick','Put the sword down.'],['The Star Warden','I can’t.']]},
-  wardenAfter:{title:'Beyond the gate',where:'The Last Watch',lines:[['The Star Warden','You used to wait until I lowered my shield.'],['You','Why would I ask you to kill me?'],['The Star Warden','Stop you. Not kill you.'],['You','You could have said that before.'],['The Star Warden','Would you have stayed?'],['Wick','The door’s open.'],['You','We’re going to talk about this.'],['Wick','Yes.']]},
-  firstDeath:{title:'Back at the gate',where:'After the first fall',lines:[['Wick','Take a moment.'],['You','I died.'],['Wick','Yes.'],['You','You don’t seem surprised.'],['Wick','I was hoping it wouldn’t happen this time.']]},
-  firstSigil:{title:'A hand on the door',where:'The Skill Tree',lines:[['A memory','Your hand rests on an iron door. Someone on the other side knocks twice.'],['You','I knew what that meant. A second ago, I knew.'],['Wick','Don’t force it. Keep what you can.']]}
-};
+const HOLLOW_SCENES={};
 let dialogue=null,storyQueue=[],chapterBannerT=0,fieldNoteT=0,portraitClock=0;
 function storyData(){if(!save.story)save.story={seen:{},choices:{}};return save.story;}
 function storyLines(id){return HOLLOW_SCENES[id].lines.flatMap((line,i)=>{if(Array.isArray(line))return[{speaker:line[0],text:line[1]}];const selected=storyData().choices[id+':'+i];if(Number.isInteger(selected)&&line.choices[selected]){const c=line.choices[selected];return[{speaker:'You',text:c.label},...c.reply.map(x=>({speaker:x[0],text:x[1]}))];}return[{...line,choiceKey:id+':'+i}];});}
@@ -82,7 +74,7 @@ function renderMemories(){
   for(const id of ids){const s=HOLLOW_SCENES[id],b=document.createElement('button');b.className='memory-entry';const left=document.createElement('span'),name=document.createElement('strong'),where=document.createElement('small'),action=document.createElement('span');name.textContent=s.title;where.textContent=s.where;action.textContent='RECALL →';left.append(name,where);b.append(left,action);b.addEventListener('click',()=>beginDialogue(id,true));list.appendChild(b);}
 }
 function openMemories(){if(G.state==='playing')pauseGame(true);renderMemories();show('memories');}
-function showChapterClear(){const second=G.floor===10;setState('chapter');T('chapterSeal').textContent=second?'Ⅱ':'Ⅰ';T('chapterCompleteLabel').textContent=second?'CHAPTER II COMPLETE':'CHAPTER I COMPLETE';T('chapterCompleteTitle').textContent=second?'The Rootbound Gardens':'The Hollow Gate';T('chapterCompleteText').textContent=second?'The roots loosen. Something beneath the garden is still breathing.':'The Warden has lowered his weapon. Beyond him, the stairs keep going.';T('chapterQuote').textContent=second?'“You asked me to keep them warm.”':'“You asked me to stop you.”';statBoxes(T('chapterStats'),G.floor,G.run.level,G.run.kills,G.run.t);show('chapterClear');sfx('victory');}
+function showChapterClear(){const second=G.floor===10;setState('chapter');T('chapterSeal').textContent=second?'Ⅱ':'Ⅰ';T('chapterCompleteLabel').textContent=second?'CHAPTER II COMPLETE':'CHAPTER I COMPLETE';T('chapterCompleteTitle').textContent=second?'The Rootbound Gardens':'The Hollow Gate';T('chapterCompleteText').textContent=CHAPTER_EXIT_TEXT[G.floor]||'';T('chapterQuote').textContent='';T('chapterQuote').hidden=true;statBoxes(T('chapterStats'),G.floor,G.run.level,G.run.kills,G.run.t);show('chapterClear');sfx('victory');}
 function hollowKey(e){
   if(!dialogue){if(T('memories').classList.contains('open')&&e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();hide('memories');}return;}
   if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;
