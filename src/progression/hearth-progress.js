@@ -95,7 +95,7 @@ let hearthRevision = 0,
   hearthSaveClock = 0;
 function cleanHearth(raw) {
   const h = {
-    version: 2,
+    version: 3,
     progress: {},
     completed: {},
     vowSeals: {},
@@ -113,6 +113,8 @@ function cleanHearth(raw) {
       window: 'night',
     },
     tracked: '',
+    trials: {},
+    keptCosmetics: [],
   };
   if (!raw || typeof raw !== 'object') return h;
   for (const combo of BLESSING_COMBOS)
@@ -142,10 +144,44 @@ function cleanHearth(raw) {
     if (p) h[key] = p.id;
   }
   if (HEARTH_MUSIC.some((m) => m[0] === raw.music)) h.music = raw.music;
+  h.trials = cleanHearthTrials(raw.trials);
+  const choices = [
+    ...HEARTH_DECOR.map((item) => 'decor:' + item.id),
+    ...HEARTH_PALETTES.flatMap((item) => ['trail:' + item.id, 'shards:' + item.id]),
+  ];
+  if (Array.isArray(raw.keptCosmetics))
+    h.keptCosmetics = [...new Set(raw.keptCosmetics.filter((key) => choices.includes(key)))];
+  if (raw.version === 1 || raw.version === 2) {
+    for (const id of Object.values(h.layout)) h.keptCosmetics.push('decor:' + id);
+    h.keptCosmetics.push('trail:' + h.trail, 'shards:' + h.shards);
+    h.keptCosmetics = [...new Set(h.keptCosmetics)];
+  }
+  for (const [slot, id] of Object.entries(h.layout)) {
+    const key = 'decor:' + id,
+      source = HEARTH_COSMETIC_SOURCES[key];
+    if (
+      source &&
+      !h.keptCosmetics.includes(key) &&
+      !h.trials[source.trial + ':' + source.level]?.clears
+    )
+      h.layout[slot] = HEARTH_DECOR.find(
+        (item) => item.slot === slot && !HEARTH_COSMETIC_SOURCES['decor:' + item.id]
+      ).id;
+  }
+  for (const kind of ['trail', 'shards']) {
+    const key = kind + ':' + h[kind],
+      source = HEARTH_COSMETIC_SOURCES[key];
+    if (
+      source &&
+      !h.keptCosmetics.includes(key) &&
+      !h.trials[source.trial + ':' + source.level]?.clears
+    )
+      h[kind] = 'ember';
+  }
   return h;
 }
 function hearthData() {
-  if (save.hearth?.version !== 2) save.hearth = cleanHearth(save.hearth);
+  if (save.hearth?.version !== 3) save.hearth = cleanHearth(save.hearth);
   return save.hearth;
 }
 function hearthVowsUnlocked() {

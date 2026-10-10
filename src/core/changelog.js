@@ -2,6 +2,21 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101003,
+    date: 'OCTOBER 10, 2026',
+    title: 'THE TRIAL ROOMS',
+    intro: 'The Hearth opens six dedicated combat trials and a new set of cosmetic rewards.',
+    changes: [
+      'Starstitch Only, Flare Only, One Heart, Hold the Hearth, Broken Constellation, and Guardian Trial each have Kindling, Blaze, and Inferno difficulties.',
+      'Trials take place in handcrafted arenas outside the normal dungeon. Their fixed loadouts keep permanent upgrades and descent blessings separate.',
+      'Later difficulties introduce different enemy waves, moving hazards, and Guardian attack sequences. Clear a difficulty to unlock the next one.',
+      'First clears unlock eighteen furnishings and twenty-two trail and revolving shard finishes. Preview the rewards and their trial requirements in the Hearth.',
+      'The Hearth has new pixel artwork, a warm stone fireplace, a trial noticeboard, larger Guardian trophies, a reading corner, and a rebuilt customization screen.',
+      'Clear records, fastest times, fewest hits, and cosmetic rewards save automatically. Previously equipped furnishings and finishes remain available.',
+      'Trial attempts preserve your current descent and saved Boss Rush. Return to your paused run after an attempt; reloading during a trial keeps your original checkpoints.',
+    ],
+  },
+  {
     version: 2026101002,
     date: 'OCTOBER 10, 2026',
     title: 'A QUIETER HEARTH',
