@@ -2,6 +2,20 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101002,
+    date: 'OCTOBER 10, 2026',
+    title: 'A QUIETER HEARTH',
+    intro: 'The Hearth has fewer menus and more room to make it yours.',
+    changes: [
+      'Removed the combination challenges, goal tracking, completion popups, progress counters, and mastery relic cabinet from the Hearth.',
+      'All Hearth furnishings, Ember trails, and revolving shard finishes are available without challenge requirements.',
+      'The Hearth now has two tabs: your room and optional Vow Bindings. Guardian trophies, seals, music choices, and saved customization carry over.',
+      'Opening the Hearth during a run offers Resume Descent and returns to that run.',
+      'Removed extra combination badges from blessing choices. Choices still show when they complete a combination, and the Build screen keeps the full combination list.',
+      'Existing runs, blessings, combinations, permanent upgrades, and save files remain compatible.',
+    ],
+  },
+  {
     version: 2026101001,
     date: 'OCTOBER 10, 2026',
     title: 'A STEADIER DESCENT',

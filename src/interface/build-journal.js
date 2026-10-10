@@ -194,9 +194,10 @@ function blessingComboRefresh() {
       el.appendChild(buildEmblem(combo.family));
       const body = document.createElement('div');
       body.innerHTML =
-        '<div class="combo-state">' +
-        (on ? 'ACTIVE' : held ? 'ONE BLESSING AWAY' : 'RECIPE') +
-        '</div><h4>' +
+        (on || held
+          ? '<div class="combo-state">' + (on ? 'ACTIVE' : 'ONE BLESSING AWAY') + '</div>'
+          : '') +
+        '<h4>' +
         combo.name +
         '</h4><p>' +
         combo.ds +
@@ -336,18 +337,17 @@ buildCards = function () {
           !blessingComboActive(c.id) &&
           c.cards.every((id) => id === card.id || blessingRank(id) > 0)
       );
-    if (!pairs.length) continue;
+    if (!complete.length) continue;
     const hint = document.createElement('div');
-    hint.className = 'combo-preview' + (complete.length ? ' complete' : '');
-    hint.textContent = complete.length
-      ? 'ACTIVATES ' +
-        complete
-          .slice(0, 2)
-          .map((c) => c.name)
-          .join(' + ') +
-        (complete.length > 2 ? ' + ' + (complete.length - 2) + ' more' : '')
-      : pairs.length + ' COMBO RECIPES';
-    hint.title = pairs
+    hint.className = 'combo-preview complete';
+    hint.textContent =
+      'ACTIVATES ' +
+      complete
+        .slice(0, 2)
+        .map((c) => c.name)
+        .join(' + ') +
+      (complete.length > 2 ? ' + ' + (complete.length - 2) + ' more' : '');
+    hint.title = complete
       .map(
         (c) =>
           c.name +
@@ -408,7 +408,7 @@ updateHUD = function (dt) {
     ]
       .map(([id, name]) => '<option value="' + id + '">' + name + '</option>')
       .join('') +
-    '</select></div><div id="buildFilters" class="build-filters"><button data-build-filter="all">ALL RECIPES</button><button data-build-filter="active">ACTIVE</button><button data-build-filter="near">ONE AWAY</button></div><div class="build-result-line"><span id="buildResultCount"></span><span id="buildHelp">Recipes activate automatically. Higher blessing ranks keep their benefits.</span></div><div id="comboList" class="build-list"></div></div>';
+    '</select></div><div id="buildFilters" class="build-filters"><button data-build-filter="all">ALL</button><button data-build-filter="active">ACTIVE</button><button data-build-filter="near">ONE AWAY</button></div><div class="build-result-line"><span id="buildResultCount"></span><span id="buildHelp">Combinations activate automatically. Higher blessing ranks keep their benefits.</span></div><div id="comboList" class="build-list"></div></div>';
   document.body.appendChild(overlay);
   button.addEventListener('click', () => buildOpen('combos'));
   hud.addEventListener('click', () => buildOpen('build', 'hud'));

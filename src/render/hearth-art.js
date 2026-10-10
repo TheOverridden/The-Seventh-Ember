@@ -60,35 +60,10 @@ function hearthLantern(ctx, x, y, kind, t) {
       px(Math.cos(a) * 15, Math.sin(a) * 15, 2, 2, '#e4eddf');
     }
 }
-function hearthRelic(ctx, x, y, index, earned, t = 0) {
-  ctx.save();
-  ctx.translate(x, y);
-  const c = BLESSING_COMBOS[index],
-    p = HEARTH_PALETTES[Math.floor(index / 3) % 12];
-  ctx.globalAlpha = earned ? 1 : 0.22;
-  hearthPixel(ctx, -7, 8, 14, 3, '#8e7553');
-  hearthPixel(ctx, -5, 5, 10, 3, '#3f3530');
-  if (earned) {
-    drawComboEmblem(ctx, c.family, 0, -2, 15);
-    hearthPixel(ctx, -1, 10, 2, 2, p.light);
-  } else {
-    hearthPixel(ctx, -4, -7, 8, 12, '#4d4943');
-    hearthPixel(ctx, -6, -3, 12, 4, '#4d4943');
-  }
-  ctx.restore();
-}
 function hearthBuildRoom() {
   const h = hearthData(),
-    count = hearthCount(),
     guardians = achievementData().guardians,
-    key = JSON.stringify([
-      h.layout,
-      count,
-      Object.keys(h.completed),
-      guardians,
-      h.vowSeals,
-      h.crowns,
-    ]);
+    key = JSON.stringify([h.layout, guardians, h.vowSeals, h.crowns]);
   if (hearthRoomCache && key === hearthRoomKey) return hearthRoomCache;
   hearthRoomKey = key;
   const cv = document.createElement('canvas');
@@ -409,11 +384,22 @@ function hearthBuildRoom() {
   px(450, 178, 135, 63, '#4c3e30');
   for (let row = 0; row < 3; row++) {
     px(455, 181 + row * 19, 125, 17, '#15191a');
-    for (let col = 0; col < 12; col++) {
-      const i = row * 12 + col,
-        c = BLESSING_COMBOS[i],
-        earned = HEARTH_CHALLENGES.filter((q) => q.combo === c.id).every((q) => h.completed[q.id]);
-      hearthRelic(ctx, 460 + col * 10, 188 + row * 19, i, earned);
+    for (let col = 0; col < 8; col++) {
+      const x = 461 + col * 14,
+        y = 185 + row * 19;
+      if (row === 1) {
+        px(x + 3, y + 1, 4, 3, '#b49b70');
+        px(x + 2, y + 4, 6, 3, '#546b63');
+        px(x, y + 7, 10, 7, col % 2 ? '#839878' : '#738c91');
+        px(x + 2, y + 8, 2, 4, '#c4d0b4');
+        px(x + 1, y + 13, 8, 1, '#38443e');
+      } else {
+        const height = 9 + ((col * 3 + row) % 5);
+        px(x, y + 14 - height, 9, height, ['#796344', '#63705b', '#765449'][col % 3]);
+        px(x + 2, y + 14 - height, 1, height, '#c2a575');
+        px(x + 3, y + 11, 5, 1, '#c2a575');
+        px(x + 8, y + 15 - height, 1, height - 1, '#362c25');
+      }
     }
     px(450, 198 + row * 19, 135, 2, '#aa8550');
   }

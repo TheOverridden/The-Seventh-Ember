@@ -251,7 +251,6 @@ function mothApply(item, choice) {
   if (item.id === 'omen') run.mothOmenClaimed = true;
   recalc();
   if (item.id === 'mend' || item.id === 'vessel') G.player.hp = G.player.maxHp;
-  hearthDiscover();
   applyHearthBindings();
 }
 function mothPurchase(id, choice = null) {

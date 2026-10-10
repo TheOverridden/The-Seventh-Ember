@@ -160,7 +160,6 @@ function comboCallMeteor() {
     (3 + (blessingRank('meteorCore') - 1)) * (blessingComboActive('extinction') ? 1.5 : 1);
   comboMeteor(x, y, power);
   if (blessingComboActive('meteorSwarm')) {
-    comboTrialEvent('meteorSwarm');
     for (const side of [-1, 1])
       comboMeteor(
         x + Math.cos(a + Math.PI / 2) * 68 * side,
@@ -176,7 +175,6 @@ function comboFissure(a) {
   const p = G.player,
     rank = blessingRank('faultline'),
     turns = blessingComboActive('rupture') ? [-0.3, 0, 0.3] : [0];
-  if (turns.length === 3) comboTrialEvent('rupture');
   for (const turn of turns)
     comboField('quake', p.x, p.y, {
       life: 0.85,
@@ -193,7 +191,6 @@ function comboMoths(n = 3) {
 }
 function comboReleaseHalo(f) {
   if (!blessingComboActive('gearstorm')) return;
-  comboTrialEvent('gearstorm');
   for (let i = 0; i < 3; i++) {
     const a = G.t * 2.8 + (i * TAU) / 3,
       x = f.x + Math.cos(a) * 85,
@@ -220,7 +217,6 @@ damageEnemy = function (e, damage, angle, crit, kb, kind = 'shot') {
     if (blessingComboActive('icebreaker'))
       blessingBurst(e.x, e.y, 55, p.dmg * 0.4, 'icebreaker', '#e9faff');
     if (blessingComboActive('glacier')) {
-      comboTrialEvent('glacier');
       comboField('frost', e.x, e.y, { life: 2, radius: 58 });
     }
   }
@@ -231,7 +227,6 @@ damageEnemy = function (e, damage, angle, crit, kb, kind = 'shot') {
     !(s.bloodMoonUntil > G.t)
   ) {
     s.bloodMoonUntil = G.t + 0.3;
-    comboTrialEvent('bloodMoon');
     for (let i = 0; i < 6; i++)
       comboShot(e.x, e.y, (i * TAU) / 6, 0.45, 'moonSplinter', { r: 4, life: 0.55, pierce: 1 });
     blessingEffect({ type: 'bloodMoon', x: e.x, y: e.y, radius: 65, max: 0.55 });
@@ -271,7 +266,6 @@ fireVolley = function () {
   if (blessingCount('moonShard', 6)) comboCrescent(a, 1.6 + 0.4 * (blessingRank('moonShard') - 1));
   if (blessingCount('meteorCore', 10)) comboCallMeteor();
   if (blessingComboActive('whiteout') && s.casts % 6 === 0) {
-    comboTrialEvent('whiteout');
     for (let i = 0; i < 5; i++)
       comboShot(p.x, p.y, G.t * 1.3 + (i * TAU) / 5, 0.8, 'hailstone', {
         comboArt: 'whiteout',
@@ -307,12 +301,10 @@ strikeMelee = function () {
   if (blessingCount('sawHalo', 4))
     comboField('halo', p.x, p.y, { life: 5, power: 0.85 + 0.3 * (blessingRank('sawHalo') - 1) });
   if (blessingComboActive('moonwake') && s.flares % 2 === 0) {
-    comboTrialEvent('moonwake');
     for (const turn of [-0.38, 0.38]) comboCrescent(p.meleeAngle + turn, 1.1);
   }
   if (blessingComboActive('hearthguard') && s.flares % 3 === 0 && !(s.hearthUntil > G.t)) {
     s.hearthUntil = G.t + 3;
-    comboTrialEvent('hearthguard');
     comboMoths(1);
     p.cardWard = Math.min(p.maxHp * 0.35, (p.cardWard || 0) + 4 * blessingRank('lanternMoths'));
   }
@@ -357,17 +349,13 @@ function comboTickField(f, dt) {
         0,
         blessingComboActive('forkedStorm') ? 3 : 1
       );
-      if (targets.length === 3) comboTrialEvent('forkedStorm');
       for (const e of targets) {
-        const hp = e.hp;
         comboArc(f.x, f.y, e, f.power);
-        if (e.hp < hp && blessingComboActive('ballLightning')) comboTrialEvent('ballLightning');
         if (blessingComboActive('stormglass') && !e.dead) {
-          if (blessingFreeze(e, 0.8)) comboTrialEvent('stormglass');
+          blessingFreeze(e, 0.8);
         }
         if (blessingComboActive('cageOfStars') && !e.dead) {
           starstitchPin(e.x, e.y, e);
-          comboTrialEvent('cageOfStars');
         }
       }
       if (targets.length) {
@@ -404,9 +392,7 @@ function comboTickField(f, dt) {
           for (const target of comboTargets(e.x, e.y, 190)
             .filter((q) => q !== e)
             .slice(0, 2)) {
-            const hp = target.hp;
             comboArc(e.x, e.y, target, 0.6);
-            if (target.hp < hp) comboTrialEvent('thunderquake');
           }
       }
     if (blessingComboActive('magmaFault') && f.tick <= 0) {
@@ -431,7 +417,6 @@ function comboTickField(f, dt) {
       )
         continue;
       f.hit.push(e.uid);
-      const hp = e.hp;
       damageEnemy(
         e,
         p.dmg * f.power,
@@ -440,12 +425,8 @@ function comboTickField(f, dt) {
         back ? 0 : blessingComboActive('tidalBore') ? 1.6 : 0.65,
         'tidalPulse'
       );
-      if (e.hp < hp) {
-        if (back) comboTrialEvent('undertow');
-        if (blessingComboActive('tidalBore')) comboTrialEvent('tidalBore');
-      }
       if (blessingComboActive('permafrost') && !e.dead) {
-        if (blessingFreeze(e, 0.95)) comboTrialEvent('permafrost');
+        blessingFreeze(e, 0.95);
       }
       if (back && !e.isBoss) {
         const d = Math.max(1, distance);
@@ -465,14 +446,13 @@ function comboTickField(f, dt) {
           e.comboSawUntil = G.t + 0.6;
           damageEnemy(e, p.dmg * f.power, a, false, 0.3, 'sawHalo');
           if (blessingComboActive('iceHalo') && !e.dead) {
-            if (blessingFreeze(e, 0.7)) comboTrialEvent('iceHalo');
+            blessingFreeze(e, 0.7);
           }
           if (blessingComboActive('sawfire')) {
             blessingIgnite(e, blessingRank('burn'), 3);
             const s = blessingComboState();
             s.sawHits = ((s.sawHits || 0) + 1) % 3;
             if (!s.sawHits) {
-              comboTrialEvent('sawfire');
               comboShot(x, y, a, 1.2, 'sawfire', { r: 13, pierce: 2, life: 0.9 });
             }
           }
@@ -493,9 +473,7 @@ function comboTickField(f, dt) {
   } else if (f.type === 'meteor' && f.t <= 0) {
     blessingBurst(f.x, f.y, f.radius, p.dmg * f.power, 'meteorImpact', '#ffdb8f');
     sfx('comet');
-    if (f.main) comboTrialEvent('extinction');
     if (blessingComboActive('impactCrater')) {
-      comboTrialEvent('impactCrater');
       comboField('magma', f.x, f.y, {
         life: 4,
         radius: f.main ? 85 : 48,
@@ -505,7 +483,6 @@ function comboTickField(f, dt) {
     }
     if (blessingComboActive('starforge')) {
       const survivors = comboTargets(f.x, f.y, f.radius).slice(0, 2);
-      if (survivors.length) comboTrialEvent('starforge');
       for (const e of survivors) starstitchPin(e.x, e.y, e);
       comboStitchPulse(1);
     }
@@ -515,7 +492,6 @@ function comboTickField(f, dt) {
     if (f.t <= 0) {
       cardHeal(f.rank * f.n);
       if (blessingComboActive('mothlight')) {
-        comboTrialEvent('mothlight');
         p.cardWard = Math.min(p.maxHp * 0.35, (p.cardWard || 0) + 3 * f.rank * f.n);
         blessingEffect({ type: 'mothWard', x: p.x, y: p.y, radius: 32, max: 0.7 });
       }
@@ -547,12 +523,9 @@ tickBlessings = function (dt) {
   if (s.wasDashing && p.dashT <= 0) {
     if (blessingComboActive('stormstep'))
       for (const e of comboTargets(p.x, p.y, 230).slice(0, 3)) {
-        const hp = e.hp;
         comboArc(p.x, p.y, e, 0.85);
-        if (e.hp < hp) comboTrialEvent('stormstep');
       }
     if (blessingComboActive('trailOfGlass')) {
-      comboTrialEvent('trailOfGlass');
       comboIcicles(p.x, p.y, Math.atan2(p.dashDy, p.dashDx), 5, 0.85);
     }
   }
@@ -567,7 +540,6 @@ tickBlessings = function (dt) {
       )
     ) {
       b.eclipsed = true;
-      comboTrialEvent('eclipse');
       b.dmg *= 2;
       b.r += 8;
       b.pierce += 3;

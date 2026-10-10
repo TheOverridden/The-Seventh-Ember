@@ -76,25 +76,6 @@
   margin-left: auto;
   padding: 11px 20px;
 }
-.hearth-total {
-  min-width: 180px;
-  margin-left: auto;
-  font-size: 12px;
-  color: #d7bd8c;
-  letter-spacing: 1px;
-}
-.hearth-meter {
-  height: 4px;
-  background: #34312c;
-  margin-top: 9px;
-  overflow: hidden;
-}
-.hearth-meter i {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, #987240, #ffe0a0);
-  width: 0;
-}
 #hearthTabs {
   display: flex;
   padding: 0 25px;
@@ -146,7 +127,7 @@
 .hearth-scene-caption {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   margin-top: 16px;
   font-size: 11px;
@@ -161,37 +142,8 @@
   font-size: 10px;
   letter-spacing: 1px;
 }
-#hearthRewardNext {
-  font-size: 12px;
-  color: #a69d86;
-  margin: 13px 0;
-}
-#hearthRelics {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 4px;
-}
-.hearth-relic {
-  border: 1px solid #454133;
-  background: #11181b;
-  padding: 2px;
-  cursor: pointer;
-  opacity: 0.42;
-}
-.hearth-relic.earned {
-  opacity: 1;
-  border-color: #c0a062;
-  background: #382c1d;
-}
-.hearth-relic canvas {
-  width: 100%;
-  max-width: 42px;
-  image-rendering: pixelated;
-}
-.hearth-relic:hover {
-  opacity: 1;
-}
 .hearth-workbench {
+  min-width: 0;
   background: #1c1d1c;
   border-left: 1px solid #51422b;
   padding-left: 20px;
@@ -214,18 +166,12 @@
   width: 100%;
   margin-top: 7px;
 }
-.hearth-workbench p {
-  font-size: 11px;
-  line-height: 1.7;
-  color: #9c9887;
-}
 #hearthSlots {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 5px;
 }
-#hearthSlots button,
-#hearthChallengeFilters button {
+#hearthSlots button {
   padding: 9px 6px;
   font-size: 9px;
   letter-spacing: 0.7px;
@@ -234,8 +180,7 @@
   border: 1px solid #554830;
   cursor: pointer;
 }
-#hearthSlots button[aria-pressed='true'],
-#hearthChallengeFilters button[aria-pressed='true'] {
+#hearthSlots button[aria-pressed='true'] {
   color: #ffe1a4;
   border-color: #c09b5c;
   background: #3b2f20;
@@ -275,7 +220,6 @@
   opacity: 0.45;
   cursor: default;
 }
-.hearth-shell input,
 .hearth-shell select {
   background: #10191c;
   border: 1px solid #615139;
@@ -286,129 +230,9 @@
   border-radius: 0;
 }
 .hearth-shell button:focus-visible,
-.hearth-shell select:focus-visible,
-.hearth-shell input:focus-visible,
-.hearth-goal:focus-visible {
+.hearth-shell select:focus-visible {
   outline: 2px solid #ffe1a3;
   outline-offset: 3px;
-}
-.hearth-tools {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  position: sticky;
-  top: -22px;
-  background: #171719;
-  padding: 12px 0;
-  z-index: 2;
-}
-.hearth-tools input {
-  flex: 1;
-  min-width: 200px;
-}
-.hearth-tools select {
-  max-width: 190px;
-}
-#hearthChallengeFilters {
-  display: flex;
-  gap: 4px;
-}
-#hearthChallengeResults {
-  font-size: 11px;
-  color: #a6a38c;
-  line-height: 1.7;
-  margin: 5px 0 18px;
-}
-#hearthChallengeList {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 15px;
-}
-.hearth-challenge-group {
-  border: 1px solid #54452f;
-  background: #1e2221;
-  min-width: 0;
-}
-.hearth-challenge-group header {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 14px;
-  background: linear-gradient(100deg, #302b22, #1d2323);
-  border-bottom: 1px solid #55452f;
-}
-.hearth-challenge-group .build-emblem {
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
-}
-.hearth-challenge-group h3 {
-  font:
-    500 19px Georgia,
-    serif;
-  color: #f6dba5;
-  margin: 0 0 5px;
-}
-.hearth-challenge-group header p {
-  font-size: 10px;
-  color: #aaa58d;
-  margin: 0;
-  line-height: 1.5;
-}
-.hearth-relic-stamp {
-  margin-left: auto;
-  font-size: 8px;
-  letter-spacing: 1px;
-  color: #c6a76f;
-  max-width: 72px;
-  text-align: right;
-  line-height: 1.6;
-}
-.hearth-goal {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px;
-  border-bottom: 1px solid #383d32;
-}
-.hearth-goal:last-child {
-  border-bottom: 0;
-}
-.hearth-goal > div {
-  flex: 1;
-  min-width: 0;
-}
-.hearth-goal strong {
-  font-size: 12px;
-  color: #dac4a0;
-}
-.hearth-goal p {
-  font-size: 11px;
-  color: #aba893;
-  line-height: 1.6;
-  margin: 5px 0;
-}
-.hearth-goal button {
-  font-size: 9px;
-  min-width: 98px;
-  max-width: 110px;
-  color: #dec392;
-  border: 1px solid #73603d;
-  background: #2f2a22;
-  padding: 10px 7px;
-  cursor: pointer;
-  line-height: 1.6;
-}
-.hearth-goal.completed {
-  background: #282d24;
-}
-.hearth-goal.completed button {
-  border: 0;
-  color: #abbc8b;
-  background: none;
-}
-.hearth-goal.completed .hearth-meter i {
-  background: #a9b784;
 }
 #hearthVowIntro {
   font-size: 13px;
@@ -510,18 +334,8 @@
   color: #e1bc83;
   padding-top: 8px;
 }
-#vowHud[hidden],
-#hearthTracked[hidden] {
+#vowHud[hidden] {
   display: none;
-}
-#hearthTracked {
-  grid-column: 1/-1;
-  display: block;
-  color: #dbc492;
-  font-size: 9px;
-  border-top: 1px solid #615239;
-  padding-top: 7px;
-  margin-top: 3px;
 }
 .hearth-menu {
   display: flex;
@@ -541,7 +355,7 @@
 }
 @media (max-width: 900px) {
   .hearth-room-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .hearth-workbench {
     border-left: 0;
@@ -552,8 +366,7 @@
     gap: 12px;
   }
   .hearth-workbench h3,
-  #hearthSlots,
-  .hearth-workbench > p {
+  #hearthSlots {
     grid-column: 1/-1;
   }
   .hearth-workbench label {
@@ -578,9 +391,6 @@
   .hearth-content {
     padding: 16px;
   }
-  .hearth-tools {
-    top: -16px;
-  }
 }
 @media (max-width: 600px) {
   .hearth-shell {
@@ -596,11 +406,6 @@
   }
   .hearth-heading h2 {
     font-size: 25px;
-  }
-  .hearth-total {
-    min-width: 110px;
-    font-size: 9px;
-    letter-spacing: 0;
   }
   .hearth-heading > .btn {
     padding: 9px 11px;
@@ -626,64 +431,26 @@
     font-size: 8px;
     padding: 8px;
   }
-  .hearth-scene-caption > span {
-    max-width: 55%;
-    line-height: 1.6;
-  }
-  #hearthRelics {
-    grid-template-columns: repeat(9, 1fr);
-  }
   .hearth-workbench {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .hearth-workbench h3,
-  #hearthSlots,
-  .hearth-workbench > p {
+  #hearthSlots {
     grid-column: 1;
   }
   #hearthChoices {
     grid-row: auto;
   }
-  #hearthChallengeList,
+  #hearthSlots {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
   #hearthVowList {
     grid-template-columns: 1fr;
-  }
-  .hearth-tools input {
-    min-width: 150px;
-    width: 100%;
-  }
-  .hearth-tools select {
-    flex: 1;
-    max-width: none;
-  }
-  #hearthChallengeFilters {
-    flex: 1;
-  }
-  #hearthChallengeFilters button {
-    flex: 1;
-    padding: 9px 5px;
-    font-size: 8px;
-  }
-  .hearth-goal {
-    padding: 12px 10px;
-    gap: 8px;
-  }
-  .hearth-goal button {
-    min-width: 80px;
-    max-width: 90px;
-    font-size: 8px;
   }
   .hearth-menu small {
     display: none;
   }
-  .hearth-relic-stamp {
-    font-size: 7px;
-    max-width: 58px;
-  }
   .hearth-vow-actions .btn {
     font-size: 9px;
-  }
-  #hearthRewardNext {
-    font-size: 11px;
   }
 }

@@ -24,6 +24,8 @@ The Living Archive records actions and discoveries. Echo rooms remain enemy-free
 
 The Achievements screen tracks 115 milestones across seven categories. Recorded progress receives credit when a save loads, and achievements are included in exported backups.
 
+The Hearth contains room customization and optional Vow Bindings. Furnishings, Ember trails, and revolving shard finishes are freely selectable. Guardian trophies, binding seals, and campaign crowns reflect saved victories. Blessing combinations work independently of the Hearth and remain listed in the Build screen.
+
 ## Running the game
 
 Open `index.html` in a modern browser or serve this directory with any static web server. GitHub Pages can host the directory directly.

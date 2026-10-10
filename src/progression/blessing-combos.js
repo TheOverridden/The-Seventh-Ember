@@ -201,7 +201,6 @@ damageEnemy = function (e, damage, angle, crit, kb, kind = 'shot') {
     !(e.stormfrontUntil > G.t)
   ) {
     e.stormfrontUntil = G.t + 1;
-    comboTrialEvent('stormfront');
     blessingLightning(e, blessingRank('shockChain'), true);
   }
   return result;
@@ -235,7 +234,6 @@ fireVolley = function () {
       if (bullet.echoCast) {
         bullet.ric = (bullet.ric || 0) + 1;
         bullet.dmg *= 1.35;
-        comboTrialEvent('echoChamber');
       }
   if (blessingCount('firstSparkReturned', 8)) {
     for (const b of created) {
