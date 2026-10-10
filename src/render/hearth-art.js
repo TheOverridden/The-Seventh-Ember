@@ -348,13 +348,20 @@ function hearthBuildRoom() {
         : weather === 'snow'
           ? ['#71888b', '#667d7e', '#556c6b']
           : weather === 'rain'
-            ? ['#465e57', '#36504d', '#283e3e']
+            ? ['#4c625c', '#3b544e', '#2b4240']
             : ['#263344', '#25353c', '#213135'];
   px(66, 57, 97, 10, sky[0]);
   px(58, 66, 113, 28, sky[0]);
   px(58, 94, 113, 29, sky[1]);
   px(58, 123, 113, 23, sky[2]);
-  if (weather === 'sunrise') {
+  if (weather === 'rain') {
+    px(66, 67, 37, 2, '#596d64');
+    px(60, 70, 32, 2, '#596d64');
+    px(128, 76, 35, 2, '#53685f');
+    px(142, 78, 27, 1, '#53685f');
+    px(59, 103, 112, 6, '#435e54');
+    px(59, 109, 112, 4, '#3c584e');
+  } else if (weather === 'sunrise') {
     px(71, 86, 21, 12, '#e7c08a');
     px(75, 82, 13, 21, '#f8df9f');
     px(77, 81, 9, 2, '#ffe9b0');
@@ -403,6 +410,13 @@ function hearthBuildRoom() {
       px(x - 4, y + 6, 7, 2, '#c1c5b1');
       px(x - 8, y + 12, 15, 2, '#a4b8a7');
     }
+  }
+  if (weather === 'rain') {
+    px(59, 141, 112, 5, '#29433d');
+    px(62, 144, 19, 1, '#4b6759');
+    px(91, 143, 10, 1, '#3b584c');
+    px(118, 145, 24, 1, '#567261');
+    px(153, 143, 14, 1, '#405e50');
   }
   px(58, 67, 2, 76, '#c6b187');
   px(109, 55, 5, 94, '#8a6b43');
@@ -1151,7 +1165,15 @@ function drawHearthRoom(ctx, t) {
   ctx.drawImage(hearthBuildRoom(), 0, 0);
   ctx.save();
   ctx.beginPath();
-  ctx.rect(59, 66, 112, 80);
+  ctx.moveTo(66, 57);
+  ctx.lineTo(163, 57);
+  ctx.lineTo(163, 66);
+  ctx.lineTo(171, 66);
+  ctx.lineTo(171, 146);
+  ctx.lineTo(59, 146);
+  ctx.lineTo(59, 66);
+  ctx.lineTo(66, 66);
+  ctx.closePath();
   ctx.clip();
   if (weather === 'snow') {
     for (let i = 0; i < 26; i++) {
@@ -1160,12 +1182,53 @@ function drawHearthRoom(ctx, t) {
       px(x, y, i % 5 === 0 ? 2 : 1, 2, '#c9d4c5');
     }
   } else if (weather === 'rain' || weather === 'night') {
-    for (let i = 0; i < 30; i++) {
-      const x = 61 + ((i * 19) % 108),
-        y = 66 + ((i * 29 + time * 48) % 80);
-      px(x, y, 1, 4, weather === 'night' ? '#7c9395' : '#9db3a1');
-      px(x - 1, y + 4, 1, 2, weather === 'night' ? '#506e70' : '#6a8d7e');
+    const night = weather === 'night',
+      wind = 0.18 + Math.sin(time * 0.31) * 0.025;
+    for (let layer = 0; layer < 2; layer++) {
+      const count = layer ? (night ? 7 : 14) : night ? 16 : 24;
+      ctx.globalAlpha = layer ? 0.72 : 0.48;
+      for (let i = 0; i < count; i++) {
+        const speed = (layer ? 62 : 29) + (i % 5) * (layer ? 3.7 : 1.9),
+          progress = time * speed + i * 37 + layer * 19,
+          fall = progress % 108,
+          cycle = Math.floor(progress / 108),
+          x = 58 + ((i * 43 + layer * 29 + cycle * 53) % 136) - fall * wind,
+          y = 49 + fall,
+          length = layer ? 5 + (i % 3) : 2 + (i % 2);
+        px(x, y, 1, length - 1, night ? '#55747c' : '#6f9383');
+        px(
+          x - 1,
+          y + length - 1,
+          1,
+          layer ? 3 : 1,
+          layer ? (night ? '#94aaae' : '#b5cabb') : night ? '#7e999e' : '#93ad9d'
+        );
+        if (layer) px(x - 2, y + length + 2, 1, 1, night ? '#6e8b92' : '#8bab97');
+      }
     }
+    ctx.globalAlpha = night ? 0.25 : 0.36;
+    for (let i = 0; i < 7; i++) {
+      const u = (time * (0.035 + (i % 3) * 0.007) + i * 0.173) % 1,
+        x = 71 + ((i * 23) % 94),
+        y = 64 + u * 79,
+        length = 4 + ((i * 3) % 7);
+      px(x, y - length, 1, length - 1, night ? '#55727b' : '#658a77');
+      px(x, y - 1, 1, 2, night ? '#a0b2b5' : '#c3d1bd');
+      if (i % 3 === 0) px(x + 1, y - 3, 1, 2, night ? '#6e8a90' : '#95ad95');
+    }
+    ctx.globalAlpha = night ? 0.3 : 0.56;
+    for (let i = 0; i < 6; i++) {
+      const progress = time * (0.86 + (i % 3) * 0.13) + i * 0.193,
+        u = progress % 1;
+      if (u >= 0.18) continue;
+      const x = 64 + ((i * 23 + Math.floor(progress) * 31) % 101),
+        spread = 1 + Math.floor(u * 12),
+        y = 144 - (u < 0.09 ? 1 : 0),
+        color = night ? '#8ca3a4' : '#b1c5ae';
+      px(x - spread - 1, y, 1, 1, color);
+      px(x + spread, y + 1, 1, 1, color);
+    }
+    ctx.globalAlpha = 1;
   } else {
     ctx.globalAlpha = 0.08;
     hearthPoly(
@@ -1180,8 +1243,8 @@ function drawHearthRoom(ctx, t) {
     );
     ctx.globalAlpha = 1;
   }
-  px(109, 66, 5, 80, '#8a6b43');
-  px(109, 66, 1, 80, '#d8b885');
+  px(109, 57, 5, 89, '#8a6b43');
+  px(109, 57, 1, 89, '#e0c291');
   px(59, 106, 112, 4, '#92734c');
   px(59, 106, 112, 1, '#d2b380');
   ctx.restore();
@@ -1222,149 +1285,699 @@ function drawHearthRoom(ctx, t) {
     }
     ctx.globalAlpha = 1;
   }
-  ctx.save();
-  ctx.globalAlpha = 0.34;
-  hearthPoly(
-    ctx,
-    [
-      [308, 312],
-      [330, 309],
-      [347, 313],
-      [341, 318],
-      [314, 318],
-    ],
-    '#242d25'
-  );
-  ctx.restore();
-  const palette = HEARTH_PALETTES.find((p) => p.id === h.shards) || HEARTH_PALETTES[0];
-  for (let i = 0; i < 3; i++) {
-    const a = time * 1.4 + (i * TAU) / 3;
-    if (Math.sin(a) < 0)
-      drawHearthShard(ctx, 326 + Math.cos(a) * 21, 299 + Math.sin(a) * 8, palette, 0.9, i);
-  }
-  hearthFlame(ctx, 326, 312, time, 0.55);
-  for (let i = 0; i < 3; i++) {
-    const a = time * 1.4 + (i * TAU) / 3;
-    if (Math.sin(a) >= 0)
-      drawHearthShard(ctx, 326 + Math.cos(a) * 21, 299 + Math.sin(a) * 8, palette, 0.9, i);
-  }
+  drawHearthEmber(ctx, 326, 302, time);
 }
-function drawHearthShard(ctx, x, y, p, scale = 1, index = 0) {
+const hearthEmberPreview = { x: 0, y: 0, moving: false, dashT: 0 };
+function drawHearthEmber(ctx, x, y, t) {
+  const h = hearthData(),
+    hover = save.motion ? 0 : Math.sin(t * 2.4) * 1.8,
+    cy = 2 - hover,
+    orbit = t * 1.78,
+    palette = HEARTH_PALETTES.find((item) => item.id === h.shards) || HEARTH_PALETTES[0],
+    sprite = (name, sx, sy, scale = 1, angle = 0, alpha = 1) => {
+      const s = SPR[name];
+      if (!s) return;
+      const frame = Math.floor(t * s.fps) % s.frames.length,
+        width = s.W * s.sc * scale,
+        height = s.H * s.sc * scale;
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(angle);
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(s.frames[frame], -width / 2, -height / 2, width, height);
+      ctx.restore();
+    },
+    glow = (name, gx, gy, radius, alpha) => {
+      if (!GLOW[name]) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(GLOW[name], gx - radius, gy - radius, radius * 2, radius * 2);
+      ctx.restore();
+    };
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(0.8, 0.8);
+  ctx.imageSmoothingEnabled = false;
+  const trail = HEARTH_PALETTES.find((item) => item.id === h.trail);
+  drawHearthTrail(ctx, hearthEmberPreview, trail, t, { preview: true });
+  ctx.fillStyle = '#11161488';
+  ctx.beginPath();
+  ctx.ellipse(0, 13, 12 * (0.85 - hover * 0.03), 12 * 0.34, 0, 0, TAU);
+  ctx.fill();
+  glow('ember', 0, -4, 54, 0.62);
+  glow('gold', 0, -6, 26, 0.38);
+  ctx.save();
+  ctx.translate(0, cy - 4);
+  ctx.rotate(-orbit * 0.18);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.strokeStyle = '#ffc76738';
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 6; i++) {
+    const a = (i * TAU) / 6 + 0.12;
+    ctx.beginPath();
+    ctx.arc(0, 0, 15, a, a + 0.42);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = '#fff1b81f';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 20, 8, 0.3, 0, TAU);
+  ctx.stroke();
+  ctx.restore();
+  const shards = [0, TAU / 3, (TAU * 2) / 3].map((offset, i) => {
+    const angle = orbit + offset,
+      radius = 19 + (i === 1 ? 3 : i === 2 ? -1 : 0);
+    return {
+      i,
+      angle,
+      x: Math.cos(angle) * radius,
+      y: cy - 5 + Math.sin(angle) * (7 + i * 0.8),
+      front: Math.sin(angle) >= 0,
+    };
+  });
+  const shard = (s) => {
+    const depth = s.front ? 1 : 0.72,
+      scale = (s.front ? 1.02 : 0.82) + (s.i === 1 ? 0.07 : 0);
+    if (h.shards !== 'ember') {
+      drawHearthShard(ctx, s.x, s.y, palette, scale, s.i, {
+        time: t,
+        rotation: s.angle * 0.72 + t * 0.45,
+        alpha: depth,
+      });
+    } else {
+      glow('gold', s.x, s.y, 12 + (s.front ? 3 : 0), 0.3 * depth);
+      sprite('pShard', s.x, s.y, scale, s.angle * 0.72 + t * 0.45, depth);
+    }
+    hearthPixel(
+      ctx,
+      s.x + Math.cos(s.angle) * 5 - 1,
+      s.y + Math.sin(s.angle) * 3 - 1,
+      2,
+      2,
+      h.shards !== 'ember'
+        ? s.front
+          ? palette.light
+          : palette.color
+        : s.front
+          ? '#fff0ae'
+          : '#ba7a35'
+    );
+  };
+  for (const s of shards) if (!s.front) shard(s);
+  sprite('pIdle', 0, cy);
+  for (const s of shards) if (s.front) shard(s);
+  if (!save.motion)
+    for (let i = 0; i < 4; i++) {
+      const u = (t * (0.31 + i * 0.027) + i * 0.23) % 1;
+      hearthPixel(
+        ctx,
+        -6 + i * 4 + Math.sin(t * 2.4 + i * 1.7) * 2,
+        cy - 8 - u * 21,
+        i === 2 ? 2 : 1,
+        i === 2 ? 2 : 1,
+        i === 2 ? '#fff3bf' : i % 2 ? '#ffbe5c' : '#f67a35'
+      );
+    }
+  for (const [i, slot] of ['primary', 'flare', 'dash'].entries()) {
+    const form =
+        FORM_BY_ID[save.loadout?.[slot] || FORM_DEFAULTS[slot]] || FORM_BY_ID[FORM_DEFAULTS[slot]],
+      angle = t * (i === 1 ? -0.42 : 0.36) + (i * TAU) / 3,
+      radius = 27 + i * 3;
+    ctx.save();
+    ctx.translate(0, -4);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = form.color;
+    ctx.globalAlpha = 0.2;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, angle, angle + 0.58);
+    ctx.stroke();
+    ctx.rotate(angle + 0.29);
+    ctx.translate(radius, 0);
+    ctx.rotate(Math.PI / 4 + t * 0.2);
+    ctx.fillStyle = form.color;
+    ctx.globalAlpha = 0.62;
+    ctx.fillRect(-2, -2, 4, 4);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+const hearthShardCache = new Map();
+function hearthShardMix(a, b, amount) {
+  const aa = parseInt(a.slice(1), 16),
+    bb = parseInt(b.slice(1), 16);
+  return (
+    '#' +
+    [16, 8, 0]
+      .map((shift) =>
+        Math.round(((aa >> shift) & 255) * (1 - amount) + ((bb >> shift) & 255) * amount)
+          .toString(16)
+          .padStart(2, '0')
+      )
+      .join('')
+  );
+}
+function hearthShardFrames(p) {
+  const key = [p.id, p.color, p.light].join(':');
+  if (hearthShardCache.has(key)) return hearthShardCache.get(key);
+  const maps = {
+      ember: [
+        '....0....',
+        '...020...',
+        '..01230..',
+        '.0123340.',
+        '012233440',
+        '012233420',
+        '.0123320.',
+        '..01230..',
+        '..01220..',
+        '...010...',
+        '....0....',
+      ],
+      rime: [
+        '.....0...',
+        '....030..',
+        '...0230..',
+        '...02340.',
+        '..002340.',
+        '.0122340.',
+        '.0132340.',
+        '..012340.',
+        '...0230..',
+        '...030...',
+        '....0....',
+      ],
+      rose: [
+        '...00....',
+        '..02300..',
+        '.0234320.',
+        '012323420',
+        '012223320',
+        '.0122320.',
+        '..01220..',
+        '..02320..',
+        '...020...',
+        '...010...',
+        '....0....',
+      ],
+      moss: [
+        '......0..',
+        '....0030.',
+        '...02340.',
+        '..023340.',
+        '.0232340.',
+        '0122330..',
+        '.01230...',
+        '..020....',
+        '..020....',
+        '...00....',
+        '...0.....',
+      ],
+      copper: [
+        '...000...',
+        '.0023200.',
+        '.0233320.',
+        '023000320',
+        '0230.0320',
+        '0230.0320',
+        '023000320',
+        '.0233320.',
+        '.0023200.',
+        '...000...',
+        '.........',
+      ],
+      moon: [
+        '....000..',
+        '..002330.',
+        '.023340..',
+        '02340....',
+        '0340.....',
+        '0340.....',
+        '0340.....',
+        '02340....',
+        '.023340..',
+        '..002330.',
+        '....000..',
+      ],
+      amethyst: [
+        '....0....',
+        '...030...',
+        '.002340..',
+        '.0233400.',
+        '023134230',
+        '023134340',
+        '023134340',
+        '012223230',
+        '.0122320.',
+        '..01220..',
+        '...000...',
+      ],
+      pearl: [
+        '....0....',
+        '...030...',
+        '...0230..',
+        '..023430.',
+        '.0234430.',
+        '023344430',
+        '023344430',
+        '023334320',
+        '.0122320.',
+        '..01110..',
+        '...000...',
+      ],
+      crimson: [
+        '......0..',
+        '.....030.',
+        '....02340',
+        '...023440',
+        '..0123430',
+        '.0122330.',
+        '0122330..',
+        '012230...',
+        '.0120....',
+        '..00.....',
+        '.0.......',
+      ],
+      opal: [
+        '....0....',
+        '...030...',
+        '..02340..',
+        '.023.340.',
+        '023...340',
+        '023...340',
+        '023...340',
+        '.023.340.',
+        '..02340..',
+        '...020...',
+        '....0....',
+      ],
+      silver: [
+        '....0....',
+        '...030...',
+        '..02340..',
+        '.0233340.',
+        '012333340',
+        '.0123340.',
+        '..012340.',
+        '...0230..',
+        '...010...',
+        '..00.00..',
+        '.........',
+      ],
+      dawn: [
+        '....0....',
+        '...020...',
+        '.0.030.0.',
+        '023333320',
+        '.0334330.',
+        '003444300',
+        '.0334330.',
+        '023333320',
+        '.0.030.0.',
+        '...020...',
+        '....0....',
+      ],
+    },
+    shades = {
+      ember: ['#3a2418', '#9a5d29', '#ffd06a', '#fff9d8'],
+      rime: ['#203744', '#4c91ad', '#ceeef3', '#d3f6e0'],
+      rose: ['#4a2c36', '#aa626f', '#f6bba5', '#e4cfbb'],
+      moss: ['#293b29', '#6f8748', '#d6df9b', '#a0db9a'],
+      copper: ['#402b25', '#925536', '#f1b97c', '#e2c190'],
+      moon: ['#2d3150', '#767eb4', '#dad5fb', '#c7e8f1'],
+      amethyst: ['#322843', '#755898', '#cfbaf0', '#e5cfff'],
+      pearl: ['#343b3c', '#929f9a', '#e8e7da', '#efd5ce'],
+      crimson: ['#4b222b', '#a53d3b', '#ffb37b', '#ffecb9'],
+      opal: ['#253b3d', '#50998e', '#c4e2c2', '#dbaedb'],
+      silver: ['#283744', '#6f8499', '#dee5e9', '#b3d3ec'],
+      dawn: ['#5d3d1e', '#b78032', '#ffdf8c', '#fff5c9'],
+    },
+    id = maps[p.id] ? p.id : 'ember',
+    rows = maps[id],
+    [rim, shadow, facet, accent] = shades[id],
+    colors = [rim, shadow, p.color, facet, p.light],
+    frames = [];
+  for (let f = 0; f < 12; f++) {
+    const cv = document.createElement('canvas');
+    cv.width = 15;
+    cv.height = 17;
+    const ink = cv.getContext('2d'),
+      pulse = (1 + Math.sin((f / 12) * TAU)) / 2,
+      bright = hearthShardMix(p.color, p.light, 0.55),
+      glint = hearthShardMix(facet, p.light, 0.72),
+      cell = (a, b, color) => {
+        ink.fillStyle = color;
+        ink.fillRect(3 + a, 3 + b, 1, 1);
+      };
+    for (let j = 0; j < rows.length; j++)
+      for (let i = 0; i < rows[j].length; i++) {
+        const code = rows[j][i];
+        if (code === '.') continue;
+        let color = colors[Number(code)],
+          band = Math.abs(i * 0.65 + j * 0.55 - (f - 1));
+        if (id === 'rime' || id === 'silver') band = Math.abs(j - f);
+        if (id === 'copper' || id === 'moon') {
+          const angle = (Math.atan2(j - 5, i - 4) + TAU) % TAU,
+            sweep = (f / 12) * TAU,
+            gap = Math.abs(angle - sweep);
+          band = Math.min(gap, TAU - gap) * 2;
+        }
+        if (code === '2' && band < 0.6) color = bright;
+        if (code === '3' && band < 0.6) color = glint;
+        if (id === 'rose' && code === '3')
+          color = hearthShardMix(facet, p.light, 0.1 + pulse * 0.24);
+        if (id === 'pearl' && code === '3') color = hearthShardMix(facet, accent, pulse * 0.28);
+        if (id === 'opal' && code === '3')
+          color = hearthShardMix(facet, f < 6 ? p.light : accent, pulse * 0.58);
+        if (id === 'crimson' && j > 6 && code !== '0')
+          color = hearthShardMix(shadow, p.color, 0.35 + pulse * 0.45);
+        if (id === 'moss' && i + j === 7 && code === '3')
+          color = hearthShardMix(facet, accent, pulse * 0.45);
+        cell(i, j, color);
+      }
+    if (id === 'copper') {
+      const [a, b] = [
+        [3, 3],
+        [5, 3],
+        [5, 6],
+        [3, 6],
+      ][Math.floor(f / 3)];
+      cell(a, b, shadow);
+      cell(a, b + (b === 3 ? -1 : 1), glint);
+    } else if (id === 'amethyst') {
+      const [a, b] = [
+        [4, 2],
+        [2, 4],
+        [7, 5],
+      ][Math.floor(f / 4)];
+      cell(a, b, f % 4 === 1 ? p.light : facet);
+    } else if (id === 'pearl') {
+      cell(4, 1, f < 4 || f > 8 ? facet : p.light);
+      if (f >= 4 && f <= 7) cell(5, 1, shadow);
+    } else if (id === 'crimson' && f >= 5 && f <= 8) {
+      cell(0, 10, shadow);
+      cell(1, 8, p.color);
+    } else if (id === 'dawn') {
+      for (const [a, b] of f < 6
+        ? [
+            [4, 2],
+            [4, 8],
+          ]
+        : [
+            [1, 3],
+            [7, 7],
+          ])
+        cell(a, b, hearthShardMix(facet, p.light, 0.35 + pulse * 0.35));
+    } else if (id === 'moss' && f >= 5 && f <= 7) {
+      cell(5, 1, facet);
+      cell(6, 1, p.light);
+    }
+    frames.push(cv);
+  }
+  hearthShardCache.set(key, frames);
+  return frames;
+}
+function drawHearthShard(ctx, x, y, p, scale = 1, index = 0, options = {}) {
   p = p || HEARTH_PALETTES[0];
+  const time = save.motion ? 0 : Number.isFinite(options.time) ? options.time : G.tAll || 0,
+    frames = hearthShardFrames(p),
+    frame = save.motion ? 0 : (((Math.floor(time * 6) + index * 3) % 12) + 12) % 12,
+    rotation = save.motion
+      ? index * 0.4
+      : Number.isFinite(options.rotation)
+        ? options.rotation
+        : time * 0.45 + index * 0.4;
   ctx.save();
   ctx.translate(Math.round(x), Math.round(y));
+  ctx.rotate(rotation);
   ctx.scale(scale, scale);
-  const px = (a, b, w, h, color) => hearthPixel(ctx, a, b, w, h, color),
-    id = p.id;
-  if (id === 'moon') {
-    hearthPoly(
-      ctx,
-      [
-        [-5, -6],
-        [0, -6],
-        [4, -3],
-        [5, 2],
-        [1, 6],
-        [-3, 5],
-        [0, 3],
-        [2, 0],
-        [0, -3],
-      ],
-      p.color
-    );
-    px(2, -2, 1, 5, p.light);
-  } else if (id === 'copper') {
-    px(-5, -4, 10, 8, p.color);
-    px(-3, -6, 6, 12, p.color);
-    px(-7, -2, 14, 4, p.color);
-    px(-2, -2, 4, 4, '#382b24');
-    px(-3, -4, 6, 1, p.light);
-  } else if (id === 'moss' || id === 'rose') {
-    hearthPoly(
-      ctx,
-      [
-        [0, -7],
-        [5, -2],
-        [4, 3],
-        [0, 6],
-        [-4, 3],
-        [-3, -2],
-      ],
-      p.color
-    );
-    px(0, -3, 1, 7, p.light);
-  } else if (id === 'opal') {
-    hearthPoly(
-      ctx,
-      [
-        [0, -7],
-        [6, 0],
-        [0, 7],
-        [-6, 0],
-      ],
-      p.color
-    );
-    hearthPoly(
-      ctx,
-      [
-        [0, -4],
-        [3, 0],
-        [0, 4],
-        [-3, 0],
-      ],
-      '#2e3334'
-    );
-    px(-3, -1, 1, 3, p.light);
-  } else if (id === 'dawn') {
-    for (let i = 0; i < 4; i++) {
-      ctx.rotate(Math.PI / 2);
-      px(-1, -8, 2, 5, p.color);
+  ctx.globalAlpha *= Number.isFinite(options.alpha) ? Math.max(0, Math.min(1, options.alpha)) : 1;
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(frames[frame], -15, -17, 30, 34);
+  ctx.restore();
+}
+const hearthTrailHistory = new WeakMap();
+function hearthTrailPreviewPosition(player, time) {
+  return {
+    x: player.x - 38 + Math.sin(time * 4.2) * 17,
+    y: player.y + 7 + Math.cos(time * 4.2) * 6,
+  };
+}
+function hearthSeedTrailPreview(history, player, clock) {
+  for (let i = 10; i >= 0; i--) {
+    const at = clock - i * 0.055,
+      current = hearthTrailPreviewPosition(player, at),
+      previous = hearthTrailPreviewPosition(player, at - 0.055),
+      dx = current.x - previous.x,
+      dy = current.y - previous.y,
+      distance = Math.hypot(dx, dy) || 1;
+    history.points.push({
+      x: current.x,
+      y: current.y,
+      born: at,
+      dx: dx / distance,
+      dy: dy / distance,
+      serial: history.serial++,
+      dash: false,
+    });
+  }
+}
+function drawHearthTrail(ctx, player, palette, time, options = {}) {
+  const preview = !!options.preview;
+  if (!player || !palette || palette.id === 'ember' || (save.motion && !preview)) {
+    if (player) hearthTrailHistory.delete(player);
+    return;
+  }
+  const live = !preview && player === G.player,
+    active = !live || (G.state === 'playing' && !G.paused && !G.dead),
+    clock = live ? G.t : preview && save.motion ? 0 : time,
+    world = live ? G.world : null,
+    location = preview ? hearthTrailPreviewPosition(player, clock) : player,
+    x = location.x,
+    y = location.y;
+  if (!Number.isFinite(clock) || !Number.isFinite(x) || !Number.isFinite(y)) {
+    hearthTrailHistory.delete(player);
+    return;
+  }
+  let history = hearthTrailHistory.get(player);
+  if (
+    !history ||
+    history.id !== palette.id ||
+    history.world !== world ||
+    history.preview !== preview
+  ) {
+    history = { id: palette.id, world, preview, x, y, clock, carry: 0, serial: 0, points: [] };
+    hearthTrailHistory.set(player, history);
+  }
+  const elapsed = clock - history.clock,
+    dx = x - history.x,
+    dy = y - history.y,
+    distance = Math.hypot(dx, dy),
+    dash = player.dashT > 0,
+    teleport = Math.max(36, elapsed * (dash ? 1400 : 700)),
+    reset =
+      elapsed < 0 || elapsed > 0.18 || distance > teleport || (elapsed === 0 && distance > 0.03);
+  if (reset) {
+    history.points.length = 0;
+    history.carry = 0;
+  } else if (!preview && active && elapsed > 0) {
+    if (distance > 0.025) {
+      const interval = dash ? 0.043 : 0.055,
+        nx = dx / distance,
+        ny = dy / distance;
+      for (let at = interval - Math.min(history.carry, interval); at <= elapsed; at += interval) {
+        const u = at / elapsed;
+        history.points.push({
+          x: history.x + dx * u,
+          y: history.y + dy * u,
+          born: history.clock + at,
+          dx: nx,
+          dy: ny,
+          serial: history.serial++,
+          dash,
+        });
+      }
+      history.carry = (history.carry + elapsed) % interval;
+    } else history.carry = 0;
+  }
+  history.x = x;
+  history.y = y;
+  history.clock = clock;
+  if (preview) {
+    history.points.length = 0;
+    history.serial = 0;
+    history.carry = 0;
+    hearthSeedTrailPreview(history, player, clock);
+  }
+  const lifetime = palette.id === 'rose' || palette.id === 'moss' ? 0.78 : 0.64,
+    limit = save.quality === 'light' ? 18 : 28,
+    points = history.points;
+  while (points.length && clock - points[0].born > lifetime) points.shift();
+  if (points.length > limit) points.splice(0, points.length - limit);
+  let length = 0;
+  for (let i = points.length - 1; i > 0; i--) {
+    length += Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+    if (length > 78) {
+      points.splice(0, i);
+      break;
     }
-    px(-3, -3, 6, 6, p.light);
-  } else if (id === 'pearl') {
-    px(-3, -3, 6, 6, p.light);
-    px(-1, -6, 2, 12, p.color);
-    px(-6, -1, 12, 2, p.color);
-  } else {
-    hearthPoly(
-      ctx,
-      [
-        [0, -7],
-        [4, -1],
-        [2, 5],
-        [-1, 7],
-        [-4, 0],
-      ],
-      p.color
-    );
-    px(-1, -3, 2, 7, p.light);
-    if (index === 1) px(3, -5, 2, 2, p.light);
+  }
+  if (!points.length) return;
+  const id = palette.id,
+    color = palette.color,
+    light = palette.light,
+    px = (a, b, w, h, tint) => hearthPixel(ctx, a, b, w, h, tint),
+    position = (p) => {
+      const age = Math.max(0, clock - p.born),
+        phase = p.serial * 2.399963,
+        side = Math.sin(phase) * (preview ? 2 : 3.8),
+        flutter =
+          id === 'rose' || id === 'moss'
+            ? Math.sin(age * 9 + phase) * age * 5
+            : Math.sin(age * 6 + phase) * age * 2,
+        lift = id === 'rose' || id === 'moss' ? age * 3 : id === 'rime' ? -age * 2 : -age * 7;
+      return {
+        x: p.x - p.dy * (side + flutter),
+        y: p.y + p.dx * (side + flutter) + lift + 3,
+        age,
+        fade: Math.pow(Math.max(0, 1 - age / lifetime), 1.25),
+        phase,
+      };
+    };
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.imageSmoothingEnabled = false;
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i],
+      q = position(p),
+      sx = Math.round(q.x),
+      sy = Math.round(q.y),
+      frame = Math.floor(q.age * 9 + p.serial * 0.7) % 3,
+      baseAlpha = q.fade * (preview ? 0.78 : p.dash ? 0.65 : 0.56);
+    ctx.globalAlpha = baseAlpha;
+    if (id === 'rime') {
+      px(sx - 1, sy - 3, 1, 5, color);
+      px(sx - 3, sy - 1, 5, 1, color);
+      if (p.serial % 3 === 0) {
+        px(sx - 3, sy - 3, 1, 1, color);
+        px(sx + 1, sy + 1, 1, 1, color);
+        px(sx + 1, sy - 3, 1, 1, light);
+      }
+      px(sx - 1, sy - 1, 1, 1, light);
+      px(sx + 3, sy + 2, 1, 1, '#7baebc');
+    } else if (id === 'rose') {
+      const lean = frame - 1;
+      px(sx - 1 + lean, sy - 2, 2, 1, light);
+      px(sx - 2, sy - 1, 4, 2, color);
+      px(sx - 1 - lean, sy + 1, 2, 1, '#bd6d82');
+      px(sx + lean, sy - 1, 1, 1, '#ffd4cd');
+    } else if (id === 'moss') {
+      const lean = p.serial % 2 ? 1 : -1;
+      px(sx + lean, sy - 3, 1, 1, light);
+      px(sx - 1, sy - 2, 3, 3, color);
+      px(sx - lean - 1, sy + 1, 2, 1, '#708653');
+      px(sx, sy - 2, 1, 3, light);
+      px(sx - lean, sy + 2, 1, 1, '#708653');
+    } else if (id === 'copper') {
+      if (p.serial % 4 === 0) {
+        px(sx - 2, sy - 2, 4, 4, color);
+        px(sx - 1, sy - 3, 2, 1, color);
+        px(sx - 1, sy + 2, 2, 1, color);
+        px(sx - 3, sy - 1, 1, 2, color);
+        px(sx + 2, sy - 1, 1, 2, color);
+        px(sx - 1, sy - 1, 2, 2, '#644530');
+        px(sx - 2 + frame, sy - 2, 1, 1, light);
+      } else {
+        px(sx - 2, sy + 1, 2, 1, '#b8754d');
+        px(sx, sy - 1, 1, 2, color);
+        px(sx + 1, sy - 2, 1, 1, light);
+      }
+    } else if (id === 'moon') {
+      if (p.serial % 3 === 0) {
+        px(sx - 1, sy - 3, 3, 1, color);
+        px(sx - 2, sy - 2, 1, 3, color);
+        px(sx - 1, sy + 1, 3, 1, color);
+        px(sx - 1, sy - 2, 1, 3, light);
+      } else {
+        px(sx - 1, sy - 1, 2, 2, color);
+        px(sx, sy - 1, 1, 1, light);
+        if (frame === 1) px(sx + 2, sy - 2, 1, 1, light);
+      }
+    } else if (id === 'amethyst') {
+      px(sx, sy - 3, 1, 1, light);
+      px(sx - 1, sy - 2, 3, 4, color);
+      px(sx, sy + 2, 1, 1, '#7865a6');
+      px(sx - 1, sy - 2, 1, 2, light);
+      px(sx + 1, sy, 1, 2, '#7865a6');
+      if (frame === 1) px(sx + 3, sy - 2, 1, 1, light);
+    } else if (id === 'pearl') {
+      ctx.globalAlpha = baseAlpha * 0.15;
+      px(sx - 3, sy - 3, 6, 6, light);
+      ctx.globalAlpha = baseAlpha;
+      px(sx - 1, sy - 2, 2, 4, color);
+      px(sx - 2, sy - 1, 4, 2, color);
+      px(sx - 1, sy - 1, 1, 1, light);
+      px(sx, sy + 1, 1, 1, '#a1b9b7');
+    } else if (id === 'crimson') {
+      for (let j = 3; j > 0; j--) {
+        ctx.globalAlpha = baseAlpha * (1 - j * 0.19);
+        px(sx - p.dx * j * 2, sy - p.dy * j * 2, j === 1 ? 2 : 1, 1, color);
+      }
+      ctx.globalAlpha = baseAlpha;
+      px(sx - 1, sy - 1, 3, 2, '#ca524b');
+      px(sx, sy - 1, 2, 1, light);
+      if (frame === 1) px(sx - 2, sy + 2, 1, 1, color);
+    } else if (id === 'opal') {
+      const spectrum = ['#88c9b9', '#c5c3e9', '#e4bdcc', '#fcf0c8'],
+        tint = spectrum[(p.serial + frame) % spectrum.length];
+      if (i > 0) {
+        const previous = position(points[i - 1]),
+          span = Math.hypot(q.x - previous.x, q.y - previous.y);
+        if (span < 20) {
+          const steps = Math.max(1, Math.ceil(span / 2));
+          ctx.globalAlpha = Math.min(q.fade, previous.fade) * 0.28;
+          for (let j = 0; j < steps; j++) {
+            const u = j / steps,
+              tx = previous.x + (q.x - previous.x) * u,
+              ty = previous.y + (q.y - previous.y) * u;
+            px(tx, ty, 2, 1, tint);
+            if (p.serial % 3 === 0) px(tx - p.dy * 2, ty + p.dx * 2, 1, 1, light);
+          }
+        }
+      }
+      ctx.globalAlpha = baseAlpha * 0.8;
+      px(sx, sy - 1, 1, 2, tint);
+      px(sx + 1, sy - 1, 1, 1, light);
+    } else if (id === 'silver') {
+      if (p.serial % 4 === 0) {
+        px(sx, sy - 2, 1, 5, color);
+        px(sx - 1, sy, 3, 1, color);
+        px(sx, sy, 1, 1, light);
+      } else px(sx, sy, frame === 1 ? 2 : 1, 1, light);
+      ctx.globalAlpha = baseAlpha * 0.6;
+      px(sx - 3, sy + 2, 1, 1, color);
+      px(sx + 2, sy - 3, 1, 1, '#809ba9');
+    } else if (id === 'dawn') {
+      px(sx - 1, sy, 3, 2, '#db9445');
+      px(sx - 1, sy - 2, 3, 3, color);
+      px(sx + (frame === 0 ? 1 : 0), sy - 4, 1, 3, color);
+      px(sx, sy - 1, 1, 2, light);
+      if (p.serial % 5 === 0) {
+        ctx.globalAlpha = baseAlpha * 0.65;
+        px(sx - 3, sy - 1, 1, 1, color);
+        px(sx + 3, sy - 1, 1, 1, color);
+        px(sx, sy + 3, 1, 1, color);
+      }
+    }
   }
   ctx.restore();
 }
 const hearthDrawPlayer = drawPlayer;
 drawPlayer = function (ctx) {
-  hearthDrawPlayer(ctx);
-  if (!G.player || G.dead) return;
-  const h = hearthData(),
-    p = G.player,
-    t = save.motion ? 0 : G.tAll,
-    palette = HEARTH_PALETTES.find((p) => p.id === h.shards);
-  if (h.shards !== 'ember' && !(p.hitCd > 0 && ((G.tAll * 18) | 0) % 2 === 0))
-    for (let i = 0; i < 3; i++) {
-      const a = t * 1.78 + (i * TAU) / 3;
-      drawHearthShard(ctx, p.x + Math.cos(a) * 26, p.y - 6 + Math.sin(a) * 11, palette, 0.6, i);
-    }
-  if (h.trail === 'ember' || !p.moving || save.motion) return;
-  const trail = HEARTH_PALETTES.find((p) => p.id === h.trail),
-    a = p.dashT > 0 ? Math.atan2(p.dashDy, p.dashDx) : p.face || 0;
-  ctx.save();
-  for (let i = 0; i < 6; i++) {
-    const u = (t * 2 + i / 6) % 1,
-      x = p.x - Math.cos(a) * (8 + u * 30) + Math.sin(t * 3 + i) * 4,
-      y = p.y - Math.sin(a) * (8 + u * 30) + Math.cos(t * 2 + i) * 3;
-    ctx.globalAlpha = (1 - u) * 0.6;
-    drawHearthShard(ctx, x, y, trail, 0.2 + u * 0.12, i);
+  if (G.player && !G.dead) {
+    const trail = HEARTH_PALETTES.find((item) => item.id === hearthData().trail);
+    drawHearthTrail(ctx, G.player, trail, G.tAll);
   }
-  ctx.restore();
+  hearthDrawPlayer(ctx);
 };

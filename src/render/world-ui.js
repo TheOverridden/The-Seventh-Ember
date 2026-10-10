@@ -325,7 +325,10 @@ function drawPlayer(ctx) {
       drawSpr('pDash', g.x, g.y, 1, g.rot, clamp(g.life, 0, 1) * 0.32);
     }
   if (!blink) {
-    const hov = Math.sin(G.tAll * 2.4) * 1.8;
+    const time = save.motion ? 0 : G.tAll,
+      hov = Math.sin(time * 2.4) * 1.8,
+      finish = typeof hearthData === 'function' ? hearthData().shards : 'ember',
+      palette = finish !== 'ember' ? HEARTH_PALETTES.find((item) => item.id === finish) : null;
     ctx.fillStyle = 'rgba(0,0,0,.42)';
     ctx.beginPath();
     ctx.ellipse(p.x, p.y + p.r * 1.05, p.r * (0.85 - hov * 0.03), p.r * 0.34, 0, 0, TAU);
@@ -345,7 +348,7 @@ function drawPlayer(ctx) {
     }
     const dashing = p.dashT > 0,
       cy = p.y + 2 - (dashing ? 0 : hov),
-      oa = G.tAll * (dashing ? 4.2 : 1.78);
+      oa = time * (dashing ? 4.2 : 1.78);
     const state = dashing ? 'pDash' : p.moving ? 'pMove' : 'pIdle';
     const rot = dashing ? Math.atan2(p.dashDy, p.dashDx) + Math.PI / 2 : p.lean;
     ctx.save();
@@ -380,9 +383,23 @@ function drawPlayer(ctx) {
     const drawSatellite = (s) => {
       const depth = s.front ? 1 : 0.72,
         sc = (s.front ? 1.02 : 0.82) + (s.i === 1 ? 0.07 : 0);
-      glowImg('gold', s.x, s.y, 12 + (s.front ? 3 : 0), 0.3 * depth);
-      drawSpr('pShard', s.x, s.y, sc, s.a * 0.72 + G.tAll * 0.45, depth);
-      ctx.fillStyle = s.front ? '#fff0ae' : '#ba7a35';
+      if (palette) {
+        drawHearthShard(ctx, s.x, s.y, palette, sc, s.i, {
+          time,
+          rotation: s.a * 0.72 + time * 0.45,
+          alpha: depth,
+        });
+      } else {
+        glowImg('gold', s.x, s.y, 12 + (s.front ? 3 : 0), 0.3 * depth);
+        drawSpr('pShard', s.x, s.y, sc, s.a * 0.72 + time * 0.45, depth, time - G.tAll);
+      }
+      ctx.fillStyle = palette
+        ? s.front
+          ? palette.light
+          : palette.color
+        : s.front
+          ? '#fff0ae'
+          : '#ba7a35';
       ctx.fillRect(
         Math.round(s.x + Math.cos(s.a) * 5) - 1,
         Math.round(s.y + Math.sin(s.a) * 3) - 1,
@@ -391,7 +408,7 @@ function drawPlayer(ctx) {
       );
     };
     for (const s of satellites) if (!s.front) drawSatellite(s);
-    drawSpr(state, p.x, cy, dashing ? 1.06 : 1, rot);
+    drawSpr(state, p.x, cy, dashing ? 1.06 : 1, rot, 1, time - G.tAll);
     for (const s of satellites) if (s.front) drawSatellite(s);
     if (!save.motion)
       for (let i = 0; i < 4; i++) {

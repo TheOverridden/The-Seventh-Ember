@@ -2,6 +2,19 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101004,
+    date: 'OCTOBER 10, 2026',
+    title: 'EMBER FINISHES',
+    intro: 'Animated shard and trail finishes, with a refreshed view from the Hearth.',
+    changes: [
+      'Hearth rain has layered falling drops, gentle wind, slow trails on the glass, and small splashes along the sill. The night window keeps a lighter shower.',
+      "The Hearth Ember uses the game's idle sprite, hover, glow, three revolving shards, and equipped Form accents.",
+      'All eleven unlockable shard finishes have distinct pixel shapes, animated facets, and material details. They follow the same orbit as the original shards, passing behind and in front of the Ember.',
+      'All eleven unlockable trails have their own animated effects, including frost, petals, leaves, sparks, motes, crystals, pearls, comets, threads, stardust, and sunflame. Trails follow your movement through turns, strengthen during a dash, and fade when you stop.',
+      'The Hearth previews your selected shards and trail. Trails pause with the run and clear after teleporting. Rain, shard animation, and trails respect reduced motion.',
+    ],
+  },
+  {
     version: 2026101003,
     date: 'OCTOBER 10, 2026',
     title: 'THE TRIAL ROOMS',
