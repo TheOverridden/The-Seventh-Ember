@@ -228,6 +228,7 @@ const CREATURE_PROFILES = {
   matriarch: { kind: 'authored', rate: 1.25, stride: 105 },
 };
 const CREATURE_ALIASES = {
+  trialGuardian: 'warden',
   gateSentry: 'slime',
   mossSlime: 'slime',
   gateHound: 'bat',

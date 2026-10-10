@@ -2,6 +2,18 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101005,
+    date: 'OCTOBER 10, 2026',
+    title: 'TRIAL ENEMIES',
+    intro: 'Hearth Trials now use the current dungeon enemies.',
+    changes: [
+      'Replaced the old trial creature roster with enemies from the Garden, Reservoir, Foundry, Observatory, and Choir.',
+      'Trials use the same enemy artwork, movement animations, attack patterns, special effects, and hit effects as the descent. Enemy attacks that leave hazards now appear and work inside the trial arenas.',
+      "Garden attackers still target the central flame in Hold the Hearth. The Guardian reflection uses the Warden's walking animation, and defeated reflections stay defeated when the screen redraws.",
+      'Dedicated trial rooms, fixed loadouts, health values, wave limits, clear records, and cosmetic rewards stay in place.',
+    ],
+  },
+  {
     version: 2026101004,
     date: 'OCTOBER 10, 2026',
     title: 'EMBER FINISHES',

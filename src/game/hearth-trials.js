@@ -79,6 +79,10 @@ function createHearthTrialRoom(id) {
     exit: room,
     pi: 0,
     region: 'hearthTrial',
+    lateKey:
+      { stitch: 'observatory', flare: 'foundry', oneHeart: 'reservoir', constellation: 'choir' }[
+        id
+      ] || '',
     props: [],
     torches: [],
     fixtures: [],
@@ -385,19 +389,56 @@ function retryHearthTrial() {
   if (!isHearthTrial()) return;
   startHearthTrial(hearthTrial.id, hearthTrial.tier);
 }
+const HEARTH_TRIAL_ENEMIES = {
+  stitch: {
+    rush: 'glassShard',
+    orbit: 'orbitHound',
+    ranged: 'lensMote',
+    guard: 'mirrorShell',
+    support: 'glassShard',
+  },
+  flare: {
+    rush: 'coalMite',
+    orbit: 'slagRunner',
+    ranged: 'cinderValve',
+    guard: 'hammerFrame',
+    support: 'coalMite',
+  },
+  oneHeart: {
+    rush: 'rippleLeech',
+    orbit: 'pumpCrawler',
+    ranged: 'lampEel',
+    guard: 'sluiceGuard',
+    support: 'rippleLeech',
+  },
+  defense: {
+    rush: 'mossSlime',
+    orbit: 'petalBat',
+    ranged: 'thornSpitter',
+    guard: 'barkback',
+    support: 'gardenMite',
+  },
+  constellation: {
+    rush: 'choirWisp',
+    orbit: 'pinion',
+    ranged: 'cantor',
+    guard: 'bellAngel',
+    support: 'choirWisp',
+  },
+};
 function hearthTrialRoster(wave) {
   const tier = hearthTrial.tier,
     all = [
-      ['slime', 'bat', 'slime', 'spitter'],
-      ['bat', 'slime', 'brute', 'bat', 'spitter'],
-      ['brute', 'spitter', 'bat', 'slime', 'brute', 'bat'],
-      ['bat', 'spitter', 'brute', 'wisp', 'slime', 'bat', 'spitter'],
-      ['brute', 'spitter', 'wisp', 'bat', 'brute', 'slime', 'spitter', 'bat'],
+      ['rush', 'orbit', 'rush', 'ranged'],
+      ['orbit', 'rush', 'guard', 'orbit', 'ranged'],
+      ['guard', 'ranged', 'orbit', 'rush', 'guard', 'orbit'],
+      ['orbit', 'ranged', 'guard', 'support', 'rush', 'orbit', 'ranged'],
+      ['guard', 'ranged', 'support', 'orbit', 'guard', 'rush', 'ranged', 'orbit'],
     ];
-  const roster = all[Math.min(wave, all.length - 1)].slice();
-  if (tier === 0) return roster.slice(0, 4 + Math.min(2, wave));
-  if (tier === 2) roster.push(wave % 2 ? 'brute' : 'spitter');
-  return roster;
+  let roles = all[Math.min(wave, all.length - 1)].slice();
+  if (tier === 0) roles = roles.slice(0, 4 + Math.min(2, wave));
+  if (tier === 2) roles.push(wave % 2 ? 'guard' : 'ranged');
+  return roles.map((role) => ({ type: HEARTH_TRIAL_ENEMIES[hearthTrial.id][role], role }));
 }
 function hearthTrialGate(index) {
   const points = [
@@ -410,51 +451,42 @@ function hearthTrialGate(index) {
 }
 function spawnHearthTrialEnemy(type, point, serial) {
   const t = ETYPES[type],
+    role = point.role || LATE_ENEMIES[type]?.role || 'guard',
     tier = hearthTrial.tier,
     wave = hearthTrial.wave,
     hp = Math.round(
-      (type === 'brute' ? 90 : type === 'wisp' ? 48 : type === 'spitter' ? 40 : 36) *
+      (role === 'guard' ? 90 : role === 'support' ? 48 : role === 'ranged' ? 40 : 36) *
         (1 + tier * 0.26 + Math.max(0, wave - 1) * 0.1)
     ),
     pos = safePosition(G.world, point.x, point.y, t.r) || point,
-    e = {
-      type,
-      ai: t.ai,
-      x: pos.x,
-      y: pos.y,
-      r: t.r,
-      hp,
-      max: hp,
-      spd: Math.max(65, Math.min(130, t.spd)) * (1 + tier * 0.07),
-      dmg: 8 + tier * 3,
-      xp: 0,
-      col: t.col,
-      spr: t.spr,
-      elite: false,
-      kb: t.kb,
-      kbx: 0,
-      kby: 0,
-      hitT: 0,
-      atkT: 0.7,
-      seed: serial * 1.618,
-      t1: 1.5 + (serial % 4) * 0.2,
-      t2: 0,
-      orbT: 0,
-      aggro: true,
-      isBoss: false,
-      dead: false,
-      uid: ++entitySerial,
-      trialEnemy: true,
-      trialFlame:
-        hearthTrial.id === 'defense' &&
-        (['brute', 'slime'].includes(type) || (type === 'spitter' && serial % 2 === 0)),
-    };
-  G.enemies.push(e);
+    e = spawnEnemy(type, pos.x, pos.y, false);
+  Object.assign(e, {
+    hp,
+    max: hp,
+    spd: Math.max(65, Math.min(130, t.spd)) * (1 + tier * 0.07),
+    dmg: 8 + tier * 3,
+    xp: 0,
+    kbx: 0,
+    kby: 0,
+    hitT: 0,
+    atkT: 0.7,
+    seed: serial * 1.618,
+    t1: 1.5 + (serial % 4) * 0.2,
+    t2: 0,
+    orbT: 0,
+    aggro: true,
+    trialEnemy: true,
+    trialRole: role,
+    trialFlame:
+      hearthTrial.id === 'defense' &&
+      (['guard', 'rush'].includes(role) || (role === 'ranged' && serial % 2 === 0)),
+  });
+  CREATURE_MOTION.set(e, { x: e.x, y: e.y, travel: 0, phase: 0, moving: false });
   return e;
 }
 function spawnHearthTrialGuardian() {
   const tier = hearthTrial.tier,
-    e = spawnHearthTrialEnemy('brute', hearthTrialGate(0), 1);
+    e = spawnHearthTrialEnemy('gateShield', { ...hearthTrialGate(0), role: 'guard' }, 1);
   Object.assign(e, {
     type: 'trialGuardian',
     spr: 'gateWarden',
@@ -502,7 +534,7 @@ function tickHearthTrialWaves(dt) {
       return;
     }
     if (q.clock > 0) return;
-    q.queue = q.id === 'guardian' ? ['guardian'] : hearthTrialRoster(q.wave);
+    q.queue = q.id === 'guardian' ? [{ type: 'guardian' }] : hearthTrialRoster(q.wave);
     q.wave++;
     q.clock = 0.2;
   }
@@ -511,7 +543,7 @@ function tickHearthTrialWaves(dt) {
       point = hearthTrialGate(gateIndex);
     if (d2(point.x, point.y, G.player.x, G.player.y) < 125 ** 2)
       point = hearthTrialGate(gateIndex + 2);
-    q.gates.push({ ...point, type: q.queue.shift(), t: 1.1, max: 1.1 });
+    q.gates.push({ ...point, ...q.queue.shift(), t: 1.1, max: 1.1 });
     q.clock = q.tier === 2 ? 0.75 : 1.05;
   }
 }
@@ -592,26 +624,15 @@ function tickHearthTrialEnemies(dt) {
     const target = e.trialFlame ? q.flame : p,
       dx = target.x - e.x,
       dy = target.y - e.y,
-      distance = Math.hypot(dx, dy) || 1,
-      angle = Math.atan2(dy, dx);
+      distance = Math.hypot(dx, dy) || 1;
     if (e.isBoss) tickHearthTrialGuardian(e, dt);
     else {
-      let speed = e.spd,
-        a = angle;
-      if (e.type === 'spitter') {
-        speed = distance > 215 ? speed : distance < 165 ? -speed * 0.65 : 0;
-        if (e.t1 <= 0 && distance < 520 && los(G.world, e.x, e.y, target.x, target.y)) {
-          enemyShoot(e, angle, 175 + q.tier * 16, e.dmg);
-          e.t1 = 2.25 - q.tier * 0.16;
-        }
-      } else if (e.type === 'bat' || e.type === 'wisp') a += Math.sin(G.t * 3 + e.seed) * 0.42;
-      if (e.frozenUntil > G.t) speed = 0;
-      moveEnt(
-        G.world,
-        e,
-        Math.cos(a) * speed * dt + e.kbx * dt,
-        Math.sin(a) * speed * dt + e.kby * dt
-      );
+      if (e.frozenUntil > G.t) e.kbx = e.kby = 0;
+      else {
+        if (e.ai === 'garden') gardenEnemyAI(e, dt, distance, dx, dy, target);
+        else if (e.ai === 'late') lateEnemyAI(e, dt, distance, dx, dy);
+        moveEnt(G.world, e, e.kbx * dt, e.kby * dt);
+      }
     }
     e.kbx *= Math.pow(0.001, dt);
     e.kby *= Math.pow(0.001, dt);
@@ -628,11 +649,30 @@ function tickHearthTrialEnemies(dt) {
       e.atkT = 1;
       hurtHearthTrialFlame(4 + q.tier * 2);
     }
-    const motion = CREATURE_MOTION.get(e) || { x: e.x, y: e.y, travel: 0, phase: 0, moving: false },
-      distanceMoved = Math.hypot(e.x - motion.x, e.y - motion.y);
-    motion.moving = distanceMoved > 0.03;
-    motion.phase = save.motion ? 0 : (motion.phase + distanceMoved / 58) % 1;
-    motion.travel += distanceMoved;
+    const motion = CREATURE_MOTION.get(e),
+      profile = creatureProfile(e),
+      distanceMoved = Math.hypot(e.x - motion.x, e.y - motion.y),
+      step = distanceMoved > 0.015 && distanceMoved < Math.max(TILE * 1.5, e.spd * dt * 4),
+      rushing = e.action === 'leap' || e.specialMode === 'dash' || e.trialMode === 'dash';
+    motion.moving = step;
+    if (save.motion || rushing) motion.phase = 0;
+    else if (step) {
+      motion.travel += distanceMoved;
+      motion.phase =
+        (motion.phase +
+          Math.min(
+            distanceMoved / Math.max(profile.stride || 48, e.r * 2.8),
+            dt * (profile.rate || 1.6)
+          )) %
+        1;
+    } else if (!creatureAirborne(profile)) {
+      const contact = Math.round(motion.phase * 2) / 2,
+        delta = contact - motion.phase;
+      motion.phase =
+        Math.abs(delta) < 0.008
+          ? contact % 1
+          : (motion.phase + Math.sign(delta) * Math.min(Math.abs(delta), dt * 2.5) + 1) % 1;
+    }
     motion.x = e.x;
     motion.y = e.y;
     CREATURE_MOTION.set(e, motion);
@@ -736,6 +776,8 @@ function updateHearthTrial(dt) {
   tickHearthTrialWaves(dt);
   if (q.result) return;
   tickHearthTrialEnemies(dt);
+  if (q.result) return;
+  tickLateHazards(dt);
   if (q.result) return;
   updateHearthTrialShots(dt);
   if (q.result) return;
@@ -1213,6 +1255,7 @@ render = function () {
   ctx.save();
   ctx.translate(-Math.round(G.cam.x), -Math.round(G.cam.y));
   drawHearthTrialArena(ctx);
+  for (const hazard of G.world.lateHazards) drawLateHazard(ctx, hazard);
   for (const e of G.enemies) {
     if (e.dead) continue;
     if (e.isBoss) {
@@ -1222,13 +1265,18 @@ render = function () {
       if (e.trialMode === 'rest') glowImg('ember', e.x, e.y - 5, 42, 0.18);
     }
   }
-  const boss = G.boss;
+  const boss = G.boss,
+    bossWasDead = boss?.dead;
   if (boss) boss.dead = true;
-  drawEnemies(ctx);
-  if (boss) boss.dead = false;
+  try {
+    drawEnemies(ctx);
+  } finally {
+    if (boss) boss.dead = bossWasDead;
+  }
   drawBullets(ctx);
   drawPlayer(ctx);
   drawCombatFX(ctx);
+  drawPixelEntityDetails(ctx);
   drawParticles(ctx);
   drawTexts(ctx);
   ctx.restore();
@@ -1370,11 +1418,15 @@ damageEnemy = function (e, amount, angle = 0, crit = false, kb = 1, kind = 'shot
   if (!amount) return;
   e.hp -= amount;
   e.hitT = 0.12;
+  e.feelHitT = e.feelHitMax = kind === 'melee' ? 0.18 : 0.12;
+  e.feelHitA = angle;
+  e.feelHitPower = Math.min(1.7, 0.55 + (amount / e.max) * 5);
   e.kbx += Math.cos(angle) * 100 * (e.kb || 0) * kb;
   e.kby += Math.sin(angle) * 100 * (e.kb || 0) * kb;
   addText(e.x, e.y - e.r - 6, amount, '#f4e9cb', 12);
   sfx('hit');
   if (e.hp <= 0) killEnemy(e);
+  combatFeelImpact(e, amount, angle, crit, kind, e.dead);
 };
 const hearthTrialKill = killEnemy;
 killEnemy = function (e) {

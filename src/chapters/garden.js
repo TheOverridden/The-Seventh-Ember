@@ -379,9 +379,9 @@ function shootSeed(e, a, speed, dmg) {
   b.r = 6;
   b.life = 3.2;
 }
-function gardenEnemyAI(e, dt, d, dx, dy) {
+function gardenEnemyAI(e, dt, d, dx, dy, target = G.player) {
   if (e.growth) return;
-  const p = G.player,
+  const p = target,
     w = G.world;
   e.actionT -= dt;
   if (e.action === 'warn') {
