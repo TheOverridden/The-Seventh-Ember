@@ -1,348 +1,634 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="booting">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none';">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>The Seventh Ember</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="description" content="The Seventh Ember is a dungeon roguelike with fifty floors, permanent progression, ten guardians, and an endless descent.">
-<meta name="application-name" content="The Seventh Ember">
-<link rel="stylesheet" href="styles/base.css?v=2026092201">
-<link rel="stylesheet" href="styles/hud.css?v=2026092201">
-<link rel="stylesheet" href="styles/overlays.css?v=2026100603">
-<link rel="stylesheet" href="styles/interface.css?v=2026100603">
-<link rel="stylesheet" href="styles/campaign.css?v=2026100603">
-<link rel="stylesheet" href="styles/story.css?v=2026092201">
-<link rel="stylesheet" href="styles/changelog.css?v=2026092201">
-<link rel="stylesheet" href="styles/run-recap.css?v=2026092201">
-<link rel="stylesheet" href="styles/onboarding.css?v=2026092201">
-<link rel="stylesheet" href="styles/combat-finale.css?v=2026092201">
-<link rel="stylesheet" href="styles/interface-reborn.css?v=2026092201">
-<link rel="stylesheet" href="styles/title-screen.css?v=2026092201">
-<link rel="stylesheet" href="styles/seventh-ember-theme.css?v=2026100603">
-<link rel="stylesheet" href="styles/wick-secrets.css?v=2026092201">
-<link rel="stylesheet" href="styles/secret-rooms.css?v=2026100701">
-<link rel="stylesheet" href="styles/speedrun.css?v=2026092201">
-<link rel="stylesheet" href="styles/endless-wheel.css?v=2026092701">
-<link rel="stylesheet" href="styles/blessing-expansion.css?v=2026100301">
-<link rel="stylesheet" href="styles/achievements.css?v=2026100301">
-<link rel="stylesheet" href="styles/controller-blessings.css?v=2026100704">
-<link rel="stylesheet" href="styles/build-journal.css?v=2026100704">
-<link rel="stylesheet" href="styles/hearth.css?v=2026100802">
-<link rel="stylesheet" href="styles/moth-shop.css?v=2026100802">
-<link rel="stylesheet" href="styles/silent-memories.css?v=2026100901">
-</head>
-<body>
-
-<div id="bootScreen" role="status" aria-label="Opening The Seventh Ember">
-  <div class="boot-content">
-    <div class="boot-art-frame" aria-hidden="true"><canvas id="bootArt" width="320" height="180"></canvas><i class="boot-corner one"></i><i class="boot-corner two"></i><i class="boot-corner three"></i><i class="boot-corner four"></i></div>
-    <div class="boot-title"><small>THE SEVENTH</small><strong>EMBER</strong></div>
-    <span class="boot-status">PREPARING THE DESCENT</span>
-  </div>
-</div>
-<script src="src/render/boot-art.js?v=2026092201"></script>
-
-<canvas id="cv" tabindex="0" aria-label="The Seventh Ember dungeon. On touchscreens, use the left stick to move, hold the right stick to aim and fire, and use the ability buttons. With a keyboard, move with WASD or arrows, J for Ember Bolt, K for Flare, R to Rekindle, Space to dash, E to interact, Q to return to a discovered portal, and Escape to pause."></canvas>
-<div id="vig"></div><div id="lowvig"></div>
-<div id="fade"></div>
-
-<div id="hud">
-  <div id="topL" class="plate">
-    <div class="barwrap"><div id="hpfill"></div><div id="hptext"></div></div>
-    <div class="barwrap xpwrap"><div id="xpfill"></div></div>
-    <div id="lvlrow"><span id="lvlbadge">LV 1</span><span id="xptext"></span></div>
-  </div>
-  <div id="topC"><div id="floorBanner"></div><div id="floorObjective"></div>
-    <div id="bossbar" class="plate"><div id="bossname"></div><div class="bosswrap"><div id="bossfill"></div></div></div>
-    <div id="toasts"></div>
-  </div>
-  <div id="topR">
-    <canvas id="mm" width="184" height="146"></canvas>
-    <div id="statline">
-      <span class="stat"><i data-lucide="map"></i>FLOOR <b id="stFloor">1</b></span>
-      <span class="stat" id="esshud"><i data-lucide="gem"></i><b id="stEss">0</b></span>
-      <span class="stat"><i data-lucide="skull"></i><b id="stKills">0</b></span>
-      <span class="stat"><i data-lucide="timer"></i><b id="stTime">0:00</b></span>
-    </div>
-  </div>
-  <div id="botL"><div id="chips" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
-  <div id="botC">
-    <div id="prompt"><kbd>E</kbd><span id="promptTxt">DESCEND</span></div>
-    <div id="dashwrap"><div id="dashmeter" style="--p:1"></div><span>DASH</span></div>
-  </div>
-  <button id="portalRecall" type="button" hidden aria-label="Return to the discovered portal"><span class="portal-return-mark" aria-hidden="true"></span><span>RETURN TO PORTAL</span><span class="portal-key">Q</span></button>
-  <div id="weaponHUD"><div class="weapon-top"><span id="weaponStatus">EMBER BOLT</span><span id="ammoCount">6 / 6</span></div><div id="ammoRounds" aria-hidden="true"></div><div class="weapon-reload-track"><div id="reloadProgress"></div></div><div class="weapon-actions"><button id="btnReload" aria-label="Rekindle ember charges"><kbd>R</kbd> REKINDLE</button><button id="btnMelee" aria-label="Release close-range Flare"><kbd>K</kbd> FLARE · <span id="bladePower">2.25×</span></button></div><div class="blade-line"><span id="bladeReady">FLARE READY</span><div class="blade-track"><div id="bladeProgress"></div></div></div></div>
-  <div id="fps"></div>
-  <div id="quickControls">WASD move · J / click Ember Bolt · K / right-click Flare · R Rekindle · Space dash · E interact · Q return</div>
-  <div class="hud-actions"><button class="btn" id="btnPause">PAUSE <kbd>Esc</kbd></button></div>
-  <div id="touchControls" aria-label="Touch controls">
-    <div class="touch-stick-wrap" id="moveStickWrap"><div class="touch-caption"><b>MOVE</b> DRAG</div><div class="touch-stick" id="moveStick" aria-label="Movement joystick"><i class="touch-stick-grid"></i><i class="touch-knob"></i></div></div>
-    <div class="touch-actions">
-      <button class="touch-action" id="touchMelee" aria-label="Release close-range Flare"><strong>✦</strong>FLARE</button>
-      <button class="touch-action" id="touchDash" aria-label="Dash"><strong>››</strong>DASH</button>
-      <button class="touch-action" id="touchReload" aria-label="Rekindle ember charges"><strong>↻</strong>REKINDLE</button>
-      <button class="touch-action interact" id="touchEnter" aria-label="Interact or enter portal"><strong>◇</strong>USE</button>
-    </div>
-    <div class="touch-stick-wrap" id="aimStickWrap"><div class="touch-caption"><b>BOLT</b> AIM + HOLD</div><div class="touch-stick" id="aimStick" aria-label="Aim and fire joystick"><i class="touch-fire-ring"></i><i class="touch-stick-grid"></i><i class="touch-knob"></i></div></div>
-  </div>
-</div>
-
-<div id="menu" class="ov open">
-  <div class="menu-box">
-    <h1 class="title" aria-label="The Seventh Ember"><span class="title-small">THE SEVENTH</span><span class="title-main">EMBER</span></h1>
-    <div class="menu-btns">
-      <button class="btn primary" id="btnContinue" hidden><i data-lucide="play"></i>CONTINUE DESCENT</button><div id="resumeHint" hidden></div>
-      <button class="btn primary" id="btnStart"><i data-lucide="arrow-down"></i>BEGIN DESCENT</button>
-      <button class="btn subtle" id="btnTree"><i data-lucide="sparkles"></i>SKILL TREE</button>
-      <button class="btn subtle" id="btnHow"><i data-lucide="book-open"></i>HOW TO PLAY</button>
-    </div>
-    <div class="audiorow"><button class="btn" id="btnMusic"><i data-lucide="music"></i>MUSIC</button><button class="btn" id="btnSfx"><i data-lucide="volume-2"></i>SOUND</button><button class="btn" id="btnSettings">SETTINGS & SAVE</button><button class="btn" id="btnMemories">MEMORIES</button></div>
-    <div id="campaignMedal" hidden>◆ FIRST DAWN · CAMPAIGN COMPLETE</div><div id="menuStats"></div>
-  </div>
-</div>
-
-<div id="changelog" class="ov" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
-  <section class="changelog-shell">
-    <div class="changelog-sigil" aria-hidden="true"><i></i><b>◆</b><i></i></div>
-    <div class="changelog-kicker">THE SEVENTH EMBER HAS CHANGED</div>
-    <h2 id="changelogTitle">What’s New</h2>
-    <div id="resetNotice" class="reset-notice" hidden>
-      <strong>A fresh descent was required.</strong>
-      <p>Sorry—your progress had to be reset. This update rebuilt the game’s progression, and old saves no longer matched the intended difficulty. This reset will only happen once.</p>
-    </div>
-    <div id="changelogEntries" class="changelog-entries"></div>
-    <button class="btn primary" id="changelogClose">BEGIN AGAIN</button>
-  </section>
-</div>
-
-<button id="runTimerHud" type="button" hidden aria-label="Copy the current run seed"><span>RUN TIME</span><b id="runTimerValue">00:00.000</b><small id="runTimerSeed">SEED</small></button>
-
-
-<div id="finale" class="ov" role="dialog" aria-modal="true" aria-labelledby="endingTitle">
- <div class="finale-shell"><p class="ending-kicker">THE SEVENTH EMBER · THE END OF THE DESCENT</p><canvas id="endingCanvas" width="720" height="280" aria-label="The archive opens, releasing its people into the dawn."></canvas><h2 id="endingTitle"></h2>
- <div id="endingStory"><strong id="endingSpeaker"></strong><p id="endingText"></p></div><button class="btn primary" id="endingNext">CONTINUE</button>
-  <div id="endingResults" hidden><p>You opened the gate. Your campaign victory is saved.</p><div id="endingNumbers"></div><div id="endingBuild"></div><div class="ending-choices"><button class="btn primary" id="endingFinish">FINISH &amp; RETURN TO MENU</button><button class="btn" id="endingInfinite">ENTER ENDLESS MODE</button><button class="btn subtle" id="endingReplay">REPLAY ENDING</button></div><p>Endless Mode continues from floor 51 with your current blessings and forms. Every five floors, the Wheel Below adds another permanent Burden to the descent. Dying there keeps your victory.</p></div>
- </div>
-</div>
-
-<div id="howto" class="ov">
-  <div class="panel" style="max-width:560px">
-    <div class="bigword cinzel" style="font-size:1.6rem;color:#ffe9b8">HOW TO PLAY</div>
-    <div class="how-grid">
-      <div class="k"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div><div>Move (arrow keys also work)</div>
-      <div class="k"><i data-lucide="mouse" style="width:14px;height:14px"></i></div><div>Aim with mouse — <b style="color:#e8d5ae">hold click</b> to fire</div>
-      <div class="k"><kbd>SPACE</kbd></div><div>Dash — grants brief invulnerability</div>
-      <div class="k"><kbd>E</kbd></div><div>Enter the portal · restores 15% health on floors 1–10, then 8%</div>
-      <div class="k"><kbd>Q</kbd></div><div>Return to an open portal after you have discovered it</div>
-      <div class="k"><kbd>ESC</kbd>/<kbd>P</kbd></div><div>Pause</div>
-      <div class="k"><kbd>J</kbd></div><div>Cast Ember Bolts at the nearest enemy · Rekindles when empty</div><div class="k"><kbd>K</kbd> / right click</div><div>Flare — 2.25× Ember Bolt damage · usable while Rekindling</div><div class="k"><kbd>R</kbd></div><div>Rekindle six charges · empty wells Rekindle automatically</div><div class="k"><kbd>M</kbd></div><div>Toggle music</div>
-      <div class="k"><kbd>TOUCH</kbd></div><div>Left stick moves · hold the right stick to aim and fire · four buttons use Flare, Dash, Rekindle, and nearby objects</div>
-    </div>
-    <div class="how-tips">Walk up to a chest to open it. Cyan XP and violet essence are separate.<br>
-      <b>Cyan shards</b> grant XP — level up and draft 1 of 3 blessings.<br>
-      <b>Violet essence</b> is yours forever, even in death. Spend it in the <b>Skill Tree</b>.<br>
-      A guardian waits on every <b>fifth floor</b>. Its portal stays sealed until it falls.<br>
-      Some walls carry seams, drafts, or marks that do not belong. <b>Use or Flare</b> near them to uncover hidden passages.<br>
-      The descent has <b>50 floors</b> across ten regions. A guardian waits at the end of each one.
-    </div>
-    <button class="btn primary" id="btnHowClose">UNDERSTOOD</button>
-  </div>
-</div>
-
-<div id="levelup" class="ov">
-  <div id="luWrap">
-    <div id="luTitle">LEVEL UP</div>
-    <div id="luSub">CHOOSE A BLESSING &nbsp;·&nbsp; PRESS 1 · 2 · 3</div>
-    <div id="cards"></div>
-  </div>
-</div>
-
-<div id="secretRoom" class="ov" role="dialog" aria-modal="true" aria-labelledby="secretTitle">
-  <section class="secret-shell">
-    <div class="secret-view"><canvas id="secretCanvas" width="960" height="480" aria-label="A hidden chamber beyond the dungeon wall."></canvas><div class="secret-view-frame" aria-hidden="true"></div><div id="secretRoomState">PASSAGE FOUND</div></div>
-    <div class="secret-copy">
-      <div class="secret-kicker"><span id="secretRegion"></span><b>HIDDEN PASSAGE</b></div>
-      <h2 id="secretTitle">THE HIDDEN CACHE</h2>
-      <p id="secretLine"></p>
-      <div class="secret-ledger"><span><i>◆</i><b id="secretMarks">0</b><small>MARKS THIS DESCENT</small></span><span><i>✦</i><b id="secretMarkCount">0 / 7</b><small>SEVENTH MARKS</small></span></div>
-      <div id="secretReward"></div>
-      <div id="secretChoices"></div>
-      <div class="secret-actions"><button class="btn primary" id="secretAction">OPEN THE CACHE</button><button class="btn" id="secretLeave">RETURN TO THE DUNGEON</button></div>
-    </div>
-  </section>
-</div>
-
-<div id="wickGift" class="ov" role="dialog" aria-modal="true" aria-labelledby="wickGiftTitle">
-  <section class="wick-gift-shell">
-    <div class="wick-gift-kicker">A FAVOR FROM WICK</div>
-    <div class="wick-gift-emblem" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b></b></div>
-    <h2 id="wickGiftTitle">Wick’s Pointer</h2>
-    <div class="wick-gift-rarity">SECRET BLESSING · EPIC</div>
-    <p><strong>Something important is always marked.</strong> Marked enemies take 18% more ability damage and return one Ember Bolt charge when defeated.</p>
-    <button class="btn primary" id="wickGiftTake">TAKE IT AND CONTINUE</button>
-  </section>
-</div>
-
-<div id="pause" class="ov">
-  <div class="panel">
-    <div class="bigword">PAUSED</div>
-    <div class="dword-sub">THE VOID WAITS PATIENTLY</div>
-    <div class="statsgrid" style="grid-template-columns:repeat(4,1fr)" id="pStats"></div>
-    <div class="btnrow">
-      <button class="btn primary" id="btnResume"><i data-lucide="play"></i>RESUME</button>
-      <button class="btn" id="btnSaveExit">SAVE & RETURN</button><button class="btn" id="btnPauseSettings">SETTINGS</button><button class="btn" id="btnPauseMemories">MEMORIES</button><button class="btn danger" id="btnAbandon"><i data-lucide="home"></i>END RUN</button>
-    </div>
-  </div>
-</div>
-
-<div id="dead" class="ov">
-  <div class="panel">
-    <div class="bigword">THE VOID CLAIMS YOU</div>
-    <div class="dword-sub">DEATH IS ONLY A DOORWAY</div>
-    <div class="statsgrid" id="dStats"></div>
-    <div id="dEssBox"></div>
-    <div class="btnrow">
-      <button class="btn primary" id="btnDeadTree"><i data-lucide="sparkles"></i>SPEND ESSENCE</button>
-      <button class="btn" id="btnDeadMenu"><i data-lucide="rotate-ccw"></i>RISE AGAIN</button>
-    </div>
-  </div>
-</div>
-
-<div id="win" class="ov">
-  <div class="panel">
-    <div class="bigword">THE STAR IS STILL</div>
-    <div class="dword-sub">FIFTY FLOORS BELOW THE GATE · WICK IS STILL HERE</div>
-    <div class="statsgrid" id="wStats"></div>
-    <div id="wEssBox"></div>
-    <div class="btnrow">
-      <button class="btn primary" id="btnWinGo"><i data-lucide="eye"></i>STAY A MOMENT</button>
-      <button class="btn" id="btnWinEnd"><i data-lucide="rotate-ccw"></i>RETURN TO TITLE</button>
-    </div>
-  </div>
-</div>
-
-<div id="skills" class="ov">
-  <div class="tree-panel">
-    <div class="tree-head">
-      <div><h2>SKILL TREE</h2><div class="tree-sub">97 permanent sigils across eight winding constellations.</div></div>
-      <div style="display:flex;align-items:center;gap:18px">
-        <div><span id="treeMastery">0 / 97 SIGILS</span><div class="mastery-track"><i id="treeMasteryFill"></i></div></div><span id="treeEss"><i data-lucide="gem"></i><b>0</b></span>
-        <button class="btn" id="btnTreeBack" style="padding:9px 20px;font-size:11px"><i data-lucide="rotate-ccw"></i>BACK</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none';"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>The Seventh Ember</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta
+      name="description"
+      content="The Seventh Ember is a dungeon roguelike with fifty floors, permanent progression, ten guardians, and an endless descent."
+    />
+    <meta name="application-name" content="The Seventh Ember" />
+    <link rel="stylesheet" href="styles/base.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/hud.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/overlays.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/interface.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/campaign.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/story.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/changelog.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/run-recap.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/onboarding.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/combat-finale.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/interface-reborn.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/title-screen.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/seventh-ember-theme.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/wick-secrets.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/secret-rooms.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/speedrun.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/endless-wheel.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/blessing-expansion.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/achievements.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/controller-blessings.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/build-journal.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/hearth.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/moth-shop.css?v=2026101001" />
+    <link rel="stylesheet" href="styles/silent-memories.css?v=2026101001" />
+  </head>
+  <body>
+    <div id="bootScreen" role="status" aria-label="Opening The Seventh Ember">
+      <div class="boot-content">
+        <div class="boot-art-frame" aria-hidden="true"
+          ><canvas id="bootArt" width="320" height="180"></canvas><i class="boot-corner one"></i
+          ><i class="boot-corner two"></i><i class="boot-corner three"></i
+          ><i class="boot-corner four"></i
+        ></div>
+        <div class="boot-title"><small>THE SEVENTH</small><strong>EMBER</strong></div>
+        <span class="boot-status">PREPARING THE DESCENT</span>
       </div>
     </div>
-    <div class="tree-layout"><div class="tree-map"><div id="treeWrap"><canvas id="treeCv" width="1240" height="980" aria-hidden="true"></canvas><div id="treeNodes" aria-label="Permanent skill tree"></div></div></div><aside class="tree-inspector"><div class="eyebrow">PERMANENT SIGIL</div><h3 id="nodeTitle">Awakening</h3><p id="nodeDesc"></p><div class="price" id="nodePrice"></div><div class="node-status" id="nodeStatus" role="status"></div><button class="btn primary" id="btnUnlock">UNLOCK SIGIL</button><div class="meta-total" id="metaTotal"></div></aside></div>
-    <div class="tree-foot"><span>SELECT A SIGIL · UNLOCK WITH ESSENCE</span><span>EVERY SIGIL REMAINS BETWEEN DESCENTS</span></div>
-  </div>
-</div>
-<div id="settings" class="ov" style="z-index:50"><div class="panel" style="width:530px;text-align:left"><div class="bigword" style="font-size:24px">MAKE THE DESCENT YOURS</div>
- <label class="settings-row"><span>Music<small>Music during exploration and combat.</small></span><input id="setMusic" type="checkbox"></label>
- <label class="settings-row"><span>Sound effects<small>Combat, pickups, and menu sounds.</small></span><input id="setSfx" type="checkbox"></label>
- <label class="settings-row"><span>Reduced motion<small>Disable camera shake and menu animations.</small></span><input id="setMotion" type="checkbox"></label>
- <label class="settings-row"><span>Touch controls<small>Dual analog sticks with aim-to-fire and dedicated ability buttons. Enabled automatically on touchscreens.</small></span><input id="setTouch" type="checkbox"></label>
- <label class="settings-row"><span>Dialogue speed<small>Read at your own pace. Enter or Space continues.</small></span><select id="setTextSpeed"><option value="1">Normal</option><option value="2">Fast</option><option value="0">Instant</option></select></label>
- <label class="settings-row"><span>Dialogue sounds<small>Quiet tones while characters speak.</small></span><input id="setDialogueVoice" type="checkbox"></label>
- <label class="settings-row"><span>Effects<small>Use light effects on slower devices.</small></span><select id="setQuality"><option value="full">Full</option><option value="light">Light</option></select></label>
- <section class="runner-settings" aria-labelledby="runnerSettingsTitle"><header><span>OPTIONAL TOOLS</span><h3 id="runnerSettingsTitle">Speedrunning</h3></header><label class="settings-row runner-timer-row"><span>Run timer<small>Show active play time during ordinary descents.</small></span><input id="setRunTimer" type="checkbox"></label><div class="runner-seed-setting"><label for="setRunSeed">Run seed<small>Applied to your next new descent. Leave blank for a fresh random dungeon.</small></label><input id="setRunSeed" type="text" maxlength="28" autocomplete="off" spellcheck="false" placeholder="RANDOM EACH DESCENT"><div><button id="runnerRandomSeed" type="button">RANDOM</button><button id="runnerDailySeed" type="button">DAILY</button><button id="runnerCopySeed" type="button">COPY</button><button id="runnerClearSeed" type="button">CLEAR</button></div><p id="runnerSeedStatus">The current descent is unchanged.</p></div></section>
- <p class="save-message" id="settingsSave">Your essence, skill tree, and current run save automatically. Export a backup before changing browsers or devices.</p>
- <div class="settings-actions"><button class="btn" id="btnExport">EXPORT SAVE</button><button class="btn" id="btnImport">IMPORT SAVE</button><button class="btn primary" id="btnSettingsClose">DONE</button></div><div class="settings-reset"><button class="btn danger" id="btnResetEverything">RESET EVERYTHING</button><small>Start fresh, including dialogue, essence, and the Skill Tree.</small></div><input type="file" id="saveFile" accept="application/json,.json" hidden>
- <div id="importReview" hidden><p class="save-message" id="importSummary"></p><div class="settings-actions"><button class="btn danger" id="btnImportApply">REPLACE PROGRESS</button><button class="btn" id="btnImportCancel">CANCEL</button></div></div>
-</div></div>
-<div id="confirmRun" class="ov" style="z-index:55"><div class="panel"><div class="bigword" style="font-size:25px" id="confirmTitle">BEGIN AGAIN?</div><p style="color:#aab7c7;font-size:13px;line-height:1.8" id="confirmText"></p><div class="btnrow"><button class="btn danger" id="btnConfirmRun">BEGIN AGAIN</button><button class="btn" id="btnCancelRun">GO BACK</button></div></div></div>
+    <script src="src/render/boot-art.js?v=2026101001"></script>
 
-<div id="chapterBanner" aria-live="polite"><span id="chapterRegion">CHAPTER I · THE HOLLOW GATE</span><strong id="chapterPlace"></strong><small id="chapterHint"></small></div>
-<div id="fieldNote" role="status"></div>
-<div id="conversation" role="dialog" aria-modal="true" aria-labelledby="speakerName" hidden>
-  <div class="conversation-shade"></div>
-  <section class="dialogue-frame" id="dialogueFrame" data-speaker="wick">
-    <div class="speaker-portrait"><canvas id="speakerPortrait" width="120" height="120" aria-hidden="true"></canvas><span id="speakerTag">EMBER</span></div>
-    <div class="dialogue-content"><div class="dialogue-heading"><span id="speakerName"></span><span id="dialogueChapter">THE HOLLOW GATE</span></div>
-      <p id="dialogueText" aria-hidden="true"></p><p class="sr-only" id="dialogueReadback" aria-live="polite"></p>
-      <div id="dialogueChoices"></div>
-      <div class="dialogue-footer"><button id="dialogueSkip">SKIP SCENE</button><span id="dialogueKeys">ENTER / SPACE</span><button id="dialogueNext" aria-label="Continue dialogue">CONTINUE <span>◆</span></button></div>
+    <canvas
+      id="cv"
+      tabindex="0"
+      aria-label="The Seventh Ember dungeon. On touchscreens, use the left stick to move, hold the right stick to aim and fire, and use the ability buttons. With a keyboard, move with WASD or arrows, J for Ember Bolt, K for Flare, R to Rekindle, Space to dash, E to interact, Q to return to a discovered portal, and Escape to pause."
+    ></canvas>
+    <div id="vig"></div><div id="lowvig"></div>
+    <div id="fade"></div>
+
+    <div id="hud">
+      <div id="topL" class="plate">
+        <div class="barwrap"><div id="hpfill"></div><div id="hptext"></div></div>
+        <div class="barwrap xpwrap"><div id="xpfill"></div></div>
+        <div id="lvlrow"><span id="lvlbadge">LV 1</span><span id="xptext"></span></div>
+      </div>
+      <div id="topC"
+        ><div id="floorBanner"></div><div id="floorObjective"></div>
+        <div id="bossbar" class="plate"
+          ><div id="bossname"></div><div class="bosswrap"><div id="bossfill"></div></div
+        ></div>
+        <div id="toasts"></div>
+      </div>
+      <div id="topR">
+        <canvas id="mm" width="184" height="146"></canvas>
+        <div id="statline">
+          <span class="stat"><i data-lucide="map"></i>FLOOR <b id="stFloor">1</b></span>
+          <span class="stat" id="esshud"><i data-lucide="gem"></i><b id="stEss">0</b></span>
+          <span class="stat"><i data-lucide="skull"></i><b id="stKills">0</b></span>
+          <span class="stat"><i data-lucide="timer"></i><b id="stTime">0:00</b></span>
+        </div>
+      </div>
+      <div id="botL"><div id="chips" style="display: flex; gap: 6px; flex-wrap: wrap"></div></div>
+      <div id="botC">
+        <div id="prompt"><kbd>E</kbd><span id="promptTxt">DESCEND</span></div>
+        <div id="dashwrap"><div id="dashmeter" style="--p: 1"></div><span>DASH</span></div>
+      </div>
+      <button id="portalRecall" type="button" hidden aria-label="Return to the discovered portal"
+        ><span class="portal-return-mark" aria-hidden="true"></span><span>RETURN TO PORTAL</span
+        ><span class="portal-key">Q</span></button
+      >
+      <div id="weaponHUD"
+        ><div class="weapon-top"
+          ><span id="weaponStatus">EMBER BOLT</span><span id="ammoCount">6 / 6</span></div
+        ><div id="ammoRounds" aria-hidden="true"></div
+        ><div class="weapon-reload-track"><div id="reloadProgress"></div></div
+        ><div class="weapon-actions"
+          ><button id="btnReload" aria-label="Rekindle ember charges"><kbd>R</kbd> REKINDLE</button
+          ><button id="btnMelee" aria-label="Release close-range Flare"
+            ><kbd>K</kbd> FLARE · <span id="bladePower">2.25×</span></button
+          ></div
+        ><div class="blade-line"
+          ><span id="bladeReady">FLARE READY</span
+          ><div class="blade-track"><div id="bladeProgress"></div></div></div
+      ></div>
+      <div id="fps"></div>
+      <div id="quickControls"
+        >WASD move · J / click Ember Bolt · K / right-click Flare · R Rekindle · Space dash · E
+        interact · Q return</div
+      >
+      <div class="hud-actions"
+        ><button class="btn" id="btnPause">PAUSE <kbd>Esc</kbd></button></div
+      >
+      <div id="touchControls" aria-label="Touch controls">
+        <div class="touch-stick-wrap" id="moveStickWrap"
+          ><div class="touch-caption"><b>MOVE</b> DRAG</div
+          ><div class="touch-stick" id="moveStick" aria-label="Movement joystick"
+            ><i class="touch-stick-grid"></i><i class="touch-knob"></i></div
+        ></div>
+        <div class="touch-actions">
+          <button class="touch-action" id="touchMelee" aria-label="Release close-range Flare"
+            ><strong>✦</strong>FLARE</button
+          >
+          <button class="touch-action" id="touchDash" aria-label="Dash"
+            ><strong>››</strong>DASH</button
+          >
+          <button class="touch-action" id="touchReload" aria-label="Rekindle ember charges"
+            ><strong>↻</strong>REKINDLE</button
+          >
+          <button
+            class="touch-action interact"
+            id="touchEnter"
+            aria-label="Interact or enter portal"
+            ><strong>◇</strong>USE</button
+          >
+        </div>
+        <div class="touch-stick-wrap" id="aimStickWrap"
+          ><div class="touch-caption"><b>BOLT</b> AIM + HOLD</div
+          ><div class="touch-stick" id="aimStick" aria-label="Aim and fire joystick"
+            ><i class="touch-fire-ring"></i><i class="touch-stick-grid"></i
+            ><i class="touch-knob"></i></div
+        ></div>
+      </div>
     </div>
-  </section>
-</div>
-<div id="memories" class="ov"><div class="panel memories-panel"><div class="memories-heading"><div><span class="eyebrow">THINGS THAT STAY</span><h2>Memories</h2></div><button class="btn" id="memoriesClose">BACK</button></div><p class="memories-intro">Conversations and traces recovered in the depths.</p>
-<div id="memoryList"></div><div id="memoryEmpty">Nothing yet. Take the first step.</div><h3 class="armory-heading">Earned blessings</h3><div id="armoryList"></div></div></div>
-<div id="chapterClear" class="ov"><div class="panel chapter-clear-panel"><div class="chapter-seal" id="chapterSeal" aria-hidden="true">Ⅰ</div><div class="eyebrow" id="chapterCompleteLabel">CHAPTER I COMPLETE</div><h2 id="chapterCompleteTitle">The Hollow Gate</h2><p id="chapterCompleteText">The Warden has lowered his weapon.<br>Beyond him, the stairs keep going.</p><div id="chapterStats" class="statsgrid"></div><div class="chapter-quote" id="chapterQuote">“You asked me to stop you.”</div><div class="btnrow"><button class="btn primary" id="chapterContinue">DESCEND FURTHER</button><button class="btn" id="chapterSave">SAVE & RETURN</button></div><button class="text-button" id="chapterExplore">Stay and look around</button></div></div>
 
-<script src="src/core/error-boundary.js?v=2026092201"></script>
-<script src="src/core/foundation.js?v=2026100603"></script>
-<script src="src/core/input.js?v=2026100703"></script>
-<script src="src/render/sprites.js?v=2026100603"></script>
-<script src="src/core/state.js?v=2026092201"></script>
-<script src="src/world/dungeon.js?v=2026100603"></script>
-<script src="src/game/flow.js?v=2026100704"></script>
-<script src="src/render/world-ui.js?v=2026100603"></script>
-<script src="src/interface/refinements.js?v=2026100703"></script>
-<script src="src/chapters/hollow.js?v=2026100901"></script>
-<script src="src/combat/ember-abilities.js?v=2026100703"></script>
-<script src="src/chapters/garden.js?v=2026100901"></script>
-<script src="src/chapters/late-regions.js?v=2026100901"></script>
-<script src="src/story/story-copy.js?v=2026100901"></script>
-<script src="src/progression/regional-blessings.js?v=2026100704"></script>
-<script src="src/story/recovered-traces.js?v=2026100901"></script>
-<script src="src/enemies/regional-enemies.js?v=2026100603"></script>
-<script src="src/bosses/guardians.js?v=2026100603"></script>
-<script src="src/world/regional-hazards.js?v=2026092201"></script>
-<script src="src/chapters/late-hooks.js?v=2026100603"></script>
-<script src="src/progression/skill-tree.js?v=2026100301"></script>
-<script src="src/render/ember.js?v=2026092201"></script>
-<script src="src/render/hollow-garden-art.js?v=2026092201"></script>
-<script src="src/render/regional-art.js?v=2026100603"></script>
-<script src="src/game/finale.js?v=2026100901"></script>
-<script src="src/progression/blessings.js?v=2026100703"></script>
-<script src="src/world/resting-flames.js?v=2026092201"></script>
-<script src="src/audio/scene-effects.js?v=2026100603"></script>
-<script src="src/render/blessing-effects.js?v=2026100603"></script>
-<script src="src/game/endless.js?v=2026100603"></script>
-<script src="src/story/remembered-rooms.js?v=2026100901"></script>
-<script src="src/story/echo-tableaus.js?v=2026100901"></script>
-<script src="src/combat/combat-feel.js?v=2026100603"></script>
-<script src="src/progression/rarity.js?v=2026100603"></script>
-<script src="src/bosses/twin-regents.js?v=2026092201"></script>
-<script src="src/progression/forms.js?v=2026100603"></script>
-<script src="src/world/room-encounters.js?v=2026100603"></script>
-<script src="src/bosses/middle-guardians.js?v=2026092201"></script>
-<script src="src/input/touch.js?v=2026092201"></script>
-<script src="src/game/guardian-modes.js?v=2026100603"></script>
-<script src="src/bosses/final-tuning.js?v=2026092201"></script>
-<script src="src/bosses/secret-boss.js?v=2026100603"></script>
-<script src="src/game/endless-hardening.js?v=2026092201"></script>
-<script src="src/story/living-archive.js?v=2026100901"></script>
-<script src="src/story/silent-memories.js?v=2026100901"></script>
-<script src="src/bosses/adaptive-guardians.js?v=2026100603"></script>
-<script src="src/combat/combat-polish.js?v=2026100703"></script>
-<script src="src/audio/effects.js?v=2026100603"></script>
-<script src="src/combat/combat-finale.js?v=2026100603"></script>
-<script src="src/interface/run-recap.js?v=2026100603"></script>
-<script src="src/game/onboarding.js?v=2026100901"></script>
-<script src="src/game/first-descent.js?v=2026092201"></script>
-<script src="src/core/save-system.js?v=2026100603"></script>
-<script src="src/interface/interface-reborn.js?v=2026100702"></script>
-<script src="src/story/wick-secrets.js?v=2026100901"></script>
-<script src="src/world/secret-rooms.js?v=2026100701"></script>
-<script src="src/audio/recorded-score.js?v=2026100702"></script>
-<script src="src/game/speedrun.js?v=2026100603"></script>
-<script src="src/game/endless-wheel.js?v=2026092701"></script>
-<script src="src/progression/blessing-expansion.js?v=2026100703"></script>
-<script src="src/progression/achievements.js?v=2026100603"></script>
-<script src="src/render/creature-animation.js?v=2026100603"></script>
-<script src="src/input/controller.js?v=2026100901"></script>
-<script src="src/progression/blessing-recipes.js?v=2026100704"></script>
-<script src="src/progression/blessing-combos.js?v=2026100802"></script>
-<script src="src/combat/blessing-synergies.js?v=2026100802"></script>
-<script src="src/render/combo-art.js?v=2026100704"></script>
-<script src="src/interface/build-journal.js?v=2026100801"></script>
-<script src="src/progression/hearth-progress.js?v=2026100802"></script>
-<script src="src/game/vow-bindings.js?v=2026100802"></script>
-<script src="src/render/hearth-art.js?v=2026100802"></script>
-<script src="src/interface/hearth.js?v=2026100802"></script>
-<script src="src/world/moth-shop.js?v=2026100802"></script>
-<script src="src/render/moth-shop-art.js?v=2026100802"></script>
-<script src="src/core/changelog.js?v=2026100901"></script>
-<script src="src/core/boot.js?v=2026092201"></script>
-</body>
+    <div id="menu" class="ov open">
+      <div class="menu-box">
+        <h1 class="title" aria-label="The Seventh Ember"
+          ><span class="title-small">THE SEVENTH</span><span class="title-main">EMBER</span></h1
+        >
+        <div class="menu-btns">
+          <button class="btn primary" id="btnContinue" hidden
+            ><i data-lucide="play"></i>CONTINUE DESCENT</button
+          ><div id="resumeHint" hidden></div>
+          <button class="btn primary" id="btnStart"
+            ><i data-lucide="arrow-down"></i>BEGIN DESCENT</button
+          >
+          <button class="btn subtle" id="btnTree"><i data-lucide="sparkles"></i>SKILL TREE</button>
+          <button class="btn subtle" id="btnHow"><i data-lucide="book-open"></i>HOW TO PLAY</button>
+        </div>
+        <div class="audiorow"
+          ><button class="btn" id="btnMusic"><i data-lucide="music"></i>MUSIC</button
+          ><button class="btn" id="btnSfx"><i data-lucide="volume-2"></i>SOUND</button
+          ><button class="btn" id="btnSettings">SETTINGS & SAVE</button
+          ><button class="btn" id="btnMemories">MEMORIES</button></div
+        >
+        <div id="campaignMedal" hidden>◆ FIRST DAWN · CAMPAIGN COMPLETE</div
+        ><div id="menuStats"></div>
+      </div>
+    </div>
+
+    <div id="changelog" class="ov" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
+      <section class="changelog-shell">
+        <div class="changelog-sigil" aria-hidden="true"><i></i><b>◆</b><i></i></div>
+        <div class="changelog-kicker">THE SEVENTH EMBER HAS CHANGED</div>
+        <h2 id="changelogTitle">What’s New</h2>
+        <div id="resetNotice" class="reset-notice" hidden>
+          <strong>A fresh descent was required.</strong>
+          <p
+            >Sorry—your progress had to be reset. This update rebuilt the game’s progression, and
+            old saves no longer matched the intended difficulty. This reset will only happen
+            once.</p
+          >
+        </div>
+        <div id="changelogEntries" class="changelog-entries"></div>
+        <button class="btn primary" id="changelogClose">BEGIN AGAIN</button>
+      </section>
+    </div>
+
+    <button id="runTimerHud" type="button" hidden aria-label="Copy the current run seed"
+      ><span>RUN TIME</span><b id="runTimerValue">00:00.000</b
+      ><small id="runTimerSeed">SEED</small></button
+    >
+
+    <div id="finale" class="ov" role="dialog" aria-modal="true" aria-labelledby="endingTitle">
+      <div class="finale-shell"
+        ><p class="ending-kicker">THE SEVENTH EMBER · THE END OF THE DESCENT</p
+        ><canvas
+          id="endingCanvas"
+          width="720"
+          height="280"
+          aria-label="The archive opens, releasing its people into the dawn."
+        ></canvas
+        ><h2 id="endingTitle"></h2>
+        <div id="endingStory"><strong id="endingSpeaker"></strong><p id="endingText"></p></div
+        ><button class="btn primary" id="endingNext">CONTINUE</button>
+        <div id="endingResults" hidden
+          ><p>You opened the gate. Your campaign victory is saved.</p><div id="endingNumbers"></div
+          ><div id="endingBuild"></div
+          ><div class="ending-choices"
+            ><button class="btn primary" id="endingFinish">FINISH &amp; RETURN TO MENU</button
+            ><button class="btn" id="endingInfinite">ENTER ENDLESS MODE</button
+            ><button class="btn subtle" id="endingReplay">REPLAY ENDING</button></div
+          ><p
+            >Endless Mode continues from floor 51 with your current blessings and forms. Every five
+            floors, the Wheel Below adds another permanent Burden to the descent. Dying there keeps
+            your victory.</p
+          ></div
+        >
+      </div>
+    </div>
+
+    <div id="howto" class="ov">
+      <div class="panel" style="max-width: 560px">
+        <div class="bigword cinzel" style="font-size: 1.6rem; color: #ffe9b8">HOW TO PLAY</div>
+        <div class="how-grid">
+          <div class="k"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div
+          ><div>Move (arrow keys also work)</div>
+          <div class="k"><i data-lucide="mouse" style="width: 14px; height: 14px"></i></div
+          ><div>Aim with mouse — <b style="color: #e8d5ae">hold click</b> to fire</div>
+          <div class="k"><kbd>SPACE</kbd></div
+          ><div>Dash — grants brief invulnerability</div> <div class="k"><kbd>E</kbd></div
+          ><div>Enter the portal · restores 15% health on floors 1–10, then 8%</div>
+          <div class="k"><kbd>Q</kbd></div
+          ><div>Return to an open portal after you have discovered it</div>
+          <div class="k"><kbd>ESC</kbd>/<kbd>P</kbd></div
+          ><div>Pause</div> <div class="k"><kbd>J</kbd></div
+          ><div>Cast Ember Bolts at the nearest enemy · Rekindles when empty</div
+          ><div class="k"><kbd>K</kbd> / right click</div
+          ><div>Flare — 2.25× Ember Bolt damage · usable while Rekindling</div
+          ><div class="k"><kbd>R</kbd></div
+          ><div>Rekindle six charges · empty wells Rekindle automatically</div
+          ><div class="k"><kbd>M</kbd></div
+          ><div>Toggle music</div> <div class="k"><kbd>TOUCH</kbd></div
+          ><div
+            >Left stick moves · hold the right stick to aim and fire · four buttons use Flare, Dash,
+            Rekindle, and nearby objects</div
+          >
+        </div>
+        <div class="how-tips"
+          >Walk up to a chest to open it. Cyan XP and violet essence are separate.<br />
+          <b>Cyan shards</b> grant XP — level up and draft 1 of 3 blessings.<br />
+          <b>Violet essence</b> is yours forever, even in death. Spend it in the
+          <b>Skill Tree</b>.<br />
+          A guardian waits on every <b>fifth floor</b>. Its portal stays sealed until it falls.<br />
+          Some walls carry seams, drafts, or marks that do not belong. <b>Use or Flare</b> near them
+          to uncover hidden passages.<br />
+          The descent has <b>50 floors</b> across ten regions. A guardian waits at the end of each
+          one.
+        </div>
+        <button class="btn primary" id="btnHowClose">UNDERSTOOD</button>
+      </div>
+    </div>
+
+    <div id="levelup" class="ov">
+      <div id="luWrap">
+        <div id="luTitle">LEVEL UP</div>
+        <div id="luSub">CHOOSE A BLESSING &nbsp;·&nbsp; PRESS 1 · 2 · 3</div>
+        <div id="cards"></div>
+      </div>
+    </div>
+
+    <div id="secretRoom" class="ov" role="dialog" aria-modal="true" aria-labelledby="secretTitle">
+      <section class="secret-shell">
+        <div class="secret-view"
+          ><canvas
+            id="secretCanvas"
+            width="960"
+            height="480"
+            aria-label="A hidden chamber beyond the dungeon wall."
+          ></canvas
+          ><div class="secret-view-frame" aria-hidden="true"></div
+          ><div id="secretRoomState">PASSAGE FOUND</div></div
+        >
+        <div class="secret-copy">
+          <div class="secret-kicker"><span id="secretRegion"></span><b>HIDDEN PASSAGE</b></div>
+          <h2 id="secretTitle">THE HIDDEN CACHE</h2>
+          <p id="secretLine"></p>
+          <div class="secret-ledger"
+            ><span><i>◆</i><b id="secretMarks">0</b><small>MARKS THIS DESCENT</small></span
+            ><span><i>✦</i><b id="secretMarkCount">0 / 7</b><small>SEVENTH MARKS</small></span></div
+          >
+          <div id="secretReward"></div>
+          <div id="secretChoices"></div>
+          <div class="secret-actions"
+            ><button class="btn primary" id="secretAction">OPEN THE CACHE</button
+            ><button class="btn" id="secretLeave">RETURN TO THE DUNGEON</button></div
+          >
+        </div>
+      </section>
+    </div>
+
+    <div id="wickGift" class="ov" role="dialog" aria-modal="true" aria-labelledby="wickGiftTitle">
+      <section class="wick-gift-shell">
+        <div class="wick-gift-kicker">A FAVOR FROM WICK</div>
+        <div class="wick-gift-emblem" aria-hidden="true"
+          ><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b></b
+        ></div>
+        <h2 id="wickGiftTitle">Wick’s Pointer</h2>
+        <div class="wick-gift-rarity">SECRET BLESSING · EPIC</div>
+        <p
+          ><strong>Something important is always marked.</strong> Marked enemies take 18% more
+          ability damage and return one Ember Bolt charge when defeated.</p
+        >
+        <button class="btn primary" id="wickGiftTake">TAKE IT AND CONTINUE</button>
+      </section>
+    </div>
+
+    <div id="pause" class="ov">
+      <div class="panel">
+        <div class="bigword">PAUSED</div>
+        <div class="dword-sub">THE VOID WAITS PATIENTLY</div>
+        <div class="statsgrid" style="grid-template-columns: repeat(4, 1fr)" id="pStats"></div>
+        <div class="btnrow">
+          <button class="btn primary" id="btnResume"><i data-lucide="play"></i>RESUME</button>
+          <button class="btn" id="btnSaveExit">SAVE & RETURN</button
+          ><button class="btn" id="btnPauseSettings">SETTINGS</button
+          ><button class="btn" id="btnPauseMemories">MEMORIES</button
+          ><button class="btn danger" id="btnAbandon"><i data-lucide="home"></i>END RUN</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="dead" class="ov">
+      <div class="panel">
+        <div class="bigword">THE VOID CLAIMS YOU</div>
+        <div class="dword-sub">DEATH IS ONLY A DOORWAY</div>
+        <div class="statsgrid" id="dStats"></div>
+        <div id="dEssBox"></div>
+        <div class="btnrow">
+          <button class="btn primary" id="btnDeadTree"
+            ><i data-lucide="sparkles"></i>SPEND ESSENCE</button
+          >
+          <button class="btn" id="btnDeadMenu"><i data-lucide="rotate-ccw"></i>RISE AGAIN</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="win" class="ov">
+      <div class="panel">
+        <div class="bigword">THE STAR IS STILL</div>
+        <div class="dword-sub">FIFTY FLOORS BELOW THE GATE · WICK IS STILL HERE</div>
+        <div class="statsgrid" id="wStats"></div>
+        <div id="wEssBox"></div>
+        <div class="btnrow">
+          <button class="btn primary" id="btnWinGo"><i data-lucide="eye"></i>STAY A MOMENT</button>
+          <button class="btn" id="btnWinEnd"
+            ><i data-lucide="rotate-ccw"></i>RETURN TO TITLE</button
+          >
+        </div>
+      </div>
+    </div>
+
+    <div id="skills" class="ov">
+      <div class="tree-panel">
+        <div class="tree-head">
+          <div
+            ><h2>SKILL TREE</h2
+            ><div class="tree-sub"
+              >97 permanent sigils across eight winding constellations.</div
+            ></div
+          >
+          <div style="display: flex; align-items: center; gap: 18px">
+            <div
+              ><span id="treeMastery">0 / 97 SIGILS</span
+              ><div class="mastery-track"><i id="treeMasteryFill"></i></div></div
+            ><span id="treeEss"><i data-lucide="gem"></i><b>0</b></span>
+            <button class="btn" id="btnTreeBack" style="padding: 9px 20px; font-size: 11px"
+              ><i data-lucide="rotate-ccw"></i>BACK</button
+            >
+          </div>
+        </div>
+        <div class="tree-layout"
+          ><div class="tree-map"
+            ><div id="treeWrap"
+              ><canvas id="treeCv" width="1240" height="980" aria-hidden="true"></canvas
+              ><div id="treeNodes" aria-label="Permanent skill tree"></div></div></div
+          ><aside class="tree-inspector"
+            ><div class="eyebrow">PERMANENT SIGIL</div><h3 id="nodeTitle">Awakening</h3
+            ><p id="nodeDesc"></p><div class="price" id="nodePrice"></div
+            ><div class="node-status" id="nodeStatus" role="status"></div
+            ><button class="btn primary" id="btnUnlock">UNLOCK SIGIL</button
+            ><div class="meta-total" id="metaTotal"></div></aside
+        ></div>
+        <div class="tree-foot"
+          ><span>SELECT A SIGIL · UNLOCK WITH ESSENCE</span
+          ><span>EVERY SIGIL REMAINS BETWEEN DESCENTS</span></div
+        >
+      </div>
+    </div>
+    <div id="settings" class="ov" style="z-index: 50"
+      ><div class="panel" style="width: 530px; text-align: left"
+        ><div class="bigword" style="font-size: 24px">MAKE THE DESCENT YOURS</div>
+        <label class="settings-row"
+          ><span>Music<small>Music during exploration and combat.</small></span
+          ><input id="setMusic" type="checkbox"
+        /></label>
+        <label class="settings-row"
+          ><span>Sound effects<small>Combat, pickups, and menu sounds.</small></span
+          ><input id="setSfx" type="checkbox"
+        /></label>
+        <label class="settings-row"
+          ><span>Reduced motion<small>Disable camera shake and menu animations.</small></span
+          ><input id="setMotion" type="checkbox"
+        /></label>
+        <label class="settings-row"
+          ><span
+            >Touch controls<small
+              >Dual analog sticks with aim-to-fire and dedicated ability buttons. Enabled
+              automatically on touchscreens.</small
+            ></span
+          ><input id="setTouch" type="checkbox"
+        /></label>
+        <label class="settings-row"
+          ><span>Dialogue speed<small>Read at your own pace. Enter or Space continues.</small></span
+          ><select id="setTextSpeed"
+            ><option value="1">Normal</option
+            ><option value="2">Fast</option
+            ><option value="0">Instant</option></select
+          ></label
+        >
+        <label class="settings-row"
+          ><span>Dialogue sounds<small>Quiet tones while characters speak.</small></span
+          ><input id="setDialogueVoice" type="checkbox"
+        /></label>
+        <label class="settings-row"
+          ><span>Effects<small>Use light effects on slower devices.</small></span
+          ><select id="setQuality"
+            ><option value="full">Full</option
+            ><option value="light">Light</option></select
+          ></label
+        >
+        <section class="runner-settings" aria-labelledby="runnerSettingsTitle"
+          ><header><span>OPTIONAL TOOLS</span><h3 id="runnerSettingsTitle">Speedrunning</h3></header
+          ><label class="settings-row runner-timer-row"
+            ><span>Run timer<small>Show active play time during ordinary descents.</small></span
+            ><input id="setRunTimer" type="checkbox" /></label
+          ><div class="runner-seed-setting"
+            ><label for="setRunSeed"
+              >Run seed<small
+                >Applied to your next new descent. Leave blank for a fresh random dungeon.</small
+              ></label
+            ><input
+              id="setRunSeed"
+              type="text"
+              maxlength="28"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="RANDOM EACH DESCENT"
+            /><div
+              ><button id="runnerRandomSeed" type="button">RANDOM</button
+              ><button id="runnerDailySeed" type="button">DAILY</button
+              ><button id="runnerCopySeed" type="button">COPY</button
+              ><button id="runnerClearSeed" type="button">CLEAR</button></div
+            ><p id="runnerSeedStatus">The current descent is unchanged.</p></div
+          ></section
+        >
+        <p class="save-message" id="settingsSave"
+          >Your essence, skill tree, and current run save automatically. Export a backup before
+          changing browsers or devices.</p
+        >
+        <div class="settings-actions"
+          ><button class="btn" id="btnExport">EXPORT SAVE</button
+          ><button class="btn" id="btnImport">IMPORT SAVE</button
+          ><button class="btn primary" id="btnSettingsClose">DONE</button></div
+        ><div class="settings-reset"
+          ><button class="btn danger" id="btnResetEverything">RESET EVERYTHING</button
+          ><small>Start fresh, including dialogue, essence, and the Skill Tree.</small></div
+        ><input type="file" id="saveFile" accept="application/json,.json" hidden />
+        <div id="importReview" hidden
+          ><p class="save-message" id="importSummary"></p
+          ><div class="settings-actions"
+            ><button class="btn danger" id="btnImportApply">REPLACE PROGRESS</button
+            ><button class="btn" id="btnImportCancel">CANCEL</button></div
+          ></div
+        >
+      </div></div
+    >
+    <div id="confirmRun" class="ov" style="z-index: 55"
+      ><div class="panel"
+        ><div class="bigword" style="font-size: 25px" id="confirmTitle">BEGIN AGAIN?</div
+        ><p style="color: #aab7c7; font-size: 13px; line-height: 1.8" id="confirmText"></p
+        ><div class="btnrow"
+          ><button class="btn danger" id="btnConfirmRun">BEGIN AGAIN</button
+          ><button class="btn" id="btnCancelRun">GO BACK</button></div
+        ></div
+      ></div
+    >
+
+    <div id="chapterBanner" aria-live="polite"
+      ><span id="chapterRegion">CHAPTER I · THE HOLLOW GATE</span><strong id="chapterPlace"></strong
+      ><small id="chapterHint"></small
+    ></div>
+    <div id="fieldNote" role="status"></div>
+    <div id="conversation" role="dialog" aria-modal="true" aria-labelledby="speakerName" hidden>
+      <div class="conversation-shade"></div>
+      <section class="dialogue-frame" id="dialogueFrame" data-speaker="wick">
+        <div class="speaker-portrait"
+          ><canvas id="speakerPortrait" width="120" height="120" aria-hidden="true"></canvas
+          ><span id="speakerTag">EMBER</span></div
+        >
+        <div class="dialogue-content"
+          ><div class="dialogue-heading"
+            ><span id="speakerName"></span><span id="dialogueChapter">THE HOLLOW GATE</span></div
+          >
+          <p id="dialogueText" aria-hidden="true"></p
+          ><p class="sr-only" id="dialogueReadback" aria-live="polite"></p>
+          <div id="dialogueChoices"></div>
+          <div class="dialogue-footer"
+            ><button id="dialogueSkip">SKIP SCENE</button
+            ><span id="dialogueKeys">ENTER / SPACE</span
+            ><button id="dialogueNext" aria-label="Continue dialogue"
+              >CONTINUE <span>◆</span></button
+            ></div
+          >
+        </div>
+      </section>
+    </div>
+    <div id="memories" class="ov"
+      ><div class="panel memories-panel"
+        ><div class="memories-heading"
+          ><div><span class="eyebrow">THINGS THAT STAY</span><h2>Memories</h2></div
+          ><button class="btn" id="memoriesClose">BACK</button></div
+        ><p class="memories-intro">Conversations and traces recovered in the depths.</p>
+        <div id="memoryList"></div><div id="memoryEmpty">Nothing yet. Take the first step.</div
+        ><h3 class="armory-heading">Earned blessings</h3><div id="armoryList"></div></div
+    ></div>
+    <div id="chapterClear" class="ov"
+      ><div class="panel chapter-clear-panel"
+        ><div class="chapter-seal" id="chapterSeal" aria-hidden="true">Ⅰ</div
+        ><div class="eyebrow" id="chapterCompleteLabel">CHAPTER I COMPLETE</div
+        ><h2 id="chapterCompleteTitle">The Hollow Gate</h2
+        ><p id="chapterCompleteText"
+          >The Warden has lowered his weapon.<br />Beyond him, the stairs keep going.</p
+        ><div id="chapterStats" class="statsgrid"></div
+        ><div class="chapter-quote" id="chapterQuote">“You asked me to stop you.”</div
+        ><div class="btnrow"
+          ><button class="btn primary" id="chapterContinue">DESCEND FURTHER</button
+          ><button class="btn" id="chapterSave">SAVE & RETURN</button></div
+        ><button class="text-button" id="chapterExplore">Stay and look around</button></div
+      ></div
+    >
+
+    <script src="src/core/error-boundary.js?v=2026101001"></script>
+    <script src="src/core/foundation.js?v=2026101001"></script>
+    <script src="src/core/input.js?v=2026101001"></script>
+    <script src="src/render/sprites.js?v=2026101001"></script>
+    <script src="src/core/state.js?v=2026101001"></script>
+    <script src="src/world/dungeon.js?v=2026101001"></script>
+    <script src="src/game/flow.js?v=2026101001"></script>
+    <script src="src/render/world-ui.js?v=2026101001"></script>
+    <script src="src/interface/refinements.js?v=2026101001"></script>
+    <script src="src/chapters/hollow.js?v=2026101001"></script>
+    <script src="src/combat/ember-abilities.js?v=2026101001"></script>
+    <script src="src/chapters/garden.js?v=2026101001"></script>
+    <script src="src/chapters/late-regions.js?v=2026101001"></script>
+    <script src="src/story/story-copy.js?v=2026101001"></script>
+    <script src="src/progression/regional-blessings.js?v=2026101001"></script>
+    <script src="src/story/recovered-traces.js?v=2026101001"></script>
+    <script src="src/enemies/regional-enemies.js?v=2026101001"></script>
+    <script src="src/bosses/guardians.js?v=2026101001"></script>
+    <script src="src/world/regional-hazards.js?v=2026101001"></script>
+    <script src="src/chapters/late-hooks.js?v=2026101001"></script>
+    <script src="src/progression/skill-tree.js?v=2026101001"></script>
+    <script src="src/render/ember.js?v=2026101001"></script>
+    <script src="src/render/hollow-garden-art.js?v=2026101001"></script>
+    <script src="src/render/regional-art.js?v=2026101001"></script>
+    <script src="src/game/finale.js?v=2026101001"></script>
+    <script src="src/progression/blessings.js?v=2026101001"></script>
+    <script src="src/world/resting-flames.js?v=2026101001"></script>
+    <script src="src/audio/scene-effects.js?v=2026101001"></script>
+    <script src="src/render/blessing-effects.js?v=2026101001"></script>
+    <script src="src/game/endless.js?v=2026101001"></script>
+    <script src="src/story/remembered-rooms.js?v=2026101001"></script>
+    <script src="src/story/echo-tableaus.js?v=2026101001"></script>
+    <script src="src/combat/combat-feel.js?v=2026101001"></script>
+    <script src="src/progression/rarity.js?v=2026101001"></script>
+    <script src="src/bosses/twin-regents.js?v=2026101001"></script>
+    <script src="src/progression/forms.js?v=2026101001"></script>
+    <script src="src/world/room-encounters.js?v=2026101001"></script>
+    <script src="src/bosses/middle-guardians.js?v=2026101001"></script>
+    <script src="src/input/touch.js?v=2026101001"></script>
+    <script src="src/game/guardian-modes.js?v=2026101001"></script>
+    <script src="src/bosses/final-tuning.js?v=2026101001"></script>
+    <script src="src/bosses/secret-boss.js?v=2026101001"></script>
+    <script src="src/game/endless-hardening.js?v=2026101001"></script>
+    <script src="src/story/living-archive.js?v=2026101001"></script>
+    <script src="src/story/silent-memories.js?v=2026101001"></script>
+    <script src="src/bosses/adaptive-guardians.js?v=2026101001"></script>
+    <script src="src/combat/combat-polish.js?v=2026101001"></script>
+    <script src="src/audio/effects.js?v=2026101001"></script>
+    <script src="src/combat/combat-finale.js?v=2026101001"></script>
+    <script src="src/interface/run-recap.js?v=2026101001"></script>
+    <script src="src/game/onboarding.js?v=2026101001"></script>
+    <script src="src/game/first-descent.js?v=2026101001"></script>
+    <script src="src/core/save-system.js?v=2026101001"></script>
+    <script src="src/interface/interface-reborn.js?v=2026101001"></script>
+    <script src="src/story/wick-secrets.js?v=2026101001"></script>
+    <script src="src/world/secret-rooms.js?v=2026101001"></script>
+    <script src="src/audio/recorded-score.js?v=2026101001"></script>
+    <script src="src/game/speedrun.js?v=2026101001"></script>
+    <script src="src/game/endless-wheel.js?v=2026101001"></script>
+    <script src="src/progression/blessing-expansion.js?v=2026101001"></script>
+    <script src="src/progression/achievements.js?v=2026101001"></script>
+    <script src="src/render/creature-animation.js?v=2026101001"></script>
+    <script src="src/input/controller.js?v=2026101001"></script>
+    <script src="src/progression/blessing-recipes.js?v=2026101001"></script>
+    <script src="src/progression/blessing-combos.js?v=2026101001"></script>
+    <script src="src/combat/blessing-synergies.js?v=2026101001"></script>
+    <script src="src/render/combo-art.js?v=2026101001"></script>
+    <script src="src/interface/build-journal.js?v=2026101001"></script>
+    <script src="src/progression/hearth-progress.js?v=2026101001"></script>
+    <script src="src/game/vow-bindings.js?v=2026101001"></script>
+    <script src="src/render/hearth-art.js?v=2026101001"></script>
+    <script src="src/interface/hearth.js?v=2026101001"></script>
+    <script src="src/world/moth-shop.js?v=2026101001"></script>
+    <script src="src/render/moth-shop-art.js?v=2026101001"></script>
+    <script src="src/core/changelog.js?v=2026101001"></script>
+    <script src="src/core/boot.js?v=2026101001"></script>
+  </body>
 </html>

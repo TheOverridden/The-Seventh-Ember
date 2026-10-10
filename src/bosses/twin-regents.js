@@ -1,66 +1,592 @@
-const REGENT_DANCE_VERSION=1;
-function livingRegents(){return (G.enemies||[]).filter(e=>!e.dead&&e.lateBoss&&e.bossKey==='regents').sort((a,b)=>a.twinRole==='blade'?-1:b.twinRole==='blade'?1:a.uid-b.uid);}
-function regentDanceState(pair=livingRegents()){
- const lead=pair.find(e=>e.twinRole==='blade')||pair[0];if(!lead)return null;let c=lead.bs.duet;
- if(!c||c.version!==REGENT_DANCE_VERSION)c={version:REGENT_DANCE_VERSION,mode:'entrance',kind:'audience',clock:0,duration:1.25,phase:0,step:0,axis:0,targetX:G.player?.x||lead.x,targetY:G.player?.y||lead.y,fired:{},ghostA:0,lastCount:pair.length};
- for(const e of pair){e.bs.duet=c;e.bs.phase=c.phase;e.bs.second=c.phase>0||pair.length===1;}return c;
+const REGENT_DANCE_VERSION = 1;
+function livingRegents() {
+  return (G.enemies || [])
+    .filter((e) => !e.dead && e.lateBoss && e.bossKey === 'regents')
+    .sort((a, b) => (a.twinRole === 'blade' ? -1 : b.twinRole === 'blade' ? 1 : a.uid - b.uid));
 }
-function regentMoveTo(e,x,y,dt,speed){const dx=x-e.x,dy=y-e.y,d=Math.hypot(dx,dy);if(d<1)return;const step=Math.min(d,speed*dt);moveEnt(G.world,e,dx/d*step,dy/d*step);}
-function regentArenaPoint(a,x,y,ang,r){return{x:clamp(x+Math.cos(ang)*r,a.left+44,a.right-44),y:clamp(y+Math.sin(ang)*r,a.top+44,a.bottom-44)};}
-function regentVolleyAt(owner,x,y,aim,n=7,spread=.17,skipCenter=false,speed=270,power=.56){for(let i=0;i<n;i++){if(skipCenter&&i===(n>>1))continue;const a=aim+(i-(n-1)/2)*spread;G.ebul.push({x:x+Math.cos(a)*(owner.r+4),y:y+Math.sin(a)*(owner.r+4),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,r:5,dmg:Math.round(owner.dmg*power),life:4.5,lateColor:owner.col});}sfx('regentBell');}
-function regentRingAt(owner,x,y,n,gap,speed=235,power=.54){for(let i=0;i<n;i++){const a=i*TAU/n;if(Math.abs(angleDiff(a,gap))<.27)continue;G.ebul.push({x:x+Math.cos(a)*(owner.r+3),y:y+Math.sin(a)*(owner.r+3),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,r:5,dmg:Math.round(owner.dmg*power),life:5,lateColor:owner.col});}sfx('regentBell');}
-function regentCutAt(owner,x,y,a,turn=0,delay=.28){const arena=arenaBounds();encounterHazard(owner,'sweep',x,y,a,{delay,life:.68,len:Math.hypot(arena.right-arena.left,arena.bottom-arena.top),turn,width:7,damageMul:.62});}
-function regentDashToward(e,x,y,speed=650,time=.58){e.bs.duetDash={a:Math.atan2(y-e.y,x-e.x),left:time,speed,hit:false};e.bs.a=e.bs.duetDash.a;e.bs.mode='dash';sfx('regentStep');}
-function tickRegentDash(e,dt){const q=e.bs.duetDash;if(!q||q.left<=0)return false;q.left-=dt;e.bs.mode='dash';e.bs.a=q.a;const wall=moveEnt(G.world,e,Math.cos(q.a)*q.speed*dt,Math.sin(q.a)*q.speed*dt);if(!q.hit&&d2(e.x,e.y,G.player.x,G.player.y)<(e.r+G.player.r+7)**2){hurtPlayer(Math.round(e.dmg*.9),e.x,e.y);q.hit=true;}if(wall||q.left<=0){q.left=0;e.bs.mode='recover';e.bs.t=.3;}return true;}
-function regentOnce(c,id,at,fn){if(c.clock>=at&&!c.fired[id]){c.fired[id]=1;fn();}}
-function beginRegentMeasure(pair,c,forced){const list=c.phase?['crossing','counterstep','pincer','crescendo']:['crossing','counterstep','pincer'];c.kind=forced||list[c.step%list.length];c.step++;c.mode='duet';c.clock=0;c.duration={crossing:c.phase?3.45:3.2,counterstep:c.phase?4.25:3.85,pincer:c.phase?4.05:3.25,crescendo:4.65}[c.kind];c.fired={};c.axis=(c.axis+1.13+(c.phase?.19:0))%TAU;const a=arenaBounds();c.targetX=clamp(G.player.x*.58+a.cx*.42,a.left+90,a.right-90);c.targetY=clamp(G.player.y*.58+a.cy*.42,a.top+90,a.bottom-90);for(const e of pair){e.bs.kind=c.kind;e.bs.mode='windup';e.bs.t=.5;e.bs.duration=c.duration;e.bs.duetDash=null;}sfx('regentCount');}
-function moveRegentFormation(pair,c,dt){const a=arenaBounds(),r=Math.min(a.right-a.left,a.bottom-a.top)*(c.phase?.34:.31),blade=pair.find(e=>e.twinRole==='blade'),bell=pair.find(e=>e.twinRole==='bell');if(!blade||!bell)return;
- let axis=c.axis;if(c.kind==='crossing'){if(c.clock>.96)axis+=Math.PI;if(c.clock>2.05)axis+=Math.PI;}
- else if(c.kind==='counterstep'||c.kind==='crescendo')axis+=c.clock*(c.phase?1.04:.84);
- else if(c.kind==='pincer'){if(c.clock>1.55)axis+=Math.PI/2;if(c.phase&&c.clock>2.82)axis+=Math.PI/2;}
- for(const e of pair){if(tickRegentDash(e,dt))continue;const ang=axis+(e===bell?Math.PI:0),q=regentArenaPoint(a,c.targetX,c.targetY,ang,r);regentMoveTo(e,q.x,q.y,dt,c.phase?310:265);}
+function regentDanceState(pair = livingRegents()) {
+  const lead = pair.find((e) => e.twinRole === 'blade') || pair[0];
+  if (!lead) return null;
+  let c = lead.bs.duet;
+  if (!c || c.version !== REGENT_DANCE_VERSION)
+    c = {
+      version: REGENT_DANCE_VERSION,
+      mode: 'entrance',
+      kind: 'audience',
+      clock: 0,
+      duration: 1.25,
+      phase: 0,
+      step: 0,
+      axis: 0,
+      targetX: G.player?.x || lead.x,
+      targetY: G.player?.y || lead.y,
+      fired: {},
+      ghostA: 0,
+      lastCount: pair.length,
+    };
+  for (const e of pair) {
+    e.bs.duet = c;
+    e.bs.phase = c.phase;
+    e.bs.second = c.phase > 0 || pair.length === 1;
+  }
+  return c;
 }
-function fireRegentMeasure(pair,c){const blade=pair.find(e=>e.twinRole==='blade'),bell=pair.find(e=>e.twinRole==='bell'),p=G.player;if(!blade||!bell)return;const aim=(e,x=p.x,y=p.y)=>Math.atan2(y-e.y,x-e.x),fast=c.phase>0;
- if(c.kind==='crossing'){
-  regentOnce(c,'a',.62,()=>{const a=aim(blade,bell.x,bell.y);regentCutAt(blade,blade.x,blade.y,a,fast?.28:.16);regentDashToward(blade,bell.x,bell.y,fast?735:650,.62);regentVolleyAt(bell,bell.x,bell.y,aim(bell),fast?9:7,.16,true,fast?300:270);});
-  regentOnce(c,'b',1.65,()=>{const a=aim(blade);regentCutAt(blade,blade.x,blade.y,a,fast?-.42:-.25);regentDashToward(blade,p.x,p.y,fast?760:675,.58);regentRingAt(bell,bell.x,bell.y,fast?18:14,aim(bell),fast?260:230);});
-  if(fast)regentOnce(c,'c',2.62,()=>{regentVolleyAt(blade,blade.x,blade.y,aim(blade)+.28,7,.15,true,310,.5);regentVolleyAt(bell,bell.x,bell.y,aim(bell)-.28,7,.15,true,310,.5);});
- }else if(c.kind==='counterstep'){
-  const beats=fast?[.58,1.42,2.26,3.1]:[.62,1.55,2.48];for(let i=0;i<beats.length;i++)regentOnce(c,'b'+i,beats[i],()=>{const a=aim(blade),turn=(i%2?-.7:.7)*(fast?1.15:1);regentCutAt(blade,blade.x,blade.y,a-(i%2?.55:-.55),turn,.25);regentVolleyAt(bell,bell.x,bell.y,aim(bell)+(i%2?.28:-.28),fast?7:5,.15,i%2===0,fast?305:275,.55);if(i%2===1)regentDashToward(blade,p.x,p.y,fast?720:640,.42);});
- }else if(c.kind==='pincer'){
-  const strike=(id,at)=>regentOnce(c,id,at,()=>{for(const e of pair){const a=aim(e,c.targetX,c.targetY);regentCutAt(e,e.x,e.y,a,e===blade?.18:-.18,.24);regentDashToward(e,c.targetX,c.targetY,fast?745:660,.58);}regentRingAt(bell,c.targetX,c.targetY,fast?18:14,Math.atan2(p.y-c.targetY,p.x-c.targetX),245);});strike('p0',.74);strike('p1',1.93);if(fast)strike('p2',3.02);
- }else{
-  regentOnce(c,'c0',.55,()=>{regentDashToward(blade,p.x,p.y,765,.6);regentRingAt(bell,bell.x,bell.y,20,aim(bell),265);});
-  regentOnce(c,'c1',1.45,()=>{regentCutAt(blade,blade.x,blade.y,aim(blade)-1.05,1.3,.22);regentCutAt(bell,bell.x,bell.y,aim(bell)+1.05,-1.3,.22);});
-  regentOnce(c,'c2',2.38,()=>{regentVolleyAt(blade,blade.x,blade.y,aim(blade)+.35,9,.14,true,315,.55);regentVolleyAt(bell,bell.x,bell.y,aim(bell)-.35,9,.14,true,315,.55);});
-  regentOnce(c,'c3',3.42,()=>{encounterHazard(blade,'annulus',c.targetX,c.targetY,0,{delay:.42,life:1.45,radius:18,expand:205,width:11,damageMul:.64});regentDashToward(blade,p.x,p.y,790,.55);});
- }}
-function syncRegentPoses(pair,c){for(const e of pair){e.bs.duet=c;e.bs.kind=c.kind;e.bs.phase=c.phase;e.bs.second=c.phase>0||pair.length===1;if(e.bs.duetDash?.left>0)continue;e.bs.mode=c.mode==='shift'?'shift':c.mode==='entrance'?'windup':c.clock<.48?'windup':c.clock>c.duration-.38?'recover':'wait';e.bs.duration=c.duration;e.bs.t=e.bs.mode==='windup'?Math.max(0,.48-c.clock):e.bs.mode==='recover'?Math.max(0,c.duration-c.clock):Math.max(0,c.duration-c.clock);e.bs.a=Math.atan2(G.player.y-e.y,G.player.x-e.x);}}
-function beginLastRegent(e,c){c.mode='solo';c.kind=e.twinRole==='blade'?'theLastBlade':'theLastBell';c.clock=0;c.duration=3.75;c.fired={};c.soloStep=(c.soloStep||0)+1;c.ghostRole=e.twinRole==='blade'?'bell':'blade';const a=arenaBounds();c.ghostX=Number.isFinite(c.ghostX)?c.ghostX:a.cx;c.ghostY=Number.isFinite(c.ghostY)?c.ghostY:a.cy;e.bs.second=true;e.bs.phase=2;e.bs.kind=c.kind;sfx('regentBreak');}
-function tickLastRegent(e,c,dt){if(c.mode!=='solo')beginLastRegent(e,c);c.clock+=dt;c.ghostA=(c.ghostA||0)+dt*1.15;const a=arenaBounds(),orbit=regentArenaPoint(a,G.player.x,G.player.y,c.ghostA+(e.twinRole==='blade'?0:Math.PI),155);if(!tickRegentDash(e,dt))regentMoveTo(e,orbit.x,orbit.y,dt,335);const gx=clamp(e.x+Math.cos(c.ghostA+Math.PI)*125,a.left+34,a.right-34),gy=clamp(e.y+Math.sin(c.ghostA+Math.PI)*125,a.top+34,a.bottom-34);c.ghostX=gx;c.ghostY=gy;const aim=Math.atan2(G.player.y-e.y,G.player.x-e.x),ga=Math.atan2(G.player.y-gy,G.player.x-gx);
- regentOnce(c,'s0',.48,()=>{if(e.twinRole==='blade'){regentCutAt(e,e.x,e.y,aim,.55,.22);regentDashToward(e,G.player.x,G.player.y,780,.58);}else regentVolleyAt(e,e.x,e.y,aim,11,.13,true,320,.58);});
- regentOnce(c,'s1',1.35,()=>{if(c.ghostRole==='blade')regentCutAt(e,gx,gy,ga,-.7,.2);else regentVolleyAt(e,gx,gy,ga,9,.15,true,305,.54);});
- regentOnce(c,'s2',2.22,()=>{regentRingAt(e,e.x,e.y,20,aim,275,.57);if(e.twinRole==='blade')regentDashToward(e,G.player.x,G.player.y,805,.5);});
- regentOnce(c,'s3',3.05,()=>{regentCutAt(e,gx,gy,ga-1,1.4,.18);regentVolleyAt(e,e.x,e.y,aim,7,.15,true,330,.58);});
- e.bs.duet=c;e.bs.kind=c.kind;e.bs.phase=2;e.bs.second=true;if(!(e.bs.duetDash?.left>0)){e.bs.mode=c.clock<.42?'windup':c.clock>c.duration-.32?'recover':'wait';e.bs.t=Math.max(0,c.duration-c.clock);e.bs.duration=c.duration;}if(c.clock>=c.duration)beginLastRegent(e,c);
+function regentMoveTo(e, x, y, dt, speed) {
+  const dx = x - e.x,
+    dy = y - e.y,
+    d = Math.hypot(dx, dy);
+  if (d < 1) return;
+  const step = Math.min(d, speed * dt);
+  moveEnt(G.world, e, (dx / d) * step, (dy / d) * step);
 }
-function tickRegentDance(pair,c,dt){for(const e of pair){if(e.twinRole==='blade'){c.lastBladeX=e.x;c.lastBladeY=e.y;}else{c.lastBellX=e.x;c.lastBellY=e.y;}}if(pair.length===1){if(c.lastCount!==1){const gone=pair[0].twinRole==='blade'?'Bell':'Blade';c.ghostX=gone==='Blade'?c.lastBladeX:c.lastBellX;c.ghostY=gone==='Blade'?c.lastBladeY:c.lastBellY;c.mode='fallen';c.lastCount=1;}tickLastRegent(pair[0],c,dt);return;}c.lastCount=2;const hp=pair.reduce((n,e)=>n+e.hp,0),max=pair.reduce((n,e)=>n+e.max,0);
- if(c.phase===0&&hp/max<=.58){c.phase=1;c.mode='shift';c.kind='accord';c.clock=0;c.duration=1.35;c.fired={};G.ebul=[];const ids=new Set(pair.map(e=>e.uid));G.world.lateHazards=(G.world.lateHazards||[]).filter(h=>!ids.has(h.ownerUid));for(const e of pair){e.bs.duetDash=null;burst(e.x,e.y,20,e.col,185,.7,2.7,true);}sfx('regentBreak');syncRegentPoses(pair,c);return;}
- c.clock+=dt;const a=arenaBounds();if(c.mode==='entrance'||c.mode==='shift'){const r=Math.min(a.right-a.left,a.bottom-a.top)*.3;for(const e of pair){const q=regentArenaPoint(a,a.cx,a.cy,c.axis+(e.twinRole==='bell'?Math.PI:0),r);regentMoveTo(e,q.x,q.y,dt,c.mode==='shift'?250:205);}syncRegentPoses(pair,c);if(c.clock>=c.duration)beginRegentMeasure(pair,c);return;}
- moveRegentFormation(pair,c,dt);fireRegentMeasure(pair,c);syncRegentPoses(pair,c);if(c.clock>=c.duration)beginRegentMeasure(pair,c);
+function regentArenaPoint(a, x, y, ang, r) {
+  return {
+    x: clamp(x + Math.cos(ang) * r, a.left + 44, a.right - 44),
+    y: clamp(y + Math.sin(ang) * r, a.top + 44, a.bottom - 44),
+  };
 }
-regentAI=function(b,dt){if(!b.introduced)return;const pair=livingRegents();if(!pair.length)return;const driver=pair.find(e=>e.twinRole==='blade')||pair[0];if(b!==driver)return;const c=regentDanceState(pair);tickRegentDance(pair,c,dt);};
+function regentVolleyAt(
+  owner,
+  x,
+  y,
+  aim,
+  n = 7,
+  spread = 0.17,
+  skipCenter = false,
+  speed = 270,
+  power = 0.56
+) {
+  for (let i = 0; i < n; i++) {
+    if (skipCenter && i === n >> 1) continue;
+    const a = aim + (i - (n - 1) / 2) * spread;
+    G.ebul.push({
+      x: x + Math.cos(a) * (owner.r + 4),
+      y: y + Math.sin(a) * (owner.r + 4),
+      vx: Math.cos(a) * speed,
+      vy: Math.sin(a) * speed,
+      r: 5,
+      dmg: Math.round(owner.dmg * power),
+      life: 4.5,
+      lateColor: owner.col,
+    });
+  }
+  sfx('regentBell');
+}
+function regentRingAt(owner, x, y, n, gap, speed = 235, power = 0.54) {
+  for (let i = 0; i < n; i++) {
+    const a = (i * TAU) / n;
+    if (Math.abs(angleDiff(a, gap)) < 0.27) continue;
+    G.ebul.push({
+      x: x + Math.cos(a) * (owner.r + 3),
+      y: y + Math.sin(a) * (owner.r + 3),
+      vx: Math.cos(a) * speed,
+      vy: Math.sin(a) * speed,
+      r: 5,
+      dmg: Math.round(owner.dmg * power),
+      life: 5,
+      lateColor: owner.col,
+    });
+  }
+  sfx('regentBell');
+}
+function regentCutAt(owner, x, y, a, turn = 0, delay = 0.28) {
+  const arena = arenaBounds();
+  encounterHazard(owner, 'sweep', x, y, a, {
+    delay,
+    life: 0.68,
+    len: Math.hypot(arena.right - arena.left, arena.bottom - arena.top),
+    turn,
+    width: 7,
+    damageMul: 0.62,
+  });
+}
+function regentDashToward(e, x, y, speed = 650, time = 0.58) {
+  e.bs.duetDash = { a: Math.atan2(y - e.y, x - e.x), left: time, speed, hit: false };
+  e.bs.a = e.bs.duetDash.a;
+  e.bs.mode = 'dash';
+  sfx('regentStep');
+}
+function tickRegentDash(e, dt) {
+  const q = e.bs.duetDash;
+  if (!q || q.left <= 0) return false;
+  q.left -= dt;
+  e.bs.mode = 'dash';
+  e.bs.a = q.a;
+  const wall = moveEnt(G.world, e, Math.cos(q.a) * q.speed * dt, Math.sin(q.a) * q.speed * dt);
+  if (!q.hit && d2(e.x, e.y, G.player.x, G.player.y) < (e.r + G.player.r + 7) ** 2) {
+    hurtPlayer(Math.round(e.dmg * 0.9), e.x, e.y);
+    q.hit = true;
+  }
+  if (wall || q.left <= 0) {
+    q.left = 0;
+    e.bs.mode = 'recover';
+    e.bs.t = 0.3;
+  }
+  return true;
+}
+function regentOnce(c, id, at, fn) {
+  if (c.clock >= at && !c.fired[id]) {
+    c.fired[id] = 1;
+    fn();
+  }
+}
+function beginRegentMeasure(pair, c, forced) {
+  const list = c.phase
+    ? ['crossing', 'counterstep', 'pincer', 'crescendo']
+    : ['crossing', 'counterstep', 'pincer'];
+  c.kind = forced || list[c.step % list.length];
+  c.step++;
+  c.mode = 'duet';
+  c.clock = 0;
+  c.duration = {
+    crossing: c.phase ? 3.45 : 3.2,
+    counterstep: c.phase ? 4.25 : 3.85,
+    pincer: c.phase ? 4.05 : 3.25,
+    crescendo: 4.65,
+  }[c.kind];
+  c.fired = {};
+  c.axis = (c.axis + 1.13 + (c.phase ? 0.19 : 0)) % TAU;
+  const a = arenaBounds();
+  c.targetX = clamp(G.player.x * 0.58 + a.cx * 0.42, a.left + 90, a.right - 90);
+  c.targetY = clamp(G.player.y * 0.58 + a.cy * 0.42, a.top + 90, a.bottom - 90);
+  for (const e of pair) {
+    e.bs.kind = c.kind;
+    e.bs.mode = 'windup';
+    e.bs.t = 0.5;
+    e.bs.duration = c.duration;
+    e.bs.duetDash = null;
+  }
+  sfx('regentCount');
+}
+function moveRegentFormation(pair, c, dt) {
+  const a = arenaBounds(),
+    r = Math.min(a.right - a.left, a.bottom - a.top) * (c.phase ? 0.34 : 0.31),
+    blade = pair.find((e) => e.twinRole === 'blade'),
+    bell = pair.find((e) => e.twinRole === 'bell');
+  if (!blade || !bell) return;
+  let axis = c.axis;
+  if (c.kind === 'crossing') {
+    if (c.clock > 0.96) axis += Math.PI;
+    if (c.clock > 2.05) axis += Math.PI;
+  } else if (c.kind === 'counterstep' || c.kind === 'crescendo')
+    axis += c.clock * (c.phase ? 1.04 : 0.84);
+  else if (c.kind === 'pincer') {
+    if (c.clock > 1.55) axis += Math.PI / 2;
+    if (c.phase && c.clock > 2.82) axis += Math.PI / 2;
+  }
+  for (const e of pair) {
+    if (tickRegentDash(e, dt)) continue;
+    const ang = axis + (e === bell ? Math.PI : 0),
+      q = regentArenaPoint(a, c.targetX, c.targetY, ang, r);
+    regentMoveTo(e, q.x, q.y, dt, c.phase ? 310 : 265);
+  }
+}
+function fireRegentMeasure(pair, c) {
+  const blade = pair.find((e) => e.twinRole === 'blade'),
+    bell = pair.find((e) => e.twinRole === 'bell'),
+    p = G.player;
+  if (!blade || !bell) return;
+  const aim = (e, x = p.x, y = p.y) => Math.atan2(y - e.y, x - e.x),
+    fast = c.phase > 0;
+  if (c.kind === 'crossing') {
+    regentOnce(c, 'a', 0.62, () => {
+      const a = aim(blade, bell.x, bell.y);
+      regentCutAt(blade, blade.x, blade.y, a, fast ? 0.28 : 0.16);
+      regentDashToward(blade, bell.x, bell.y, fast ? 735 : 650, 0.62);
+      regentVolleyAt(bell, bell.x, bell.y, aim(bell), fast ? 9 : 7, 0.16, true, fast ? 300 : 270);
+    });
+    regentOnce(c, 'b', 1.65, () => {
+      const a = aim(blade);
+      regentCutAt(blade, blade.x, blade.y, a, fast ? -0.42 : -0.25);
+      regentDashToward(blade, p.x, p.y, fast ? 760 : 675, 0.58);
+      regentRingAt(bell, bell.x, bell.y, fast ? 18 : 14, aim(bell), fast ? 260 : 230);
+    });
+    if (fast)
+      regentOnce(c, 'c', 2.62, () => {
+        regentVolleyAt(blade, blade.x, blade.y, aim(blade) + 0.28, 7, 0.15, true, 310, 0.5);
+        regentVolleyAt(bell, bell.x, bell.y, aim(bell) - 0.28, 7, 0.15, true, 310, 0.5);
+      });
+  } else if (c.kind === 'counterstep') {
+    const beats = fast ? [0.58, 1.42, 2.26, 3.1] : [0.62, 1.55, 2.48];
+    for (let i = 0; i < beats.length; i++)
+      regentOnce(c, 'b' + i, beats[i], () => {
+        const a = aim(blade),
+          turn = (i % 2 ? -0.7 : 0.7) * (fast ? 1.15 : 1);
+        regentCutAt(blade, blade.x, blade.y, a - (i % 2 ? 0.55 : -0.55), turn, 0.25);
+        regentVolleyAt(
+          bell,
+          bell.x,
+          bell.y,
+          aim(bell) + (i % 2 ? 0.28 : -0.28),
+          fast ? 7 : 5,
+          0.15,
+          i % 2 === 0,
+          fast ? 305 : 275,
+          0.55
+        );
+        if (i % 2 === 1) regentDashToward(blade, p.x, p.y, fast ? 720 : 640, 0.42);
+      });
+  } else if (c.kind === 'pincer') {
+    const strike = (id, at) =>
+      regentOnce(c, id, at, () => {
+        for (const e of pair) {
+          const a = aim(e, c.targetX, c.targetY);
+          regentCutAt(e, e.x, e.y, a, e === blade ? 0.18 : -0.18, 0.24);
+          regentDashToward(e, c.targetX, c.targetY, fast ? 745 : 660, 0.58);
+        }
+        regentRingAt(
+          bell,
+          c.targetX,
+          c.targetY,
+          fast ? 18 : 14,
+          Math.atan2(p.y - c.targetY, p.x - c.targetX),
+          245
+        );
+      });
+    strike('p0', 0.74);
+    strike('p1', 1.93);
+    if (fast) strike('p2', 3.02);
+  } else {
+    regentOnce(c, 'c0', 0.55, () => {
+      regentDashToward(blade, p.x, p.y, 765, 0.6);
+      regentRingAt(bell, bell.x, bell.y, 20, aim(bell), 265);
+    });
+    regentOnce(c, 'c1', 1.45, () => {
+      regentCutAt(blade, blade.x, blade.y, aim(blade) - 1.05, 1.3, 0.22);
+      regentCutAt(bell, bell.x, bell.y, aim(bell) + 1.05, -1.3, 0.22);
+    });
+    regentOnce(c, 'c2', 2.38, () => {
+      regentVolleyAt(blade, blade.x, blade.y, aim(blade) + 0.35, 9, 0.14, true, 315, 0.55);
+      regentVolleyAt(bell, bell.x, bell.y, aim(bell) - 0.35, 9, 0.14, true, 315, 0.55);
+    });
+    regentOnce(c, 'c3', 3.42, () => {
+      encounterHazard(blade, 'annulus', c.targetX, c.targetY, 0, {
+        delay: 0.42,
+        life: 1.45,
+        radius: 18,
+        expand: 205,
+        width: 11,
+        damageMul: 0.64,
+      });
+      regentDashToward(blade, p.x, p.y, 790, 0.55);
+    });
+  }
+}
+function syncRegentPoses(pair, c) {
+  for (const e of pair) {
+    e.bs.duet = c;
+    e.bs.kind = c.kind;
+    e.bs.phase = c.phase;
+    e.bs.second = c.phase > 0 || pair.length === 1;
+    if (e.bs.duetDash?.left > 0) continue;
+    e.bs.mode =
+      c.mode === 'shift'
+        ? 'shift'
+        : c.mode === 'entrance'
+          ? 'windup'
+          : c.clock < 0.48
+            ? 'windup'
+            : c.clock > c.duration - 0.38
+              ? 'recover'
+              : 'wait';
+    e.bs.duration = c.duration;
+    e.bs.t =
+      e.bs.mode === 'windup'
+        ? Math.max(0, 0.48 - c.clock)
+        : e.bs.mode === 'recover'
+          ? Math.max(0, c.duration - c.clock)
+          : Math.max(0, c.duration - c.clock);
+    e.bs.a = Math.atan2(G.player.y - e.y, G.player.x - e.x);
+  }
+}
+function beginLastRegent(e, c) {
+  c.mode = 'solo';
+  c.kind = e.twinRole === 'blade' ? 'theLastBlade' : 'theLastBell';
+  c.clock = 0;
+  c.duration = 3.75;
+  c.fired = {};
+  c.soloStep = (c.soloStep || 0) + 1;
+  c.ghostRole = e.twinRole === 'blade' ? 'bell' : 'blade';
+  const a = arenaBounds();
+  c.ghostX = Number.isFinite(c.ghostX) ? c.ghostX : a.cx;
+  c.ghostY = Number.isFinite(c.ghostY) ? c.ghostY : a.cy;
+  e.bs.second = true;
+  e.bs.phase = 2;
+  e.bs.kind = c.kind;
+  sfx('regentBreak');
+}
+function tickLastRegent(e, c, dt) {
+  if (c.mode !== 'solo') beginLastRegent(e, c);
+  c.clock += dt;
+  c.ghostA = (c.ghostA || 0) + dt * 1.15;
+  const a = arenaBounds(),
+    orbit = regentArenaPoint(
+      a,
+      G.player.x,
+      G.player.y,
+      c.ghostA + (e.twinRole === 'blade' ? 0 : Math.PI),
+      155
+    );
+  if (!tickRegentDash(e, dt)) regentMoveTo(e, orbit.x, orbit.y, dt, 335);
+  const gx = clamp(e.x + Math.cos(c.ghostA + Math.PI) * 125, a.left + 34, a.right - 34),
+    gy = clamp(e.y + Math.sin(c.ghostA + Math.PI) * 125, a.top + 34, a.bottom - 34);
+  c.ghostX = gx;
+  c.ghostY = gy;
+  const aim = Math.atan2(G.player.y - e.y, G.player.x - e.x),
+    ga = Math.atan2(G.player.y - gy, G.player.x - gx);
+  regentOnce(c, 's0', 0.48, () => {
+    if (e.twinRole === 'blade') {
+      regentCutAt(e, e.x, e.y, aim, 0.55, 0.22);
+      regentDashToward(e, G.player.x, G.player.y, 780, 0.58);
+    } else regentVolleyAt(e, e.x, e.y, aim, 11, 0.13, true, 320, 0.58);
+  });
+  regentOnce(c, 's1', 1.35, () => {
+    if (c.ghostRole === 'blade') regentCutAt(e, gx, gy, ga, -0.7, 0.2);
+    else regentVolleyAt(e, gx, gy, ga, 9, 0.15, true, 305, 0.54);
+  });
+  regentOnce(c, 's2', 2.22, () => {
+    regentRingAt(e, e.x, e.y, 20, aim, 275, 0.57);
+    if (e.twinRole === 'blade') regentDashToward(e, G.player.x, G.player.y, 805, 0.5);
+  });
+  regentOnce(c, 's3', 3.05, () => {
+    regentCutAt(e, gx, gy, ga - 1, 1.4, 0.18);
+    regentVolleyAt(e, e.x, e.y, aim, 7, 0.15, true, 330, 0.58);
+  });
+  e.bs.duet = c;
+  e.bs.kind = c.kind;
+  e.bs.phase = 2;
+  e.bs.second = true;
+  if (!(e.bs.duetDash?.left > 0)) {
+    e.bs.mode = c.clock < 0.42 ? 'windup' : c.clock > c.duration - 0.32 ? 'recover' : 'wait';
+    e.bs.t = Math.max(0, c.duration - c.clock);
+    e.bs.duration = c.duration;
+  }
+  if (c.clock >= c.duration) beginLastRegent(e, c);
+}
+function tickRegentDance(pair, c, dt) {
+  for (const e of pair) {
+    if (e.twinRole === 'blade') {
+      c.lastBladeX = e.x;
+      c.lastBladeY = e.y;
+    } else {
+      c.lastBellX = e.x;
+      c.lastBellY = e.y;
+    }
+  }
+  if (pair.length === 1) {
+    if (c.lastCount !== 1) {
+      const gone = pair[0].twinRole === 'blade' ? 'Bell' : 'Blade';
+      c.ghostX = gone === 'Blade' ? c.lastBladeX : c.lastBellX;
+      c.ghostY = gone === 'Blade' ? c.lastBladeY : c.lastBellY;
+      c.mode = 'fallen';
+      c.lastCount = 1;
+    }
+    tickLastRegent(pair[0], c, dt);
+    return;
+  }
+  c.lastCount = 2;
+  const hp = pair.reduce((n, e) => n + e.hp, 0),
+    max = pair.reduce((n, e) => n + e.max, 0);
+  if (c.phase === 0 && hp / max <= 0.58) {
+    c.phase = 1;
+    c.mode = 'shift';
+    c.kind = 'accord';
+    c.clock = 0;
+    c.duration = 1.35;
+    c.fired = {};
+    G.ebul = [];
+    const ids = new Set(pair.map((e) => e.uid));
+    G.world.lateHazards = (G.world.lateHazards || []).filter((h) => !ids.has(h.ownerUid));
+    for (const e of pair) {
+      e.bs.duetDash = null;
+      burst(e.x, e.y, 20, e.col, 185, 0.7, 2.7, true);
+    }
+    sfx('regentBreak');
+    syncRegentPoses(pair, c);
+    return;
+  }
+  c.clock += dt;
+  const a = arenaBounds();
+  if (c.mode === 'entrance' || c.mode === 'shift') {
+    const r = Math.min(a.right - a.left, a.bottom - a.top) * 0.3;
+    for (const e of pair) {
+      const q = regentArenaPoint(a, a.cx, a.cy, c.axis + (e.twinRole === 'bell' ? Math.PI : 0), r);
+      regentMoveTo(e, q.x, q.y, dt, c.mode === 'shift' ? 250 : 205);
+    }
+    syncRegentPoses(pair, c);
+    if (c.clock >= c.duration) beginRegentMeasure(pair, c);
+    return;
+  }
+  moveRegentFormation(pair, c, dt);
+  fireRegentMeasure(pair, c);
+  syncRegentPoses(pair, c);
+  if (c.clock >= c.duration) beginRegentMeasure(pair, c);
+}
+regentAI = function (b, dt) {
+  if (!b.introduced) return;
+  const pair = livingRegents();
+  if (!pair.length) return;
+  const driver = pair.find((e) => e.twinRole === 'blade') || pair[0];
+  if (b !== driver) return;
+  const c = regentDanceState(pair);
+  tickRegentDance(pair, c, dt);
+};
 
-const regentDanceDamage=damageEnemy;
-damageEnemy=function(e,dmg,ang,crit,kb,kind='shot'){if(e?.bossKey==='regents'&&e.introduced){const pair=livingRegents(),c=regentDanceState(pair);if(c?.mode==='shift')return;const other=pair.find(o=>o!==e);if(other&&e.hp/e.max+.14<other.hp/other.max)dmg*=.38;}return regentDanceDamage(e,dmg,ang,crit,kb,kind);};
+const regentDanceDamage = damageEnemy;
+damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
+  if (e?.bossKey === 'regents' && e.introduced) {
+    const pair = livingRegents(),
+      c = regentDanceState(pair);
+    if (c?.mode === 'shift') return;
+    const other = pair.find((o) => o !== e);
+    if (other && e.hp / e.max + 0.14 < other.hp / other.max) dmg *= 0.38;
+  }
+  return regentDanceDamage(e, dmg, ang, crit, kb, kind);
+};
 
-const regentDanceWorld=drawLateWorld;
-drawLateWorld=function(ctx){regentDanceWorld(ctx);if(G.world?.lateKey!=='court'||!G.bossActive)return;const pair=livingRegents(),c=regentDanceState(pair);if(!c)return;const t=save.motion?0:G.tAll;ctx.save();ctx.globalCompositeOperation='lighter';if(pair.length===2){const [a,b]=pair,midX=(a.x+b.x)/2,midY=(a.y+b.y)/2,curve=18*Math.sin(t*2.2);ctx.strokeStyle=c.phase?'#ffd5b052':'#d4a9c83d';ctx.lineWidth=c.phase?2:1;ctx.setLineDash([5,10]);ctx.lineDashOffset=-t*24;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.quadraticCurveTo(midX+curve,midY-curve,b.x,b.y);ctx.stroke();ctx.setLineDash([]);for(const e of pair)for(let i=0;i<4;i++){const on=(Math.floor(c.clock*2.4)%4)===i,ang=i*TAU/4+t*.18;ctx.fillStyle=on?'#fff1c6':e.col;ctx.globalAlpha=on?.78:.22;ctx.save();ctx.translate(e.x+Math.cos(ang)*(e.r+16),e.y+Math.sin(ang)*(e.r+16));ctx.rotate(ang+Math.PI/4);ctx.fillRect(-2,-2,4,4);ctx.restore();}}
- else if(pair.length===1){ctx.translate(c.ghostX||pair[0].x,c.ghostY||pair[0].y);ctx.globalAlpha=.3+.08*Math.sin(t*4);ctx.strokeStyle=c.ghostRole==='blade'?'#efb0c4':'#bca8ef';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-15,22);ctx.lineTo(-17,-8);ctx.lineTo(0,-27);ctx.lineTo(17,-8);ctx.lineTo(15,22);ctx.stroke();ctx.fillStyle='#e8efff';for(let i=0;i<5;i++){const a=i*TAU/5-t*.55;ctx.globalAlpha=.2;ctx.fillRect(Math.cos(a)*26-1,Math.sin(a)*17-1,3,3);}}
- ctx.restore();};
-const regentDanceBody=drawLateBossBody;
-drawLateBossBody=function(ctx,b){regentDanceBody(ctx,b);if(b.bossKey!=='regents')return;const c=b.bs?.duet,t=save.motion?0:G.tAll,beat=c?Math.max(0,1-(c.clock*2.4)%1):0;ctx.save();ctx.translate(b.x,b.y);ctx.rotate((b.bs?.mode==='dash'?b.bs.a:0)+(b.twinRole==='blade'&&b.bs?.mode==='dash'?0:Math.PI/2));ctx.globalCompositeOperation='lighter';if(b.twinRole==='blade'){ctx.strokeStyle='#ffe8ed';ctx.globalAlpha=.35+beat*.45;for(let i=0;i<3;i++){ctx.lineWidth=3-i;ctx.beginPath();ctx.moveTo(28-i*5,-4-i*2);ctx.lineTo(63-i*8,-16-i*5);ctx.stroke();}ctx.fillStyle='#f4afc1';ctx.fillRect(56,-19,10,4);}else{ctx.strokeStyle='#e4d6ff';ctx.globalAlpha=.28+beat*.42;ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(0,0,36+i*8+beat*4,-.75,.75);ctx.stroke();}ctx.fillStyle='#fff0be';ctx.fillRect(34,-2,7,4);}ctx.restore();};
-const regentDanceHUD=updateHUD;
-updateHUD=function(dt){regentDanceHUD(dt);const b=G.boss;if(!b?.introduced||b.bossKey!=='regents')return;const pair=livingRegents(),c=regentDanceState(pair);if(!c)return;if(pair.length===1){setTxt('floorObjective','ONE THRONE REMAINS · THE MISSING STEP RETURNS');return;}const [lo,hi]=[...pair].sort((a,b)=>a.hp/a.max-b.hp/b.max);if(lo.hp/lo.max+.14<hi.hp/hi.max){setTxt('floorObjective','THE VOW HOLDS · TURN TO THE OTHER REGENT');return;}setTxt('floorObjective',c.mode==='shift'?'THE ACCORD BREAKS INTO DOUBLE TIME':({audience:'THE AUDIENCE RISES',crossing:'FIRST MEASURE · CROSSING',counterstep:'SECOND MEASURE · COUNTERSTEP',pincer:'THIRD MEASURE · PINCER',crescendo:'FINAL MEASURE · ACCELERANDO'}[c.kind]||'THE TWIN REGENTS'));};
-const regentDanceSfx=sfx;
-sfx=function(name,a){if(!['regentCount','regentStep','regentBell','regentBreak'].includes(name))return regentDanceSfx(name,a);if(!AC||!save.sfx)return;if(name==='regentCount'){bell(523.25,.18,.012,0,false);bell(784,.12,.009,.1,false);}else if(name==='regentStep'){thump(205,72,.11,.035);air(.12,.016,1600,540,.65,0);}else if(name==='regentBell'){bell(698.46,.38,.018,0,false);bell(1046.5,.24,.01,.06,false);}else{thump(132,38,.42,.09);swell([196,293.66,392,587.33],.95,.028,0);}};
+const regentDanceWorld = drawLateWorld;
+drawLateWorld = function (ctx) {
+  regentDanceWorld(ctx);
+  if (G.world?.lateKey !== 'court' || !G.bossActive) return;
+  const pair = livingRegents(),
+    c = regentDanceState(pair);
+  if (!c) return;
+  const t = save.motion ? 0 : G.tAll;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  if (pair.length === 2) {
+    const [a, b] = pair,
+      midX = (a.x + b.x) / 2,
+      midY = (a.y + b.y) / 2,
+      curve = 18 * Math.sin(t * 2.2);
+    ctx.strokeStyle = c.phase ? '#ffd5b052' : '#d4a9c83d';
+    ctx.lineWidth = c.phase ? 2 : 1;
+    ctx.setLineDash([5, 10]);
+    ctx.lineDashOffset = -t * 24;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.quadraticCurveTo(midX + curve, midY - curve, b.x, b.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    for (const e of pair)
+      for (let i = 0; i < 4; i++) {
+        const on = Math.floor(c.clock * 2.4) % 4 === i,
+          ang = (i * TAU) / 4 + t * 0.18;
+        ctx.fillStyle = on ? '#fff1c6' : e.col;
+        ctx.globalAlpha = on ? 0.78 : 0.22;
+        ctx.save();
+        ctx.translate(e.x + Math.cos(ang) * (e.r + 16), e.y + Math.sin(ang) * (e.r + 16));
+        ctx.rotate(ang + Math.PI / 4);
+        ctx.fillRect(-2, -2, 4, 4);
+        ctx.restore();
+      }
+  } else if (pair.length === 1) {
+    ctx.translate(c.ghostX || pair[0].x, c.ghostY || pair[0].y);
+    ctx.globalAlpha = 0.3 + 0.08 * Math.sin(t * 4);
+    ctx.strokeStyle = c.ghostRole === 'blade' ? '#efb0c4' : '#bca8ef';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-15, 22);
+    ctx.lineTo(-17, -8);
+    ctx.lineTo(0, -27);
+    ctx.lineTo(17, -8);
+    ctx.lineTo(15, 22);
+    ctx.stroke();
+    ctx.fillStyle = '#e8efff';
+    for (let i = 0; i < 5; i++) {
+      const a = (i * TAU) / 5 - t * 0.55;
+      ctx.globalAlpha = 0.2;
+      ctx.fillRect(Math.cos(a) * 26 - 1, Math.sin(a) * 17 - 1, 3, 3);
+    }
+  }
+  ctx.restore();
+};
+const regentDanceBody = drawLateBossBody;
+drawLateBossBody = function (ctx, b) {
+  regentDanceBody(ctx, b);
+  if (b.bossKey !== 'regents') return;
+  const c = b.bs?.duet,
+    t = save.motion ? 0 : G.tAll,
+    beat = c ? Math.max(0, 1 - ((c.clock * 2.4) % 1)) : 0;
+  ctx.save();
+  ctx.translate(b.x, b.y);
+  ctx.rotate(
+    (b.bs?.mode === 'dash' ? b.bs.a : 0) +
+      (b.twinRole === 'blade' && b.bs?.mode === 'dash' ? 0 : Math.PI / 2)
+  );
+  ctx.globalCompositeOperation = 'lighter';
+  if (b.twinRole === 'blade') {
+    ctx.strokeStyle = '#ffe8ed';
+    ctx.globalAlpha = 0.35 + beat * 0.45;
+    for (let i = 0; i < 3; i++) {
+      ctx.lineWidth = 3 - i;
+      ctx.beginPath();
+      ctx.moveTo(28 - i * 5, -4 - i * 2);
+      ctx.lineTo(63 - i * 8, -16 - i * 5);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#f4afc1';
+    ctx.fillRect(56, -19, 10, 4);
+  } else {
+    ctx.strokeStyle = '#e4d6ff';
+    ctx.globalAlpha = 0.28 + beat * 0.42;
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.arc(0, 0, 36 + i * 8 + beat * 4, -0.75, 0.75);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#fff0be';
+    ctx.fillRect(34, -2, 7, 4);
+  }
+  ctx.restore();
+};
+const regentDanceHUD = updateHUD;
+updateHUD = function (dt) {
+  regentDanceHUD(dt);
+  const b = G.boss;
+  if (!b?.introduced || b.bossKey !== 'regents') return;
+  const pair = livingRegents(),
+    c = regentDanceState(pair);
+  if (!c) return;
+  if (pair.length === 1) {
+    setTxt('floorObjective', 'ONE THRONE REMAINS · THE MISSING STEP RETURNS');
+    return;
+  }
+  const [lo, hi] = [...pair].sort((a, b) => a.hp / a.max - b.hp / b.max);
+  if (lo.hp / lo.max + 0.14 < hi.hp / hi.max) {
+    setTxt('floorObjective', 'THE VOW HOLDS · TURN TO THE OTHER REGENT');
+    return;
+  }
+  setTxt(
+    'floorObjective',
+    c.mode === 'shift'
+      ? 'THE ACCORD BREAKS INTO DOUBLE TIME'
+      : {
+          audience: 'THE AUDIENCE RISES',
+          crossing: 'FIRST MEASURE · CROSSING',
+          counterstep: 'SECOND MEASURE · COUNTERSTEP',
+          pincer: 'THIRD MEASURE · PINCER',
+          crescendo: 'FINAL MEASURE · ACCELERANDO',
+        }[c.kind] || 'THE TWIN REGENTS'
+  );
+};
+const regentDanceSfx = sfx;
+sfx = function (name, a) {
+  if (!['regentCount', 'regentStep', 'regentBell', 'regentBreak'].includes(name))
+    return regentDanceSfx(name, a);
+  if (!AC || !save.sfx) return;
+  if (name === 'regentCount') {
+    bell(523.25, 0.18, 0.012, 0, false);
+    bell(784, 0.12, 0.009, 0.1, false);
+  } else if (name === 'regentStep') {
+    thump(205, 72, 0.11, 0.035);
+    air(0.12, 0.016, 1600, 540, 0.65, 0);
+  } else if (name === 'regentBell') {
+    bell(698.46, 0.38, 0.018, 0, false);
+    bell(1046.5, 0.24, 0.01, 0.06, false);
+  } else {
+    thump(132, 38, 0.42, 0.09);
+    swell([196, 293.66, 392, 587.33], 0.95, 0.028, 0);
+  }
+};

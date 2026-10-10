@@ -1,7 +1,11 @@
-const TOUCH_CONTROL_VERSION=3,precisionTouchPointers={};
-function installPrecisionTouch(){
- if(T('touchControls')?.dataset.precision===String(TOUCH_CONTROL_VERSION))return;const controls=T('touchControls');controls.dataset.precision=String(TOUCH_CONTROL_VERSION);
- const style=document.createElement('style');style.textContent=`
+const TOUCH_CONTROL_VERSION = 3,
+  precisionTouchPointers = {};
+function installPrecisionTouch() {
+  if (T('touchControls')?.dataset.precision === String(TOUCH_CONTROL_VERSION)) return;
+  const controls = T('touchControls');
+  controls.dataset.precision = String(TOUCH_CONTROL_VERSION);
+  const style = document.createElement('style');
+  style.textContent = `
 html,body{overscroll-behavior:none}body.touch{touch-action:none;-webkit-user-select:none;user-select:none}body.touch #cv{touch-action:none}
 #touchControls{--touch-size:132px;--touch-knob:54px;contain:layout style;transition:opacity .18s ease}
 #moveStickWrap{left:max(22px,calc(env(safe-area-inset-left) + 14px))}#aimStickWrap{right:max(22px,calc(env(safe-area-inset-right) + 14px))}
@@ -21,24 +25,255 @@ body.touch.touch-aiming #touchControls{opacity:.96}body.touch.touch-aiming #aimS
 @media(max-width:880px){#touchControls{--touch-size:116px;--touch-knob:48px}.touch-actions{grid-template-columns:repeat(2,56px);right:max(calc(var(--touch-size) + 33px),calc(env(safe-area-inset-right) + var(--touch-size) + 25px));gap:8px}.touch-action{width:56px;height:56px}.touch-action strong{font-size:13px}.touch-action .touch-name{max-width:50px}body.touch #botL{bottom:152px}body.touch #botC{bottom:max(150px,calc(env(safe-area-inset-bottom) + 142px))}}
 @media(max-height:560px) and (orientation:landscape){#touchControls{--touch-size:98px;--touch-knob:42px}.touch-stick-wrap{height:126px;bottom:max(8px,env(safe-area-inset-bottom))}.touch-caption{height:22px;font-size:6px}.touch-actions{grid-template-columns:repeat(2,49px);right:max(calc(var(--touch-size) + 29px),calc(env(safe-area-inset-right) + var(--touch-size) + 20px));bottom:max(10px,calc(env(safe-area-inset-bottom) + 5px));gap:6px}.touch-action{width:49px;height:49px}.touch-action strong{font-size:11px}.touch-action .touch-state{display:none}body.touch #botL,body.touch #botC{display:none}}
 @media(max-width:540px) and (orientation:portrait){#touchControls{--touch-size:102px;--touch-knob:44px}.touch-stick-wrap{bottom:max(12px,calc(env(safe-area-inset-bottom) + 7px))}#moveStickWrap{left:max(8px,calc(env(safe-area-inset-left) + 5px))}#aimStickWrap{right:max(8px,calc(env(safe-area-inset-right) + 5px))}.touch-actions{right:max(9px,calc(env(safe-area-inset-right) + 6px));bottom:max(132px,calc(env(safe-area-inset-bottom) + 126px));grid-template-columns:repeat(2,52px);gap:7px}.touch-action{width:52px;height:52px}.touch-caption{font-size:6px}.touch-caption .touch-power{display:none}body.touch #botC{bottom:252px}body.touch #botL{bottom:142px;max-width:150px}}
-`;(document.head||document.body).appendChild(style);
- for(const id of ['moveStick','aimStick']){const caption=T(id)?.parentNode?.querySelector?.('.touch-caption');if(caption&&!caption.querySelector('.touch-power')){const power=document.createElement('i');power.className='touch-power';caption.appendChild(power);}}
- const configs={touchMelee:['✦','FLARE'],touchDash:['››','DASH'],touchReload:['↻','REKINDLE'],touchEnter:['◇','USE']};for(const[id,[icon,label]]of Object.entries(configs)){const el=T(id);el.innerHTML=`<strong>${icon}</strong><span class="touch-name">${label}</span><small class="touch-state">READY</small>`;el.style.setProperty('--ready','1');}
- for(const id of ['touchMelee','touchReload']){const el=T(id);on(el,'pointerdown',e=>{e.preventDefault();e.stopPropagation?.();el.classList.add('pressed');precisionTouchPointers[id]=e.pointerId;try{el.setPointerCapture(e.pointerId);}catch(_){ }if(G.state==='playing'&&!anyBlockingOverlay()){initAudio();if(id==='touchMelee')queueMelee();else reloadQueued=true;}});for(const ev of ['pointerup','pointercancel','lostpointercapture'])on(el,ev,e=>{if(precisionTouchPointers[id]!==undefined&&e.pointerId!==undefined&&precisionTouchPointers[id]!==e.pointerId)return;delete precisionTouchPointers[id];el.classList.remove('pressed');});}
+`;
+  (document.head || document.body).appendChild(style);
+  for (const id of ['moveStick', 'aimStick']) {
+    const caption = T(id)?.parentNode?.querySelector?.('.touch-caption');
+    if (caption && !caption.querySelector('.touch-power')) {
+      const power = document.createElement('i');
+      power.className = 'touch-power';
+      caption.appendChild(power);
+    }
+  }
+  const configs = {
+    touchMelee: ['✦', 'FLARE'],
+    touchDash: ['››', 'DASH'],
+    touchReload: ['↻', 'REKINDLE'],
+    touchEnter: ['◇', 'USE'],
+  };
+  for (const [id, [icon, label]] of Object.entries(configs)) {
+    const el = T(id);
+    el.innerHTML = `<strong>${icon}</strong><span class="touch-name">${label}</span><small class="touch-state">READY</small>`;
+    el.style.setProperty('--ready', '1');
+  }
+  wireTouchAction('touchMelee', () => queueMelee());
+  wireTouchAction('touchReload', () => (reloadQueued = true));
 }
-wireAnalogStick=function(id,kind){
- const stick=T(id),knob=stick.querySelector('.touch-knob'),pointerKey=kind+'Pointer',power=stick.parentNode?.querySelector?.('.touch-power');
- const paint=(dx,dy,mag)=>{knob.style.transform=`translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px)`;stick.style.setProperty('--power',mag.toFixed(3));if(power)power.style.setProperty('--power',mag.toFixed(3));document.body.classList.toggle(kind==='aim'?'touch-aiming':'touch-moving',mag>.05);};
- const release=e=>{if(touchInput[pointerKey]!==null&&e?.pointerId!==undefined&&e.pointerId!==touchInput[pointerKey])return;touchInput[pointerKey]=null;touchInput[kind+'X']=0;touchInput[kind+'Y']=0;touchInput[kind+'Power']=0;if(kind==='aim'){touchInput.aimActive=false;touchInput.fire=false;}stick.classList.remove('active');paint(0,0,0);};
- const move=e=>{if(touchInput[pointerKey]!==e.pointerId)return;const samples=typeof e.getCoalescedEvents==='function'?e.getCoalescedEvents():null,q=samples?.length?samples[samples.length-1]:e,r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,max=Math.max(30,Math.min(r.width,r.height)*.37);let dx=q.clientX-cx,dy=q.clientY-cy,dist=Math.hypot(dx,dy);if(dist>max){dx*=max/dist;dy*=max/dist;dist=max;}const raw=clamp(dist/max,0,1),dead=kind==='move'?.065:.1,linear=raw<=dead?0:(raw-dead)/(1-dead),mag=kind==='move'?Math.pow(linear,1.08):Math.pow(linear,.92),nx=dist?dx/dist*mag:0,ny=dist?dy/dist*mag:0;touchInput[kind+'X']=nx;touchInput[kind+'Y']=ny;touchInput[kind+'Power']=mag;if(kind==='aim'){touchInput.aimActive=mag>.04;touchInput.fire=mag>.17;}paint(dx,dy,mag);};
- on(stick,'pointerdown',e=>{if(G.state!=='playing'||anyBlockingOverlay()||touchInput[pointerKey]!==null)return;e.preventDefault();e.stopPropagation?.();initAudio();touchInput[pointerKey]=e.pointerId;try{stick.setPointerCapture(e.pointerId);}catch(_){ }stick.classList.add('active');move(e);});on(stick,'pointermove',move);for(const ev of ['pointerup','pointercancel','lostpointercapture'])on(stick,ev,release);addEventListener('blur',release);document.addEventListener?.('visibilitychange',()=>{if(document.hidden)release();});
+wireAnalogStick = function (id, kind) {
+  const stick = T(id),
+    knob = stick.querySelector('.touch-knob'),
+    pointerKey = kind + 'Pointer',
+    power = stick.parentNode?.querySelector?.('.touch-power');
+  const paint = (dx, dy, mag) => {
+    knob.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px)`;
+    stick.style.setProperty('--power', mag.toFixed(3));
+    if (power) power.style.setProperty('--power', mag.toFixed(3));
+    document.body.classList.toggle(kind === 'aim' ? 'touch-aiming' : 'touch-moving', mag > 0.05);
+  };
+  const release = (e) => {
+    if (
+      touchInput[pointerKey] !== null &&
+      e?.pointerId !== undefined &&
+      e.pointerId !== touchInput[pointerKey]
+    )
+      return;
+    touchInput[pointerKey] = null;
+    touchInput[kind + 'X'] = 0;
+    touchInput[kind + 'Y'] = 0;
+    touchInput[kind + 'Power'] = 0;
+    if (kind === 'aim') {
+      touchInput.aimActive = false;
+      touchInput.fire = false;
+    }
+    stick.classList.remove('active');
+    paint(0, 0, 0);
+  };
+  const move = (e) => {
+    if (touchInput[pointerKey] !== e.pointerId) return;
+    const samples = typeof e.getCoalescedEvents === 'function' ? e.getCoalescedEvents() : null,
+      q = samples?.length ? samples[samples.length - 1] : e,
+      r = stick.getBoundingClientRect(),
+      cx = r.left + r.width / 2,
+      cy = r.top + r.height / 2,
+      max = Math.max(30, Math.min(r.width, r.height) * 0.37);
+    let dx = q.clientX - cx,
+      dy = q.clientY - cy,
+      dist = Math.hypot(dx, dy);
+    if (dist > max) {
+      dx *= max / dist;
+      dy *= max / dist;
+      dist = max;
+    }
+    const raw = clamp(dist / max, 0, 1),
+      dead = kind === 'move' ? 0.065 : 0.1,
+      linear = raw <= dead ? 0 : (raw - dead) / (1 - dead),
+      mag = kind === 'move' ? Math.pow(linear, 1.08) : Math.pow(linear, 0.92),
+      nx = dist ? (dx / dist) * mag : 0,
+      ny = dist ? (dy / dist) * mag : 0;
+    touchInput[kind + 'X'] = nx;
+    touchInput[kind + 'Y'] = ny;
+    touchInput[kind + 'Power'] = mag;
+    if (kind === 'aim') {
+      touchInput.aimActive = mag > 0.04;
+      touchInput.fire = mag > 0.17;
+    }
+    paint(dx, dy, mag);
+  };
+  on(stick, 'pointerdown', (e) => {
+    if (G.state !== 'playing' || anyBlockingOverlay() || touchInput[pointerKey] !== null) return;
+    e.preventDefault();
+    e.stopPropagation?.();
+    initAudio();
+    touchInput[pointerKey] = e.pointerId;
+    try {
+      stick.setPointerCapture(e.pointerId);
+    } catch (_) {}
+    stick.classList.add('active');
+    move(e);
+  });
+  on(stick, 'pointermove', move);
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) on(stick, ev, release);
+  addEventListener('blur', release);
+  document.addEventListener?.('visibilitychange', () => {
+    if (document.hidden) release();
+  });
 };
-wireTouchAction=function(id,fn){const el=T(id);on(el,'pointerdown',e=>{if(precisionTouchPointers[id]!==undefined)return;e.preventDefault();e.stopPropagation?.();precisionTouchPointers[id]=e.pointerId;el.classList.add('pressed');try{el.setPointerCapture(e.pointerId);}catch(_){ }if(G.state==='playing'&&!anyBlockingOverlay()){initAudio();fn();}});for(const ev of ['pointerup','pointercancel','lostpointercapture'])on(el,ev,e=>{if(precisionTouchPointers[id]!==undefined&&e.pointerId!==undefined&&precisionTouchPointers[id]!==e.pointerId)return;delete precisionTouchPointers[id];el.classList.remove('pressed');});};
-const precisionResetTouchInput=resetTouchInput;
-resetTouchInput=function(){precisionResetTouchInput();touchInput.movePower=touchInput.aimPower=0;for(const id of ['touchMelee','touchDash','touchReload','touchEnter']){delete precisionTouchPointers[id];T(id)?.classList.remove('pressed');}document.body.classList.remove('touch-aiming','touch-moving');};
-function setPrecisionTouchButton(id,ready,name,state){const el=T(id);if(!el)return;ready=clamp(ready,0,1);el.style.setProperty('--ready',ready.toFixed(3));el.classList.toggle('ready',ready>=.999);const n=el.querySelector('.touch-name'),s=el.querySelector('.touch-state');if(n)n.textContent=name;if(s)s.textContent=state;}
-const precisionSyncWeaponHUD=syncWeaponHUD;
-syncWeaponHUD=function(){precisionSyncWeaponHUD();const p=G.player;if(!p||!T('touchControls'))return;const flare=typeof activeForm==='function'?activeForm('flare'):{name:'Flare'},dash=typeof activeForm==='function'?activeForm('dash'):{name:'Dash'},primary=typeof activeForm==='function'?activeForm('primary'):{name:'Bolt'},fr=1-clamp(p.meleeCdT/Math.max(.01,MELEE.cooldown),0,1),dr=1-clamp(p.dashCdT/Math.max(.01,p.dashCd||BASE.dashCd),0,1),rr=p.reloadT>0?1-clamp(p.reloadT/Math.max(.01,p.reloadDuration||1),0,1):(p.ammo<p.magSize?1:0);setPrecisionTouchButton('touchMelee',fr,flare.name.toUpperCase().replace(' FLARE',''),fr>=1?'READY':p.meleeCdT.toFixed(1)+'s');setPrecisionTouchButton('touchDash',dr,dash.name.toUpperCase().replace(' DASH',''),dr>=1?'READY':p.dashCdT.toFixed(1)+'s');setPrecisionTouchButton('touchReload',rr,'REKINDLE',p.reloadT>0?'CHARGING':p.ammo<p.magSize?'READY':'FULL');setPrecisionTouchButton('touchEnter',1,'USE','READY');const cap=T('aimStickWrap')?.querySelector?.('.touch-caption b');if(cap)cap.textContent=primary.name.toUpperCase().replace('EMBER ','').slice(0,12);};
-const precisionDrawCombatFX=drawCombatFX;
-drawCombatFX=function(ctx){precisionDrawCombatFX(ctx);const p=G.player;if(!p||!document.body.classList.contains('touch')||G.state!=='playing')return;const t=save.motion?0:G.tAll;ctx.save();ctx.globalCompositeOperation='lighter';if(touchInput.aimActive){const a=aimAngle(),mag=touchInput.aimPower||Math.hypot(touchInput.aimX,touchInput.aimY),r=68+mag*46,x=p.x+Math.cos(a)*r,y=p.y+Math.sin(a)*r;ctx.strokeStyle=touchInput.fire?'#ffd18b':'#afc9d5';ctx.globalAlpha=.34+mag*.34;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(p.x+Math.cos(a)*25,p.y+Math.sin(a)*25);ctx.lineTo(x-Math.cos(a)*10,y-Math.sin(a)*10);ctx.stroke();ctx.save();ctx.translate(x,y);ctx.rotate(t*.75);for(let i=0;i<4;i++){ctx.rotate(Math.PI/2);ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(15+mag*5,0);ctx.stroke();}ctx.restore();}if((touchInput.movePower||0)>.12){const a=Math.atan2(touchInput.moveY,touchInput.moveX),r=25;ctx.strokeStyle='#9fe6ed';ctx.globalAlpha=.22+.18*(touchInput.movePower||0);ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,r,a-.42,a+.42);ctx.stroke();}ctx.restore();};
+wireTouchAction = function (id, fn) {
+  const el = T(id),
+    activate = () => {
+      if (G.state === 'playing' && !anyBlockingOverlay()) {
+        initAudio();
+        fn();
+      }
+    };
+  on(el, 'pointerdown', (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (precisionTouchPointers[id] !== undefined) return;
+    precisionTouchPointers[id] = e.pointerId;
+    el.classList.add('pressed');
+    try {
+      el.setPointerCapture(e.pointerId);
+    } catch (_) {}
+    activate();
+  });
+  on(el, 'click', (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (e.detail === 0) activate();
+  });
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture'])
+    on(el, ev, (e) => {
+      if (
+        precisionTouchPointers[id] !== undefined &&
+        e.pointerId !== undefined &&
+        precisionTouchPointers[id] !== e.pointerId
+      )
+        return;
+      delete precisionTouchPointers[id];
+      el.classList.remove('pressed');
+    });
+};
+const precisionResetTouchInput = resetTouchInput;
+resetTouchInput = function () {
+  precisionResetTouchInput();
+  touchInput.movePower = touchInput.aimPower = 0;
+  for (const id of ['moveStick', 'aimStick']) {
+    const stick = T(id);
+    stick?.style.setProperty('--power', '0');
+    stick?.parentNode?.querySelector('.touch-power')?.style.setProperty('--power', '0');
+  }
+  for (const id of ['touchMelee', 'touchDash', 'touchReload', 'touchEnter']) {
+    const el = T(id),
+      pointer = precisionTouchPointers[id];
+    delete precisionTouchPointers[id];
+    el?.classList.remove('pressed');
+    if (pointer !== undefined && el?.hasPointerCapture(pointer)) el.releasePointerCapture(pointer);
+  }
+  document.body.classList.remove('touch-aiming', 'touch-moving');
+};
+function setPrecisionTouchButton(id, ready, name, state) {
+  const el = T(id);
+  if (!el) return;
+  ready = clamp(ready, 0, 1);
+  el.style.setProperty('--ready', ready.toFixed(3));
+  el.classList.toggle('ready', ready >= 0.999);
+  const n = el.querySelector('.touch-name'),
+    s = el.querySelector('.touch-state');
+  if (n) n.textContent = name;
+  if (s) s.textContent = state;
+}
+const precisionSyncWeaponHUD = syncWeaponHUD;
+syncWeaponHUD = function () {
+  precisionSyncWeaponHUD();
+  const p = G.player;
+  if (!p || !T('touchControls')) return;
+  const flare = typeof activeForm === 'function' ? activeForm('flare') : { name: 'Flare' },
+    dash = typeof activeForm === 'function' ? activeForm('dash') : { name: 'Dash' },
+    primary = typeof activeForm === 'function' ? activeForm('primary') : { name: 'Bolt' },
+    fr = 1 - clamp(p.meleeCdT / Math.max(0.01, MELEE.cooldown), 0, 1),
+    dr = 1 - clamp(p.dashCdT / Math.max(0.01, p.dashCd || BASE.dashCd), 0, 1),
+    rr =
+      p.reloadT > 0
+        ? 1 - clamp(p.reloadT / Math.max(0.01, p.reloadDuration || 1), 0, 1)
+        : p.ammo < p.magSize
+          ? 1
+          : 0;
+  setPrecisionTouchButton(
+    'touchMelee',
+    fr,
+    flare.name.toUpperCase().replace(' FLARE', ''),
+    fr >= 1 ? 'READY' : p.meleeCdT.toFixed(1) + 's'
+  );
+  setPrecisionTouchButton(
+    'touchDash',
+    dr,
+    dash.name.toUpperCase().replace(' DASH', ''),
+    dr >= 1 ? 'READY' : p.dashCdT.toFixed(1) + 's'
+  );
+  setPrecisionTouchButton(
+    'touchReload',
+    rr,
+    'REKINDLE',
+    p.reloadT > 0 ? 'CHARGING' : p.ammo < p.magSize ? 'READY' : 'FULL'
+  );
+  setPrecisionTouchButton('touchEnter', 1, 'USE', 'READY');
+  const cap = T('aimStickWrap')?.querySelector?.('.touch-caption b');
+  if (cap) cap.textContent = primary.name.toUpperCase().replace('EMBER ', '').slice(0, 12);
+};
+const precisionDrawCombatFX = drawCombatFX;
+drawCombatFX = function (ctx) {
+  precisionDrawCombatFX(ctx);
+  const p = G.player;
+  if (!p || !document.body.classList.contains('touch') || G.state !== 'playing') return;
+  const t = save.motion ? 0 : G.tAll;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  if (touchInput.aimActive) {
+    const a = aimAngle(),
+      mag = touchInput.aimPower || Math.hypot(touchInput.aimX, touchInput.aimY),
+      r = 68 + mag * 46,
+      x = p.x + Math.cos(a) * r,
+      y = p.y + Math.sin(a) * r;
+    ctx.strokeStyle = touchInput.fire ? '#ffd18b' : '#afc9d5';
+    ctx.globalAlpha = 0.34 + mag * 0.34;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(p.x + Math.cos(a) * 25, p.y + Math.sin(a) * 25);
+    ctx.lineTo(x - Math.cos(a) * 10, y - Math.sin(a) * 10);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(t * 0.75);
+    for (let i = 0; i < 4; i++) {
+      ctx.rotate(Math.PI / 2);
+      ctx.beginPath();
+      ctx.moveTo(8, 0);
+      ctx.lineTo(15 + mag * 5, 0);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  if ((touchInput.movePower || 0) > 0.12) {
+    const a = Math.atan2(touchInput.moveY, touchInput.moveX),
+      r = 25;
+    ctx.strokeStyle = '#9fe6ed';
+    ctx.globalAlpha = 0.22 + 0.18 * (touchInput.movePower || 0);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, a - 0.42, a + 0.42);
+    ctx.stroke();
+  }
+  ctx.restore();
+};
 installPrecisionTouch();

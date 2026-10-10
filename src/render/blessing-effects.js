@@ -1,4 +1,85 @@
 'use strict';
 
-const longCombatFX=drawCombatFX;
-drawCombatFX=function(ctx){longCombatFX(ctx);const p=G.player;if(!p||!G.run)return;const t=save.motion?0:G.tAll;ctx.save();ctx.globalCompositeOperation='lighter';if(p.cardWard>0){ctx.strokeStyle='#ffe7a5';ctx.globalAlpha=.35+.25*Math.sin(t*5);ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,21,0,TAU);ctx.stroke();}if(G.run.up.voidOrbit){for(let i=0;i<3;i++){const a=(p.voidOrbitA||0)+i*TAU/3,x=p.x+Math.cos(a)*78,y=p.y+Math.sin(a)*78;glowImg('violet',x,y,27,.52);ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.rotate(a+t*.65);ctx.fillStyle='#e4ceff';ctx.globalAlpha=.92;ctx.fillRect(-5,-5,10,10);ctx.fillStyle='#7c4fa6';ctx.fillRect(-3,-3,6,6);ctx.fillStyle='#110b19';ctx.fillRect(-1,-1,3,3);ctx.restore();}}for(const f of G.run.cardFields||[]){const max=f.kind==='blackHole'?(f.mythicReforged?175:125):90,life=clamp(f.t/(f.kind==='blackHole'?(f.mythicReforged?7:4):3),0,1);ctx.strokeStyle=f.kind==='blackHole'?'#ae83ff':'#ff9861';ctx.globalAlpha=.2+.3*life;ctx.lineWidth=f.mythicReforged?3:2;for(let i=0;i<(f.mythicReforged?5:3);i++){ctx.beginPath();ctx.arc(f.x,f.y,max*(.22+i*.16)+Math.sin(t*3+i)*5,t*(i%2?-.9:.65),t*(i%2?-.9:.65)+4.9);ctx.stroke();}if(f.mythicReforged){glowImg('violet',f.x,f.y,82,.34);ctx.fillStyle='#090611';ctx.globalAlpha=.9;ctx.beginPath();ctx.arc(f.x,f.y,17+Math.sin(t*5)*2,0,TAU);ctx.fill();}}for(const q of G.run.cardStrikes||[]){const power=q.power||1.8;ctx.strokeStyle='#fff0b5';ctx.lineWidth=power>=3?3:2;ctx.globalAlpha=.35+clamp(1-q.t/.9,0,1)*.55;ctx.beginPath();ctx.moveTo(q.x,q.y-(power>=3?150:120));ctx.lineTo(q.x,q.y+9);ctx.stroke();ctx.beginPath();ctx.arc(q.x,q.y,(power>=3?28:22)+q.t*24,0,TAU);ctx.stroke();}for(const q of G.run.cardFlares||[]){ctx.strokeStyle='#ffc778';ctx.globalAlpha=.5;ctx.beginPath();ctx.arc(q.x,q.y,28+(1-q.t/.32)*25,q.a-.8,q.a+.8);ctx.stroke();}ctx.restore();};
+const longCombatFX = drawCombatFX;
+drawCombatFX = function (ctx) {
+  longCombatFX(ctx);
+  const p = G.player;
+  if (!p || !G.run) return;
+  const t = save.motion ? 0 : G.tAll;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  if (p.cardWard > 0) {
+    ctx.strokeStyle = '#ffe7a5';
+    ctx.globalAlpha = 0.35 + 0.25 * Math.sin(t * 5);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 21, 0, TAU);
+    ctx.stroke();
+  }
+  if (G.run.up.voidOrbit) {
+    for (let i = 0; i < 3; i++) {
+      const a = (p.voidOrbitA || 0) + (i * TAU) / 3,
+        x = p.x + Math.cos(a) * 78,
+        y = p.y + Math.sin(a) * 78;
+      glowImg('violet', x, y, 27, 0.52);
+      ctx.save();
+      ctx.translate(Math.round(x), Math.round(y));
+      ctx.rotate(a + t * 0.65);
+      ctx.fillStyle = '#e4ceff';
+      ctx.globalAlpha = 0.92;
+      ctx.fillRect(-5, -5, 10, 10);
+      ctx.fillStyle = '#7c4fa6';
+      ctx.fillRect(-3, -3, 6, 6);
+      ctx.fillStyle = '#110b19';
+      ctx.fillRect(-1, -1, 3, 3);
+      ctx.restore();
+    }
+  }
+  for (const f of G.run.cardFields || []) {
+    const max = f.kind === 'blackHole' ? (f.mythicReforged ? 175 : 125) : 90,
+      life = clamp(f.t / (f.kind === 'blackHole' ? (f.mythicReforged ? 7 : 4) : 3), 0, 1);
+    ctx.strokeStyle = f.kind === 'blackHole' ? '#ae83ff' : '#ff9861';
+    ctx.globalAlpha = 0.2 + 0.3 * life;
+    ctx.lineWidth = f.mythicReforged ? 3 : 2;
+    for (let i = 0; i < (f.mythicReforged ? 5 : 3); i++) {
+      ctx.beginPath();
+      ctx.arc(
+        f.x,
+        f.y,
+        max * (0.22 + i * 0.16) + Math.sin(t * 3 + i) * 5,
+        t * (i % 2 ? -0.9 : 0.65),
+        t * (i % 2 ? -0.9 : 0.65) + 4.9
+      );
+      ctx.stroke();
+    }
+    if (f.mythicReforged) {
+      glowImg('violet', f.x, f.y, 82, 0.34);
+      ctx.fillStyle = '#090611';
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, 17 + Math.sin(t * 5) * 2, 0, TAU);
+      ctx.fill();
+    }
+  }
+  for (const q of G.run.cardStrikes || []) {
+    const power = q.power || 1.8;
+    ctx.strokeStyle = '#fff0b5';
+    ctx.lineWidth = power >= 3 ? 3 : 2;
+    ctx.globalAlpha = 0.35 + clamp(1 - q.t / 0.9, 0, 1) * 0.55;
+    ctx.beginPath();
+    ctx.moveTo(q.x, q.y - (power >= 3 ? 150 : 120));
+    ctx.lineTo(q.x, q.y + 9);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(q.x, q.y, (power >= 3 ? 28 : 22) + q.t * 24, 0, TAU);
+    ctx.stroke();
+  }
+  for (const q of G.run.cardFlares || []) {
+    ctx.strokeStyle = '#ffc778';
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.arc(q.x, q.y, 28 + (1 - q.t / 0.32) * 25, q.a - 0.8, q.a + 0.8);
+    ctx.stroke();
+  }
+  ctx.restore();
+};

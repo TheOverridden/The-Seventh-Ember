@@ -1,249 +1,1695 @@
-const EMBER_FORMS=[
- {id:'emberBolt',slot:'primary',name:'Ember Bolt',tag:'THE FIRST SPARK',cost:0,req:[],color:'#ffbd68',desc:'Balanced light. Quick, steady, and eager to take on any blessing.',effect:'A reliable cast with no hidden weakness.'},
- {id:'sunlance',slot:'primary',name:'Sunlance',tag:'A LINE THROUGH DARK',cost:1200,req:['m4','c3'],color:'#fff0a6',desc:'Compress the Ember into a slow, brilliant lance.',effect:'2.15× power · pierces four more targets · slower casting.'},
- {id:'cinderburst',slot:'primary',name:'Cinderburst',tag:'FIVE HOT FRAGMENTS',cost:3400,req:['m8','f5'],color:'#ff8756',desc:'Break each cast into a violent close-range fan.',effect:'Five embers per cast · devastating nearby · short reach.'},
- {id:'starweaver',slot:'primary',name:'Starweaver',tag:'LIGHT THAT REMEMBERS',cost:6200,req:['g7','f6'],color:'#8ce9ee',desc:'Release patient wisps that bend toward living targets.',effect:'Seeking casts · longer life · slower travel and cadence.'},
- {id:'ashDisc',slot:'primary',name:'Ash Disc',tag:'THE RETURNING CIRCLE',cost:9800,req:['c7','d5'],color:'#c9a4ff',desc:'Cast a broad ring of hard light that hunts through a room.',effect:'2.8× power · five ricochets · very slow cadence.'},
- {id:'crownFlare',slot:'flare',name:'Crown Flare',tag:'THE FAMILIAR ARC',cost:0,req:[],color:'#ffc875',desc:'The Ember’s familiar close-range sweep.',effect:'Wide, powerful, and quick to recover.'},
- {id:'novaFlare',slot:'flare',name:'Nova Flare',tag:'NO SAFE SIDE',cost:1500,req:['v4','m4'],color:'#ff9f69',desc:'Open the Flare into a complete ring around the Ember.',effect:'Strikes every direction · longer recovery · lower power.'},
- {id:'dawnCrescent',slot:'flare',name:'Dawn Crescent',tag:'ONE PERFECT EDGE',cost:5200,req:['c6','m6'],color:'#fff0b8',desc:'Narrow the Flare into a long, exact crescent.',effect:'3.7× power · long reach · narrow angle.'},
- {id:'gravityPulse',slot:'flare',name:'Gravity Pulse',tag:'THE ROOM LEANS IN',cost:8600,req:['g9','v6'],color:'#b68cff',desc:'Fold nearby space and drag lesser enemies into the light.',effect:'Full circle pull · broad reach · deliberate recovery.'},
- {id:'cinderstep',slot:'dash',name:'Cinderstep',tag:'THE FIRST MOTION',cost:0,req:[],color:'#ffd27e',desc:'The Ember’s familiar burst of speed.',effect:'Balanced distance, recovery, and invulnerability.'},
- {id:'riftBlink',slot:'dash',name:'Rift Blink',tag:'BETWEEN TWO MOMENTS',cost:1800,req:['d4','s4'],color:'#a9c3ff',desc:'Lengthen the instant in which the Ember is elsewhere.',effect:'44% farther · longer invulnerability · slower recovery.'},
- {id:'phoenixRush',slot:'dash',name:'Phoenix Rush',tag:'LEAVE THE FLOOR BURNING',cost:6200,req:['d8','m5'],color:'#ff7655',desc:'Trade distance for a dense, damaging wake.',effect:'Shorter rush · fierce trail · bursts at the finish.'},
- {id:'aegisFold',slot:'dash',name:'Aegis Fold',tag:'CLOSE THE DISTANCE',cost:9400,req:['d6','v8'],color:'#9fe8de',desc:'Fold hostile light away at the beginning of a dash.',effect:'Erases up to five nearby shots · shorter, slower recovery.'}
+const EMBER_FORMS = [
+  {
+    id: 'emberBolt',
+    slot: 'primary',
+    name: 'Ember Bolt',
+    tag: 'THE FIRST SPARK',
+    cost: 0,
+    req: [],
+    color: '#ffbd68',
+    desc: 'Balanced light. Quick, steady, and eager to take on any blessing.',
+    effect: 'A reliable cast with no hidden weakness.',
+  },
+  {
+    id: 'sunlance',
+    slot: 'primary',
+    name: 'Sunlance',
+    tag: 'A LINE THROUGH DARK',
+    cost: 1200,
+    req: ['m4', 'c3'],
+    color: '#fff0a6',
+    desc: 'Compress the Ember into a slow, brilliant lance.',
+    effect: '2.15× power · pierces four more targets · slower casting.',
+  },
+  {
+    id: 'cinderburst',
+    slot: 'primary',
+    name: 'Cinderburst',
+    tag: 'FIVE HOT FRAGMENTS',
+    cost: 3400,
+    req: ['m8', 'f5'],
+    color: '#ff8756',
+    desc: 'Break each cast into a violent close-range fan.',
+    effect: 'Five embers per cast · devastating nearby · short reach.',
+  },
+  {
+    id: 'starweaver',
+    slot: 'primary',
+    name: 'Starweaver',
+    tag: 'LIGHT THAT REMEMBERS',
+    cost: 6200,
+    req: ['g7', 'f6'],
+    color: '#8ce9ee',
+    desc: 'Release patient wisps that bend toward living targets.',
+    effect: 'Seeking casts · longer life · slower travel and cadence.',
+  },
+  {
+    id: 'ashDisc',
+    slot: 'primary',
+    name: 'Ash Disc',
+    tag: 'THE RETURNING CIRCLE',
+    cost: 9800,
+    req: ['c7', 'd5'],
+    color: '#c9a4ff',
+    desc: 'Cast a broad ring of hard light that hunts through a room.',
+    effect: '2.8× power · five ricochets · very slow cadence.',
+  },
+  {
+    id: 'crownFlare',
+    slot: 'flare',
+    name: 'Crown Flare',
+    tag: 'THE FAMILIAR ARC',
+    cost: 0,
+    req: [],
+    color: '#ffc875',
+    desc: 'The Ember’s familiar close-range sweep.',
+    effect: 'Wide, powerful, and quick to recover.',
+  },
+  {
+    id: 'novaFlare',
+    slot: 'flare',
+    name: 'Nova Flare',
+    tag: 'NO SAFE SIDE',
+    cost: 1500,
+    req: ['v4', 'm4'],
+    color: '#ff9f69',
+    desc: 'Open the Flare into a complete ring around the Ember.',
+    effect: 'Strikes every direction · longer recovery · lower power.',
+  },
+  {
+    id: 'dawnCrescent',
+    slot: 'flare',
+    name: 'Dawn Crescent',
+    tag: 'ONE PERFECT EDGE',
+    cost: 5200,
+    req: ['c6', 'm6'],
+    color: '#fff0b8',
+    desc: 'Narrow the Flare into a long, exact crescent.',
+    effect: '3.7× power · long reach · narrow angle.',
+  },
+  {
+    id: 'gravityPulse',
+    slot: 'flare',
+    name: 'Gravity Pulse',
+    tag: 'THE ROOM LEANS IN',
+    cost: 8600,
+    req: ['g9', 'v6'],
+    color: '#b68cff',
+    desc: 'Fold nearby space and drag lesser enemies into the light.',
+    effect: 'Full circle pull · broad reach · deliberate recovery.',
+  },
+  {
+    id: 'cinderstep',
+    slot: 'dash',
+    name: 'Cinderstep',
+    tag: 'THE FIRST MOTION',
+    cost: 0,
+    req: [],
+    color: '#ffd27e',
+    desc: 'The Ember’s familiar burst of speed.',
+    effect: 'Balanced distance, recovery, and invulnerability.',
+  },
+  {
+    id: 'riftBlink',
+    slot: 'dash',
+    name: 'Rift Blink',
+    tag: 'BETWEEN TWO MOMENTS',
+    cost: 1800,
+    req: ['d4', 's4'],
+    color: '#a9c3ff',
+    desc: 'Lengthen the instant in which the Ember is elsewhere.',
+    effect: '44% farther · longer invulnerability · slower recovery.',
+  },
+  {
+    id: 'phoenixRush',
+    slot: 'dash',
+    name: 'Phoenix Rush',
+    tag: 'LEAVE THE FLOOR BURNING',
+    cost: 6200,
+    req: ['d8', 'm5'],
+    color: '#ff7655',
+    desc: 'Trade distance for a dense, damaging wake.',
+    effect: 'Shorter rush · fierce trail · bursts at the finish.',
+  },
+  {
+    id: 'aegisFold',
+    slot: 'dash',
+    name: 'Aegis Fold',
+    tag: 'CLOSE THE DISTANCE',
+    cost: 9400,
+    req: ['d6', 'v8'],
+    color: '#9fe8de',
+    desc: 'Fold hostile light away at the beginning of a dash.',
+    effect: 'Erases up to five nearby shots · shorter, slower recovery.',
+  },
 ];
-const FORM_BY_ID=Object.fromEntries(EMBER_FORMS.map(f=>[f.id,f]));
-const FORM_DEFAULTS={primary:'emberBolt',flare:'crownFlare',dash:'cinderstep'};
-const FORM_SLOTS=[['primary','EMBER BOLT'],['flare','FLARE'],['dash','DASH']];
-const EVOLUTION_RECIPES=[
- {id:'heartOfCinders',name:'Heart of Cinders',form:'emberBolt',cards:{burn:2,blast:1},line:'Every cast carries wildfire; critical embers burst across the room.',effect:'Burning critical hits gain a much wider blast.'},
- {id:'solarSpear',name:'Solar Spear',form:'sunlance',cards:{pierce:2,whiteStar:1},line:'Every fourth Sunlance opens into a miniature dawn.',effect:'Fourth casts become colossal star-lances.'},
- {id:'thousandEmbers',name:'Thousand Embers',form:'cinderburst',cards:{proj:2,twinFlame:1},line:'The fan becomes a storm in every direction.',effect:'Nine fragments per source and stronger side casts.'},
- {id:'constellationChoir',name:'Constellation Choir',form:'starweaver',cards:{orbital:2,starfall:1},line:'The orbiting cinders learn to sing with each cast.',effect:'Every sixth cast releases three satellite wisps.'},
- {id:'returningSun',name:'The Returning Sun',form:'ashDisc',cards:{ric:2,prismBolt:2},line:'The disc comes back brighter than it left.',effect:'Ricochets gain power and cast a smaller returning disc.'},
- {id:'hearthNova',name:'Hearth Nova',form:'novaFlare',cards:{guard:2,aftershock:2},line:'A second ring closes while a ward forms around the Ember.',effect:'Nova Flare repeats and grants a strong ward.'},
- {id:'wardensMoon',name:'Warden’s Moon',form:'dawnCrescent',cards:{bladeEcho:1,crit:2},line:'The remembered crescent splits into three clean paths.',effect:'Every Flare releases a central and two crossing crescents.'},
- {id:'eventHorizon',name:'Event Horizon',form:'gravityPulse',cards:{gravityFlare:2,blackHole:1},line:'The room falls toward the place where the Flare ended.',effect:'Gravity Pulse creates a reforged Black Star.'},
- {id:'voidstep',name:'Voidstep',form:'riftBlink',cards:{dash:2,quickStep:2},line:'Arrival and departure happen in the same wound in space.',effect:'Longer Blinks erase shots at both ends and recover faster.'},
- {id:'wildfireEngine',name:'Wildfire Engine',form:'phoenixRush',cards:{dashTrail:2,phoenixWake:2},line:'The wake refuses to cool after the Ember has passed.',effect:'A wider, stronger trail erupts at the end of each rush.'},
- {id:'mirrorGate',name:'Mirror Gate',form:'aegisFold',cards:{mirrorSoul:1,flareGuard:2},line:'Hostile light returns through the fold with a new allegiance.',effect:'Aegis Fold reflects every nearby shot as a seeking ember.'},
- {id:'firstLight',name:'First Light',form:'emberBolt',cards:{sevenfold:1,whiteStar:1},line:'The oldest spark remembers the shape of sunrise.',effect:'Every eighth cast releases seven radiant star-lances.'}
+const FORM_BY_ID = Object.fromEntries(EMBER_FORMS.map((f) => [f.id, f]));
+const FORM_DEFAULTS = { primary: 'emberBolt', flare: 'crownFlare', dash: 'cinderstep' };
+const FORM_SLOTS = [
+  ['primary', 'EMBER BOLT'],
+  ['flare', 'FLARE'],
+  ['dash', 'DASH'],
 ];
-const EVOLUTION_BY_ID=Object.fromEntries(EVOLUTION_RECIPES.map(e=>[e.id,e]));
+const EVOLUTION_RECIPES = [
+  {
+    id: 'heartOfCinders',
+    name: 'Heart of Cinders',
+    form: 'emberBolt',
+    cards: { burn: 2, blast: 1 },
+    line: 'Every cast carries wildfire; critical embers burst across the room.',
+    effect: 'Burning critical hits gain a much wider blast.',
+  },
+  {
+    id: 'solarSpear',
+    name: 'Solar Spear',
+    form: 'sunlance',
+    cards: { pierce: 2, whiteStar: 1 },
+    line: 'Every fourth Sunlance opens into a miniature dawn.',
+    effect: 'Fourth casts become colossal star-lances.',
+  },
+  {
+    id: 'thousandEmbers',
+    name: 'Thousand Embers',
+    form: 'cinderburst',
+    cards: { proj: 2, twinFlame: 1 },
+    line: 'The fan becomes a storm in every direction.',
+    effect: 'Nine fragments per source and stronger side casts.',
+  },
+  {
+    id: 'constellationChoir',
+    name: 'Constellation Choir',
+    form: 'starweaver',
+    cards: { orbital: 2, starfall: 1 },
+    line: 'The orbiting cinders learn to sing with each cast.',
+    effect: 'Every sixth cast releases three satellite wisps.',
+  },
+  {
+    id: 'returningSun',
+    name: 'The Returning Sun',
+    form: 'ashDisc',
+    cards: { ric: 2, prismBolt: 2 },
+    line: 'The disc comes back brighter than it left.',
+    effect: 'Ricochets gain power and cast a smaller returning disc.',
+  },
+  {
+    id: 'hearthNova',
+    name: 'Hearth Nova',
+    form: 'novaFlare',
+    cards: { guard: 2, aftershock: 2 },
+    line: 'A second ring closes while a ward forms around the Ember.',
+    effect: 'Nova Flare repeats and grants a strong ward.',
+  },
+  {
+    id: 'wardensMoon',
+    name: 'Warden’s Moon',
+    form: 'dawnCrescent',
+    cards: { bladeEcho: 1, crit: 2 },
+    line: 'The remembered crescent splits into three clean paths.',
+    effect: 'Every Flare releases a central and two crossing crescents.',
+  },
+  {
+    id: 'eventHorizon',
+    name: 'Event Horizon',
+    form: 'gravityPulse',
+    cards: { gravityFlare: 2, blackHole: 1 },
+    line: 'The room falls toward the place where the Flare ended.',
+    effect: 'Gravity Pulse creates a reforged Black Star.',
+  },
+  {
+    id: 'voidstep',
+    name: 'Voidstep',
+    form: 'riftBlink',
+    cards: { dash: 2, quickStep: 2 },
+    line: 'Arrival and departure happen in the same wound in space.',
+    effect: 'Longer Blinks erase shots at both ends and recover faster.',
+  },
+  {
+    id: 'wildfireEngine',
+    name: 'Wildfire Engine',
+    form: 'phoenixRush',
+    cards: { dashTrail: 2, phoenixWake: 2 },
+    line: 'The wake refuses to cool after the Ember has passed.',
+    effect: 'A wider, stronger trail erupts at the end of each rush.',
+  },
+  {
+    id: 'mirrorGate',
+    name: 'Mirror Gate',
+    form: 'aegisFold',
+    cards: { mirrorSoul: 1, flareGuard: 2 },
+    line: 'Hostile light returns through the fold with a new allegiance.',
+    effect: 'Aegis Fold reflects every nearby shot as a seeking ember.',
+  },
+  {
+    id: 'firstLight',
+    name: 'First Light',
+    form: 'emberBolt',
+    cards: { sevenfold: 1, whiteStar: 1 },
+    line: 'The oldest spark remembers the shape of sunrise.',
+    effect: 'Every eighth cast releases seven radiant star-lances.',
+  },
+];
+const EVOLUTION_BY_ID = Object.fromEntries(EVOLUTION_RECIPES.map((e) => [e.id, e]));
 
-function formData(){
- if(!save.forms||typeof save.forms!=='object')save.forms={};
- for(const id of Object.values(FORM_DEFAULTS))save.forms[id]=true;
- if(!save.loadout||typeof save.loadout!=='object')save.loadout={...FORM_DEFAULTS};
- for(const [slot,id] of Object.entries(FORM_DEFAULTS)){const chosen=FORM_BY_ID[save.loadout[slot]];if(!chosen||chosen.slot!==slot||!save.forms[chosen.id])save.loadout[slot]=id;}
- return save;
+function formData() {
+  if (!save.forms || typeof save.forms !== 'object') save.forms = {};
+  for (const id of Object.values(FORM_DEFAULTS)) save.forms[id] = true;
+  if (!save.loadout || typeof save.loadout !== 'object') save.loadout = { ...FORM_DEFAULTS };
+  for (const [slot, id] of Object.entries(FORM_DEFAULTS)) {
+    const chosen = FORM_BY_ID[save.loadout[slot]];
+    if (!chosen || chosen.slot !== slot || !save.forms[chosen.id]) save.loadout[slot] = id;
+  }
+  return save;
 }
-function formOwned(id){formData();return !!save.forms[id];}
-function formRequirementsMet(f){return (f.req||[]).every(id=>save.nodes?.[id]);}
-function formRequirementText(f){return !f.req.length?'Awakened from the beginning':f.req.map(id=>NODE_BY_ID[id]?.name||id).join(' + ');}
-function normalizeRunForms(raw){const out={};formData();for(const [slot,def] of Object.entries(FORM_DEFAULTS)){const id=raw?.[slot]||save.loadout[slot],f=FORM_BY_ID[id];out[slot]=f&&f.slot===slot&&formOwned(id)?id:def;}return out;}
-function activeForm(slot){const id=G.run?.forms?.[slot]||formData().loadout[slot]||FORM_DEFAULTS[slot];return FORM_BY_ID[id]||FORM_BY_ID[FORM_DEFAULTS[slot]];}
-function hasEvolution(id){return !!G.run?.evolutions?.includes(id);}
-function formForRun(id){return Object.values(G.run?.forms||{}).includes(id);}
-function recipeReady(e){const up=G.run?.up||{};return formForRun(e.form)&&Object.entries(e.cards).every(([id,n])=>(up[id]||0)>=n);}
-function recipeText(e){return Object.entries(e.cards).map(([id,n])=>{const c=POOL.find(o=>o.id===id);return (c?.name||id)+(n>1?' '+n:'');}).join(' + ');}
+function formOwned(id) {
+  formData();
+  return !!save.forms[id];
+}
+function formRequirementsMet(f) {
+  return (f.req || []).every((id) => save.nodes?.[id]);
+}
+function formRequirementText(f) {
+  return !f.req.length
+    ? 'Awakened from the beginning'
+    : f.req.map((id) => NODE_BY_ID[id]?.name || id).join(' + ');
+}
+function normalizeRunForms(raw) {
+  const out = {};
+  formData();
+  for (const [slot, def] of Object.entries(FORM_DEFAULTS)) {
+    const id = raw?.[slot] || save.loadout[slot],
+      f = FORM_BY_ID[id];
+    out[slot] = f && f.slot === slot && formOwned(id) ? id : def;
+  }
+  return out;
+}
+function activeForm(slot) {
+  const id = G.run?.forms?.[slot] || formData().loadout[slot] || FORM_DEFAULTS[slot];
+  return FORM_BY_ID[id] || FORM_BY_ID[FORM_DEFAULTS[slot]];
+}
+function hasEvolution(id) {
+  return !!G.run?.evolutions?.includes(id);
+}
+function formForRun(id) {
+  return Object.values(G.run?.forms || {}).includes(id);
+}
+function recipeReady(e) {
+  const up = G.run?.up || {};
+  return formForRun(e.form) && Object.entries(e.cards).every(([id, n]) => (up[id] || 0) >= n);
+}
+function recipeText(e) {
+  return Object.entries(e.cards)
+    .map(([id, n]) => {
+      const c = POOL.find((o) => o.id === id);
+      return (c?.name || id) + (n > 1 ? ' ' + n : '');
+    })
+    .join(' + ');
+}
 
-let evolutionQueue=[],evolutionTimer=0;
-function renderEvolutionChips(){
- const rail=T('evolutionRail');if(!rail)return;rail.replaceChildren();
- for(const id of G.run?.evolutions||[]){const e=EVOLUTION_BY_ID[id];if(!e)continue;const chip=document.createElement('span');chip.className='evolution-chip';chip.textContent=e.name;chip.title=e.effect;rail.appendChild(chip);}
+let evolutionQueue = [],
+  evolutionTimer = 0;
+function renderEvolutionChips() {
+  const rail = T('evolutionRail');
+  if (!rail) return;
+  rail.replaceChildren();
+  for (const id of G.run?.evolutions || []) {
+    const e = EVOLUTION_BY_ID[id];
+    if (!e) continue;
+    const chip = document.createElement('span');
+    chip.className = 'evolution-chip';
+    chip.textContent = e.name;
+    chip.title = e.effect;
+    rail.appendChild(chip);
+  }
 }
-function pumpEvolution(){
- if(evolutionTimer||!evolutionQueue.length)return;const e=evolutionQueue.shift(),banner=T('evolutionBanner');if(!banner)return;
- T('evolutionName').textContent=e.name;T('evolutionLine').textContent=e.line;banner.style.setProperty('--evo',FORM_BY_ID[e.form]?.color||'#ffe0a0');banner.classList.add('show');sfx('formEvolution');
- evolutionTimer=setTimeout(()=>{banner.classList.remove('show');evolutionTimer=setTimeout(()=>{evolutionTimer=0;pumpEvolution();},420);},3100);
+function pumpEvolution() {
+  if (evolutionTimer || !evolutionQueue.length) return;
+  const e = evolutionQueue.shift(),
+    banner = T('evolutionBanner');
+  if (!banner) return;
+  T('evolutionName').textContent = e.name;
+  T('evolutionLine').textContent = e.line;
+  banner.style.setProperty('--evo', FORM_BY_ID[e.form]?.color || '#ffe0a0');
+  banner.classList.add('show');
+  sfx('formEvolution');
+  evolutionTimer = setTimeout(() => {
+    banner.classList.remove('show');
+    evolutionTimer = setTimeout(() => {
+      evolutionTimer = 0;
+      pumpEvolution();
+    }, 420);
+  }, 3100);
 }
-function checkEvolutions(announce=true){
- if(!G.run)return;G.run.evolutions=Array.isArray(G.run.evolutions)?G.run.evolutions.filter(id=>EVOLUTION_BY_ID[id]):[];
- for(const e of EVOLUTION_RECIPES)if(!G.run.evolutions.includes(e.id)&&recipeReady(e)){G.run.evolutions.push(e.id);if(announce)evolutionQueue.push(e);}
- renderEvolutionChips();if(announce)pumpEvolution();
+function checkEvolutions(announce = true) {
+  if (!G.run) return;
+  G.run.evolutions = Array.isArray(G.run.evolutions)
+    ? G.run.evolutions.filter((id) => EVOLUTION_BY_ID[id])
+    : [];
+  for (const e of EVOLUTION_RECIPES)
+    if (!G.run.evolutions.includes(e.id) && recipeReady(e)) {
+      G.run.evolutions.push(e.id);
+      if (announce) evolutionQueue.push(e);
+    }
+  renderEvolutionChips();
+  if (announce) pumpEvolution();
 }
 
-let formsFrom='menu',formsUiInstalled=false,formsPreviewStarted=false;
-function installEmberFormsUI(){
- if(formsUiInstalled)return;formsUiInstalled=true;
- const style=document.createElement('style');style.textContent=`
+let formsFrom = 'menu',
+  formsUiInstalled = false,
+  formsPreviewStarted = false;
+function installEmberFormsUI() {
+  if (formsUiInstalled) return;
+  formsUiInstalled = true;
+  const style = document.createElement('style');
+  style.textContent = `
 #forms{z-index:128;background:radial-gradient(circle at 50% 34%,#2a21334a,#050810f5 70%);padding:18px;overflow:auto;align-items:flex-start}.forms-shell{width:min(1160px,96vw);margin:auto;color:#e6dfd2;border:1px solid #d1b17270;background:linear-gradient(145deg,#151c29fa,#090e18fc 62%,#100d18fc);box-shadow:0 34px 110px #000e,0 0 60px #9b6bc318;position:relative;clip-path:polygon(0 18px,18px 0,calc(100% - 50px) 0,calc(100% - 32px) 13px,100% 13px,100% calc(100% - 18px),calc(100% - 18px) 100%,18px 100%,0 calc(100% - 18px))}.forms-shell:before{content:'';position:absolute;inset:8px;border:1px solid #d5ba7b20;clip-path:inherit;pointer-events:none}.forms-head{position:sticky;top:-18px;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 28px 18px;background:#0b111bec;border-bottom:1px solid #c6a86738;backdrop-filter:blur(12px)}.forms-kicker{font:800 8px system-ui;letter-spacing:.28em;color:#b697cf}.forms-head h2{font:700 clamp(25px,4vw,40px) Georgia;color:#f4dfb7;letter-spacing:.08em;margin:5px 0}.forms-head p{font:11px/1.5 system-ui;color:#8fa0b2;margin:0}.forms-head-actions{display:flex;align-items:center;gap:12px}.forms-essence{font:20px Georgia;color:#d8b7f5;white-space:nowrap;text-shadow:0 0 16px #9f71cf55}.forms-loadout{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:0 28px;background:#bfa06a2b;border:1px solid #bfa06a30}.forms-loadout>div{padding:13px 17px;background:#0c131e}.forms-loadout small{display:block;font:7px system-ui;letter-spacing:.2em;color:#76899e;margin-bottom:5px}.forms-loadout b{font:16px Georgia;color:#f2d8a8}.forms-body{padding:25px 28px 31px}.form-section{margin:0 0 32px}.form-section-title{display:flex;align-items:center;gap:14px;margin-bottom:13px}.form-section-title:after{content:'';height:1px;flex:1;background:linear-gradient(90deg,#d4b36e4f,transparent)}.form-section-title h3{font:700 11px system-ui;letter-spacing:.2em;color:#d2bc93;margin:0}.form-section-title span{font:9px system-ui;color:#64778d}.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px}.form-card{--form:#ffc878;position:relative;min-height:292px;padding:0 15px 15px;color:#dfe7ed;text-align:left;background:linear-gradient(155deg,#17202d,#090e17 75%);border:1px solid color-mix(in srgb,var(--form) 32%,#4b5364);cursor:pointer;overflow:hidden;transition:.2s transform,.2s border-color,.2s box-shadow}.form-card:before{content:'';position:absolute;inset:5px;border:1px solid color-mix(in srgb,var(--form) 13%,transparent);pointer-events:none}.form-card:hover,.form-card:focus-visible{transform:translateY(-4px);border-color:var(--form);box-shadow:0 14px 36px #000b,0 0 26px color-mix(in srgb,var(--form) 18%,transparent);outline:none}.form-card.equipped{border-color:var(--form);box-shadow:inset 0 -3px var(--form),0 0 24px color-mix(in srgb,var(--form) 17%,transparent)}.form-card.locked{filter:saturate(.52);background:linear-gradient(155deg,#131821,#090d15)}.form-preview{display:block;width:calc(100% + 30px);height:112px;margin:0 -15px 14px;border-bottom:1px solid color-mix(in srgb,var(--form) 22%,transparent);background:#070b12;image-rendering:pixelated}.form-tag{font:700 7px system-ui;letter-spacing:.19em;color:var(--form);height:14px}.form-card h4{font:700 20px/1.2 Georgia;color:#f2e5ce;margin:5px 0 8px}.form-card p{font:10px/1.55 system-ui;color:#96a7b9;margin:0;min-height:47px}.form-effect{display:block;font:9px/1.45 system-ui;color:#c7d0d7;margin-top:9px}.form-state{display:flex;align-items:flex-end;justify-content:space-between;gap:9px;margin-top:14px;padding-top:10px;border-top:1px solid #ffffff0b}.form-state b{font:800 8px system-ui;letter-spacing:.12em;color:var(--form)}.form-state small{font:8px/1.35 system-ui;color:#77899b;text-align:right}.form-card.locked .form-state b{color:#b99ad1}.form-card.ready .form-state b{color:#d7b5f2;text-shadow:0 0 12px #b37add88}.evolution-codex{margin-top:8px;padding:21px;border:1px solid #9775b344;background:linear-gradient(120deg,#7f58a611,#d6a65a08)}.evolution-codex h3{font:22px Georgia;color:#e6d5f3;margin:0 0 4px}.evolution-codex>p{font:10px/1.6 system-ui;color:#8fa0b4;margin:0 0 15px}.evolution-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:8px}.evolution-entry{padding:11px 13px;background:#080d16aa;border-left:2px solid #8e6aa8}.evolution-entry b{display:block;font:13px Georgia;color:#d8c2e8}.evolution-entry span{display:block;margin-top:5px;color:#8d9daf;font:8px/1.55 system-ui}.evolution-entry.ready{border-color:#f0ca77;box-shadow:inset 0 0 18px #daa84f0c}.evolution-entry.ready b{color:#f3d692}.evolution-entry.found{border-color:#8ff0d0;background:#83dabb0c}.evolution-entry.found b{color:#a8f2d9}.tree-forms-button{border-color:#a987c477!important;color:#dbc1ef!important}#evolutionRail{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.evolution-chip{padding:4px 8px;border:1px solid #bd8fe172;background:#6d469738;color:#e5cfff;font:700 8px system-ui;letter-spacing:.08em;box-shadow:0 0 12px #9a62ca25}#evolutionBanner{position:fixed;z-index:146;left:50%;top:22%;width:min(590px,90vw);transform:translate(-50%,-30px) scale(.94);opacity:0;pointer-events:none;text-align:center;padding:24px 30px;color:#f6ecd9;background:radial-gradient(circle at 50% 0,color-mix(in srgb,var(--evo) 23%,transparent),transparent 72%),#090d17f5;border:1px solid var(--evo);box-shadow:0 20px 70px #000e,0 0 45px color-mix(in srgb,var(--evo) 30%,transparent);transition:.45s cubic-bezier(.15,.8,.2,1)}#evolutionBanner:before,#evolutionBanner:after{content:'◆';position:absolute;top:50%;color:var(--evo);font-size:19px}#evolutionBanner:before{left:20px}#evolutionBanner:after{right:20px}#evolutionBanner.show{opacity:1;transform:translate(-50%,0) scale(1)}.evo-kicker{font:800 8px system-ui;letter-spacing:.34em;color:var(--evo)}#evolutionName{font:clamp(25px,5vw,42px) Georgia;color:#fff1ce;margin:7px 0;text-shadow:0 0 20px color-mix(in srgb,var(--evo) 55%,transparent)}#evolutionLine{font:italic 13px/1.5 Georgia;color:#bdc8d3}.form-sigil-button{border-color:#a986c566!important;color:#dfc2ef!important}
 .forms-goal{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:12px 28px 0;padding:12px 15px;border:1px solid #b28ad05c;background:linear-gradient(90deg,#8f5eb71a,#d9a7570c)}.forms-goal[hidden]{display:none}.forms-goal div{min-width:0}.forms-goal small{display:block;color:#a987c6;font:800 7px system-ui;letter-spacing:.2em}.forms-goal b{display:block;color:#ead4f7;font:16px Georgia;margin-top:3px}.forms-goal span{color:#8092a5;font:9px system-ui;margin-left:8px}.forms-goal .btn{padding:8px 13px;font-size:8px;white-space:nowrap}.form-card{cursor:default;min-height:314px}.form-card.goal{border-color:#d5a7f2;box-shadow:inset 0 3px #c891e6,0 0 29px #a465ca2e}.form-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;margin-top:9px}.form-actions.only{grid-template-columns:1fr}.form-use,.form-goal-btn{position:relative;min-height:31px;padding:6px 8px;border:1px solid color-mix(in srgb,var(--form) 48%,#4b5364);background:#0a1019;color:var(--form);font:800 7px system-ui;letter-spacing:.1em;cursor:pointer}.form-use:hover,.form-use:focus-visible,.form-goal-btn:hover,.form-goal-btn:focus-visible{border-color:var(--form);background:color-mix(in srgb,var(--form) 12%,#0a1019);outline:none}.form-use:disabled{cursor:default;opacity:.6}.form-goal-btn{border-color:#9f79b967;color:#caa2df}.form-goal-btn.active{border-color:#d4a2ed;color:#ebcfff;box-shadow:inset 0 0 15px #a35dcc24}.form-card.locked .form-use{color:#b99ad1}.form-card.ready .form-use{color:#d7b5f2;text-shadow:0 0 12px #b37add88}.tree-forms-button{border-color:#a987c477!important;color:#dbc1ef!important}#treeFormGoal{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #a77fc15e;background:#7d559619;color:#d9b8ed;font:800 8px system-ui;letter-spacing:.09em;white-space:nowrap}#treeFormGoal[hidden]{display:none}#treeFormGoal b{color:#f0d7ff;font:12px Georgia;letter-spacing:0}#treeFormGoal button{width:20px;height:20px;border:0;background:#ffffff0a;color:#bfa5ce;cursor:pointer}.node-hit.form-goal-node{border-radius:2px;background:#a76bd51d;box-shadow:0 0 0 3px #ac73d129,0 0 19px #bd7ae680;animation:formGoalPulse 2.1s ease-in-out infinite}.node-hit.form-goal-node.form-goal-owned{background:#d2aa5420;box-shadow:0 0 0 3px #d8b56329,0 0 15px #d8b5635c}.node-hit.form-goal-target{outline:2px solid #f0c5ff;outline-offset:5px;box-shadow:0 0 0 4px #a55fca30,0 0 28px #d28df3}.node-hit.form-goal-target.form-goal-owned{outline-color:#ffe29b;box-shadow:0 0 0 4px #c5943933,0 0 26px #f0c86b88}@keyframes formGoalPulse{0%,100%{filter:brightness(1);transform:translate(-50%,-50%) rotate(45deg) scale(1)}50%{filter:brightness(1.42);transform:translate(-50%,-50%) rotate(45deg) scale(1.13)}}
 @media(max-width:700px){#forms{padding:8px}.forms-head{top:-8px;padding:17px;align-items:flex-start}.forms-head p{display:none}.forms-head-actions{flex-direction:column;align-items:flex-end}.forms-loadout{margin:0 14px}.forms-loadout>div{padding:10px}.forms-loadout b{font-size:12px}.forms-goal{margin:10px 14px 0}.forms-goal span{display:none}.forms-body{padding:18px 14px 25px}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.form-card{min-height:305px;padding-left:11px;padding-right:11px}.form-preview{width:calc(100% + 22px);margin-left:-11px;margin-right:-11px}.form-card h4{font-size:17px}.form-card p{font-size:9px}.form-state{display:block}.form-state small{display:block;text-align:left;margin-top:5px}.form-actions{grid-template-columns:1fr}.evolution-grid{grid-template-columns:1fr}#treeFormGoal{display:none}}
 @media(max-width:430px){.form-grid{grid-template-columns:1fr}.forms-loadout{grid-template-columns:1fr}.forms-loadout>div{display:flex;justify-content:space-between}.forms-loadout small{margin:0}.forms-head h2{font-size:24px}.form-card{min-height:260px}}
-`;if(document.head)document.head.appendChild(style);else document.body.appendChild(style);
- const menuButton=document.createElement('button');menuButton.className='btn subtle form-sigil-button';menuButton.id='btnForms';menuButton.innerHTML='<span aria-hidden="true">✦</span> EMBER FORMS';T('btnTree').after(menuButton);
- const treeButton=document.createElement('button');treeButton.className='btn tree-forms-button';treeButton.id='btnTreeForms';treeButton.style.cssText='padding:9px 15px;font-size:10px';treeButton.innerHTML='<span aria-hidden="true">✦</span> FORMS';T('btnTreeBack').after(treeButton);
- const treeGoal=document.createElement('div');treeGoal.id='treeFormGoal';treeGoal.hidden=true;treeGoal.innerHTML='<span>FORM GOAL</span><b id="treeFormGoalName"></b><span id="treeFormGoalCount"></span><button id="btnClearFormGoal" aria-label="Clear Form goal">×</button>';treeButton.after(treeGoal);
- const overlay=document.createElement('div');overlay.id='forms';overlay.className='ov';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','formsTitle');overlay.innerHTML=`<div class="forms-shell"><header class="forms-head"><div><div class="forms-kicker">PERMANENT EMBERCRAFT · CHOOSE BEFORE A DESCENT</div><h2 id="formsTitle">EMBER FORMS</h2><p>The Ember carries no weapon. It remembers different ways to burn.</p></div><div class="forms-head-actions"><span class="forms-essence" id="formsEssence">◆ 0</span><button class="btn" id="btnFormsBack">BACK</button></div></header><div class="forms-loadout" id="formsLoadout"></div><div class="forms-goal" id="formsGoalBar" hidden><div><small>FORM GOAL</small><b id="formsGoalName"></b><span id="formsGoalProgress"></span></div><button class="btn" id="btnGoalTree">OPEN SKILL TREE</button></div><main class="forms-body" id="formsBody"></main></div>`;document.body.appendChild(overlay);
- const banner=document.createElement('div');banner.id='evolutionBanner';banner.innerHTML='<div class="evo-kicker">BLESSING EVOLUTION</div><div id="evolutionName"></div><div id="evolutionLine"></div>';document.body.appendChild(banner);
- const rail=document.createElement('div');rail.id='evolutionRail';T('chips').after(rail);
- on(menuButton,'click',()=>{sfx('ui');openForms('menu');});on(treeButton,'click',()=>{sfx('ui');openForms('skills');});on(T('btnFormsBack'),'click',()=>{sfx('ui');closeForms();});on(T('btnClearFormGoal'),'click',()=>setFormGoal(null));on(T('btnGoalTree'),'click',()=>{hide('forms');openTree('menu');refreshFormGoalHighlights();});
- addEventListener('keydown',e=>{if(e.code==='Escape'&&T('forms').classList.contains('open')){e.preventDefault();e.stopImmediatePropagation();closeForms();}},true);
- if(!formsPreviewStarted){formsPreviewStarted=true;requestAnimationFrame(animateFormPreviews);}
-}
-function openForms(from='menu'){formsFrom=from;formData();if(from==='skills'){G.skillsOpen=false;hide('skills');}else hide(from);renderForms();show('forms');T('btnFormsBack').focus({preventScroll:true});}
-function closeForms(){hide('forms');if(formsFrom==='skills'){show('skills');G.skillsOpen=true;fitTree();refreshTreeEss();}else show(formsFrom||'menu');}
-function formGoal(){const f=FORM_BY_ID[save.formGoal];return f&&f.req.length&&!formOwned(f.id)?f:null;}
-function formGoalPath(f=formGoal()){
- const ids=new Set();if(!f)return ids;const visit=id=>{if(ids.has(id))return;ids.add(id);const n=NODE_BY_ID[id];for(const p of masteryParents(n||{}))visit(p.id);};for(const id of f.req)visit(id);return ids;
-}
-function formGoalProgress(f=formGoal()){const path=formGoalPath(f),owned=[...path].filter(id=>save.nodes?.[id]).length;return{owned,total:path.size,targets:f?f.req.filter(id=>save.nodes?.[id]).length:0,targetTotal:f?.req.length||0};}
-function setFormGoal(id){
- const f=FORM_BY_ID[id];save.formGoal=f&&f.req.length&&!formOwned(id)&&save.formGoal!==id?id:null;saveNow();refreshFormGoalHighlights();if(T('forms')?.classList.contains('open'))renderForms();const goal=formGoal();if(goal){toast('FORM GOAL · '+goal.name,'required sigils now glow in the Skill Tree');sfx('formGoal');}else sfx('ui');
-}
-function refreshFormGoalHighlights(){
- const f=formGoal(),path=formGoalPath(f),targets=new Set(f?.req||[]),progress=formGoalProgress(f),pill=T('treeFormGoal');if(pill){pill.hidden=!f;if(f){setTxt('treeFormGoalName',f.name);setTxt('treeFormGoalCount',progress.owned+' / '+progress.total);}}
- for(const el of document.querySelectorAll('[data-node]')){const id=el.dataset.node;el.classList.toggle('form-goal-node',path.has(id));el.classList.toggle('form-goal-target',targets.has(id));el.classList.toggle('form-goal-owned',path.has(id)&&!!save.nodes?.[id]);}
-}
-function unlockOrEquipForm(id){
- const f=FORM_BY_ID[id];if(!f)return;formData();
- if(!formOwned(id)){if(!formRequirementsMet(f)||save.essence<f.cost){sfx('deny');return;}save.essence-=f.cost;save.forms[id]=true;saveNow();sfx('formUnlock');}
- save.loadout[f.slot]=id;if(save.formGoal===id){save.formGoal=null;toast('FORM AWAKENED · '+f.name,'goal complete');}saveNow();renderForms();refreshFormGoalHighlights();refreshMenuStats();sfx('buy');
-}
-function renderForms(){
- formData();setTxt('formsEssence','◆ '+fmt(save.essence));const load=T('formsLoadout');load.innerHTML=FORM_SLOTS.map(([slot,label])=>`<div><small>${label}</small><b>${FORM_BY_ID[save.loadout[slot]].name}</b></div>`).join('');
- const goal=formGoal(),goalProgress=formGoalProgress(goal),goalBar=T('formsGoalBar');goalBar.hidden=!goal;if(goal){setTxt('formsGoalName',goal.name);setTxt('formsGoalProgress',goalProgress.owned+' / '+goalProgress.total+' SIGILS · ◆ '+fmt(goal.cost)+' TO AWAKEN');}
- const body=T('formsBody');body.replaceChildren();
- for(const [slot,label] of FORM_SLOTS){const section=document.createElement('section');section.className='form-section';section.innerHTML=`<div class="form-section-title"><h3>${label} FORMS</h3><span>${slot==='primary'?'hold to cast':slot==='flare'?'press K or use the Flare button':'press Space or use the Dash button'}</span></div><div class="form-grid"></div>`;const grid=section.querySelector('.form-grid');
-  for(const f of EMBER_FORMS.filter(q=>q.slot===slot)){
-   const owned=formOwned(f.id),equipped=save.loadout[slot]===f.id,requirementsMet=formRequirementsMet(f),ready=requirementsMet&&save.essence>=f.cost,isGoal=goal?.id===f.id,card=document.createElement('article');
-   card.className='form-card '+(equipped?'equipped ':owned?'owned ':ready?'ready ':'locked ')+(isGoal?'goal ':'');card.style.setProperty('--form',f.color);card.dataset.form=f.id;
-   const state=equipped?'EQUIPPED':owned?'AVAILABLE':ready?'READY TO AWAKEN':requirementsMet?'SIGILS COMPLETE':'LOCKED',sub=owned?'Available before every descent':formRequirementText(f),useLabel=equipped?'EQUIPPED':owned?'EQUIP':ready?'AWAKEN · ◆ '+fmt(f.cost):requirementsMet?'NEED ◆ '+fmt(f.cost):'REQUIRED SIGILS MISSING';
-   card.innerHTML=`<canvas class="form-preview" width="300" height="112" aria-hidden="true"></canvas><div class="form-tag">${f.tag}</div><h4>${f.name}</h4><p>${f.desc}</p><span class="form-effect">${f.effect}</span><div class="form-state"><b>${state}</b><small>${sub}</small></div><div class="form-actions ${owned||!f.req.length?'only':''}"><button class="form-use" type="button">${useLabel}</button>${!owned&&f.req.length?`<button class="form-goal-btn ${isGoal?'active':''}" type="button">${isGoal?'CLEAR GOAL':'SET GOAL'}</button>`:''}</div>`;
-   const use=card.querySelector('.form-use');use.disabled=equipped||(!owned&&!ready);on(use,'click',()=>unlockOrEquipForm(f.id));const goalButton=card.querySelector('.form-goal-btn');if(goalButton)on(goalButton,'click',()=>setFormGoal(f.id));grid.appendChild(card);drawFormPreview(card.querySelector('canvas'),f,performance.now()/1000);
+`;
+  if (document.head) document.head.appendChild(style);
+  else document.body.appendChild(style);
+  const menuButton = document.createElement('button');
+  menuButton.className = 'btn subtle form-sigil-button';
+  menuButton.id = 'btnForms';
+  menuButton.innerHTML = '<span aria-hidden="true">✦</span> EMBER FORMS';
+  T('btnTree').after(menuButton);
+  const treeButton = document.createElement('button');
+  treeButton.className = 'btn tree-forms-button';
+  treeButton.id = 'btnTreeForms';
+  treeButton.style.cssText = 'padding:9px 15px;font-size:10px';
+  treeButton.innerHTML = '<span aria-hidden="true">✦</span> FORMS';
+  T('btnTreeBack').after(treeButton);
+  const treeGoal = document.createElement('div');
+  treeGoal.id = 'treeFormGoal';
+  treeGoal.hidden = true;
+  treeGoal.innerHTML =
+    '<span>FORM GOAL</span><b id="treeFormGoalName"></b><span id="treeFormGoalCount"></span><button id="btnClearFormGoal" aria-label="Clear Form goal">×</button>';
+  treeButton.after(treeGoal);
+  const overlay = document.createElement('div');
+  overlay.id = 'forms';
+  overlay.className = 'ov';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'formsTitle');
+  overlay.innerHTML = `<div class="forms-shell"><header class="forms-head"><div><div class="forms-kicker">PERMANENT EMBERCRAFT · CHOOSE BEFORE A DESCENT</div><h2 id="formsTitle">EMBER FORMS</h2><p>The Ember carries no weapon. It remembers different ways to burn.</p></div><div class="forms-head-actions"><span class="forms-essence" id="formsEssence">◆ 0</span><button class="btn" id="btnFormsBack">BACK</button></div></header><div class="forms-loadout" id="formsLoadout"></div><div class="forms-goal" id="formsGoalBar" hidden><div><small>FORM GOAL</small><b id="formsGoalName"></b><span id="formsGoalProgress"></span></div><button class="btn" id="btnGoalTree">OPEN SKILL TREE</button></div><main class="forms-body" id="formsBody"></main></div>`;
+  document.body.appendChild(overlay);
+  const banner = document.createElement('div');
+  banner.id = 'evolutionBanner';
+  banner.innerHTML =
+    '<div class="evo-kicker">BLESSING EVOLUTION</div><div id="evolutionName"></div><div id="evolutionLine"></div>';
+  document.body.appendChild(banner);
+  const rail = document.createElement('div');
+  rail.id = 'evolutionRail';
+  T('chips').after(rail);
+  on(menuButton, 'click', () => {
+    sfx('ui');
+    openForms('menu');
+  });
+  on(treeButton, 'click', () => {
+    sfx('ui');
+    openForms('skills');
+  });
+  on(T('btnFormsBack'), 'click', () => {
+    sfx('ui');
+    closeForms();
+  });
+  on(T('btnClearFormGoal'), 'click', () => setFormGoal(null));
+  on(T('btnGoalTree'), 'click', () => {
+    hide('forms');
+    openTree('menu');
+    refreshFormGoalHighlights();
+  });
+  addEventListener(
+    'keydown',
+    (e) => {
+      if (e.code === 'Escape' && T('forms').classList.contains('open')) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        closeForms();
+      }
+    },
+    true
+  );
+  if (!formsPreviewStarted) {
+    formsPreviewStarted = true;
+    requestAnimationFrame(animateFormPreviews);
   }
-  body.appendChild(section);
- }
- const codex=document.createElement('section');codex.className='evolution-codex';codex.innerHTML='<h3>Blessing Evolutions</h3><p>Equip a form, then bring its listed blessings together during one descent. The combination awakens on its own.</p><div class="evolution-grid"></div>';const grid=codex.querySelector('.evolution-grid');
- for(const e of EVOLUTION_RECIPES){const found=!!G.run?.evolutions?.includes(e.id),ready=G.run&&recipeReady(e),row=document.createElement('div');row.className='evolution-entry '+(found?'found':ready?'ready':'');row.innerHTML=`<b>${e.name}</b><span>${FORM_BY_ID[e.form].name} · ${recipeText(e)}</span><span>${e.effect}</span>`;grid.appendChild(row);}body.appendChild(codex);
 }
-function drawFormPreview(cv,f,t){
- const x=cv.getContext('2d'),w=cv.width,h=cv.height,c=f.color;x.clearRect(0,0,w,h);const g=x.createRadialGradient(w*.5,h*.52,2,w*.5,h*.52,w*.55);g.addColorStop(0,c+'2f');g.addColorStop(.45,'#151d2a');g.addColorStop(1,'#060911');x.fillStyle=g;x.fillRect(0,0,w,h);x.strokeStyle=c+'18';x.lineWidth=1;for(let i=0;i<9;i++){x.beginPath();x.moveTo((i*47+t*7)%w,0);x.lineTo(((i*47+t*7)%w)-35,h);x.stroke();}const cx=w*.5,cy=h*.53,spin=save.motion?1:t;
- x.save();x.translate(cx,cy);x.globalCompositeOperation='lighter';x.fillStyle='#ff9a4d';x.fillRect(-6,-6,12,14);x.fillStyle='#fff0b0';x.fillRect(-3,-13,6,13);x.fillStyle='#fff';x.fillRect(-1,-11,2,6);for(let i=0;i<3;i++){const a=spin*1.3+i*TAU/3;x.save();x.translate(Math.cos(a)*20,Math.sin(a)*9);x.rotate(a);x.fillStyle=i?c:'#fff1b5';x.fillRect(-4,-2,8,4);x.restore();}
- if(f.slot==='primary')drawPrimaryPreview(x,f.id,spin,c);else if(f.slot==='flare')drawFlarePreview(x,f.id,spin,c);else drawDashPreview(x,f.id,spin,c);x.restore();
+function openForms(from = 'menu') {
+  formsFrom = from;
+  formData();
+  if (from === 'skills') {
+    G.skillsOpen = false;
+    hide('skills');
+  } else hide(from);
+  renderForms();
+  show('forms');
+  T('btnFormsBack').focus({ preventScroll: true });
 }
-function drawPrimaryPreview(x,id,t,c){
- x.lineCap='round';if(id==='emberBolt'){for(let i=0;i<4;i++){x.strokeStyle=i?'#ff9b4f':'#fff2bd';x.globalAlpha=.85-i*.13;x.lineWidth=4-i*.6;x.beginPath();x.moveTo(18+i*5,(i-1.5)*3);x.lineTo(48+i*11,(i-1.5)*3);x.stroke();}}
- else if(id==='sunlance'){x.strokeStyle=c;x.globalAlpha=.28;x.lineWidth=13;x.beginPath();x.moveTo(18,0);x.lineTo(105,0);x.stroke();x.strokeStyle='#fffbe2';x.globalAlpha=.95;x.lineWidth=3;x.stroke();for(let q=38;q<104;q+=17){x.save();x.translate(q,0);x.rotate(Math.PI/4);x.fillStyle=q%2?c:'#fff';x.fillRect(-3,-3,6,6);x.restore();}}
- else if(id==='cinderburst'){for(let i=-4;i<=4;i++){const a=i*.12,rr=42+Math.abs(i)*6;x.strokeStyle=i%2?c:'#fff0a4';x.globalAlpha=.75-Math.abs(i)*.06;x.lineWidth=2.5;x.beginPath();x.moveTo(16,0);x.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);x.stroke();x.fillStyle=c;x.fillRect(Math.cos(a)*rr-3,Math.sin(a)*rr-2,7,4);}}
- else if(id==='starweaver'){for(let i=0;i<4;i++){const q=t*1.8+i*1.4,px=28+i*18,py=Math.sin(q)*13;x.strokeStyle=c;x.globalAlpha=.35;x.beginPath();x.arc(px,py,10,q,q+4.5);x.stroke();x.fillStyle=i%2?'#fff':c;x.globalAlpha=.9;x.save();x.translate(px+8,py);x.rotate(q);x.fillRect(-3,-3,6,6);x.restore();}}
- else{for(let i=0;i<3;i++){x.strokeStyle=i===1?'#fff0c6':c;x.globalAlpha=.42+i*.18;x.lineWidth=2+i;x.beginPath();x.ellipse(56,0,22+i*5,8+i*2,t*(i%2?-.7:.8),0,TAU);x.stroke();}x.fillStyle='#fff';x.save();x.translate(85,0);x.rotate(t);x.fillRect(-4,-4,8,8);x.restore();}
+function closeForms() {
+  hide('forms');
+  if (formsFrom === 'skills') {
+    show('skills');
+    G.skillsOpen = true;
+    fitTree();
+    refreshTreeEss();
+  } else show(formsFrom || 'menu');
 }
-function drawFlarePreview(x,id,t,c){
- x.lineCap='round';if(id==='crownFlare'){for(let i=0;i<5;i++){x.strokeStyle=i<2?'#fff2c2':c;x.globalAlpha=.82-i*.1;x.lineWidth=5-i*.6;x.beginPath();x.arc(0,0,34+i*5,-.85,.85);x.stroke();}}
- else if(id==='novaFlare'){for(let i=0;i<4;i++){x.strokeStyle=i?'#ff9f68':'#fff1bd';x.globalAlpha=.72-i*.1;x.lineWidth=4-i*.5;x.beginPath();x.arc(0,0,31+i*7,t*.1+i*.12,TAU-.35+i*.12);x.stroke();}}
- else if(id==='dawnCrescent'){x.strokeStyle=c;x.globalAlpha=.3;x.lineWidth=12;x.beginPath();x.arc(3,0,75,-.34,.34);x.stroke();x.strokeStyle='#fff';x.globalAlpha=.9;x.lineWidth=2;x.stroke();for(let i=-2;i<=2;i++){x.fillStyle=c;x.fillRect(72+Math.abs(i)*8,i*4-1,12,2);}}
- else{for(let i=0;i<5;i++){x.strokeStyle=i%2?'#e7dcff':c;x.globalAlpha=.25+i*.08;x.lineWidth=2;x.beginPath();x.arc(0,0,25+i*8,t*(i%2?-.5:.4)+i,TAU*.72+t*(i%2?-.5:.4)+i);x.stroke();}x.fillStyle='#090713';x.globalAlpha=.92;x.beginPath();x.arc(0,0,10,0,TAU);x.fill();}
+function formGoal() {
+  const f = FORM_BY_ID[save.formGoal];
+  return f && f.req.length && !formOwned(f.id) ? f : null;
 }
-function drawDashPreview(x,id,t,c){
- const trail=(from,to,y,col,a,w=3)=>{x.strokeStyle=col;x.globalAlpha=a;x.lineWidth=w;x.beginPath();x.moveTo(from,y);x.lineTo(to,y);x.stroke();};if(id==='cinderstep'){for(let i=-2;i<=2;i++)trail(-83,-20,i*6,i?'#ff994e':'#fff0b5',.65-Math.abs(i)*.08,4);}
- else if(id==='riftBlink'){for(let side of [-1,1]){x.strokeStyle=c;x.globalAlpha=.55;x.lineWidth=2;x.beginPath();x.ellipse(side*65,0,9,29,t*.25,0,TAU);x.stroke();}trail(-55,55,0,'#ffffff',.32,2);for(let i=0;i<6;i++){x.fillStyle=c;x.fillRect(-52+i*21,Math.sin(t+i)*13,3,3);}}
- else if(id==='phoenixRush'){for(let i=0;i<8;i++){const px=-91+i*12,py=Math.sin(t*3+i)*9;x.fillStyle=i%3?'#ff754d':'#fff0a1';x.globalAlpha=.35+i*.07;x.fillRect(px,py-7-(i%3)*4,5,12+(i%3)*4);}trail(-80,-18,0,c,.55,5);}
- else{for(let i=0;i<4;i++){x.strokeStyle=i%2?'#ecffff':c;x.globalAlpha=.25+i*.1;x.lineWidth=2;x.beginPath();x.arc(-34,0,17+i*6,t+i,TAU*.75+t+i);x.stroke();}for(let i=0;i<5;i++){x.fillStyle=c;x.save();x.translate(-65+i*16,Math.sin(i+t)*8);x.rotate(Math.PI/4);x.fillRect(-3,-3,6,6);x.restore();}}
+function formGoalPath(f = formGoal()) {
+  const ids = new Set();
+  if (!f) return ids;
+  const visit = (id) => {
+    if (ids.has(id)) return;
+    ids.add(id);
+    const n = NODE_BY_ID[id];
+    for (const p of masteryParents(n || {})) visit(p.id);
+  };
+  for (const id of f.req) visit(id);
+  return ids;
 }
-function animateFormPreviews(ms){if(T('forms')?.classList.contains('open'))for(const cv of document.querySelectorAll('.form-preview')){const f=FORM_BY_ID[cv.closest('.form-card')?.dataset.form];if(f)drawFormPreview(cv,f,ms/1000);}requestAnimationFrame(animateFormPreviews);}
+function formGoalProgress(f = formGoal()) {
+  const path = formGoalPath(f),
+    owned = [...path].filter((id) => save.nodes?.[id]).length;
+  return {
+    owned,
+    total: path.size,
+    targets: f ? f.req.filter((id) => save.nodes?.[id]).length : 0,
+    targetTotal: f?.req.length || 0,
+  };
+}
+function setFormGoal(id) {
+  const f = FORM_BY_ID[id];
+  save.formGoal = f && f.req.length && !formOwned(id) && save.formGoal !== id ? id : null;
+  saveNow();
+  refreshFormGoalHighlights();
+  if (T('forms')?.classList.contains('open')) renderForms();
+  const goal = formGoal();
+  if (goal) {
+    toast('FORM GOAL · ' + goal.name, 'required sigils now glow in the Skill Tree');
+    sfx('formGoal');
+  } else sfx('ui');
+}
+function refreshFormGoalHighlights() {
+  const f = formGoal(),
+    path = formGoalPath(f),
+    targets = new Set(f?.req || []),
+    progress = formGoalProgress(f),
+    pill = T('treeFormGoal');
+  if (pill) {
+    pill.hidden = !f;
+    if (f) {
+      setTxt('treeFormGoalName', f.name);
+      setTxt('treeFormGoalCount', progress.owned + ' / ' + progress.total);
+    }
+  }
+  for (const el of document.querySelectorAll('[data-node]')) {
+    const id = el.dataset.node;
+    el.classList.toggle('form-goal-node', path.has(id));
+    el.classList.toggle('form-goal-target', targets.has(id));
+    el.classList.toggle('form-goal-owned', path.has(id) && !!save.nodes?.[id]);
+  }
+}
+function unlockOrEquipForm(id) {
+  const f = FORM_BY_ID[id];
+  if (!f) return;
+  formData();
+  if (!formOwned(id)) {
+    if (!formRequirementsMet(f) || save.essence < f.cost) {
+      sfx('deny');
+      return;
+    }
+    save.essence -= f.cost;
+    save.forms[id] = true;
+    saveNow();
+    sfx('formUnlock');
+  }
+  save.loadout[f.slot] = id;
+  if (save.formGoal === id) {
+    save.formGoal = null;
+    toast('FORM AWAKENED · ' + f.name, 'goal complete');
+  }
+  saveNow();
+  renderForms();
+  refreshFormGoalHighlights();
+  refreshMenuStats();
+  sfx('buy');
+}
+function renderForms() {
+  formData();
+  setTxt('formsEssence', '◆ ' + fmt(save.essence));
+  const load = T('formsLoadout');
+  load.innerHTML = FORM_SLOTS.map(
+    ([slot, label]) =>
+      `<div><small>${label}</small><b>${FORM_BY_ID[save.loadout[slot]].name}</b></div>`
+  ).join('');
+  const goal = formGoal(),
+    goalProgress = formGoalProgress(goal),
+    goalBar = T('formsGoalBar');
+  goalBar.hidden = !goal;
+  if (goal) {
+    setTxt('formsGoalName', goal.name);
+    setTxt(
+      'formsGoalProgress',
+      goalProgress.owned +
+        ' / ' +
+        goalProgress.total +
+        ' SIGILS · ◆ ' +
+        fmt(goal.cost) +
+        ' TO AWAKEN'
+    );
+  }
+  const body = T('formsBody');
+  body.replaceChildren();
+  for (const [slot, label] of FORM_SLOTS) {
+    const section = document.createElement('section');
+    section.className = 'form-section';
+    section.innerHTML = `<div class="form-section-title"><h3>${label} FORMS</h3><span>${slot === 'primary' ? 'hold to cast' : slot === 'flare' ? 'press K or use the Flare button' : 'press Space or use the Dash button'}</span></div><div class="form-grid"></div>`;
+    const grid = section.querySelector('.form-grid');
+    for (const f of EMBER_FORMS.filter((q) => q.slot === slot)) {
+      const owned = formOwned(f.id),
+        equipped = save.loadout[slot] === f.id,
+        requirementsMet = formRequirementsMet(f),
+        ready = requirementsMet && save.essence >= f.cost,
+        isGoal = goal?.id === f.id,
+        card = document.createElement('article');
+      card.className =
+        'form-card ' +
+        (equipped ? 'equipped ' : owned ? 'owned ' : ready ? 'ready ' : 'locked ') +
+        (isGoal ? 'goal ' : '');
+      card.style.setProperty('--form', f.color);
+      card.dataset.form = f.id;
+      const state = equipped
+          ? 'EQUIPPED'
+          : owned
+            ? 'AVAILABLE'
+            : ready
+              ? 'READY TO AWAKEN'
+              : requirementsMet
+                ? 'SIGILS COMPLETE'
+                : 'LOCKED',
+        sub = owned ? 'Available before every descent' : formRequirementText(f),
+        useLabel = equipped
+          ? 'EQUIPPED'
+          : owned
+            ? 'EQUIP'
+            : ready
+              ? 'AWAKEN · ◆ ' + fmt(f.cost)
+              : requirementsMet
+                ? 'NEED ◆ ' + fmt(f.cost)
+                : 'REQUIRED SIGILS MISSING';
+      card.innerHTML = `<canvas class="form-preview" width="300" height="112" aria-hidden="true"></canvas><div class="form-tag">${f.tag}</div><h4>${f.name}</h4><p>${f.desc}</p><span class="form-effect">${f.effect}</span><div class="form-state"><b>${state}</b><small>${sub}</small></div><div class="form-actions ${owned || !f.req.length ? 'only' : ''}"><button class="form-use" type="button">${useLabel}</button>${!owned && f.req.length ? `<button class="form-goal-btn ${isGoal ? 'active' : ''}" type="button">${isGoal ? 'CLEAR GOAL' : 'SET GOAL'}</button>` : ''}</div>`;
+      const use = card.querySelector('.form-use');
+      use.disabled = equipped || (!owned && !ready);
+      on(use, 'click', () => unlockOrEquipForm(f.id));
+      const goalButton = card.querySelector('.form-goal-btn');
+      if (goalButton) on(goalButton, 'click', () => setFormGoal(f.id));
+      grid.appendChild(card);
+      drawFormPreview(card.querySelector('canvas'), f, performance.now() / 1000);
+    }
+    body.appendChild(section);
+  }
+  const codex = document.createElement('section');
+  codex.className = 'evolution-codex';
+  codex.innerHTML =
+    '<h3>Blessing Evolutions</h3><p>Equip a form, then bring its listed blessings together during one descent. The combination awakens on its own.</p><div class="evolution-grid"></div>';
+  const grid = codex.querySelector('.evolution-grid');
+  for (const e of EVOLUTION_RECIPES) {
+    const found = !!G.run?.evolutions?.includes(e.id),
+      ready = G.run && recipeReady(e),
+      row = document.createElement('div');
+    row.className = 'evolution-entry ' + (found ? 'found' : ready ? 'ready' : '');
+    row.innerHTML = `<b>${e.name}</b><span>${FORM_BY_ID[e.form].name} · ${recipeText(e)}</span><span>${e.effect}</span>`;
+    grid.appendChild(row);
+  }
+  body.appendChild(codex);
+}
+function drawFormPreview(cv, f, t) {
+  const x = cv.getContext('2d'),
+    w = cv.width,
+    h = cv.height,
+    c = f.color;
+  x.clearRect(0, 0, w, h);
+  const g = x.createRadialGradient(w * 0.5, h * 0.52, 2, w * 0.5, h * 0.52, w * 0.55);
+  g.addColorStop(0, c + '2f');
+  g.addColorStop(0.45, '#151d2a');
+  g.addColorStop(1, '#060911');
+  x.fillStyle = g;
+  x.fillRect(0, 0, w, h);
+  x.strokeStyle = c + '18';
+  x.lineWidth = 1;
+  for (let i = 0; i < 9; i++) {
+    x.beginPath();
+    x.moveTo((i * 47 + t * 7) % w, 0);
+    x.lineTo(((i * 47 + t * 7) % w) - 35, h);
+    x.stroke();
+  }
+  const cx = w * 0.5,
+    cy = h * 0.53,
+    spin = save.motion ? 1 : t;
+  x.save();
+  x.translate(cx, cy);
+  x.globalCompositeOperation = 'lighter';
+  x.fillStyle = '#ff9a4d';
+  x.fillRect(-6, -6, 12, 14);
+  x.fillStyle = '#fff0b0';
+  x.fillRect(-3, -13, 6, 13);
+  x.fillStyle = '#fff';
+  x.fillRect(-1, -11, 2, 6);
+  for (let i = 0; i < 3; i++) {
+    const a = spin * 1.3 + (i * TAU) / 3;
+    x.save();
+    x.translate(Math.cos(a) * 20, Math.sin(a) * 9);
+    x.rotate(a);
+    x.fillStyle = i ? c : '#fff1b5';
+    x.fillRect(-4, -2, 8, 4);
+    x.restore();
+  }
+  if (f.slot === 'primary') drawPrimaryPreview(x, f.id, spin, c);
+  else if (f.slot === 'flare') drawFlarePreview(x, f.id, spin, c);
+  else drawDashPreview(x, f.id, spin, c);
+  x.restore();
+}
+function drawPrimaryPreview(x, id, t, c) {
+  x.lineCap = 'round';
+  if (id === 'emberBolt') {
+    for (let i = 0; i < 4; i++) {
+      x.strokeStyle = i ? '#ff9b4f' : '#fff2bd';
+      x.globalAlpha = 0.85 - i * 0.13;
+      x.lineWidth = 4 - i * 0.6;
+      x.beginPath();
+      x.moveTo(18 + i * 5, (i - 1.5) * 3);
+      x.lineTo(48 + i * 11, (i - 1.5) * 3);
+      x.stroke();
+    }
+  } else if (id === 'sunlance') {
+    x.strokeStyle = c;
+    x.globalAlpha = 0.28;
+    x.lineWidth = 13;
+    x.beginPath();
+    x.moveTo(18, 0);
+    x.lineTo(105, 0);
+    x.stroke();
+    x.strokeStyle = '#fffbe2';
+    x.globalAlpha = 0.95;
+    x.lineWidth = 3;
+    x.stroke();
+    for (let q = 38; q < 104; q += 17) {
+      x.save();
+      x.translate(q, 0);
+      x.rotate(Math.PI / 4);
+      x.fillStyle = q % 2 ? c : '#fff';
+      x.fillRect(-3, -3, 6, 6);
+      x.restore();
+    }
+  } else if (id === 'cinderburst') {
+    for (let i = -4; i <= 4; i++) {
+      const a = i * 0.12,
+        rr = 42 + Math.abs(i) * 6;
+      x.strokeStyle = i % 2 ? c : '#fff0a4';
+      x.globalAlpha = 0.75 - Math.abs(i) * 0.06;
+      x.lineWidth = 2.5;
+      x.beginPath();
+      x.moveTo(16, 0);
+      x.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+      x.stroke();
+      x.fillStyle = c;
+      x.fillRect(Math.cos(a) * rr - 3, Math.sin(a) * rr - 2, 7, 4);
+    }
+  } else if (id === 'starweaver') {
+    for (let i = 0; i < 4; i++) {
+      const q = t * 1.8 + i * 1.4,
+        px = 28 + i * 18,
+        py = Math.sin(q) * 13;
+      x.strokeStyle = c;
+      x.globalAlpha = 0.35;
+      x.beginPath();
+      x.arc(px, py, 10, q, q + 4.5);
+      x.stroke();
+      x.fillStyle = i % 2 ? '#fff' : c;
+      x.globalAlpha = 0.9;
+      x.save();
+      x.translate(px + 8, py);
+      x.rotate(q);
+      x.fillRect(-3, -3, 6, 6);
+      x.restore();
+    }
+  } else {
+    for (let i = 0; i < 3; i++) {
+      x.strokeStyle = i === 1 ? '#fff0c6' : c;
+      x.globalAlpha = 0.42 + i * 0.18;
+      x.lineWidth = 2 + i;
+      x.beginPath();
+      x.ellipse(56, 0, 22 + i * 5, 8 + i * 2, t * (i % 2 ? -0.7 : 0.8), 0, TAU);
+      x.stroke();
+    }
+    x.fillStyle = '#fff';
+    x.save();
+    x.translate(85, 0);
+    x.rotate(t);
+    x.fillRect(-4, -4, 8, 8);
+    x.restore();
+  }
+}
+function drawFlarePreview(x, id, t, c) {
+  x.lineCap = 'round';
+  if (id === 'crownFlare') {
+    for (let i = 0; i < 5; i++) {
+      x.strokeStyle = i < 2 ? '#fff2c2' : c;
+      x.globalAlpha = 0.82 - i * 0.1;
+      x.lineWidth = 5 - i * 0.6;
+      x.beginPath();
+      x.arc(0, 0, 34 + i * 5, -0.85, 0.85);
+      x.stroke();
+    }
+  } else if (id === 'novaFlare') {
+    for (let i = 0; i < 4; i++) {
+      x.strokeStyle = i ? '#ff9f68' : '#fff1bd';
+      x.globalAlpha = 0.72 - i * 0.1;
+      x.lineWidth = 4 - i * 0.5;
+      x.beginPath();
+      x.arc(0, 0, 31 + i * 7, t * 0.1 + i * 0.12, TAU - 0.35 + i * 0.12);
+      x.stroke();
+    }
+  } else if (id === 'dawnCrescent') {
+    x.strokeStyle = c;
+    x.globalAlpha = 0.3;
+    x.lineWidth = 12;
+    x.beginPath();
+    x.arc(3, 0, 75, -0.34, 0.34);
+    x.stroke();
+    x.strokeStyle = '#fff';
+    x.globalAlpha = 0.9;
+    x.lineWidth = 2;
+    x.stroke();
+    for (let i = -2; i <= 2; i++) {
+      x.fillStyle = c;
+      x.fillRect(72 + Math.abs(i) * 8, i * 4 - 1, 12, 2);
+    }
+  } else {
+    for (let i = 0; i < 5; i++) {
+      x.strokeStyle = i % 2 ? '#e7dcff' : c;
+      x.globalAlpha = 0.25 + i * 0.08;
+      x.lineWidth = 2;
+      x.beginPath();
+      x.arc(
+        0,
+        0,
+        25 + i * 8,
+        t * (i % 2 ? -0.5 : 0.4) + i,
+        TAU * 0.72 + t * (i % 2 ? -0.5 : 0.4) + i
+      );
+      x.stroke();
+    }
+    x.fillStyle = '#090713';
+    x.globalAlpha = 0.92;
+    x.beginPath();
+    x.arc(0, 0, 10, 0, TAU);
+    x.fill();
+  }
+}
+function drawDashPreview(x, id, t, c) {
+  const trail = (from, to, y, col, a, w = 3) => {
+    x.strokeStyle = col;
+    x.globalAlpha = a;
+    x.lineWidth = w;
+    x.beginPath();
+    x.moveTo(from, y);
+    x.lineTo(to, y);
+    x.stroke();
+  };
+  if (id === 'cinderstep') {
+    for (let i = -2; i <= 2; i++)
+      trail(-83, -20, i * 6, i ? '#ff994e' : '#fff0b5', 0.65 - Math.abs(i) * 0.08, 4);
+  } else if (id === 'riftBlink') {
+    for (let side of [-1, 1]) {
+      x.strokeStyle = c;
+      x.globalAlpha = 0.55;
+      x.lineWidth = 2;
+      x.beginPath();
+      x.ellipse(side * 65, 0, 9, 29, t * 0.25, 0, TAU);
+      x.stroke();
+    }
+    trail(-55, 55, 0, '#ffffff', 0.32, 2);
+    for (let i = 0; i < 6; i++) {
+      x.fillStyle = c;
+      x.fillRect(-52 + i * 21, Math.sin(t + i) * 13, 3, 3);
+    }
+  } else if (id === 'phoenixRush') {
+    for (let i = 0; i < 8; i++) {
+      const px = -91 + i * 12,
+        py = Math.sin(t * 3 + i) * 9;
+      x.fillStyle = i % 3 ? '#ff754d' : '#fff0a1';
+      x.globalAlpha = 0.35 + i * 0.07;
+      x.fillRect(px, py - 7 - (i % 3) * 4, 5, 12 + (i % 3) * 4);
+    }
+    trail(-80, -18, 0, c, 0.55, 5);
+  } else {
+    for (let i = 0; i < 4; i++) {
+      x.strokeStyle = i % 2 ? '#ecffff' : c;
+      x.globalAlpha = 0.25 + i * 0.1;
+      x.lineWidth = 2;
+      x.beginPath();
+      x.arc(-34, 0, 17 + i * 6, t + i, TAU * 0.75 + t + i);
+      x.stroke();
+    }
+    for (let i = 0; i < 5; i++) {
+      x.fillStyle = c;
+      x.save();
+      x.translate(-65 + i * 16, Math.sin(i + t) * 8);
+      x.rotate(Math.PI / 4);
+      x.fillRect(-3, -3, 6, 6);
+      x.restore();
+    }
+  }
+}
+function animateFormPreviews(ms) {
+  if (T('forms')?.classList.contains('open'))
+    for (const cv of document.querySelectorAll('.form-preview')) {
+      const f = FORM_BY_ID[cv.closest('.form-card')?.dataset.form];
+      if (f) drawFormPreview(cv, f, ms / 1000);
+    }
+  requestAnimationFrame(animateFormPreviews);
+}
 
-const formsValidateSave=validateSave;
-validateSave=function(raw){const clean=formsValidateSave(raw),forms={},loadout={...FORM_DEFAULTS};for(const id of Object.values(FORM_DEFAULTS))forms[id]=true;if(raw.forms&&typeof raw.forms==='object')for(const f of EMBER_FORMS)if(raw.forms[f.id]===true)forms[f.id]=true;if(raw.loadout&&typeof raw.loadout==='object')for(const [slot,def] of Object.entries(FORM_DEFAULTS)){const id=raw.loadout[slot],f=FORM_BY_ID[id];if(f&&f.slot===slot&&forms[id])loadout[slot]=id;else loadout[slot]=def;}const goal=FORM_BY_ID[raw.formGoal];clean.forms=forms;clean.loadout=loadout;clean.formGoal=goal&&goal.req.length&&!forms[goal.id]?goal.id:null;return clean;};
-const formsStartRun=startRun;
-startRun=function(){formsStartRun();if(!G.run)return;G.run.forms=normalizeRunForms(save.loadout);G.run.evolutions=[];G.run.formCasts=0;recalc();renderEvolutionChips();updateHUD(0);saveNow();};
-const formsResumeRun=resumeRun;
-resumeRun=function(){formsResumeRun();if(!G.run)return;G.run.forms=normalizeRunForms(G.run.forms);G.run.evolutions=Array.isArray(G.run.evolutions)?G.run.evolutions.filter(id=>EVOLUTION_BY_ID[id]):[];checkEvolutions(false);recalc();renderEvolutionChips();updateHUD(0);};
-const formsResetEverything=resetEverything;
-resetEverything=function(){formsResetEverything();formData();renderEvolutionChips();};
-
-const formsRecalc=recalc;
-recalc=function(){
- MELEE.damage=2.25;MELEE.reach=74;MELEE.halfArc=.9;MELEE.windup=.16;MELEE.swing=.23;MELEE.cooldown=MELEE.baseCooldown;MELEE.cleave=[1,.72,.55,.4];formsRecalc();if(!G.player||!G.run)return;const p=G.player,primary=activeForm('primary').id,flare=activeForm('flare').id,dash=activeForm('dash').id;
- if(primary==='sunlance')p.shotInt*=1.65;else if(primary==='cinderburst')p.shotInt*=1.32;else if(primary==='starweaver')p.shotInt*=1.27;else if(primary==='ashDisc')p.shotInt*=2.25;
- if(flare==='novaFlare'){MELEE.damage*=.78;MELEE.reach=Math.max(MELEE.reach,92);MELEE.halfArc=Math.PI;MELEE.cooldown*=1.18;MELEE.cleave=Array.from({length:16},(_,i)=>Math.max(.38,1-i*.045));}
- else if(flare==='dawnCrescent'){MELEE.damage*=1.64;MELEE.reach=Math.max(MELEE.reach,138);MELEE.halfArc=.36;MELEE.cooldown*=1.13;MELEE.cleave=[1,.82,.68,.5];}
- else if(flare==='gravityPulse'){MELEE.damage*=.76;MELEE.reach=Math.max(MELEE.reach,114);MELEE.halfArc=Math.PI;MELEE.cooldown*=1.34;MELEE.cleave=Array.from({length:20},(_,i)=>Math.max(.3,1-i*.04));}
- if(dash==='riftBlink'){p.dashDistance=(p.dashDistance||1)*1.44;p.dashCd*=1.14;}else if(dash==='phoenixRush'){p.dashDistance=(p.dashDistance||1)*.84;p.dashCd*=1.04;}else if(dash==='aegisFold'){p.dashDistance=(p.dashDistance||1)*.78;p.dashCd*=1.14;}
- if(hasEvolution('voidstep')){p.dashDistance*=1.13;p.dashCd*=.84;}
+const formsValidateSave = validateSave;
+validateSave = function (raw) {
+  const clean = formsValidateSave(raw),
+    forms = {},
+    loadout = { ...FORM_DEFAULTS };
+  for (const id of Object.values(FORM_DEFAULTS)) forms[id] = true;
+  if (raw.forms && typeof raw.forms === 'object')
+    for (const f of EMBER_FORMS) if (raw.forms[f.id] === true) forms[f.id] = true;
+  if (raw.loadout && typeof raw.loadout === 'object')
+    for (const [slot, def] of Object.entries(FORM_DEFAULTS)) {
+      const id = raw.loadout[slot],
+        f = FORM_BY_ID[id];
+      if (f && f.slot === slot && forms[id]) loadout[slot] = id;
+      else loadout[slot] = def;
+    }
+  const goal = FORM_BY_ID[raw.formGoal];
+  clean.forms = forms;
+  clean.loadout = loadout;
+  clean.formGoal = goal && goal.req.length && !forms[goal.id] ? goal.id : null;
+  return clean;
+};
+const formsStartRun = startRun;
+startRun = function () {
+  formsStartRun();
+  if (!G.run) return;
+  G.run.forms = normalizeRunForms(save.loadout);
+  G.run.evolutions = [];
+  G.run.formCasts = 0;
+  recalc();
+  renderEvolutionChips();
+  updateHUD(0);
+  saveNow();
+};
+const formsResumeRun = resumeRun;
+resumeRun = function () {
+  formsResumeRun();
+  if (!G.run) return;
+  G.run.forms = normalizeRunForms(G.run.forms);
+  G.run.evolutions = Array.isArray(G.run.evolutions)
+    ? G.run.evolutions.filter((id) => EVOLUTION_BY_ID[id])
+    : [];
+  checkEvolutions(false);
+  recalc();
+  renderEvolutionChips();
+  updateHUD(0);
+};
+const formsResetEverything = resetEverything;
+resetEverything = function () {
+  formsResetEverything();
+  formData();
+  renderEvolutionChips();
 };
 
-function rotateBullet(b,turn){const speed=Math.hypot(b.vx,b.vy),a=Math.atan2(b.vy,b.vx)+turn;b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
-function cloneBulletAtAngle(src,turn,mul=1){const b={...src,hits:null,whiteStar:false};rotateBullet(b,turn);b.dmg*=mul;return b;}
-const formsFireVolley=fireVolley;
-fireVolley=function(){
- const p=G.player,start=G.bullets.length,ammo=p?.ammo;formsFireVolley();if(!p||G.bullets.length===start||p.ammo===ammo)return;const primary=activeForm('primary').id,created=G.bullets.slice(start);G.run.formCasts=(G.run.formCasts||0)+1;
- for(const b of created){b.emberForm=primary;if(primary==='sunlance'){b.dmg*=2.15;b.r+=3;b.pierce=(b.pierce||0)+4;b.life*=1.28;b.vx*=.88;b.vy*=.88;}else if(primary==='cinderburst'){b.dmg*=.42;b.r=Math.max(3,b.r-1);b.life=Math.min(b.life,.47);b.vx*=.9;b.vy*=.9;}else if(primary==='starweaver'){b.dmg*=1.24;b.r+=1;b.life*=1.65;b.vx*=.72;b.vy*=.72;b.seeking=Math.max(b.seeking||0,.15);}else if(primary==='ashDisc'){b.dmg*=2.8;b.r=Math.max(10,b.r+4);b.life*=2.25;b.vx*=.58;b.vy*=.58;b.pierce=(b.pierce||0)+1;b.ric=(b.ric||0)+5;b.ricRange=Math.max(b.ricRange||0,390);b.ricPower=Math.max(b.ricPower||0,.88);}}
- if(primary==='cinderburst'){const spread=hasEvolution('thousandEmbers')?[-.32,-.24,-.16,-.08,.08,.16,.24,.32]:[-.22,-.11,.11,.22];for(const src of created.slice(0,4))for(const a of spread)G.bullets.push(cloneBulletAtAngle(src,a,hasEvolution('thousandEmbers')?.92:1));}
- if(primary==='starweaver'&&hasEvolution('constellationChoir')&&G.run.formCasts%6===0){for(let i=0;i<3;i++){const a=(p.orbA||0)+i*TAU/3,aim=p.face+(i-1)*.18;G.bullets.push({x:p.x+Math.cos(a)*64,y:p.y+Math.sin(a)*64,vx:Math.cos(aim)*BASE.bulletSpd*.62,vy:Math.sin(aim)*BASE.bulletSpd*.62,r:8,dmg:p.dmg*2.1,pierce:2,ric:1,life:2,hits:null,seeking:.2,emberForm:'starweaver',choir:true,whiteStar:false});}sfx('formChoir');}
- if(primary==='ashDisc'&&hasEvolution('returningSun')){for(const b of created){b.ricPower=1.09;b.ric+=4;b.returningSun=true;}const src=created[0];if(src){const back=cloneBulletAtAngle(src,Math.PI,.58);back.r*=.72;back.vx*=.82;back.vy*=.82;back.ric=5;back.returningSun=true;G.bullets.push(back);}}
- if(primary==='sunlance'&&hasEvolution('solarSpear')&&G.run.formCasts%4===0)for(const b of created){b.dmg*=2.4;b.r+=5;b.pierce+=8;b.whiteStar=true;b.solar=true;}
- if(primary==='emberBolt'&&hasEvolution('heartOfCinders'))for(const b of created){b.burn=Math.max(b.burn||0,4);b.blast=Math.max(b.blast||0,3);b.heartCinder=true;}
- if(primary==='emberBolt'&&hasEvolution('firstLight')&&G.run.formCasts%8===0){for(let i=-3;i<=3;i++){const a=p.face+i*.16;G.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*BASE.bulletSpd*.9,vy:Math.sin(a)*BASE.bulletSpd*.9,r:10,dmg:p.dmg*2.4,pierce:5,ric:0,life:1.6,hits:null,emberForm:'sunlance',solar:true,whiteStar:true});}sfx('formEvolution');}
- sfx('formCast',primary);
+const formsRecalc = recalc;
+recalc = function () {
+  MELEE.damage = 2.25;
+  MELEE.reach = 74;
+  MELEE.halfArc = 0.9;
+  MELEE.windup = 0.16;
+  MELEE.swing = 0.23;
+  MELEE.cooldown = MELEE.baseCooldown;
+  MELEE.cleave = [1, 0.72, 0.55, 0.4];
+  formsRecalc();
+  if (!G.player || !G.run) return;
+  const p = G.player,
+    primary = activeForm('primary').id,
+    flare = activeForm('flare').id,
+    dash = activeForm('dash').id;
+  if (primary === 'sunlance') p.shotInt *= 1.65;
+  else if (primary === 'cinderburst') p.shotInt *= 1.32;
+  else if (primary === 'starweaver') p.shotInt *= 1.27;
+  else if (primary === 'ashDisc') p.shotInt *= 2.25;
+  if (flare === 'novaFlare') {
+    MELEE.damage *= 0.78;
+    MELEE.reach = Math.max(MELEE.reach, 92);
+    MELEE.halfArc = Math.PI;
+    MELEE.cooldown *= 1.18;
+    MELEE.cleave = Array.from({ length: 16 }, (_, i) => Math.max(0.38, 1 - i * 0.045));
+  } else if (flare === 'dawnCrescent') {
+    MELEE.damage *= 1.64;
+    MELEE.reach = Math.max(MELEE.reach, 138);
+    MELEE.halfArc = 0.36;
+    MELEE.cooldown *= 1.13;
+    MELEE.cleave = [1, 0.82, 0.68, 0.5];
+  } else if (flare === 'gravityPulse') {
+    MELEE.damage *= 0.76;
+    MELEE.reach = Math.max(MELEE.reach, 114);
+    MELEE.halfArc = Math.PI;
+    MELEE.cooldown *= 1.34;
+    MELEE.cleave = Array.from({ length: 20 }, (_, i) => Math.max(0.3, 1 - i * 0.04));
+  }
+  if (dash === 'riftBlink') {
+    p.dashDistance = (p.dashDistance || 1) * 1.44;
+    p.dashCd *= 1.14;
+  } else if (dash === 'phoenixRush') {
+    p.dashDistance = (p.dashDistance || 1) * 0.84;
+    p.dashCd *= 1.04;
+  } else if (dash === 'aegisFold') {
+    p.dashDistance = (p.dashDistance || 1) * 0.78;
+    p.dashCd *= 1.14;
+  }
+  if (hasEvolution('voidstep')) {
+    p.dashDistance *= 1.13;
+    p.dashCd *= 0.84;
+  }
 };
 
-const formsStrikeMelee=strikeMelee;
-strikeMelee=function(){
- const p=G.player;if(!p)return formsStrikeMelee();const form=activeForm('flare').id,a=p.meleeAngle;formsStrikeMelee();
- if(form==='novaFlare'){for(const e of G.enemies)if(!e.dead&&d2(e.x,e.y,p.x,p.y)<(MELEE.reach+e.r)**2){const q=Math.atan2(e.y-p.y,e.x-p.x);e.kbx+=Math.cos(q)*90;e.kby+=Math.sin(q)*90;}if(hasEvolution('hearthNova')){p.guardT=Math.max(p.guardT||0,2.2);G.run.aftershocks=G.run.aftershocks||[];G.run.aftershocks.push({x:p.x,y:p.y,t:.32,rank:3.2});}}
- else if(form==='dawnCrescent'){const turns=hasEvolution('wardensMoon')?[-.2,.2]:[0];for(const turn of turns){const q=a+turn;G.bullets.push({x:p.x+Math.cos(q)*24,y:p.y+Math.sin(q)*24,vx:Math.cos(q)*520,vy:Math.sin(q)*520,r:hasEvolution('wardensMoon')?15:12,dmg:p.dmg*MELEE.damage*(hasEvolution('wardensMoon')?.7:.48),pierce:14,ric:0,life:.72,hits:null,melee:true,emberForm:'dawnCrescent',moon:hasEvolution('wardensMoon'),whiteStar:false});}}
- else if(form==='gravityPulse'){let folded=0;for(const e of G.enemies){if(e.dead)continue;const d=Math.max(1,Math.hypot(e.x-p.x,e.y-p.y));if(d<245){const force=e.isBoss?65:260;e.kbx+=(p.x-e.x)/d*force;e.kby+=(p.y-e.y)/d*force;}}G.ebul=G.ebul.filter(b=>{if(d2(b.x,b.y,p.x,p.y)<145**2){folded++;return false;}return true;});if(folded)p.guardT=Math.max(p.guardT||0,.3);if(hasEvolution('eventHorizon')){G.run.cardFields=G.run.cardFields||[];G.run.cardFields.push({x:p.x+Math.cos(a)*86,y:p.y+Math.sin(a)*86,t:7,tick:0,kind:'blackHole',rank:3,mythicReforged:true});sfx('formGravity');}}
- sfx('formFlare',form);
-};
-
-function nearestEnemyFrom(x,y){return (G.enemies||[]).filter(e=>!e.dead).sort((a,b)=>d2(a.x,a.y,x,y)-d2(b.x,b.y,x,y))[0]||null;}
-function foldHostileShots(radius,reflectAll=false){
- const p=G.player;if(!p)return 0;let folded=0;const keep=[];for(const b of G.ebul){if(d2(b.x,b.y,p.x,p.y)>radius*radius||(!reflectAll&&folded>=5)){keep.push(b);continue;}folded++;if(reflectAll){const target=nearestEnemyFrom(b.x,b.y),a=target?Math.atan2(target.y-b.y,target.x-b.x):p.face,speed=Math.max(390,Math.hypot(b.vx,b.vy));G.bullets.push({x:b.x,y:b.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,r:6,dmg:p.dmg*2.1,pierce:2,ric:1,life:1.4,hits:null,seeking:.16,emberForm:'aegisFold',aegisReturn:true,whiteStar:false});}}G.ebul=keep;if(folded){burst(p.x,p.y,8,reflectAll?'#b9fff1':'#a9d8d4',150,.35,2,true);sfx('formFold');}return folded;
+function rotateBullet(b, turn) {
+  const speed = Math.hypot(b.vx, b.vy),
+    a = Math.atan2(b.vy, b.vx) + turn;
+  b.vx = Math.cos(a) * speed;
+  b.vy = Math.sin(a) * speed;
 }
-const formsTickBlessings=tickBlessings;
-tickBlessings=function(dt){
- const p=G.player;if(!p){formsTickBlessings(dt);return;}formsTickBlessings(dt);const dash=activeForm('dash').id,started=p.dashT>0&&!p._formWasDashing,ended=p.dashT<=0&&p._formWasDashing;
- if(started){p.formDashStartX=p.x;p.formDashStartY=p.y;if(dash==='riftBlink')p.dashT+=.04;if(dash==='aegisFold')foldHostileShots(hasEvolution('mirrorGate')?245:155,hasEvolution('mirrorGate'));if(hasEvolution('voidstep'))foldHostileShots(125,false);sfx('formDash',dash);}
- if(p.dashT>0&&dash==='phoenixRush'){p.formWakeT=(p.formWakeT||0)-dt;if(p.formWakeT<=0){p.formWakeT=.035;G.run.wake=G.run.wake||[];G.run.wake.push({x:p.x,y:p.y,t:hasEvolution('wildfireEngine')?1.15:.62,rank:hasEvolution('wildfireEngine')?6:3});}}
- if(ended){if(dash==='phoenixRush'){nova(p.x,p.y,hasEvolution('wildfireEngine')?112:62,p.dmg*(hasEvolution('wildfireEngine')?2.6:.72));}if(hasEvolution('voidstep')){nova(p.formDashStartX,p.formDashStartY,70,p.dmg*.65);nova(p.x,p.y,95,p.dmg*1.2);foldHostileShots(125,false);}}
- p._formWasDashing=p.dashT>0;
-};
-
-const formsChooseCard=chooseCard;
-chooseCard=function(i){formsChooseCard(i);if(G.run){checkEvolutions(true);recalc();updateHUD(0);saveNow();}};
-const formsKillEnemy=killEnemy;
-killEnemy=function(e){const was=e?.dead,kills=G.run?.kills||0;formsKillEnemy(e);if(was||!e?.dead||!G.run)return;if(hasEvolution('voidstep')&&G.run.kills>kills){G.run.voidstepKills=(G.run.voidstepKills||0)+1;if(G.run.voidstepKills%10===0){G.player.dashCdT=0;addText(G.player.x,G.player.y-22,'VOIDSTEP READY','#b9c8ff',11);}}};
-
-const formsSyncWeaponHUD=syncWeaponHUD;
-syncWeaponHUD=function(){formsSyncWeaponHUD();const p=G.player;if(!p||!G.run)return;const primary=activeForm('primary'),flare=activeForm('flare'),dash=activeForm('dash');if(p.reloadT<=0&&p.ammo>0)setTxt('weaponStatus',primary.name.toUpperCase());const melee=T('btnMelee');if(melee){melee.setAttribute('aria-label','Release '+flare.name);for(const n of melee.childNodes||[])if(n.nodeType===3&&n.textContent.includes('FLARE'))n.textContent=' '+flare.name.toUpperCase()+' · ';}const ready=T('bladeReady');if(ready)ready.textContent=p.meleeCdT>0?flare.name.toUpperCase()+' RECOVERING':flare.name.toUpperCase()+' READY';T('dashwrap')?.setAttribute('title',dash.name+' — '+dash.effect);};
-
-const formsDrawBullets=drawBullets;
-drawBullets=function(ctx){
- formsDrawBullets(ctx);const t=save.motion?0:G.tAll;ctx.save();ctx.globalCompositeOperation='lighter';for(const b of G.bullets){if(!b.emberForm||b.melee)continue;const a=Math.atan2(b.vy,b.vx),speed=Math.max(1,Math.hypot(b.vx,b.vy));ctx.save();ctx.translate(b.x,b.y);ctx.rotate(a);if(b.emberForm==='sunlance'){ctx.strokeStyle=b.solar?'#ffffff':'#fff0aa';ctx.globalAlpha=b.solar?.92:.68;ctx.lineWidth=b.solar?6:3;ctx.beginPath();ctx.moveTo(-30-(b.solar?18:0),0);ctx.lineTo(15,0);ctx.stroke();ctx.fillStyle=b.solar?'#b9f7ff':'#fff7d1';ctx.rotate(Math.PI/4);ctx.fillRect(-5,-5,10,10);}else if(b.emberForm==='cinderburst'){ctx.fillStyle='#fff0ae';ctx.globalAlpha=.88;ctx.fillRect(-3,-2,9,4);ctx.fillStyle='#ff6948';ctx.globalAlpha=.6;ctx.fillRect(-11,-1,8,2);}else if(b.emberForm==='starweaver'){ctx.strokeStyle=b.choir?'#ffffff':'#8ce9ee';ctx.globalAlpha=.75;ctx.lineWidth=b.choir?3:2;for(let i=0;i<2;i++){ctx.beginPath();ctx.arc(-5,0,7+i*4,t*2+i,t*2+i+4.5);ctx.stroke();}ctx.rotate(t*2);ctx.fillStyle='#ddffff';ctx.fillRect(-4,-4,8,8);}else if(b.emberForm==='ashDisc'||b.returningSun){ctx.strokeStyle=b.returningSun?'#fff0b5':'#c9a4ff';ctx.globalAlpha=.72;ctx.lineWidth=3;for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(0,0,b.r+i*3,Math.max(4,b.r*.42),t*(i%2?-.9:1.1)+i,0,TAU);ctx.stroke();}}else if(b.aegisReturn){ctx.strokeStyle='#a9fff0';ctx.globalAlpha=.8;ctx.beginPath();ctx.arc(0,0,9,t,t+4.8);ctx.stroke();}ctx.restore();}
- ctx.restore();
-};
-const formsDrawCombatFX=drawCombatFX;
-drawCombatFX=function(ctx){
- formsDrawCombatFX(ctx);const p=G.player;if(!p||!G.run)return;const flare=activeForm('flare').id,t=save.motion?0:G.tAll;ctx.save();ctx.globalCompositeOperation='lighter';if(p.meleeHitT>0){const u=1-p.meleeHitT/MELEE.swing,fade=Math.sin(Math.PI*u);ctx.translate(p.x,p.y);ctx.rotate(p.meleeAngle);if(flare==='novaFlare'){ctx.rotate(-p.meleeAngle);for(let i=0;i<4;i++){ctx.strokeStyle=i?'#ff9d5f':'#fff2c3';ctx.globalAlpha=fade*(.65-i*.1);ctx.lineWidth=4-i*.6;ctx.beginPath();ctx.arc(0,0,34+u*58+i*5,t*.2+i*.1,TAU-.35+t*.2+i*.1);ctx.stroke();}}else if(flare==='dawnCrescent'){ctx.strokeStyle='#fff8dc';ctx.globalAlpha=fade*.9;ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,MELEE.reach*(.55+.45*u),-.38,.38);ctx.stroke();ctx.strokeStyle='#ffd77e';ctx.globalAlpha=fade*.38;ctx.lineWidth=12;ctx.stroke();}else if(flare==='gravityPulse'){ctx.rotate(-p.meleeAngle);for(let i=0;i<5;i++){ctx.strokeStyle=i%2?'#e7dbff':'#ad7eff';ctx.globalAlpha=fade*(.18+i*.08);ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,MELEE.reach*(1-u*.62)-i*9,t*(i%2?-.5:.42)+i,t*(i%2?-.5:.42)+4.9+i);ctx.stroke();}ctx.fillStyle='#0a0712';ctx.globalAlpha=fade*.75;ctx.beginPath();ctx.arc(0,0,9+u*6,0,TAU);ctx.fill();}}if(p.dashT>0){const dash=activeForm('dash').id;if(dash==='riftBlink'){ctx.strokeStyle='#a9c3ff';ctx.globalAlpha=.44;ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(p.x-p.dashDx*(20+i*15),p.y-p.dashDy*(20+i*15),8,20,t*.4+i,0,TAU);ctx.stroke();}}else if(dash==='aegisFold'){ctx.strokeStyle='#a4f3e6';ctx.globalAlpha=.38+.18*Math.sin(t*9);ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(p.x,p.y,23+i*7,t+i,t+4.8+i);ctx.stroke();}}}ctx.restore();
-};
-const formsDrawPlayer=drawPlayer;
-drawPlayer=function(ctx){formsDrawPlayer(ctx);const p=G.player;if(!p||!G.run||G.dead&&G.state==='dead')return;const ids=[activeForm('primary'),activeForm('flare'),activeForm('dash')],t=save.motion?0:G.tAll;ctx.save();ctx.translate(p.x,p.y-4);ctx.globalCompositeOperation='lighter';for(let i=0;i<3;i++){const f=ids[i],a=t*(i===1?-.42:.36)+i*TAU/3,r=27+i*3;ctx.strokeStyle=f.color;ctx.globalAlpha=.2;ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,r,a,a+.58);ctx.stroke();ctx.save();ctx.rotate(a+.29);ctx.translate(r,0);ctx.rotate(Math.PI/4+t*.2);ctx.fillStyle=f.color;ctx.globalAlpha=.62;ctx.fillRect(-2,-2,4,4);ctx.restore();}ctx.restore();};
-
-function drawFormGoalPath(ctx,t){
- const f=formGoal(),path=formGoalPath(f);if(!f||!path.size)return;const targets=new Set(f.req);ctx.save();ctx.globalCompositeOperation='screen';ctx.lineCap='round';
- for(const id of path){const n=NODE_BY_ID[id];if(!n)continue;for(const p of masteryParents(n)){if(!path.has(p.id))continue;const dx=n.x-p.x,dy=n.y-p.y,len=Math.max(1,Math.hypot(dx,dy)),curl=(n.turn||0)*34+(n.tier%2?5:-5),px=-dy/len,py=dx/len;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.bezierCurveTo(p.x+dx*.34+px*curl,p.y+dy*.34+py*curl,p.x+dx*.68+px*curl,p.y+dy*.68+py*curl,n.x,n.y);ctx.strokeStyle=save.nodes?.[n.id]&&save.nodes?.[p.id]?'#e8c879bb':'#c38be4b8';ctx.lineWidth=save.nodes?.[n.id]?3:2.3;ctx.setLineDash(save.nodes?.[n.id]?[]:[7,7]);ctx.lineDashOffset=-(save.motion?0:t*22);ctx.shadowColor=save.nodes?.[n.id]?'#e4bd62':'#c17ae8';ctx.shadowBlur=9;ctx.stroke();}}
- ctx.setLineDash([]);for(const id of path){const n=NODE_BY_ID[id];if(!n)continue;const owned=!!save.nodes?.[id],target=targets.has(id),r=(n.r||13)+(target?9:6);ctx.strokeStyle=owned?'#ffe3a0':'#e7b9ff';ctx.lineWidth=target?3:1.5;ctx.globalAlpha=target?.95:.58+.16*Math.sin((save.motion?0:t)*3+n.x);ctx.shadowColor=owned?'#e5bc58':'#c274ea';ctx.shadowBlur=target?18:10;ctx.beginPath();ctx.arc(n.x,n.y,r,0,TAU);ctx.stroke();if(target){ctx.globalAlpha=.82;for(let i=0;i<4;i++){const a=i*TAU/4+(save.motion?0:t*.35);ctx.fillStyle=owned?'#ffe3a0':'#e7b9ff';ctx.fillRect(n.x+Math.cos(a)*(r+6)-2,n.y+Math.sin(a)*(r+6)-2,4,4);}}}
- ctx.restore();
+function cloneBulletAtAngle(src, turn, mul = 1) {
+  const b = { ...src, hits: null, whiteStar: false };
+  rotateBullet(b, turn);
+  b.dmg *= mul;
+  return b;
 }
-const formGoalDrawTree=drawTree;
-drawTree=function(t){formGoalDrawTree(t);if(treeCtx)drawFormGoalPath(treeCtx,t);};
-const formGoalRefreshTreeEss=refreshTreeEss;
-refreshTreeEss=function(){formGoalRefreshTreeEss();refreshFormGoalHighlights();};
-const formGoalOpenTree=openTree;
-openTree=function(from){formGoalOpenTree(from);refreshFormGoalHighlights();};
-const formGoalTryBuyNode=tryBuyNode;
-tryBuyNode=function(n){formGoalTryBuyNode(n);refreshFormGoalHighlights();if(T('forms')?.classList.contains('open'))renderForms();};
+const formsFireVolley = fireVolley;
+fireVolley = function () {
+  const p = G.player,
+    start = G.bullets.length;
+  formsFireVolley();
+  if (!p || G.bullets.length === start) return;
+  const primary = activeForm('primary').id,
+    created = G.bullets.slice(start);
+  G.run.formCasts = (G.run.formCasts || 0) + 1;
+  for (const b of created) {
+    b.emberForm = primary;
+    if (primary === 'sunlance') {
+      b.dmg *= 2.15;
+      b.r += 3;
+      b.pierce = (b.pierce || 0) + 4;
+      b.life *= 1.28;
+      b.vx *= 0.88;
+      b.vy *= 0.88;
+    } else if (primary === 'cinderburst') {
+      b.dmg *= 0.42;
+      b.r = Math.max(3, b.r - 1);
+      b.life = Math.min(b.life, 0.47);
+      b.vx *= 0.9;
+      b.vy *= 0.9;
+    } else if (primary === 'starweaver') {
+      b.dmg *= 1.24;
+      b.r += 1;
+      b.life *= 1.65;
+      b.vx *= 0.72;
+      b.vy *= 0.72;
+      b.seeking = Math.max(b.seeking || 0, 0.15);
+    } else if (primary === 'ashDisc') {
+      b.dmg *= 2.8;
+      b.r = Math.max(10, b.r + 4);
+      b.life *= 2.25;
+      b.vx *= 0.58;
+      b.vy *= 0.58;
+      b.pierce = (b.pierce || 0) + 1;
+      b.ric = (b.ric || 0) + 5;
+      b.ricRange = Math.max(b.ricRange || 0, 390);
+      b.ricPower = Math.max(b.ricPower || 0, 0.88);
+    }
+  }
+  if (primary === 'cinderburst') {
+    const spread = hasEvolution('thousandEmbers')
+      ? [-0.32, -0.24, -0.16, -0.08, 0.08, 0.16, 0.24, 0.32]
+      : [-0.22, -0.11, 0.11, 0.22];
+    for (const src of created.slice(0, 4))
+      for (const a of spread)
+        G.bullets.push(cloneBulletAtAngle(src, a, hasEvolution('thousandEmbers') ? 0.92 : 1));
+  }
+  if (primary === 'starweaver' && hasEvolution('constellationChoir') && G.run.formCasts % 6 === 0) {
+    for (let i = 0; i < 3; i++) {
+      const a = (p.orbA || 0) + (i * TAU) / 3,
+        aim = p.face + (i - 1) * 0.18;
+      G.bullets.push({
+        x: p.x + Math.cos(a) * 64,
+        y: p.y + Math.sin(a) * 64,
+        vx: Math.cos(aim) * BASE.bulletSpd * 0.62,
+        vy: Math.sin(aim) * BASE.bulletSpd * 0.62,
+        r: 8,
+        dmg: p.dmg * 2.1,
+        pierce: 2,
+        ric: 1,
+        life: 2,
+        hits: null,
+        seeking: 0.2,
+        emberForm: 'starweaver',
+        choir: true,
+        whiteStar: false,
+      });
+    }
+    sfx('formChoir');
+  }
+  if (primary === 'ashDisc' && hasEvolution('returningSun')) {
+    for (const b of created) {
+      b.ricPower = 1.09;
+      b.ric += 4;
+      b.returningSun = true;
+    }
+    const src = created[0];
+    if (src) {
+      const back = cloneBulletAtAngle(src, Math.PI, 0.58);
+      back.r *= 0.72;
+      back.vx *= 0.82;
+      back.vy *= 0.82;
+      back.ric = 5;
+      back.returningSun = true;
+      G.bullets.push(back);
+    }
+  }
+  if (primary === 'sunlance' && hasEvolution('solarSpear') && G.run.formCasts % 4 === 0)
+    for (const b of created) {
+      b.dmg *= 2.4;
+      b.r += 5;
+      b.pierce += 8;
+      b.whiteStar = true;
+      b.solar = true;
+    }
+  if (primary === 'emberBolt' && hasEvolution('heartOfCinders'))
+    for (const b of created) {
+      b.burn = Math.max(b.burn || 0, 4);
+      b.blast = Math.max(b.blast || 0, 3);
+      b.heartCinder = true;
+    }
+  if (primary === 'emberBolt' && hasEvolution('firstLight') && G.run.formCasts % 8 === 0) {
+    for (let i = -3; i <= 3; i++) {
+      const a = p.face + i * 0.16;
+      G.bullets.push({
+        x: p.x,
+        y: p.y,
+        vx: Math.cos(a) * BASE.bulletSpd * 0.9,
+        vy: Math.sin(a) * BASE.bulletSpd * 0.9,
+        r: 10,
+        dmg: p.dmg * 2.4,
+        pierce: 5,
+        ric: 0,
+        life: 1.6,
+        hits: null,
+        emberForm: 'sunlance',
+        solar: true,
+        whiteStar: true,
+      });
+    }
+    sfx('formEvolution');
+  }
+  sfx('formCast', primary);
+};
 
-const formsSfx=sfx;
-sfx=function(name,a){if(!['formCast','formFlare','formDash','formUnlock','formEvolution','formFold','formGravity','formChoir','formGoal'].includes(name))return formsSfx(name,a);if(!AC||!save.sfx)return;const id=a||'';if(name==='formEvolution'){thump(145,36,.55,.1);swell([110,164.81,220,329.63,440,659.25,880],2.25,.045,.02);bell(1318.5,1.4,.024,.36,false);bell(1975.5,.85,.012,.7,false);}else if(name==='formUnlock'){swell([196,261.63,329.63,523.25],1.05,.028,0);bell(1046.5,.65,.018,.12,false);}else if(name==='formGoal'){swell([261.63,392,523.25],.62,.018,0);bell(783.99,.45,.012,.08,false);}else if(name==='formFold'){bell(392,.38,.018,0,true);air(.18,.026,1900,420,.72,0);}else if(name==='formGravity'){thump(92,31,.42,.065);air(.44,.025,280,1800,.62,0,'bandpass');}else if(name==='formChoir'){swell([392,587.33,783.99],.72,.018,0);}else if(name==='formCast'){if(id==='sunlance')bell(987.77,.16,.009,0,true);else if(id==='cinderburst')thump(245,78,.11,.025);else if(id==='starweaver')bell(659.25,.23,.008,0,false);else if(id==='ashDisc')bell(293.66,.28,.012,0,true);}else if(name==='formFlare'){if(id==='gravityPulse')thump(105,42,.23,.045);else if(id==='dawnCrescent')air(.12,.025,2100,620,.75,0);else if(id==='novaFlare')bell(523.25,.18,.01,0,true);}else if(name==='formDash'){if(id==='riftBlink')air(.14,.022,2400,320,.78,0);else if(id==='phoenixRush')thump(225,65,.13,.035);else if(id==='aegisFold')bell(440,.18,.012,0,true);}};
+const formsStrikeMelee = strikeMelee;
+strikeMelee = function () {
+  const p = G.player;
+  if (!p) return formsStrikeMelee();
+  const form = activeForm('flare').id,
+    a = p.meleeAngle;
+  formsStrikeMelee();
+  if (form === 'novaFlare') {
+    for (const e of G.enemies)
+      if (!e.dead && d2(e.x, e.y, p.x, p.y) < (MELEE.reach + e.r) ** 2) {
+        const q = Math.atan2(e.y - p.y, e.x - p.x);
+        e.kbx += Math.cos(q) * 90;
+        e.kby += Math.sin(q) * 90;
+      }
+    if (hasEvolution('hearthNova')) {
+      p.guardT = Math.max(p.guardT || 0, 2.2);
+      G.run.aftershocks = G.run.aftershocks || [];
+      G.run.aftershocks.push({ x: p.x, y: p.y, t: 0.32, rank: 3.2 });
+    }
+  } else if (form === 'dawnCrescent') {
+    const turns = hasEvolution('wardensMoon') ? [-0.2, 0.2] : [0];
+    for (const turn of turns) {
+      const q = a + turn;
+      G.bullets.push({
+        x: p.x + Math.cos(q) * 24,
+        y: p.y + Math.sin(q) * 24,
+        vx: Math.cos(q) * 520,
+        vy: Math.sin(q) * 520,
+        r: hasEvolution('wardensMoon') ? 15 : 12,
+        dmg: p.dmg * MELEE.damage * (hasEvolution('wardensMoon') ? 0.7 : 0.48),
+        pierce: 14,
+        ric: 0,
+        life: 0.72,
+        hits: null,
+        melee: true,
+        emberForm: 'dawnCrescent',
+        moon: hasEvolution('wardensMoon'),
+        whiteStar: false,
+      });
+    }
+  } else if (form === 'gravityPulse') {
+    let folded = 0;
+    for (const e of G.enemies) {
+      if (e.dead) continue;
+      const d = Math.max(1, Math.hypot(e.x - p.x, e.y - p.y));
+      if (d < 245) {
+        const force = e.isBoss ? 65 : 260;
+        e.kbx += ((p.x - e.x) / d) * force;
+        e.kby += ((p.y - e.y) / d) * force;
+      }
+    }
+    G.ebul = G.ebul.filter((b) => {
+      if (d2(b.x, b.y, p.x, p.y) < 145 ** 2) {
+        folded++;
+        return false;
+      }
+      return true;
+    });
+    if (folded) p.guardT = Math.max(p.guardT || 0, 0.3);
+    if (hasEvolution('eventHorizon')) {
+      G.run.cardFields = G.run.cardFields || [];
+      G.run.cardFields.push({
+        x: p.x + Math.cos(a) * 86,
+        y: p.y + Math.sin(a) * 86,
+        t: 7,
+        tick: 0,
+        kind: 'blackHole',
+        rank: 3,
+        mythicReforged: true,
+      });
+      sfx('formGravity');
+    }
+  }
+  sfx('formFlare', form);
+};
 
-const formsAnyBlockingOverlay=anyBlockingOverlay;
-anyBlockingOverlay=function(){return !!T('forms')?.classList.contains('open')||formsAnyBlockingOverlay();};
-const formsBackToMenu=backToMenu;
-backToMenu=function(){formsBackToMenu();renderEvolutionChips();};
-const formsWireDepth=wireDepth;
-wireDepth=function(){formsWireDepth();installEmberFormsUI();};
+function nearestEnemyFrom(x, y) {
+  return (
+    (G.enemies || [])
+      .filter((e) => !e.dead)
+      .sort((a, b) => d2(a.x, a.y, x, y) - d2(b.x, b.y, x, y))[0] || null
+  );
+}
+function foldHostileShots(radius, reflectAll = false) {
+  const p = G.player;
+  if (!p) return 0;
+  let folded = 0;
+  const keep = [];
+  for (const b of G.ebul) {
+    if (d2(b.x, b.y, p.x, p.y) > radius * radius || (!reflectAll && folded >= 5)) {
+      keep.push(b);
+      continue;
+    }
+    folded++;
+    if (reflectAll) {
+      const target = nearestEnemyFrom(b.x, b.y),
+        a = target ? Math.atan2(target.y - b.y, target.x - b.x) : p.face,
+        speed = Math.max(390, Math.hypot(b.vx, b.vy));
+      G.bullets.push({
+        x: b.x,
+        y: b.y,
+        vx: Math.cos(a) * speed,
+        vy: Math.sin(a) * speed,
+        r: 6,
+        dmg: p.dmg * 2.1,
+        pierce: 2,
+        ric: 1,
+        life: 1.4,
+        hits: null,
+        seeking: 0.16,
+        emberForm: 'aegisFold',
+        aegisReturn: true,
+        whiteStar: false,
+      });
+    }
+  }
+  G.ebul = keep;
+  if (folded) {
+    burst(p.x, p.y, 8, reflectAll ? '#b9fff1' : '#a9d8d4', 150, 0.35, 2, true);
+    sfx('formFold');
+  }
+  return folded;
+}
+const formsTickBlessings = tickBlessings;
+tickBlessings = function (dt) {
+  const p = G.player;
+  if (!p) {
+    formsTickBlessings(dt);
+    return;
+  }
+  formsTickBlessings(dt);
+  const dash = activeForm('dash').id,
+    started = p.dashT > 0 && !p._formWasDashing,
+    ended = p.dashT <= 0 && p._formWasDashing;
+  if (started) {
+    p.formDashStartX = p.x;
+    p.formDashStartY = p.y;
+    if (dash === 'riftBlink') p.dashT += 0.04;
+    if (dash === 'aegisFold')
+      foldHostileShots(hasEvolution('mirrorGate') ? 245 : 155, hasEvolution('mirrorGate'));
+    if (hasEvolution('voidstep')) foldHostileShots(125, false);
+    sfx('formDash', dash);
+  }
+  if (p.dashT > 0 && dash === 'phoenixRush') {
+    p.formWakeT = (p.formWakeT || 0) - dt;
+    if (p.formWakeT <= 0) {
+      p.formWakeT = 0.035;
+      G.run.wake = G.run.wake || [];
+      G.run.wake.push({
+        x: p.x,
+        y: p.y,
+        t: hasEvolution('wildfireEngine') ? 1.15 : 0.62,
+        rank: hasEvolution('wildfireEngine') ? 6 : 3,
+      });
+    }
+  }
+  if (ended) {
+    if (dash === 'phoenixRush') {
+      nova(
+        p.x,
+        p.y,
+        hasEvolution('wildfireEngine') ? 112 : 62,
+        p.dmg * (hasEvolution('wildfireEngine') ? 2.6 : 0.72)
+      );
+    }
+    if (hasEvolution('voidstep')) {
+      nova(p.formDashStartX, p.formDashStartY, 70, p.dmg * 0.65);
+      nova(p.x, p.y, 95, p.dmg * 1.2);
+      foldHostileShots(125, false);
+    }
+  }
+  p._formWasDashing = p.dashT > 0;
+};
+
+const formsChooseCard = chooseCard;
+chooseCard = function (i) {
+  formsChooseCard(i);
+  if (G.run) {
+    checkEvolutions(true);
+    recalc();
+    updateHUD(0);
+    saveNow();
+  }
+};
+const formsKillEnemy = killEnemy;
+killEnemy = function (e) {
+  const was = e?.dead,
+    kills = G.run?.kills || 0;
+  formsKillEnemy(e);
+  if (was || !e?.dead || !G.run) return;
+  if (hasEvolution('voidstep') && G.run.kills > kills) {
+    G.run.voidstepKills = (G.run.voidstepKills || 0) + 1;
+    if (G.run.voidstepKills % 10 === 0) {
+      G.player.dashCdT = 0;
+      addText(G.player.x, G.player.y - 22, 'VOIDSTEP READY', '#b9c8ff', 11);
+    }
+  }
+};
+
+const formsSyncWeaponHUD = syncWeaponHUD;
+syncWeaponHUD = function () {
+  formsSyncWeaponHUD();
+  const p = G.player;
+  if (!p || !G.run) return;
+  const primary = activeForm('primary'),
+    flare = activeForm('flare'),
+    dash = activeForm('dash');
+  if (p.reloadT <= 0 && p.ammo > 0) setTxt('weaponStatus', primary.name.toUpperCase());
+  const melee = T('btnMelee');
+  if (melee) {
+    melee.setAttribute('aria-label', 'Release ' + flare.name);
+    for (const n of melee.childNodes || [])
+      if (n.nodeType === 3 && n.textContent.includes('FLARE'))
+        n.textContent = ' ' + flare.name.toUpperCase() + ' · ';
+  }
+  const ready = T('bladeReady');
+  if (ready)
+    ready.textContent =
+      p.meleeCdT > 0
+        ? flare.name.toUpperCase() + ' RECOVERING'
+        : flare.name.toUpperCase() + ' READY';
+  T('dashwrap')?.setAttribute('title', dash.name + ' — ' + dash.effect);
+};
+
+const formsDrawBullets = drawBullets;
+drawBullets = function (ctx) {
+  formsDrawBullets(ctx);
+  const t = save.motion ? 0 : G.tAll;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const b of G.bullets) {
+    if (!b.emberForm || b.melee) continue;
+    const a = Math.atan2(b.vy, b.vx),
+      speed = Math.max(1, Math.hypot(b.vx, b.vy));
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.rotate(a);
+    if (b.emberForm === 'sunlance') {
+      ctx.strokeStyle = b.solar ? '#ffffff' : '#fff0aa';
+      ctx.globalAlpha = b.solar ? 0.92 : 0.68;
+      ctx.lineWidth = b.solar ? 6 : 3;
+      ctx.beginPath();
+      ctx.moveTo(-30 - (b.solar ? 18 : 0), 0);
+      ctx.lineTo(15, 0);
+      ctx.stroke();
+      ctx.fillStyle = b.solar ? '#b9f7ff' : '#fff7d1';
+      ctx.rotate(Math.PI / 4);
+      ctx.fillRect(-5, -5, 10, 10);
+    } else if (b.emberForm === 'cinderburst') {
+      ctx.fillStyle = '#fff0ae';
+      ctx.globalAlpha = 0.88;
+      ctx.fillRect(-3, -2, 9, 4);
+      ctx.fillStyle = '#ff6948';
+      ctx.globalAlpha = 0.6;
+      ctx.fillRect(-11, -1, 8, 2);
+    } else if (b.emberForm === 'starweaver') {
+      ctx.strokeStyle = b.choir ? '#ffffff' : '#8ce9ee';
+      ctx.globalAlpha = 0.75;
+      ctx.lineWidth = b.choir ? 3 : 2;
+      for (let i = 0; i < 2; i++) {
+        ctx.beginPath();
+        ctx.arc(-5, 0, 7 + i * 4, t * 2 + i, t * 2 + i + 4.5);
+        ctx.stroke();
+      }
+      ctx.rotate(t * 2);
+      ctx.fillStyle = '#ddffff';
+      ctx.fillRect(-4, -4, 8, 8);
+    } else if (b.emberForm === 'ashDisc' || b.returningSun) {
+      ctx.strokeStyle = b.returningSun ? '#fff0b5' : '#c9a4ff';
+      ctx.globalAlpha = 0.72;
+      ctx.lineWidth = 3;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.ellipse(
+          0,
+          0,
+          b.r + i * 3,
+          Math.max(4, b.r * 0.42),
+          t * (i % 2 ? -0.9 : 1.1) + i,
+          0,
+          TAU
+        );
+        ctx.stroke();
+      }
+    } else if (b.aegisReturn) {
+      ctx.strokeStyle = '#a9fff0';
+      ctx.globalAlpha = 0.8;
+      ctx.beginPath();
+      ctx.arc(0, 0, 9, t, t + 4.8);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  ctx.restore();
+};
+const formsDrawCombatFX = drawCombatFX;
+drawCombatFX = function (ctx) {
+  formsDrawCombatFX(ctx);
+  const p = G.player;
+  if (!p || !G.run) return;
+  const flare = activeForm('flare').id,
+    t = save.motion ? 0 : G.tAll;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  if (p.meleeHitT > 0) {
+    const u = 1 - p.meleeHitT / MELEE.swing,
+      fade = Math.sin(Math.PI * u);
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.meleeAngle);
+    if (flare === 'novaFlare') {
+      ctx.rotate(-p.meleeAngle);
+      for (let i = 0; i < 4; i++) {
+        ctx.strokeStyle = i ? '#ff9d5f' : '#fff2c3';
+        ctx.globalAlpha = fade * (0.65 - i * 0.1);
+        ctx.lineWidth = 4 - i * 0.6;
+        ctx.beginPath();
+        ctx.arc(0, 0, 34 + u * 58 + i * 5, t * 0.2 + i * 0.1, TAU - 0.35 + t * 0.2 + i * 0.1);
+        ctx.stroke();
+      }
+    } else if (flare === 'dawnCrescent') {
+      ctx.strokeStyle = '#fff8dc';
+      ctx.globalAlpha = fade * 0.9;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, MELEE.reach * (0.55 + 0.45 * u), -0.38, 0.38);
+      ctx.stroke();
+      ctx.strokeStyle = '#ffd77e';
+      ctx.globalAlpha = fade * 0.38;
+      ctx.lineWidth = 12;
+      ctx.stroke();
+    } else if (flare === 'gravityPulse') {
+      ctx.rotate(-p.meleeAngle);
+      for (let i = 0; i < 5; i++) {
+        ctx.strokeStyle = i % 2 ? '#e7dbff' : '#ad7eff';
+        ctx.globalAlpha = fade * (0.18 + i * 0.08);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(
+          0,
+          0,
+          MELEE.reach * (1 - u * 0.62) - i * 9,
+          t * (i % 2 ? -0.5 : 0.42) + i,
+          t * (i % 2 ? -0.5 : 0.42) + 4.9 + i
+        );
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#0a0712';
+      ctx.globalAlpha = fade * 0.75;
+      ctx.beginPath();
+      ctx.arc(0, 0, 9 + u * 6, 0, TAU);
+      ctx.fill();
+    }
+  }
+  if (p.dashT > 0) {
+    const dash = activeForm('dash').id;
+    if (dash === 'riftBlink') {
+      ctx.strokeStyle = '#a9c3ff';
+      ctx.globalAlpha = 0.44;
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.ellipse(
+          p.x - p.dashDx * (20 + i * 15),
+          p.y - p.dashDy * (20 + i * 15),
+          8,
+          20,
+          t * 0.4 + i,
+          0,
+          TAU
+        );
+        ctx.stroke();
+      }
+    } else if (dash === 'aegisFold') {
+      ctx.strokeStyle = '#a4f3e6';
+      ctx.globalAlpha = 0.38 + 0.18 * Math.sin(t * 9);
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 23 + i * 7, t + i, t + 4.8 + i);
+        ctx.stroke();
+      }
+    }
+  }
+  ctx.restore();
+};
+const formsDrawPlayer = drawPlayer;
+drawPlayer = function (ctx) {
+  formsDrawPlayer(ctx);
+  const p = G.player;
+  if (!p || !G.run || (G.dead && G.state === 'dead')) return;
+  const ids = [activeForm('primary'), activeForm('flare'), activeForm('dash')],
+    t = save.motion ? 0 : G.tAll;
+  ctx.save();
+  ctx.translate(p.x, p.y - 4);
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 3; i++) {
+    const f = ids[i],
+      a = t * (i === 1 ? -0.42 : 0.36) + (i * TAU) / 3,
+      r = 27 + i * 3;
+    ctx.strokeStyle = f.color;
+    ctx.globalAlpha = 0.2;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, a, a + 0.58);
+    ctx.stroke();
+    ctx.save();
+    ctx.rotate(a + 0.29);
+    ctx.translate(r, 0);
+    ctx.rotate(Math.PI / 4 + t * 0.2);
+    ctx.fillStyle = f.color;
+    ctx.globalAlpha = 0.62;
+    ctx.fillRect(-2, -2, 4, 4);
+    ctx.restore();
+  }
+  ctx.restore();
+};
+
+function drawFormGoalPath(ctx, t) {
+  const f = formGoal(),
+    path = formGoalPath(f);
+  if (!f || !path.size) return;
+  const targets = new Set(f.req);
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.lineCap = 'round';
+  for (const id of path) {
+    const n = NODE_BY_ID[id];
+    if (!n) continue;
+    for (const p of masteryParents(n)) {
+      if (!path.has(p.id)) continue;
+      const dx = n.x - p.x,
+        dy = n.y - p.y,
+        len = Math.max(1, Math.hypot(dx, dy)),
+        curl = (n.turn || 0) * 34 + (n.tier % 2 ? 5 : -5),
+        px = -dy / len,
+        py = dx / len;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.bezierCurveTo(
+        p.x + dx * 0.34 + px * curl,
+        p.y + dy * 0.34 + py * curl,
+        p.x + dx * 0.68 + px * curl,
+        p.y + dy * 0.68 + py * curl,
+        n.x,
+        n.y
+      );
+      ctx.strokeStyle = save.nodes?.[n.id] && save.nodes?.[p.id] ? '#e8c879bb' : '#c38be4b8';
+      ctx.lineWidth = save.nodes?.[n.id] ? 3 : 2.3;
+      ctx.setLineDash(save.nodes?.[n.id] ? [] : [7, 7]);
+      ctx.lineDashOffset = -(save.motion ? 0 : t * 22);
+      ctx.shadowColor = save.nodes?.[n.id] ? '#e4bd62' : '#c17ae8';
+      ctx.shadowBlur = 9;
+      ctx.stroke();
+    }
+  }
+  ctx.setLineDash([]);
+  for (const id of path) {
+    const n = NODE_BY_ID[id];
+    if (!n) continue;
+    const owned = !!save.nodes?.[id],
+      target = targets.has(id),
+      r = (n.r || 13) + (target ? 9 : 6);
+    ctx.strokeStyle = owned ? '#ffe3a0' : '#e7b9ff';
+    ctx.lineWidth = target ? 3 : 1.5;
+    ctx.globalAlpha = target ? 0.95 : 0.58 + 0.16 * Math.sin((save.motion ? 0 : t) * 3 + n.x);
+    ctx.shadowColor = owned ? '#e5bc58' : '#c274ea';
+    ctx.shadowBlur = target ? 18 : 10;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, r, 0, TAU);
+    ctx.stroke();
+    if (target) {
+      ctx.globalAlpha = 0.82;
+      for (let i = 0; i < 4; i++) {
+        const a = (i * TAU) / 4 + (save.motion ? 0 : t * 0.35);
+        ctx.fillStyle = owned ? '#ffe3a0' : '#e7b9ff';
+        ctx.fillRect(n.x + Math.cos(a) * (r + 6) - 2, n.y + Math.sin(a) * (r + 6) - 2, 4, 4);
+      }
+    }
+  }
+  ctx.restore();
+}
+const formGoalDrawTree = drawTree;
+drawTree = function (t) {
+  formGoalDrawTree(t);
+  if (treeCtx) drawFormGoalPath(treeCtx, t);
+};
+const formGoalRefreshTreeEss = refreshTreeEss;
+refreshTreeEss = function () {
+  formGoalRefreshTreeEss();
+  refreshFormGoalHighlights();
+};
+const formGoalOpenTree = openTree;
+openTree = function (from) {
+  formGoalOpenTree(from);
+  refreshFormGoalHighlights();
+};
+const formGoalTryBuyNode = tryBuyNode;
+tryBuyNode = function (n) {
+  formGoalTryBuyNode(n);
+  refreshFormGoalHighlights();
+  if (T('forms')?.classList.contains('open')) renderForms();
+};
+
+const formsSfx = sfx;
+sfx = function (name, a) {
+  if (
+    ![
+      'formCast',
+      'formFlare',
+      'formDash',
+      'formUnlock',
+      'formEvolution',
+      'formFold',
+      'formGravity',
+      'formChoir',
+      'formGoal',
+    ].includes(name)
+  )
+    return formsSfx(name, a);
+  if (!AC || !save.sfx) return;
+  const id = a || '';
+  if (name === 'formEvolution') {
+    thump(145, 36, 0.55, 0.1);
+    swell([110, 164.81, 220, 329.63, 440, 659.25, 880], 2.25, 0.045, 0.02);
+    bell(1318.5, 1.4, 0.024, 0.36, false);
+    bell(1975.5, 0.85, 0.012, 0.7, false);
+  } else if (name === 'formUnlock') {
+    swell([196, 261.63, 329.63, 523.25], 1.05, 0.028, 0);
+    bell(1046.5, 0.65, 0.018, 0.12, false);
+  } else if (name === 'formGoal') {
+    swell([261.63, 392, 523.25], 0.62, 0.018, 0);
+    bell(783.99, 0.45, 0.012, 0.08, false);
+  } else if (name === 'formFold') {
+    bell(392, 0.38, 0.018, 0, true);
+    air(0.18, 0.026, 1900, 420, 0.72, 0);
+  } else if (name === 'formGravity') {
+    thump(92, 31, 0.42, 0.065);
+    air(0.44, 0.025, 280, 1800, 0.62, 0, 'bandpass');
+  } else if (name === 'formChoir') {
+    swell([392, 587.33, 783.99], 0.72, 0.018, 0);
+  } else if (name === 'formCast') {
+    if (id === 'sunlance') bell(987.77, 0.16, 0.009, 0, true);
+    else if (id === 'cinderburst') thump(245, 78, 0.11, 0.025);
+    else if (id === 'starweaver') bell(659.25, 0.23, 0.008, 0, false);
+    else if (id === 'ashDisc') bell(293.66, 0.28, 0.012, 0, true);
+  } else if (name === 'formFlare') {
+    if (id === 'gravityPulse') thump(105, 42, 0.23, 0.045);
+    else if (id === 'dawnCrescent') air(0.12, 0.025, 2100, 620, 0.75, 0);
+    else if (id === 'novaFlare') bell(523.25, 0.18, 0.01, 0, true);
+  } else if (name === 'formDash') {
+    if (id === 'riftBlink') air(0.14, 0.022, 2400, 320, 0.78, 0);
+    else if (id === 'phoenixRush') thump(225, 65, 0.13, 0.035);
+    else if (id === 'aegisFold') bell(440, 0.18, 0.012, 0, true);
+  }
+};
+
+const formsAnyBlockingOverlay = anyBlockingOverlay;
+anyBlockingOverlay = function () {
+  return !!T('forms')?.classList.contains('open') || formsAnyBlockingOverlay();
+};
+const formsBackToMenu = backToMenu;
+backToMenu = function () {
+  formsBackToMenu();
+  renderEvolutionChips();
+};
+const formsWireDepth = wireDepth;
+wireDepth = function () {
+  formsWireDepth();
+  installEmberFormsUI();
+};

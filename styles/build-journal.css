@@ -1,25 +1,618 @@
-#chips,#evolutionRail{display:none!important}
-#botL{display:block!important;left:20px!important;bottom:172px!important;width:282px;max-width:282px!important;pointer-events:auto}
-#buildHud{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px 8px 4px;min-height:60px;color:#f1dbb6;border:1px solid #89704b;background:linear-gradient(110deg,#252017f5,#151411f5);box-shadow:inset 0 0 0 3px #100f0b,0 6px 24px #0008;cursor:pointer;text-align:left;font-family:system-ui;clip-path:polygon(0 7px,7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px))}
-#buildHud[hidden]{display:none}#buildHud:hover{background:linear-gradient(110deg,#3a2c1af8,#211d16f5);border-color:#d1a569}#buildHud:focus-visible{outline:3px solid #ffe1a4;outline-offset:3px;clip-path:none}
-#buildSigil{width:44px;height:44px;flex:none;image-rendering:pixelated}.build-hud-content{flex:1;min-width:0}.build-hud-title{font:700 10px system-ui;letter-spacing:.14em;display:flex;justify-content:space-between;gap:8px}.build-hud-title span{font:8px system-ui;letter-spacing:.02em;color:#bfa77d;max-width:138px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.build-hud-counts{display:flex;gap:10px;margin-top:7px;color:#b5aa96;font-size:9px;white-space:nowrap}.build-hud-counts b{color:#f7e4bc;font-size:12px;font-weight:600}.build-hud-arrow{font:22px Georgia;color:#ba9766}.new-combo{border-color:#e4b973!important}.new-combo #buildNotice{color:#ffe3a3}
-#blessingCombos{z-index:150;padding:24px;background:radial-gradient(ellipse at 50% 0,#483a2766,transparent 65%),#090908ef;backdrop-filter:blur(5px)}
-#blessingCombos .build-panel{width:min(1080px,96vw);max-width:1080px;height:min(850px,92dvh);padding:0;display:flex;flex-direction:column;overflow:hidden;text-align:left;border:1px solid #9d8053;background:linear-gradient(140deg,#242019,#121210 68%);box-shadow:inset 0 0 0 5px #100f0a,0 28px 90px #000c;max-height:94dvh;border-radius:2px;box-sizing:border-box}
-.build-heading{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:25px 30px 20px;border-bottom:1px solid #725a373d}.build-heading header>span{font:10px system-ui;letter-spacing:.25em;color:#b39c76}.build-heading h3{font:clamp(21px,3.5vw,32px) Georgia;margin:6px 0 8px;color:#ffe3ae}.build-heading p{font:12px system-ui;color:#b3aa99;margin:0}.build-heading .btn{flex:none;font-size:11px}
-.build-tabs{display:flex;padding:0 30px;border-bottom:1px solid #715a37;gap:24px}.build-tabs button{border:0;border-bottom:3px solid transparent;background:none;color:#a89a82;font:700 11px system-ui;letter-spacing:.12em;padding:17px 0;cursor:pointer}.build-tabs button.selected{color:#ffe0a1;border-bottom-color:#e3bd75}
-.build-tools{display:flex;gap:10px;padding:18px 30px 12px}.build-tools input,.build-tools select{border:1px solid #6a5941;background:#12120ff2;color:#e3d6c0;font:12px system-ui;padding:10px 13px;min-height:40px;border-radius:2px}.build-tools input{flex:1;min-width:0}.build-tools input::placeholder{color:#8b806d}.build-tools select{max-width:190px}.build-tools [hidden],.build-filters[hidden]{display:none}
-.build-filters{display:flex;gap:8px;padding:0 30px 12px}.build-filters button{padding:8px 12px;min-height:34px;font:10px system-ui;letter-spacing:.06em;border:1px solid #65543c;color:#ac9c7e;background:#1a1712;cursor:pointer}.build-filters button.selected{color:#ffe2a6;border-color:#bc965a;background:#3c2e1c}
-.build-result-line{display:flex;gap:20px;justify-content:space-between;padding:0 30px 12px;color:#b3a07f;font:10px/1.5 system-ui}.build-result-line span:last-child{color:#817a6b;text-align:right}
-.build-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;overflow:auto;padding:4px 30px 30px;min-height:0;align-content:start;overscroll-behavior:contain;scrollbar-color:#91734b #1b1812;scrollbar-width:thin}
-#blessingCombos .combo-entry{display:flex;align-items:flex-start;gap:12px;padding:18px 16px;border:1px solid #5c503c;background:#171612;opacity:1;position:relative;margin:0;border-radius:2px}
-#blessingCombos .combo-entry.active{border-color:#b18b50;background:linear-gradient(120deg,#34291b,#1a1812);box-shadow:inset 3px 0 #ebc27b}.build-emblem{flex:none;width:54px;height:54px;image-rendering:pixelated;margin-top:7px}#blessingCombos .combo-entry>div{min-width:0;flex:1}
-#blessingCombos .combo-entry h4{color:#efd7ab;font:21px Georgia;line-height:1.15;margin:6px 0 9px}#blessingCombos .combo-entry p{color:#bdb4a2;font:12px/1.7 system-ui;margin:0 0 13px}#blessingCombos .combo-state{font:9px system-ui;letter-spacing:.15em;margin:0;color:#93836a}#blessingCombos .active .combo-state{color:#efd097}
-#blessingCombos .combo-parts{font:10px/1.4 system-ui;gap:6px}#blessingCombos .combo-parts span{border-color:#504735;color:#9e947f;padding:5px 7px;border-radius:2px}#blessingCombos .combo-parts .owned{border-color:#a48954;color:#f5dca7;background:#332a1a}
-.build-blessing{display:flex;gap:14px;align-items:center;padding:16px;background:#181611;border:1px solid #5b4d39;color:#c6bcaa;cursor:pointer;text-align:left;font-family:system-ui;position:relative}.build-blessing:disabled{opacity:1;cursor:default}.build-blessing:not(:disabled):hover{border-color:#b0915e;background:#242018}.build-card-icon{flex:none;border:1px solid #776045;width:42px;height:42px;display:grid;place-items:center;background:#2d251b}.build-card-icon svg{width:24px;height:24px;color:#debc81}.build-blessing>div:nth-child(2){flex:1;min-width:0}.build-blessing small{font:9px system-ui;letter-spacing:.1em;color:#a89677}.build-blessing h4{font:18px Georgia;color:#f2dcb2;margin:6px 0}.build-blessing p{font:11px/1.65 system-ui;color:#b8af9b;margin:0}.build-pair-arrow{font:24px Georgia;color:#b49a72}.build-blessing:disabled .build-pair-arrow{visibility:hidden}.build-blessing[data-r="1"] .build-card-icon{border-color:#859378}.build-blessing[data-r="2"] .build-card-icon{border-color:#a394bb}.build-blessing[data-r="3"]{border-color:#bd9555;background:linear-gradient(120deg,#382919,#201910)}.build-blessing[data-r="3"] small{color:#f5c978}.build-empty{grid-column:1/-1;text-align:center;padding:40px 20px;font:14px/1.8 system-ui;color:#a69b84}
-#blessingCombos :is(button,input,select,[tabindex]):focus-visible{outline:2px solid #ffe0a0;outline-offset:3px}.card .combo-preview{font:9px/1.5 system-ui;letter-spacing:.03em;padding-top:8px;margin-top:8px}.card .combo-preview.complete{color:#ffe09a}
-body.touch #botL{bottom:auto!important;top:108px!important;left:12px!important;width:218px;max-width:218px!important}body.touch #buildHud{min-height:48px;padding:4px 8px 4px 2px}body.touch #buildSigil{width:34px;height:34px}body.touch .build-hud-counts{gap:7px;font-size:8px;margin-top:4px}body.touch .build-hud-counts b{font-size:10px}body.touch .build-hud-title span{max-width:85px;font-size:7px}body.touch .build-hud-arrow{display:none}
-@media(max-width:700px){#botL{left:12px!important;width:244px;max-width:244px!important;bottom:172px!important}#blessingCombos{padding:8px}#blessingCombos .build-panel{height:96dvh;max-height:96dvh;width:100%}.build-heading{padding:17px 16px 14px}.build-heading p{font-size:10px}.build-heading h3{font-size:23px}.build-tabs{padding:0 16px;gap:18px}.build-tabs button{font-size:9px;padding:14px 0;letter-spacing:.06em}.build-tools{padding:13px 16px 10px}.build-tools select{width:120px;font-size:11px}.build-filters{padding:0 16px 10px}.build-filters button{padding:7px 9px;font-size:9px}.build-result-line{padding:0 16px 10px}.build-result-line span:last-child{display:none}.build-list{grid-template-columns:1fr;padding:2px 16px 20px;gap:9px}#blessingCombos .combo-entry{padding:14px 12px}.build-emblem{width:42px;height:42px}#blessingCombos .combo-entry h4{font-size:20px}#blessingCombos .combo-entry p{font-size:11px}.build-hud-title span{max-width:112px}.build-hud-counts{gap:8px}}
-@media(max-width:540px){body.touch #botL{top:172px!important;width:173px;max-width:173px!important}body.touch #buildSigil{width:29px;height:29px}body.touch .build-hud-title{font-size:9px}body.touch .build-hud-title span{display:none}body.touch .build-hud-counts{font-size:7px;gap:5px}body.touch .build-hud-counts span:last-child{display:none}body.touch .hud-actions{transform:none!important}body.touch #btnPause{position:fixed!important;top:174px!important;right:12px!important;bottom:auto!important;left:auto!important;margin:0!important;min-height:44px}}
-@media(max-height:560px) and (orientation:landscape){#botL,body.touch #botL{top:106px!important;bottom:auto!important;left:12px!important;width:214px;max-width:214px!important}#buildHud{min-height:46px;padding:3px 6px}#buildSigil{width:32px;height:32px}.build-hud-title span{display:none}.build-hud-counts{font-size:8px;margin-top:3px}#blessingCombos{padding:8px}.build-heading{padding:10px 18px}.build-heading h3{font-size:22px;margin:3px 0}.build-heading p{font-size:9px}.build-tabs button{padding:10px 0}.build-tools{padding:8px 18px}.build-tools input,.build-tools select{min-height:32px;padding:6px 10px}.build-filters{padding:0 18px 6px}.build-result-line{padding:0 18px 6px}.build-result-line span:last-child{display:none}.build-list{padding:2px 18px 18px;grid-template-columns:repeat(2,minmax(0,1fr))}}
+#chips,
+#evolutionRail {
+  display: none !important;
+}
+#botL {
+  display: block !important;
+  left: 20px !important;
+  bottom: 172px !important;
+  width: 282px;
+  max-width: 282px !important;
+  pointer-events: auto;
+}
+#buildHud {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px 8px 4px;
+  min-height: 60px;
+  color: #f1dbb6;
+  border: 1px solid #89704b;
+  background: linear-gradient(110deg, #252017f5, #151411f5);
+  box-shadow:
+    inset 0 0 0 3px #100f0b,
+    0 6px 24px #0008;
+  cursor: pointer;
+  text-align: left;
+  font-family: system-ui;
+  clip-path: polygon(
+    0 7px,
+    7px 0,
+    calc(100% - 7px) 0,
+    100% 7px,
+    100% calc(100% - 7px),
+    calc(100% - 7px) 100%,
+    7px 100%,
+    0 calc(100% - 7px)
+  );
+}
+#buildHud[hidden] {
+  display: none;
+}
+#buildHud:hover {
+  background: linear-gradient(110deg, #3a2c1af8, #211d16f5);
+  border-color: #d1a569;
+}
+#buildHud:focus-visible {
+  outline: 3px solid #ffe1a4;
+  outline-offset: 3px;
+  clip-path: none;
+}
+#buildSigil {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  image-rendering: pixelated;
+}
+.build-hud-content {
+  flex: 1;
+  min-width: 0;
+}
+.build-hud-title {
+  font: 700 10px system-ui;
+  letter-spacing: 0.14em;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.build-hud-title span {
+  font: 8px system-ui;
+  letter-spacing: 0.02em;
+  color: #bfa77d;
+  max-width: 138px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.build-hud-counts {
+  display: flex;
+  gap: 10px;
+  margin-top: 7px;
+  color: #b5aa96;
+  font-size: 9px;
+  white-space: nowrap;
+}
+.build-hud-counts b {
+  color: #f7e4bc;
+  font-size: 12px;
+  font-weight: 600;
+}
+.build-hud-arrow {
+  font: 22px Georgia;
+  color: #ba9766;
+}
+.new-combo {
+  border-color: #e4b973 !important;
+}
+.new-combo #buildNotice {
+  color: #ffe3a3;
+}
+#blessingCombos {
+  z-index: 150;
+  padding: 24px;
+  background: radial-gradient(ellipse at 50% 0, #483a2766, transparent 65%), #090908ef;
+  backdrop-filter: blur(5px);
+}
+#blessingCombos .build-panel {
+  width: min(1080px, 96vw);
+  max-width: 1080px;
+  height: min(850px, 92dvh);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  text-align: left;
+  border: 1px solid #9d8053;
+  background: linear-gradient(140deg, #242019, #121210 68%);
+  box-shadow:
+    inset 0 0 0 5px #100f0a,
+    0 28px 90px #000c;
+  max-height: 94dvh;
+  border-radius: 2px;
+  box-sizing: border-box;
+}
+.build-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  padding: 25px 30px 20px;
+  border-bottom: 1px solid #725a373d;
+}
+.build-heading header > span {
+  font: 10px system-ui;
+  letter-spacing: 0.25em;
+  color: #b39c76;
+}
+.build-heading h3 {
+  font: clamp(21px, 3.5vw, 32px) Georgia;
+  margin: 6px 0 8px;
+  color: #ffe3ae;
+}
+.build-heading p {
+  font: 12px system-ui;
+  color: #b3aa99;
+  margin: 0;
+}
+.build-heading .btn {
+  flex: none;
+  font-size: 11px;
+}
+.build-tabs {
+  display: flex;
+  padding: 0 30px;
+  border-bottom: 1px solid #715a37;
+  gap: 24px;
+}
+.build-tabs button {
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: #a89a82;
+  font: 700 11px system-ui;
+  letter-spacing: 0.12em;
+  padding: 17px 0;
+  cursor: pointer;
+}
+.build-tabs button.selected {
+  color: #ffe0a1;
+  border-bottom-color: #e3bd75;
+}
+.build-tools {
+  display: flex;
+  gap: 10px;
+  padding: 18px 30px 12px;
+}
+.build-tools input,
+.build-tools select {
+  border: 1px solid #6a5941;
+  background: #12120ff2;
+  color: #e3d6c0;
+  font: 12px system-ui;
+  padding: 10px 13px;
+  min-height: 40px;
+  border-radius: 2px;
+}
+.build-tools input {
+  flex: 1;
+  min-width: 0;
+}
+.build-tools input::placeholder {
+  color: #8b806d;
+}
+.build-tools select {
+  max-width: 190px;
+}
+.build-tools [hidden],
+.build-filters[hidden] {
+  display: none;
+}
+.build-filters {
+  display: flex;
+  gap: 8px;
+  padding: 0 30px 12px;
+}
+.build-filters button {
+  padding: 8px 12px;
+  min-height: 34px;
+  font: 10px system-ui;
+  letter-spacing: 0.06em;
+  border: 1px solid #65543c;
+  color: #ac9c7e;
+  background: #1a1712;
+  cursor: pointer;
+}
+.build-filters button.selected {
+  color: #ffe2a6;
+  border-color: #bc965a;
+  background: #3c2e1c;
+}
+.build-result-line {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  padding: 0 30px 12px;
+  color: #b3a07f;
+  font: 10px/1.5 system-ui;
+}
+.build-result-line span:last-child {
+  color: #817a6b;
+  text-align: right;
+}
+.build-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  overflow: auto;
+  padding: 4px 30px 30px;
+  min-height: 0;
+  align-content: start;
+  overscroll-behavior: contain;
+  scrollbar-color: #91734b #1b1812;
+  scrollbar-width: thin;
+}
+#blessingCombos .combo-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 16px;
+  border: 1px solid #5c503c;
+  background: #171612;
+  opacity: 1;
+  position: relative;
+  margin: 0;
+  border-radius: 2px;
+}
+#blessingCombos .combo-entry.active {
+  border-color: #b18b50;
+  background: linear-gradient(120deg, #34291b, #1a1812);
+  box-shadow: inset 3px 0 #ebc27b;
+}
+.build-emblem {
+  flex: none;
+  width: 54px;
+  height: 54px;
+  image-rendering: pixelated;
+  margin-top: 7px;
+}
+#blessingCombos .combo-entry > div {
+  min-width: 0;
+  flex: 1;
+}
+#blessingCombos .combo-entry h4 {
+  color: #efd7ab;
+  font: 21px Georgia;
+  line-height: 1.15;
+  margin: 6px 0 9px;
+}
+#blessingCombos .combo-entry p {
+  color: #bdb4a2;
+  font: 12px/1.7 system-ui;
+  margin: 0 0 13px;
+}
+#blessingCombos .combo-state {
+  font: 9px system-ui;
+  letter-spacing: 0.15em;
+  margin: 0;
+  color: #93836a;
+}
+#blessingCombos .active .combo-state {
+  color: #efd097;
+}
+#blessingCombos .combo-parts {
+  font: 10px/1.4 system-ui;
+  gap: 6px;
+}
+#blessingCombos .combo-parts span {
+  border-color: #504735;
+  color: #9e947f;
+  padding: 5px 7px;
+  border-radius: 2px;
+}
+#blessingCombos .combo-parts .owned {
+  border-color: #a48954;
+  color: #f5dca7;
+  background: #332a1a;
+}
+.build-blessing {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  background: #181611;
+  border: 1px solid #5b4d39;
+  color: #c6bcaa;
+  cursor: pointer;
+  text-align: left;
+  font-family: system-ui;
+  position: relative;
+}
+.build-blessing:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.build-blessing:not(:disabled):hover {
+  border-color: #b0915e;
+  background: #242018;
+}
+.build-card-icon {
+  flex: none;
+  border: 1px solid #776045;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  background: #2d251b;
+}
+.build-card-icon svg {
+  width: 24px;
+  height: 24px;
+  color: #debc81;
+}
+.build-blessing > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.build-blessing small {
+  font: 9px system-ui;
+  letter-spacing: 0.1em;
+  color: #a89677;
+}
+.build-blessing h4 {
+  font: 18px Georgia;
+  color: #f2dcb2;
+  margin: 6px 0;
+}
+.build-blessing p {
+  font: 11px/1.65 system-ui;
+  color: #b8af9b;
+  margin: 0;
+}
+.build-pair-arrow {
+  font: 24px Georgia;
+  color: #b49a72;
+}
+.build-blessing:disabled .build-pair-arrow {
+  visibility: hidden;
+}
+.build-blessing[data-r='1'] .build-card-icon {
+  border-color: #859378;
+}
+.build-blessing[data-r='2'] .build-card-icon {
+  border-color: #a394bb;
+}
+.build-blessing[data-r='3'] {
+  border-color: #bd9555;
+  background: linear-gradient(120deg, #382919, #201910);
+}
+.build-blessing[data-r='3'] small {
+  color: #f5c978;
+}
+.build-empty {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 40px 20px;
+  font: 14px/1.8 system-ui;
+  color: #a69b84;
+}
+#blessingCombos :is(button, input, select, [tabindex]):focus-visible {
+  outline: 2px solid #ffe0a0;
+  outline-offset: 3px;
+}
+.card .combo-preview {
+  font: 9px/1.5 system-ui;
+  letter-spacing: 0.03em;
+  padding-top: 8px;
+  margin-top: 8px;
+}
+.card .combo-preview.complete {
+  color: #ffe09a;
+}
+body.touch #botL {
+  bottom: auto !important;
+  top: 108px !important;
+  left: 12px !important;
+  width: 218px;
+  max-width: 218px !important;
+}
+body.touch #buildHud {
+  min-height: 48px;
+  padding: 4px 8px 4px 2px;
+}
+body.touch #buildSigil {
+  width: 34px;
+  height: 34px;
+}
+body.touch .build-hud-counts {
+  gap: 7px;
+  font-size: 8px;
+  margin-top: 4px;
+}
+body.touch .build-hud-counts b {
+  font-size: 10px;
+}
+body.touch .build-hud-title span {
+  max-width: 85px;
+  font-size: 7px;
+}
+body.touch .build-hud-arrow {
+  display: none;
+}
+@media (max-width: 700px) {
+  #botL {
+    left: 12px !important;
+    width: 244px;
+    max-width: 244px !important;
+    bottom: 172px !important;
+  }
+  #blessingCombos {
+    padding: 8px;
+  }
+  #blessingCombos .build-panel {
+    height: 96dvh;
+    max-height: 96dvh;
+    width: 100%;
+  }
+  .build-heading {
+    padding: 17px 16px 14px;
+  }
+  .build-heading p {
+    font-size: 10px;
+  }
+  .build-heading h3 {
+    font-size: 23px;
+  }
+  .build-tabs {
+    padding: 0 16px;
+    gap: 18px;
+  }
+  .build-tabs button {
+    font-size: 9px;
+    padding: 14px 0;
+    letter-spacing: 0.06em;
+  }
+  .build-tools {
+    padding: 13px 16px 10px;
+  }
+  .build-tools select {
+    width: 120px;
+    font-size: 11px;
+  }
+  .build-filters {
+    padding: 0 16px 10px;
+  }
+  .build-filters button {
+    padding: 7px 9px;
+    font-size: 9px;
+  }
+  .build-result-line {
+    padding: 0 16px 10px;
+  }
+  .build-result-line span:last-child {
+    display: none;
+  }
+  .build-list {
+    grid-template-columns: 1fr;
+    padding: 2px 16px 20px;
+    gap: 9px;
+  }
+  #blessingCombos .combo-entry {
+    padding: 14px 12px;
+  }
+  .build-emblem {
+    width: 42px;
+    height: 42px;
+  }
+  #blessingCombos .combo-entry h4 {
+    font-size: 20px;
+  }
+  #blessingCombos .combo-entry p {
+    font-size: 11px;
+  }
+  .build-hud-title span {
+    max-width: 112px;
+  }
+  .build-hud-counts {
+    gap: 8px;
+  }
+}
+@media (max-width: 540px) {
+  body.touch #botL {
+    top: 172px !important;
+    width: 173px;
+    max-width: 173px !important;
+  }
+  body.touch #buildSigil {
+    width: 29px;
+    height: 29px;
+  }
+  body.touch .build-hud-title {
+    font-size: 9px;
+  }
+  body.touch .build-hud-title span {
+    display: none;
+  }
+  body.touch .build-hud-counts {
+    font-size: 7px;
+    gap: 5px;
+  }
+  body.touch .build-hud-counts span:last-child {
+    display: none;
+  }
+  body.touch .hud-actions {
+    transform: none !important;
+  }
+  body.touch #btnPause {
+    position: fixed !important;
+    top: 174px !important;
+    right: 12px !important;
+    bottom: auto !important;
+    left: auto !important;
+    margin: 0 !important;
+    min-height: 44px;
+  }
+}
+@media (max-height: 560px) and (orientation: landscape) {
+  #botL,
+  body.touch #botL {
+    top: 106px !important;
+    bottom: auto !important;
+    left: 12px !important;
+    width: 214px;
+    max-width: 214px !important;
+  }
+  #buildHud {
+    min-height: 46px;
+    padding: 3px 6px;
+  }
+  #buildSigil {
+    width: 32px;
+    height: 32px;
+  }
+  .build-hud-title span {
+    display: none;
+  }
+  .build-hud-counts {
+    font-size: 8px;
+    margin-top: 3px;
+  }
+  #blessingCombos {
+    padding: 8px;
+  }
+  .build-heading {
+    padding: 10px 18px;
+  }
+  .build-heading h3 {
+    font-size: 22px;
+    margin: 3px 0;
+  }
+  .build-heading p {
+    font-size: 9px;
+  }
+  .build-tabs button {
+    padding: 10px 0;
+  }
+  .build-tools {
+    padding: 8px 18px;
+  }
+  .build-tools input,
+  .build-tools select {
+    min-height: 32px;
+    padding: 6px 10px;
+  }
+  .build-filters {
+    padding: 0 18px 6px;
+  }
+  .build-result-line {
+    padding: 0 18px 6px;
+  }
+  .build-result-line span:last-child {
+    display: none;
+  }
+  .build-list {
+    padding: 2px 18px 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
-.build-card-icon .build-emblem{width:34px;height:34px;margin:0}.card .ic .build-emblem{width:44px;height:44px;margin:0}
+.build-card-icon .build-emblem {
+  width: 34px;
+  height: 34px;
+  margin: 0;
+}
+.card .ic .build-emblem {
+  width: 44px;
+  height: 44px;
+  margin: 0;
+}

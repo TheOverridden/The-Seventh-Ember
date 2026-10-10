@@ -1,32 +1,323 @@
-const UNCOUNTED_CONFIG={key:'uncounted',hp:12800,r:43,dmg:49,spd:88,col:'#9ce7e3'};
-ETYPES.unrecorded={hp:12800,spd:88,dmg:49,r:43,xp:0,spr:'unrecorded',ai:'lateBoss',col:'#9ce7e3',ess:0,kb:0};
+const UNCOUNTED_CONFIG = { key: 'uncounted', hp: 12800, r: 43, dmg: 49, spd: 88, col: '#9ce7e3' };
+ETYPES.unrecorded = {
+  hp: 12800,
+  spd: 88,
+  dmg: 49,
+  r: 43,
+  xp: 0,
+  spr: 'unrecorded',
+  ai: 'lateBoss',
+  col: '#9ce7e3',
+  ess: 0,
+  kb: 0,
+};
 
-function startUncountedGuardian(){
- const gm=G.run?.guardianMode;if(!gm||G.run.mode!=='rush')return;gm.secret=true;gm.secretDefeated=false;gm.fightStart=G.run.t;setState('paused');clearInput();G.ebul=[];G.bullets=[];const fade=T('fade');fade.style.transition='opacity .75s ease';fade.style.opacity='1';
- setTimeout(revealUncountedGuardian,1150);
+function startUncountedGuardian() {
+  const gm = G.run?.guardianMode;
+  if (!gm || G.run.mode !== 'rush') return;
+  gm.secret = true;
+  gm.secretDefeated = false;
+  gm.fightStart = G.run.t;
+  setState('paused');
+  clearInput();
+  G.ebul = [];
+  G.bullets = [];
+  const fade = T('fade');
+  fade.style.transition = 'opacity .75s ease';
+  fade.style.opacity = '1';
+  setTimeout(revealUncountedGuardian, 1150);
 }
-function revealUncountedGuardian(){const gm=G.run?.guardianMode;if(!gm?.secret||G.dead)return;const a=arenaBounds();LATE_BOSSES.unrecorded=UNCOUNTED_CONFIG;ENDGAME_HP.uncounted=48000;ENDGAME_DAMAGE.uncounted=49;const b=makeLateBoss('unrecorded',a.cx,a.cy-38,'THE UNCOUNTED');delete LATE_BOSSES.unrecorded;delete ENDGAME_HP.uncounted;delete ENDGAME_DAMAGE.uncounted;b.introduced=true;b.aggro=true;b.bs.t=1.15;b.bs.duration=1.15;b.bs.secretPhase=0;b.bs.echoA=0;const mul=gm.difficulty==='nightfall'?1.7:1.45;b.max=Math.round(b.max*mul);b.hp=b.max;b.dmg=Math.round(b.dmg*(gm.difficulty==='nightfall'?1.32:1.12));if(gm.difficulty==='nightfall')b.spd*=1.08;G.enemies=[b];G.boss=b;G.bossActive=true;G.player.hp=Math.min(G.player.maxHp,G.player.hp+Math.ceil(G.player.maxHp*(gm.difficulty==='nightfall'?.22:.35)));G.player.hitCd=2;G.player.x=a.cx;G.player.y=a.bottom-72;sealLateArena(true);T('bossname').textContent=b.name;T('bossbar').classList.add('on');T('bossfill').style.width='100%';T('fade').style.opacity='0';setState('playing');burst(b.x,b.y,46,b.col,280,1,3,true);sfx('boss');toast('THE COUNT WAS WRONG','something answered the last bell');}
-function uncountedAI(b,dt,d,dx,dy){
- const s=b.bs,p=G.player,phase=b.hp>b.max*.66?0:b.hp>b.max*.33?1:2;if(phase>s.secretPhase){s.secretPhase=phase;s.mode='shift';s.t=s.duration=.9;G.ebul=[];if(G.world?.lateHazards)G.world.lateHazards=[];burst(b.x,b.y,34,phase===1?'#c3f4e9':'#f0b7ff',230,.85,3,true);sfx('mythic');return;}
- s.second=phase>0;
- if(s.mode==='shift'){s.t-=dt;b.x+=(arenaBounds().cx-b.x)*dt*3;b.y+=(arenaBounds().cy-b.y)*dt*3;if(s.t<=0){finishBossMove(b,.18);s.step+=2;}return;}
- if(s.mode==='windup'){s.t-=dt;if(s.t>.16){s.a=Math.atan2(p.y-b.y,p.x-b.x);s.targetX=p.x;s.targetY=p.y;}if(s.t>0)return;
-  if(s.kind==='turn'){const beams=phase===2?3:2;for(let i=0;i<beams;i++)bossHazard('beam',b.x,b.y,s.a+i*TAU/beams,.28,phase===2?2.8:2.25,{len:720,width:phase===2?8:10,color:b.col,spin:(i%2?-1:1)*(phase===2?1.32:.96),ownerUid:b.uid,followOwner:true});finishBossMove(b,phase===2?.22:.42);}
-  else if(s.kind==='collapse'){const n=phase===2?9:phase===1?7:5;for(let i=0;i<n;i++){const a=i*TAU/n+s.echoA,r=58+i%3*48;bossHazard('rift',p.x+Math.cos(a)*r,p.y+Math.sin(a)*r,a,.4+i*.055,.38,{radius:31+(i%2)*7,color:i%2?b.col:'#d9a9ed',damage:b.dmg*.42});}s.echoA+=.43;finishBossMove(b,.48);}
-  else if(s.kind==='crown'){const n=phase===2?26:phase===1?22:18,gap=Math.atan2(p.y-b.y,p.x-b.x);for(let i=0;i<n;i++){const a=i*TAU/n+s.echoA;if(Math.abs(Math.atan2(Math.sin(a-gap),Math.cos(a-gap)))>.2)lateShot(b,a,phase===2?305:265,b.dmg*.55,i%2?b.col:'#e3b4ef');}s.echoA+=.27;finishBossMove(b,.42);}
-  else{s.mode='dash';s.t=s.duration=phase===2?.72:.58;s.hit=false;s.dashes=phase+2;}return;
- }
- if(s.mode==='dash'){s.t-=dt;const hit=moveEnt(G.world,b,Math.cos(s.a)*(phase===2?720:620)*dt,Math.sin(s.a)*(phase===2?720:620)*dt);if(!s.hit&&d2(b.x,b.y,p.x,p.y)<(b.r+p.r+11)**2){hurtPlayer(b.dmg*.82,b.x,b.y);s.hit=true;}if(s.t<=0||hit){s.dashes--;if(s.dashes>0){s.a=Math.atan2(p.y-b.y,p.x-b.x)+(s.dashes%2?.2:-.2);s.t=phase===2?.34:.42;s.hit=false;bossRingLate(b,phase===2?8:6,205,s.a);}else finishBossMove(b,.48);}return;}
- if(s.mode==='recover'){s.t-=dt;if(s.t<=0){s.mode='wait';s.t=phase===2?.08:phase===1?.16:.3;}return;}
- s.t-=dt;const orbit=Math.sin(G.t*1.35+b.seed),step=d>220?1:d<145?-.6:0;moveEnt(G.world,b,(dx/d*step-dy/d*orbit*.72)*b.spd*dt,(dy/d*step+dx/d*orbit*.72)*b.spd*dt);if(s.t<=0){const lists=[['turn','crown','lunge','collapse'],['turn','collapse','lunge','crown','turn'],['turn','lunge','collapse','crown','turn','collapse']];const k=lists[phase][s.step++%lists[phase].length];beginBossMove(b,k,k==='turn'?.62:k==='lunge'?.38:.48);}
+function revealUncountedGuardian() {
+  const gm = G.run?.guardianMode;
+  if (!gm?.secret || G.dead) return;
+  const a = arenaBounds();
+  LATE_BOSSES.unrecorded = UNCOUNTED_CONFIG;
+  ENDGAME_HP.uncounted = 48000;
+  ENDGAME_DAMAGE.uncounted = 49;
+  const b = makeLateBoss('unrecorded', a.cx, a.cy - 38, 'THE UNCOUNTED');
+  delete LATE_BOSSES.unrecorded;
+  delete ENDGAME_HP.uncounted;
+  delete ENDGAME_DAMAGE.uncounted;
+  b.introduced = true;
+  b.aggro = true;
+  b.bs.t = 1.15;
+  b.bs.duration = 1.15;
+  b.bs.secretPhase = 0;
+  b.bs.echoA = 0;
+  const mul = gm.difficulty === 'nightfall' ? 1.7 : 1.45;
+  b.max = Math.round(b.max * mul);
+  b.hp = b.max;
+  b.dmg = Math.round(b.dmg * (gm.difficulty === 'nightfall' ? 1.32 : 1.12));
+  if (gm.difficulty === 'nightfall') b.spd *= 1.08;
+  G.enemies = [b];
+  G.boss = b;
+  G.bossActive = true;
+  G.player.hp = Math.min(
+    G.player.maxHp,
+    G.player.hp + Math.ceil(G.player.maxHp * (gm.difficulty === 'nightfall' ? 0.22 : 0.35))
+  );
+  G.player.hitCd = 2;
+  G.player.x = a.cx;
+  G.player.y = a.bottom - 72;
+  sealLateArena(true);
+  T('bossname').textContent = b.name;
+  T('bossbar').classList.add('on');
+  T('bossfill').style.width = '100%';
+  T('fade').style.opacity = '0';
+  setState('playing');
+  burst(b.x, b.y, 46, b.col, 280, 1, 3, true);
+  sfx('boss');
+  toast('THE COUNT WAS WRONG', 'something answered the last bell');
+}
+function uncountedAI(b, dt, d, dx, dy) {
+  const s = b.bs,
+    p = G.player,
+    phase = b.hp > b.max * 0.66 ? 0 : b.hp > b.max * 0.33 ? 1 : 2;
+  if (phase > s.secretPhase) {
+    s.secretPhase = phase;
+    s.mode = 'shift';
+    s.t = s.duration = 0.9;
+    G.ebul = [];
+    if (G.world?.lateHazards) G.world.lateHazards = [];
+    burst(b.x, b.y, 34, phase === 1 ? '#c3f4e9' : '#f0b7ff', 230, 0.85, 3, true);
+    sfx('mythic');
+    return;
+  }
+  s.second = phase > 0;
+  if (s.mode === 'shift') {
+    s.t -= dt;
+    b.x += (arenaBounds().cx - b.x) * dt * 3;
+    b.y += (arenaBounds().cy - b.y) * dt * 3;
+    if (s.t <= 0) {
+      finishBossMove(b, 0.18);
+      s.step += 2;
+    }
+    return;
+  }
+  if (s.mode === 'windup') {
+    s.t -= dt;
+    if (s.t > 0.16) {
+      s.a = Math.atan2(p.y - b.y, p.x - b.x);
+      s.targetX = p.x;
+      s.targetY = p.y;
+    }
+    if (s.t > 0) return;
+    if (s.kind === 'turn') {
+      const beams = phase === 2 ? 3 : 2;
+      for (let i = 0; i < beams; i++)
+        bossHazard('beam', b.x, b.y, s.a + (i * TAU) / beams, 0.28, phase === 2 ? 2.8 : 2.25, {
+          len: 720,
+          width: phase === 2 ? 8 : 10,
+          color: b.col,
+          spin: (i % 2 ? -1 : 1) * (phase === 2 ? 1.32 : 0.96),
+          ownerUid: b.uid,
+          followOwner: true,
+        });
+      finishBossMove(b, phase === 2 ? 0.22 : 0.42);
+    } else if (s.kind === 'collapse') {
+      const n = phase === 2 ? 9 : phase === 1 ? 7 : 5;
+      for (let i = 0; i < n; i++) {
+        const a = (i * TAU) / n + s.echoA,
+          r = 58 + (i % 3) * 48;
+        bossHazard('rift', p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, a, 0.4 + i * 0.055, 0.38, {
+          radius: 31 + (i % 2) * 7,
+          color: i % 2 ? b.col : '#d9a9ed',
+          damage: b.dmg * 0.42,
+        });
+      }
+      s.echoA += 0.43;
+      finishBossMove(b, 0.48);
+    } else if (s.kind === 'crown') {
+      const n = phase === 2 ? 26 : phase === 1 ? 22 : 18,
+        gap = Math.atan2(p.y - b.y, p.x - b.x);
+      for (let i = 0; i < n; i++) {
+        const a = (i * TAU) / n + s.echoA;
+        if (Math.abs(Math.atan2(Math.sin(a - gap), Math.cos(a - gap))) > 0.2)
+          lateShot(b, a, phase === 2 ? 305 : 265, b.dmg * 0.55, i % 2 ? b.col : '#e3b4ef');
+      }
+      s.echoA += 0.27;
+      finishBossMove(b, 0.42);
+    } else {
+      s.mode = 'dash';
+      s.t = s.duration = phase === 2 ? 0.72 : 0.58;
+      s.hit = false;
+      s.dashes = phase + 2;
+    }
+    return;
+  }
+  if (s.mode === 'dash') {
+    s.t -= dt;
+    const hit = moveEnt(
+      G.world,
+      b,
+      Math.cos(s.a) * (phase === 2 ? 720 : 620) * dt,
+      Math.sin(s.a) * (phase === 2 ? 720 : 620) * dt
+    );
+    if (!s.hit && d2(b.x, b.y, p.x, p.y) < (b.r + p.r + 11) ** 2) {
+      hurtPlayer(b.dmg * 0.82, b.x, b.y);
+      s.hit = true;
+    }
+    if (s.t <= 0 || hit) {
+      s.dashes--;
+      if (s.dashes > 0) {
+        s.a = Math.atan2(p.y - b.y, p.x - b.x) + (s.dashes % 2 ? 0.2 : -0.2);
+        s.t = phase === 2 ? 0.34 : 0.42;
+        s.hit = false;
+        bossRingLate(b, phase === 2 ? 8 : 6, 205, s.a);
+      } else finishBossMove(b, 0.48);
+    }
+    return;
+  }
+  if (s.mode === 'recover') {
+    s.t -= dt;
+    if (s.t <= 0) {
+      s.mode = 'wait';
+      s.t = phase === 2 ? 0.08 : phase === 1 ? 0.16 : 0.3;
+    }
+    return;
+  }
+  s.t -= dt;
+  const orbit = Math.sin(G.t * 1.35 + b.seed),
+    step = d > 220 ? 1 : d < 145 ? -0.6 : 0;
+  moveEnt(
+    G.world,
+    b,
+    ((dx / d) * step - (dy / d) * orbit * 0.72) * b.spd * dt,
+    ((dy / d) * step + (dx / d) * orbit * 0.72) * b.spd * dt
+  );
+  if (s.t <= 0) {
+    const lists = [
+      ['turn', 'crown', 'lunge', 'collapse'],
+      ['turn', 'collapse', 'lunge', 'crown', 'turn'],
+      ['turn', 'lunge', 'collapse', 'crown', 'turn', 'collapse'],
+    ];
+    const k = lists[phase][s.step++ % lists[phase].length];
+    beginBossMove(b, k, k === 'turn' ? 0.62 : k === 'lunge' ? 0.38 : 0.48);
+  }
 }
 
-const uncountedLateBossAI=lateBossAI;
-lateBossAI=function(b,dt,d,dx,dy){if(b.bossKey==='uncounted'){if(b.introduced){uncountedAI(b,dt,d,dx,dy);}return;}return uncountedLateBossAI(b,dt,d,dx,dy);};
-const uncountedTickHazards=tickLateHazards;
-tickLateHazards=function(dt){if(G.world?.lateHazards)for(const h of G.world.lateHazards){if(h.spin&&(h.phase==='warn'||h.phase==='active'))h.a+=h.spin*dt;if(h.followOwner){const b=G.enemies.find(e=>e.uid===h.ownerUid&&!e.dead);if(b){h.x=b.x;h.y=b.y;}}}return uncountedTickHazards(dt);};
-const uncountedDrawBoss=drawLateBossBody;
-drawLateBossBody=function(ctx,b){if(b.bossKey!=='uncounted')return uncountedDrawBoss(ctx,b);const t=save.motion?0:G.tAll,s=b.bs,phase=s.secretPhase||0,wind=s.mode==='windup',u=wind?smoothBoss(1-s.t/Math.max(.01,s.duration)):0;ctx.save();ctx.translate(b.x,b.y);ctx.globalCompositeOperation='lighter';for(let ring=0;ring<3;ring++){ctx.save();ctx.rotate(t*(ring%2?-.55:.42)+ring*2.1);ctx.strokeStyle=(ring===2?'#e8b9ef':'#86dfdc')+(ring===phase?'dd':'68');ctx.lineWidth=ring===phase?3:1.5;ctx.setLineDash(ring===1?[7,7]:[]);ctx.beginPath();ctx.ellipse(0,0,48+ring*11,19+ring*7,0,0,TAU);ctx.stroke();for(let i=0;i<3;i++){const a=i*TAU/3,rr=48+ring*11;ctx.fillStyle=i===phase?'#f4e4b3':'#75c9cc';ctx.fillRect(Math.cos(a)*rr-3,Math.sin(a)*(19+ring*7)-3,6,6);}ctx.restore();}ctx.globalCompositeOperation='source-over';ctx.fillStyle='#09151d';ctx.strokeStyle='#9ce7e3';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(0,-35);ctx.lineTo(25,-18);ctx.lineTo(21,25);ctx.lineTo(0,39);ctx.lineTo(-21,25);ctx.lineTo(-25,-18);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#d7f8ef';ctx.beginPath();ctx.moveTo(-13,-12);ctx.lineTo(-3,-17);ctx.lineTo(-6,-4);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(13,-12);ctx.lineTo(3,-17);ctx.lineTo(6,-4);ctx.closePath();ctx.fill();ctx.strokeStyle=phase===2?'#efb4f0':'#70cfd0';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-11,12);ctx.quadraticCurveTo(0,22,11,12);ctx.stroke();for(let i=0;i<6;i++){const a=t*(i%2?-.9:.75)+i*TAU/6,rr=31+9*Math.sin(t*1.7+i);ctx.fillStyle=i%2?'#cf9fe2':'#85ded8';ctx.fillRect(Math.cos(a)*rr-2,Math.sin(a)*rr-2,4,4);}if(wind){ctx.strokeStyle='#fff0c2';ctx.globalAlpha=.5+.35*u;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,68-u*9,-Math.PI*u,Math.PI*u);ctx.stroke();}ctx.restore();};
+const uncountedLateBossAI = lateBossAI;
+lateBossAI = function (b, dt, d, dx, dy) {
+  if (b.bossKey === 'uncounted') {
+    if (b.introduced) {
+      uncountedAI(b, dt, d, dx, dy);
+    }
+    return;
+  }
+  return uncountedLateBossAI(b, dt, d, dx, dy);
+};
+const uncountedTickHazards = tickLateHazards;
+tickLateHazards = function (dt) {
+  if (G.world?.lateHazards)
+    for (const h of G.world.lateHazards) {
+      if (h.spin && (h.phase === 'warn' || h.phase === 'active')) h.a += h.spin * dt;
+      if (h.followOwner) {
+        const b = G.enemies.find((e) => e.uid === h.ownerUid && !e.dead);
+        if (b) {
+          h.x = b.x;
+          h.y = b.y;
+        }
+      }
+    }
+  return uncountedTickHazards(dt);
+};
+const uncountedDrawBoss = drawLateBossBody;
+drawLateBossBody = function (ctx, b) {
+  if (b.bossKey !== 'uncounted') return uncountedDrawBoss(ctx, b);
+  const t = save.motion ? 0 : G.tAll,
+    s = b.bs,
+    phase = s.secretPhase || 0,
+    wind = s.mode === 'windup',
+    u = wind ? smoothBoss(1 - s.t / Math.max(0.01, s.duration)) : 0;
+  ctx.save();
+  ctx.translate(b.x, b.y);
+  ctx.globalCompositeOperation = 'lighter';
+  for (let ring = 0; ring < 3; ring++) {
+    ctx.save();
+    ctx.rotate(t * (ring % 2 ? -0.55 : 0.42) + ring * 2.1);
+    ctx.strokeStyle = (ring === 2 ? '#e8b9ef' : '#86dfdc') + (ring === phase ? 'dd' : '68');
+    ctx.lineWidth = ring === phase ? 3 : 1.5;
+    ctx.setLineDash(ring === 1 ? [7, 7] : []);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 48 + ring * 11, 19 + ring * 7, 0, 0, TAU);
+    ctx.stroke();
+    for (let i = 0; i < 3; i++) {
+      const a = (i * TAU) / 3,
+        rr = 48 + ring * 11;
+      ctx.fillStyle = i === phase ? '#f4e4b3' : '#75c9cc';
+      ctx.fillRect(Math.cos(a) * rr - 3, Math.sin(a) * (19 + ring * 7) - 3, 6, 6);
+    }
+    ctx.restore();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = '#09151d';
+  ctx.strokeStyle = '#9ce7e3';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(0, -35);
+  ctx.lineTo(25, -18);
+  ctx.lineTo(21, 25);
+  ctx.lineTo(0, 39);
+  ctx.lineTo(-21, 25);
+  ctx.lineTo(-25, -18);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#d7f8ef';
+  ctx.beginPath();
+  ctx.moveTo(-13, -12);
+  ctx.lineTo(-3, -17);
+  ctx.lineTo(-6, -4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(13, -12);
+  ctx.lineTo(3, -17);
+  ctx.lineTo(6, -4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = phase === 2 ? '#efb4f0' : '#70cfd0';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-11, 12);
+  ctx.quadraticCurveTo(0, 22, 11, 12);
+  ctx.stroke();
+  for (let i = 0; i < 6; i++) {
+    const a = t * (i % 2 ? -0.9 : 0.75) + (i * TAU) / 6,
+      rr = 31 + 9 * Math.sin(t * 1.7 + i);
+    ctx.fillStyle = i % 2 ? '#cf9fe2' : '#85ded8';
+    ctx.fillRect(Math.cos(a) * rr - 2, Math.sin(a) * rr - 2, 4, 4);
+  }
+  if (wind) {
+    ctx.strokeStyle = '#fff0c2';
+    ctx.globalAlpha = 0.5 + 0.35 * u;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 68 - u * 9, -Math.PI * u, Math.PI * u);
+    ctx.stroke();
+  }
+  ctx.restore();
+};
 
-const uncountedGuardianDefeated=guardianModeGuardianDefeated;
-guardianModeGuardianDefeated=function(b){const gm=G.run?.guardianMode;if(G.run?.mode==='rush'&&b?.bossKey==='keeper'&&gm&&!gm.secret&&gm.defeated===9){cleanupGuardianArena();gm.defeated=10;burst(b.x,b.y,42,'#ffd487',300,.85,3,true);sfx('victory');startUncountedGuardian();return;}if(G.run?.mode==='rush'&&b?.bossKey==='uncounted'&&gm?.secret){cleanupGuardianArena();gm.secretDefeated=true;gm.defeated=11;burst(b.x,b.y,60,'#b9fff1',340,1.1,3,true);sfx('victory');finishBossRush();return;}return uncountedGuardianDefeated(b);};
+const uncountedGuardianDefeated = guardianModeGuardianDefeated;
+guardianModeGuardianDefeated = function (b) {
+  const gm = G.run?.guardianMode;
+  if (G.run?.mode === 'rush' && b?.bossKey === 'keeper' && gm && !gm.secret && gm.defeated === 9) {
+    cleanupGuardianArena();
+    gm.defeated = 10;
+    burst(b.x, b.y, 42, '#ffd487', 300, 0.85, 3, true);
+    sfx('victory');
+    startUncountedGuardian();
+    return;
+  }
+  if (G.run?.mode === 'rush' && b?.bossKey === 'uncounted' && gm?.secret) {
+    cleanupGuardianArena();
+    gm.secretDefeated = true;
+    gm.defeated = 11;
+    burst(b.x, b.y, 60, '#b9fff1', 340, 1.1, 3, true);
+    sfx('victory');
+    finishBossRush();
+    return;
+  }
+  return uncountedGuardianDefeated(b);
+};

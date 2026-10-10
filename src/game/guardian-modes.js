@@ -1,49 +1,205 @@
-
-const GUARDIAN_ROSTER=[
- {key:'warden',floor:5,name:'THE STAR WARDEN',place:'The Hollow Gate',type:'gateWarden',color:'#d8c389'},
- {key:'matriarch',floor:10,name:'THE HOLLOW MATRIARCH',place:'The Rootbound Gardens',type:'gardenMatriarch',color:'#ba87a1'},
- {key:'bellkeeper',floor:15,name:'THE BELLKEEPER',place:'The Drowned Reservoir',type:'bellkeeper',color:'#6bc7d7'},
- {key:'colossus',floor:20,name:'THE EMBER COLOSSUS',place:'The Ember Foundry',type:'emberColossus',color:'#f08a4e'},
- {key:'astronomer',floor:25,name:'THE GLASS ASTRONOMER',place:'The Shattered Observatory',type:'glassAstronomer',color:'#89e1ef'},
- {key:'scribe',floor:30,name:'THE PALE SCRIBE',place:'The Buried Archive',type:'paleScribe',color:'#decda7'},
- {key:'regents',floor:35,name:'THE TWIN REGENTS',place:'The Silent Court',type:'firstRegent',color:'#d895ac'},
- {key:'seraph',floor:40,name:'THE VOID SERAPH',place:'The Choir Spire',type:'voidSeraph',color:'#b1c0ff'},
- {key:'tyrant',floor:45,name:'THE OBSIDIAN TYRANT',place:'The Black Citadel',type:'obsidianTyrant',color:'#ee8668'},
- {key:'keeper',floor:50,name:'THE FIRST KEEPER',place:'The Heart of the Star',type:'firstKeeper',color:'#f4c66f'}
+const GUARDIAN_ROSTER = [
+  {
+    key: 'warden',
+    floor: 5,
+    name: 'THE STAR WARDEN',
+    place: 'The Hollow Gate',
+    type: 'gateWarden',
+    color: '#d8c389',
+  },
+  {
+    key: 'matriarch',
+    floor: 10,
+    name: 'THE HOLLOW MATRIARCH',
+    place: 'The Rootbound Gardens',
+    type: 'gardenMatriarch',
+    color: '#ba87a1',
+  },
+  {
+    key: 'bellkeeper',
+    floor: 15,
+    name: 'THE BELLKEEPER',
+    place: 'The Drowned Reservoir',
+    type: 'bellkeeper',
+    color: '#6bc7d7',
+  },
+  {
+    key: 'colossus',
+    floor: 20,
+    name: 'THE EMBER COLOSSUS',
+    place: 'The Ember Foundry',
+    type: 'emberColossus',
+    color: '#f08a4e',
+  },
+  {
+    key: 'astronomer',
+    floor: 25,
+    name: 'THE GLASS ASTRONOMER',
+    place: 'The Shattered Observatory',
+    type: 'glassAstronomer',
+    color: '#89e1ef',
+  },
+  {
+    key: 'scribe',
+    floor: 30,
+    name: 'THE PALE SCRIBE',
+    place: 'The Buried Archive',
+    type: 'paleScribe',
+    color: '#decda7',
+  },
+  {
+    key: 'regents',
+    floor: 35,
+    name: 'THE TWIN REGENTS',
+    place: 'The Silent Court',
+    type: 'firstRegent',
+    color: '#d895ac',
+  },
+  {
+    key: 'seraph',
+    floor: 40,
+    name: 'THE VOID SERAPH',
+    place: 'The Choir Spire',
+    type: 'voidSeraph',
+    color: '#b1c0ff',
+  },
+  {
+    key: 'tyrant',
+    floor: 45,
+    name: 'THE OBSIDIAN TYRANT',
+    place: 'The Black Citadel',
+    type: 'obsidianTyrant',
+    color: '#ee8668',
+  },
+  {
+    key: 'keeper',
+    floor: 50,
+    name: 'THE FIRST KEEPER',
+    place: 'The Heart of the Star',
+    type: 'firstKeeper',
+    color: '#f4c66f',
+  },
 ];
-const GUARDIAN_SCENES=new Set(GUARDIAN_ROSTER.flatMap(g=>g.key==='warden'?['wardenBefore','wardenAfter']:g.key==='matriarch'?['matriarchBefore','matriarchAfter']:(LATE_BOSS_SCENES[g.key]||[])));
-const ARCHIVE_BOONS=[
- {id:'heart',name:'A HEART KEPT WARM',mark:'♥',desc:'Restore 48% health. Maximum health rises by 12% for the rest of the Rush.'},
- {id:'fury',name:'THE RED WAKE',mark:'✦',desc:'All Ember damage rises by 16% for the rest of the Rush.'},
- {id:'focus',name:'STEADY HANDS',mark:'◎',desc:'Cast 13% faster and Rekindle more quickly for the rest of the Rush.'},
- {id:'step',name:'THE SHORTER STEP',mark:'»',desc:'Move 9% faster and recover Dash 14% sooner for the rest of the Rush.'},
- {id:'wells',name:'DEEPER WELLS',mark:'◆',desc:'Carry two more Ember charges and gain one piercing light.'},
- {id:'crown',name:'A BORROWED CROWN',mark:'♢',desc:'Gain 7% critical chance and strengthen every Flare by 12%.'}
+const GUARDIAN_SCENES = new Set(
+  GUARDIAN_ROSTER.flatMap((g) =>
+    g.key === 'warden'
+      ? ['wardenBefore', 'wardenAfter']
+      : g.key === 'matriarch'
+        ? ['matriarchBefore', 'matriarchAfter']
+        : LATE_BOSS_SCENES[g.key] || []
+  )
+);
+const ARCHIVE_BOONS = [
+  {
+    id: 'heart',
+    name: 'A HEART KEPT WARM',
+    mark: '♥',
+    desc: 'Restore 48% health. Maximum health rises by 12% for the rest of the Rush.',
+  },
+  {
+    id: 'fury',
+    name: 'THE RED WAKE',
+    mark: '✦',
+    desc: 'All Ember damage rises by 16% for the rest of the Rush.',
+  },
+  {
+    id: 'focus',
+    name: 'STEADY HANDS',
+    mark: '◎',
+    desc: 'Cast 13% faster and Rekindle more quickly for the rest of the Rush.',
+  },
+  {
+    id: 'step',
+    name: 'THE SHORTER STEP',
+    mark: '»',
+    desc: 'Move 9% faster and recover Dash 14% sooner for the rest of the Rush.',
+  },
+  {
+    id: 'wells',
+    name: 'DEEPER WELLS',
+    mark: '◆',
+    desc: 'Carry two more Ember charges and gain one piercing light.',
+  },
+  {
+    id: 'crown',
+    name: 'A BORROWED CROWN',
+    mark: '♢',
+    desc: 'Gain 7% critical chance and strengthen every Flare by 12%.',
+  },
 ];
-let guardianPracticeDifficulty='standard',guardianModeToken=0;
-const isGuardianMode=()=>G.run&&(G.run.mode==='practice'||G.run.mode==='rush');
-function guardianArchiveData(){
- if(!save.guardianRecords||typeof save.guardianRecords!=='object')save.guardianRecords={};
- if(!save.bossRush||typeof save.bossRush!=='object')save.bossRush={clears:0,nightfallUnlocked:false,standard:{bestTime:0,bestHits:null},nightfall:{bestTime:0,bestHits:null}};
- for(const d of ['standard','nightfall'])if(!save.bossRush[d])save.bossRush[d]={bestTime:0,bestHits:null};
- return save;
+let guardianPracticeDifficulty = 'standard',
+  guardianModeToken = 0;
+const isGuardianMode = () => G.run && (G.run.mode === 'practice' || G.run.mode === 'rush');
+function guardianArchiveData() {
+  if (!save.guardianRecords || typeof save.guardianRecords !== 'object') save.guardianRecords = {};
+  if (!save.bossRush || typeof save.bossRush !== 'object')
+    save.bossRush = {
+      clears: 0,
+      nightfallUnlocked: false,
+      standard: { bestTime: 0, bestHits: null },
+      nightfall: { bestTime: 0, bestHits: null },
+    };
+  for (const d of ['standard', 'nightfall'])
+    if (!save.bossRush[d]) save.bossRush[d] = { bestTime: 0, bestHits: null };
+  return save;
 }
-function guardianUnlocked(g){return (save.bestFloor||0)>=g.floor;}
-function archiveRecord(key,difficulty='standard'){
- guardianArchiveData();const root=save.guardianRecords[key]||(save.guardianRecords[key]={});
- return root[difficulty]||(root[difficulty]={wins:0,bestTime:0,bestHits:null});
+function guardianUnlocked(g) {
+  return (save.bestFloor || 0) >= g.floor;
 }
-function modeTime(v){v=Math.max(0,v||0);return Math.floor(v/60)+':'+String(Math.floor(v%60)).padStart(2,'0')+'.'+Math.floor(v%1*10);}
-function guardianRank(hits,time,complete=true){if(!complete)return'F';if(hits<=8&&time<720)return'S';if(hits<=16&&time<900)return'A';if(hits<=28)return'B';return'C';}
-function installGuardianModes(){
- if(T('guardianArchive'))return;
- const modeRow=document.createElement('div');modeRow.className='guardian-mode-row';modeRow.innerHTML=`<button class="btn guardian-menu-btn" id="btnGuardianArchive"><span>◇</span><b>GUARDIAN ARCHIVE</b><small>REPLAY DISCOVERED FIGHTS</small></button><button class="btn guardian-menu-btn" id="btnBossRush"><span>Ⅹ</span><b>BOSS RUSH</b><small id="bossRushMenuState">COMPLETE THE CAMPAIGN TO UNLOCK</small></button>`;T('menuStats').before(modeRow);
- const hud=document.createElement('div');hud.id='guardianModeHud';hud.hidden=true;T('floorObjective').after(hud);
- const archive=document.createElement('div');archive.id='guardianArchive';archive.className='ov guardian-overlay';archive.innerHTML=`<div class="guardian-shell"><header><div><span class="guardian-kicker">THE ROOMS THAT REMEMBER</span><h2>GUARDIAN ARCHIVE</h2><p>Practice any guardian you have reached. Archive fights grant no essence and never alter your saved descent.</p></div><button class="guardian-x" id="guardianArchiveClose" aria-label="Close Guardian Archive">×</button></header><div class="guardian-difficulty" role="group" aria-label="Practice difficulty"><button data-practice-difficulty="standard" class="selected"><b>TRUE FORM</b><small>The campaign encounter</small></button><button data-practice-difficulty="ascendant"><b>ASCENDANT</b><small>+35% health · +15% damage</small></button></div><div id="guardianArchiveProgress"></div><div id="guardianArchiveGrid" class="guardian-grid"></div></div>`;document.body.appendChild(archive);
- const rush=document.createElement('div');rush.id='bossRushPanel';rush.className='ov guardian-overlay';rush.innerHTML=`<div class="guardian-shell rush-shell"><header><div><span class="guardian-kicker">TEN BELLS · ONE FLAME</span><h2>BOSS RUSH</h2><p>Face every guardian without returning to the surface. Your Skill Tree and Ember Forms carry into the Archive, alongside a fixed set of Blessings.</p></div><button class="guardian-x" id="bossRushClose" aria-label="Close Boss Rush">×</button></header><div id="bossRushLock" class="rush-lock"></div><button class="btn primary rush-continue" id="continueBossRush" hidden>CONTINUE SAVED BOSS RUSH</button><div class="rush-rules"><span><b>10</b> GUARDIANS</span><span><b>3</b> BOONS PER REST</span><span><b>1</b> CONTINUOUS RUN</span></div><div class="rush-choices"><article><i>Ⅰ</i><h3>THE FIRST BELL</h3><p>Guardian strength rises through the sequence. Restores 18% health between victories.</p><div id="rushStandardRecord"></div><button class="btn primary" id="startBossRushStandard">BEGIN BOSS RUSH</button></article><article class="nightfall"><i>Ⅱ</i><h3>NIGHTFALL</h3><p>More health, more damage, and only 9% recovery between victories. Unlocks after clearing the First Bell.</p><div id="rushNightfallRecord"></div><button class="btn" id="startBossRushNightfall">LOCKED</button></article></div><footer>Boss Rush checkpoints at every bell. Your campaign checkpoint remains untouched.</footer></div>`;document.body.appendChild(rush);
- const rest=document.createElement('div');rest.id='guardianSanctuary';rest.className='ov guardian-overlay';rest.innerHTML=`<div class="guardian-shell sanctuary-shell"><div class="sanctuary-flame" aria-hidden="true"><i></i><i></i><i></i><b>✦</b></div><span class="guardian-kicker" id="sanctuaryKicker">ONE BELL FALLS SILENT</span><h2 id="sanctuaryTitle">THE ARCHIVE OPENS A HAND</h2><p id="sanctuaryText"></p><div id="guardianBoonGrid" class="boon-grid"></div><button class="text-button" id="guardianRushAbandon">End the Boss Rush</button></div>`;document.body.appendChild(rest);
- const result=document.createElement('div');result.id='guardianModeResult';result.className='ov guardian-overlay';result.innerHTML=`<div class="guardian-shell result-shell"><span class="guardian-kicker" id="guardianResultKicker"></span><div class="result-rank" id="guardianResultRank">A</div><h2 id="guardianResultTitle"></h2><p id="guardianResultText"></p><div id="guardianResultStats" class="guardian-result-stats"></div><div class="guardian-result-actions"><button class="btn primary" id="guardianResultPrimary"></button><button class="btn" id="guardianResultNext">NEXT GUARDIAN</button><button class="btn" id="guardianResultArchive">GUARDIAN ARCHIVE</button><button class="btn subtle" id="guardianResultMenu">RETURN TO TITLE</button></div></div>`;document.body.appendChild(result);
- const style=document.createElement('style');style.textContent=`
+function archiveRecord(key, difficulty = 'standard') {
+  guardianArchiveData();
+  const root = save.guardianRecords[key] || (save.guardianRecords[key] = {});
+  return root[difficulty] || (root[difficulty] = { wins: 0, bestTime: 0, bestHits: null });
+}
+function modeTime(v) {
+  v = Math.max(0, v || 0);
+  return (
+    Math.floor(v / 60) +
+    ':' +
+    String(Math.floor(v % 60)).padStart(2, '0') +
+    '.' +
+    Math.floor((v % 1) * 10)
+  );
+}
+function guardianRank(hits, time, complete = true) {
+  if (!complete) return 'F';
+  if (hits <= 8 && time < 720) return 'S';
+  if (hits <= 16 && time < 900) return 'A';
+  if (hits <= 28) return 'B';
+  return 'C';
+}
+function installGuardianModes() {
+  if (T('guardianArchive')) return;
+  const modeRow = document.createElement('div');
+  modeRow.className = 'guardian-mode-row';
+  modeRow.innerHTML = `<button class="btn guardian-menu-btn" id="btnGuardianArchive"><span>◇</span><b>GUARDIAN ARCHIVE</b><small>REPLAY DISCOVERED FIGHTS</small></button><button class="btn guardian-menu-btn" id="btnBossRush"><span>Ⅹ</span><b>BOSS RUSH</b><small id="bossRushMenuState">COMPLETE THE CAMPAIGN TO UNLOCK</small></button>`;
+  T('menuStats').before(modeRow);
+  const hud = document.createElement('div');
+  hud.id = 'guardianModeHud';
+  hud.hidden = true;
+  T('floorObjective').after(hud);
+  const archive = document.createElement('div');
+  archive.id = 'guardianArchive';
+  archive.className = 'ov guardian-overlay';
+  archive.innerHTML = `<div class="guardian-shell"><header><div><span class="guardian-kicker">THE ROOMS THAT REMEMBER</span><h2>GUARDIAN ARCHIVE</h2><p>Practice any guardian you have reached. Archive fights grant no essence and never alter your saved descent.</p></div><button class="guardian-x" id="guardianArchiveClose" aria-label="Close Guardian Archive">×</button></header><div class="guardian-difficulty" role="group" aria-label="Practice difficulty"><button data-practice-difficulty="standard" class="selected"><b>TRUE FORM</b><small>The campaign encounter</small></button><button data-practice-difficulty="ascendant"><b>ASCENDANT</b><small>+35% health · +15% damage</small></button></div><div id="guardianArchiveProgress"></div><div id="guardianArchiveGrid" class="guardian-grid"></div></div>`;
+  document.body.appendChild(archive);
+  const rush = document.createElement('div');
+  rush.id = 'bossRushPanel';
+  rush.className = 'ov guardian-overlay';
+  rush.innerHTML = `<div class="guardian-shell rush-shell"><header><div><span class="guardian-kicker">TEN BELLS · ONE FLAME</span><h2>BOSS RUSH</h2><p>Face every guardian without returning to the surface. Your Skill Tree and Ember Forms carry into the Archive, alongside a fixed set of Blessings.</p></div><button class="guardian-x" id="bossRushClose" aria-label="Close Boss Rush">×</button></header><div id="bossRushLock" class="rush-lock"></div><button class="btn primary rush-continue" id="continueBossRush" hidden>CONTINUE SAVED BOSS RUSH</button><div class="rush-rules"><span><b>10</b> GUARDIANS</span><span><b>3</b> BOONS PER REST</span><span><b>1</b> CONTINUOUS RUN</span></div><div class="rush-choices"><article><i>Ⅰ</i><h3>THE FIRST BELL</h3><p>Guardian strength rises through the sequence. Restores 18% health between victories.</p><div id="rushStandardRecord"></div><button class="btn primary" id="startBossRushStandard">BEGIN BOSS RUSH</button></article><article class="nightfall"><i>Ⅱ</i><h3>NIGHTFALL</h3><p>More health, more damage, and only 9% recovery between victories. Unlocks after clearing the First Bell.</p><div id="rushNightfallRecord"></div><button class="btn" id="startBossRushNightfall">LOCKED</button></article></div><footer>Boss Rush checkpoints at every bell. Your campaign checkpoint remains untouched.</footer></div>`;
+  document.body.appendChild(rush);
+  const rest = document.createElement('div');
+  rest.id = 'guardianSanctuary';
+  rest.className = 'ov guardian-overlay';
+  rest.innerHTML = `<div class="guardian-shell sanctuary-shell"><div class="sanctuary-flame" aria-hidden="true"><i></i><i></i><i></i><b>✦</b></div><span class="guardian-kicker" id="sanctuaryKicker">ONE BELL FALLS SILENT</span><h2 id="sanctuaryTitle">THE ARCHIVE OPENS A HAND</h2><p id="sanctuaryText"></p><div id="guardianBoonGrid" class="boon-grid"></div><button class="text-button" id="guardianRushAbandon">End the Boss Rush</button></div>`;
+  document.body.appendChild(rest);
+  const result = document.createElement('div');
+  result.id = 'guardianModeResult';
+  result.className = 'ov guardian-overlay';
+  result.innerHTML = `<div class="guardian-shell result-shell"><span class="guardian-kicker" id="guardianResultKicker"></span><div class="result-rank" id="guardianResultRank">A</div><h2 id="guardianResultTitle"></h2><p id="guardianResultText"></p><div id="guardianResultStats" class="guardian-result-stats"></div><div class="guardian-result-actions"><button class="btn primary" id="guardianResultPrimary"></button><button class="btn" id="guardianResultNext">NEXT GUARDIAN</button><button class="btn" id="guardianResultArchive">GUARDIAN ARCHIVE</button><button class="btn subtle" id="guardianResultMenu">RETURN TO TITLE</button></div></div>`;
+  document.body.appendChild(result);
+  const style = document.createElement('style');
+  style.textContent = `
 .guardian-mode-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0 4px}.guardian-menu-btn{min-height:54px!important;display:grid!important;grid-template-columns:30px 1fr;grid-template-rows:1fr 1fr;text-align:left;padding:8px 12px!important;border-color:#8ba7b64f!important;background:linear-gradient(120deg,#13202ccc,#0b1019dd)!important}.guardian-menu-btn>span{grid-row:1/3;align-self:center;font:24px Georgia;color:#eacb8e}.guardian-menu-btn b{font:10px/1.2 system-ui;letter-spacing:.12em;color:#f4dfb1}.guardian-menu-btn small{font:7px/1.2 system-ui;letter-spacing:.08em;color:#8299a7}.guardian-menu-btn.locked{opacity:.58}.guardian-menu-btn:not(.locked):hover{border-color:#e5c681a0!important;box-shadow:0 0 24px #d8a85217}
 #guardianModeHud{margin:4px auto 0;width:max-content;max-width:90vw;padding:4px 11px;border:1px solid #d6b87555;background:#07101cdd;color:#ebce91;font:8px/1.2 system-ui;letter-spacing:.16em;box-shadow:0 0 18px #0008}#guardianModeHud[hidden]{display:none}
 .guardian-overlay{z-index:145;background:radial-gradient(circle at 50% 35%,#162434f2,#050912fa 68%);padding:max(15px,env(safe-area-inset-top)) max(15px,env(safe-area-inset-right)) max(15px,env(safe-area-inset-bottom)) max(15px,env(safe-area-inset-left));overflow:auto;align-items:flex-start}.guardian-shell{width:min(1060px,96vw);margin:auto;padding:26px;position:relative;border:1px solid #b99a625c;background:linear-gradient(145deg,#121b28f7,#080c14fb 68%);box-shadow:0 28px 90px #000d,0 0 70px #7399aa12;color:#dce3e2}.guardian-shell:before{content:'';position:absolute;inset:7px;border:1px solid #d8c08718;pointer-events:none}.guardian-shell header{display:flex;justify-content:space-between;gap:18px;border-bottom:1px solid #8fa5ad2e;padding:2px 4px 18px;margin-bottom:16px}.guardian-shell h2{font:clamp(24px,4vw,42px)/1 Georgia;color:#f1d79f;letter-spacing:.04em;margin:6px 0 8px;text-shadow:0 0 22px #cf9f5430}.guardian-shell header p,.guardian-shell>p{max-width:680px;color:#9dafb7;font:12px/1.65 system-ui;margin:0}.guardian-kicker{color:#86b7c3;font:8px/1.2 system-ui;letter-spacing:.24em}.guardian-x{width:42px;height:42px;border:1px solid #869da75c;background:#0b111b;color:#d8caa8;font:24px Georgia;cursor:pointer;z-index:1}.guardian-difficulty{display:flex;gap:8px;margin:14px 4px}.guardian-difficulty button{flex:1;min-height:52px;border:1px solid #6d829050;background:#0a111b;color:#a8b7bd;padding:8px;cursor:pointer}.guardian-difficulty button b,.guardian-difficulty button small{display:block}.guardian-difficulty button b{font:9px system-ui;letter-spacing:.14em}.guardian-difficulty button small{font:7px system-ui;margin-top:4px}.guardian-difficulty button.selected{border-color:#e1bd78a6;color:#f0d69f;background:#1a1c25;box-shadow:inset 0 0 24px #d69f4214}#guardianArchiveProgress{font:8px system-ui;letter-spacing:.13em;color:#88a4af;margin:14px 4px}
@@ -51,111 +207,961 @@ function installGuardianModes(){
 .rush-shell{max-width:900px}.rush-lock{padding:10px 14px;margin:0 0 14px;border:1px solid #a1786850;background:#26161b9c;color:#d7aaa2;font:9px/1.5 system-ui;letter-spacing:.08em}.rush-lock:empty{display:none}.rush-continue{display:block;width:min(420px,100%);margin:4px auto 18px;box-shadow:0 0 26px #e0b85d2e}.rush-continue[hidden]{display:none!important}.rush-rules{display:flex;justify-content:center;gap:13px;flex-wrap:wrap;margin:18px 0}.rush-rules span{min-width:150px;padding:10px;border:1px solid #78909a42;background:#09111a;text-align:center;color:#8298a3;font:7px system-ui;letter-spacing:.12em}.rush-rules b{display:block;color:#efd49b;font:24px Georgia;margin-bottom:4px}.rush-choices{display:grid;grid-template-columns:1fr 1fr;gap:14px}.rush-choices article{padding:22px;border:1px solid #8da0a844;background:linear-gradient(145deg,#17202b,#090e17);position:relative}.rush-choices article>i{position:absolute;right:18px;top:11px;color:#ddbf8050;font:46px Georgia}.rush-choices h3{font:20px Georgia;color:#eed49e;margin:2px 0 10px}.rush-choices p{color:#94a7af;font:10px/1.55 system-ui;min-height:49px}.rush-choices article>div{color:#c2af83;font:8px/1.5 system-ui;letter-spacing:.07em;min-height:28px;margin:12px 0}.rush-choices .btn{width:100%}.rush-choices .nightfall{background:linear-gradient(145deg,#1c1627,#080b15);border-color:#947ab65c}.rush-choices .nightfall h3{color:#d8c5f0}.guardian-shell footer{text-align:center;color:#748995;font:8px/1.5 system-ui;margin-top:18px}
 .sanctuary-shell,.result-shell{max-width:760px;text-align:center;margin:auto}.sanctuary-shell{padding-top:34px}.sanctuary-flame{width:90px;height:86px;margin:0 auto 10px;position:relative}.sanctuary-flame b{position:absolute;left:31px;top:27px;color:#fff1b1;font:30px Georgia;text-shadow:0 0 18px #ffb04d}.sanctuary-flame i{position:absolute;left:42px;top:39px;width:7px;height:7px;background:#9bdce4;transform:rotate(45deg);animation:sanctuaryOrbit 4s linear infinite}.sanctuary-flame i:nth-child(2){animation-delay:-1.33s}.sanctuary-flame i:nth-child(3){animation-delay:-2.66s}@keyframes sanctuaryOrbit{from{transform:rotate(0) translateX(36px) rotate(45deg)}to{transform:rotate(360deg) translateX(36px) rotate(405deg)}}.sanctuary-shell h2{margin:8px 0 10px}.sanctuary-shell>p{margin:0 auto 18px}.boon-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}.boon-card{min-height:175px;padding:18px 13px;border:1px solid #8ca2aa52;background:linear-gradient(150deg,#172330,#090f18);color:#dce4e3;cursor:pointer;transition:.15s transform,.15s border-color,.15s background}.boon-card:hover,.boon-card:focus{transform:translateY(-4px);border-color:#efd08aa5;background:#222733;outline:none}.boon-card i{display:block;color:#f0ca7d;font:28px Georgia;margin-bottom:12px}.boon-card b{display:block;color:#f0daa9;font:13px/1.25 Georgia;margin-bottom:9px}.boon-card small{font:9px/1.5 system-ui;color:#91a6af}.result-rank{width:94px;height:94px;margin:6px auto 14px;display:grid;place-items:center;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:linear-gradient(135deg,#40331f,#0b121b 68%);color:#ffe1a2;font:52px Georgia;box-shadow:0 0 38px #dfa84a26,inset 0 0 0 2px #e8c57b,inset 0 0 24px #d49c3518}.result-shell h2{margin:24px 0 10px}.result-shell>p{margin:0 auto 20px}.guardian-result-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:20px 0}.guardian-result-stats span{padding:13px 7px;border:1px solid #748a9445;background:#08101a;color:#849aa4;font:7px system-ui;letter-spacing:.1em}.guardian-result-stats b{display:block;color:#f1d79f;font:22px Georgia;margin-bottom:5px}.guardian-result-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}.guardian-result-actions .btn{min-height:44px}
 #guardianResultNext[hidden],#guardianResultArchive[hidden],#guardianModeHud[hidden]{display:none!important}body.guardian-mode #quickControls{opacity:.58}@media(max-width:900px){.guardian-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:620px){.guardian-mode-row{grid-template-columns:1fr}.guardian-shell{padding:18px 13px}.guardian-grid{grid-template-columns:repeat(2,minmax(135px,1fr));gap:7px}.guardian-card{min-height:210px}.guardian-card canvas{height:98px}.rush-choices{grid-template-columns:1fr}.boon-grid{grid-template-columns:1fr}.boon-card{min-height:118px}.guardian-result-stats{grid-template-columns:repeat(2,1fr)}.guardian-difficulty{flex-direction:column}}
-`;document.head.appendChild(style);
- on(T('btnGuardianArchive'),'click',openGuardianArchive);on(T('guardianArchiveClose'),'click',closeGuardianArchive);on(T('btnBossRush'),'click',openBossRush);on(T('bossRushClose'),'click',closeBossRush);on(T('continueBossRush'),'click',resumeBossRush);on(T('startBossRushStandard'),'click',()=>startBossRush('standard'));on(T('startBossRushNightfall'),'click',()=>startBossRush('nightfall'));on(T('guardianRushAbandon'),'click',()=>showGuardianModeFailure('The bells remain awake.'));on(T('guardianResultMenu'),'click',leaveGuardianModes);on(T('guardianResultArchive'),'click',returnToGuardianArchive);on(T('guardianResultNext'),'click',startNextGuardianPractice);on(T('guardianResultPrimary'),'click',guardianResultPrimaryAction);
- for(const b of archive.querySelectorAll('[data-practice-difficulty]'))on(b,'click',()=>{guardianPracticeDifficulty=b.dataset.practiceDifficulty;renderGuardianArchive();});
+`;
+  document.head.appendChild(style);
+  on(T('btnGuardianArchive'), 'click', openGuardianArchive);
+  on(T('guardianArchiveClose'), 'click', closeGuardianArchive);
+  on(T('btnBossRush'), 'click', openBossRush);
+  on(T('bossRushClose'), 'click', closeBossRush);
+  on(T('continueBossRush'), 'click', resumeBossRush);
+  on(T('startBossRushStandard'), 'click', () => startBossRush('standard'));
+  on(T('startBossRushNightfall'), 'click', () => startBossRush('nightfall'));
+  on(T('guardianRushAbandon'), 'click', () => showGuardianModeFailure('The bells remain awake.'));
+  on(T('guardianResultMenu'), 'click', leaveGuardianModes);
+  on(T('guardianResultArchive'), 'click', returnToGuardianArchive);
+  on(T('guardianResultNext'), 'click', startNextGuardianPractice);
+  on(T('guardianResultPrimary'), 'click', guardianResultPrimaryAction);
+  for (const b of archive.querySelectorAll('[data-practice-difficulty]'))
+    on(b, 'click', () => {
+      guardianPracticeDifficulty = b.dataset.practiceDifficulty;
+      renderGuardianArchive();
+    });
 }
-function closeGuardianArchive(){hide('guardianArchive');show('menu');T('btnGuardianArchive')?.focus({preventScroll:true});}
-function openGuardianArchive(){initAudio();guardianArchiveData();hide('menu');show('guardianArchive');renderGuardianArchive();T('guardianArchiveClose').focus({preventScroll:true});}
-function renderGuardianArchive(){
- guardianArchiveData();for(const b of T('guardianArchive').querySelectorAll('[data-practice-difficulty]'))b.classList.toggle('selected',b.dataset.practiceDifficulty===guardianPracticeDifficulty);
- const unlocked=GUARDIAN_ROSTER.filter(guardianUnlocked).length;T('guardianArchiveProgress').textContent=unlocked+' / 10 GUARDIANS RECOVERED · PRACTICE RECORDS ARE SAVED';const grid=T('guardianArchiveGrid');grid.replaceChildren();
- for(const g of GUARDIAN_ROSTER){const open=guardianUnlocked(g),standard=archiveRecord(g.key,'standard'),asc=archiveRecord(g.key,'ascendant'),rec=guardianPracticeDifficulty==='ascendant'?asc:standard,ascLocked=guardianPracticeDifficulty==='ascendant'&&!standard.wins;const card=document.createElement('article');card.className='guardian-card'+(open?'':' locked');card.style.setProperty('--guardian-glow',g.color+'24');const cv=document.createElement('canvas');cv.width=210;cv.height=112;const floor=document.createElement('span');floor.className='guardian-floor';floor.textContent=open?'FLOOR '+g.floor:'UNRECOVERED';const h=document.createElement('h3');h.textContent=open?g.name:'UNKNOWN GUARDIAN';const p=document.createElement('p');p.textContent=open?g.place:'Reach floor '+g.floor+' to recover this record.';const record=document.createElement('span');record.className='guardian-record';record.textContent=!open?'NO RECORD':ascLocked?'CLEAR TRUE FORM TO UNLOCK':rec.wins?'BEST '+modeTime(rec.bestTime)+' · '+rec.bestHits+' HITS · '+rec.wins+' CLEAR'+(rec.wins===1?'':'S'):'NO PRACTICE CLEAR';const button=document.createElement('button');button.textContent=!open?'LOCKED':ascLocked?'ASCENDANT LOCKED':'PRACTICE';button.disabled=!open||ascLocked;on(button,'click',()=>startGuardianPractice(g.key,guardianPracticeDifficulty));card.append(cv,floor,h,p,record,button);grid.appendChild(card);drawGuardianArchivePortrait(cv,g,!open);}
+function closeGuardianArchive() {
+  hide('guardianArchive');
+  show('menu');
+  T('btnGuardianArchive')?.focus({ preventScroll: true });
 }
-function drawGuardianArchivePortrait(cv,g,locked=false){
- const x=cv.getContext('2d'),t=save.motion?2:G.tAll||2;x.clearRect(0,0,cv.width,cv.height);x.imageSmoothingEnabled=false;x.fillStyle='#070c14';x.fillRect(0,0,cv.width,cv.height);x.globalAlpha=locked?.18:1;
- for(let i=0;i<22;i++){x.fillStyle=i%3?g.color+'22':'#ffffff18';x.fillRect((i*73)%cv.width,(i*41)%cv.height,i%5?1:2,1);}
- if(g.key==='warden'||g.key==='matriarch'){const spr=SPR[g.type],frame=spr?.frames[Math.floor(t*(spr?.fps||1))%(spr?.frames?.length||1)];if(frame){const sc=Math.min(98/spr.W,92/spr.H);x.drawImage(frame,cv.width/2-spr.W*sc/2,cv.height/2-spr.H*sc/2,spr.W*sc,spr.H*sc);}}
- else{x.save();x.translate(cv.width/2,61);const c=LATE_BOSSES[g.type]||Object.values(LATE_BOSSES).find(q=>q.key===g.key),fake={x:0,y:0,r:c.r,col:c.col,bossKey:g.key,twinRole:'blade',introduced:true,bs:{mode:'wait',kind:'',t:1,duration:1,phase:0,second:false,mid:{phase:0,clock:t},duet:{clock:t,mode:'duet',kind:'crossing'}}};if(g.key==='regents'){x.scale(.48,.48);fake.x=-48;drawLateBossBody(x,fake);fake.x=48;fake.twinRole='bell';drawLateBossBody(x,fake);}else{x.scale(.57,.57);drawLateBossBody(x,fake);}x.restore();}
- x.globalAlpha=1;if(locked){x.fillStyle='#07101ac7';x.fillRect(0,0,cv.width,cv.height);x.strokeStyle='#60717a66';x.beginPath();x.moveTo(84,58);x.lineTo(105,36);x.lineTo(126,58);x.lineTo(105,79);x.closePath();x.stroke();}
+function openGuardianArchive() {
+  initAudio();
+  guardianArchiveData();
+  hide('menu');
+  show('guardianArchive');
+  renderGuardianArchive();
+  T('guardianArchiveClose').focus({ preventScroll: true });
 }
-function closeBossRush(){hide('bossRushPanel');show('menu');T('btnBossRush')?.focus({preventScroll:true});}
-function openBossRush(){initAudio();guardianArchiveData();hide('menu');show('bossRushPanel');renderBossRushPanel();T('bossRushClose').focus({preventScroll:true});}
-function renderBossRushPanel(){
- const data=guardianArchiveData().bossRush,unlocked=!!(save.campaignMedal||save.victories>0),session=save.guardianSession?.mode==='rush'?save.guardianSession:null,cont=T('continueBossRush');T('bossRushLock').textContent=unlocked?'':'THE ARCHIVE WILL NOT RING ALL TEN BELLS UNTIL THE CAMPAIGN HAS BEEN COMPLETED.';cont.hidden=!session;if(session)cont.textContent=session.status==='failed'?'VIEW LAST BOSS RUSH':'CONTINUE AT BELL '+(session.index+1)+' · '+GUARDIAN_ROSTER[session.index].name;T('startBossRushStandard').disabled=!unlocked;T('startBossRushStandard').textContent=unlocked?'BEGIN BOSS RUSH':'CAMPAIGN REQUIRED';T('startBossRushNightfall').disabled=!unlocked||!data.nightfallUnlocked;T('startBossRushNightfall').textContent=data.nightfallUnlocked?'ENTER NIGHTFALL':'LOCKED';T('rushStandardRecord').textContent=data.standard.bestTime?'BEST '+modeTime(data.standard.bestTime)+' · '+data.standard.bestHits+' HITS':'NO COMPLETE RUN';T('rushNightfallRecord').textContent=data.nightfall.bestTime?'BEST '+modeTime(data.nightfall.bestTime)+' · '+data.nightfall.bestHits+' HITS':data.nightfallUnlocked?'NO COMPLETE RUN':'CLEAR THE FIRST BELL TO UNLOCK';
+function renderGuardianArchive() {
+  guardianArchiveData();
+  for (const b of T('guardianArchive').querySelectorAll('[data-practice-difficulty]'))
+    b.classList.toggle('selected', b.dataset.practiceDifficulty === guardianPracticeDifficulty);
+  const unlocked = GUARDIAN_ROSTER.filter(guardianUnlocked).length;
+  T('guardianArchiveProgress').textContent =
+    unlocked + ' / 10 GUARDIANS RECOVERED · PRACTICE RECORDS ARE SAVED';
+  const grid = T('guardianArchiveGrid');
+  grid.replaceChildren();
+  for (const g of GUARDIAN_ROSTER) {
+    const open = guardianUnlocked(g),
+      standard = archiveRecord(g.key, 'standard'),
+      asc = archiveRecord(g.key, 'ascendant'),
+      rec = guardianPracticeDifficulty === 'ascendant' ? asc : standard,
+      ascLocked = guardianPracticeDifficulty === 'ascendant' && !standard.wins;
+    const card = document.createElement('article');
+    card.className = 'guardian-card' + (open ? '' : ' locked');
+    card.style.setProperty('--guardian-glow', g.color + '24');
+    const cv = document.createElement('canvas');
+    cv.width = 210;
+    cv.height = 112;
+    const floor = document.createElement('span');
+    floor.className = 'guardian-floor';
+    floor.textContent = open ? 'FLOOR ' + g.floor : 'UNRECOVERED';
+    const h = document.createElement('h3');
+    h.textContent = open ? g.name : 'UNKNOWN GUARDIAN';
+    const p = document.createElement('p');
+    p.textContent = open ? g.place : 'Reach floor ' + g.floor + ' to recover this record.';
+    const record = document.createElement('span');
+    record.className = 'guardian-record';
+    record.textContent = !open
+      ? 'NO RECORD'
+      : ascLocked
+        ? 'CLEAR TRUE FORM TO UNLOCK'
+        : rec.wins
+          ? 'BEST ' +
+            modeTime(rec.bestTime) +
+            ' · ' +
+            rec.bestHits +
+            ' HITS · ' +
+            rec.wins +
+            ' CLEAR' +
+            (rec.wins === 1 ? '' : 'S')
+          : 'NO PRACTICE CLEAR';
+    const button = document.createElement('button');
+    button.textContent = !open ? 'LOCKED' : ascLocked ? 'ASCENDANT LOCKED' : 'PRACTICE';
+    button.disabled = !open || ascLocked;
+    on(button, 'click', () => startGuardianPractice(g.key, guardianPracticeDifficulty));
+    card.append(cv, floor, h, p, record, button);
+    grid.appendChild(card);
+    drawGuardianArchivePortrait(cv, g, !open);
+  }
 }
-function modeBlessingBuild(tier){
- const wanted={dmg:Math.ceil(tier/3),hp:Math.ceil(tier/4),rate:Math.floor((tier+1)/3),edge:Math.ceil(tier/4),speed:Math.floor(tier/5),magazine:Math.floor((tier+1)/4),dash:Math.floor((tier+1)/4),quickload:Math.floor(tier/5),crit:tier>=4?1:0,pierce:tier>=4?1:0,regen:tier>=5?1:0,guard:tier>=5?1:0,burn:tier>=6?1:0,orbital:tier>=7?1:0,chain:tier>=8?1:0,aftershock:tier>=9?1:0,runRevive:tier>=10?1:0};const out={};for(const[id,n]of Object.entries(wanted)){const c=POOL.find(o=>o.id===id);if(c&&n>0)out[id]=Math.min(c.max,n);}return out;
+function drawGuardianArchivePortrait(cv, g, locked = false) {
+  const x = cv.getContext('2d'),
+    t = save.motion ? 2 : G.tAll || 2;
+  x.clearRect(0, 0, cv.width, cv.height);
+  x.imageSmoothingEnabled = false;
+  x.fillStyle = '#070c14';
+  x.fillRect(0, 0, cv.width, cv.height);
+  x.globalAlpha = locked ? 0.18 : 1;
+  for (let i = 0; i < 22; i++) {
+    x.fillStyle = i % 3 ? g.color + '22' : '#ffffff18';
+    x.fillRect((i * 73) % cv.width, (i * 41) % cv.height, i % 5 ? 1 : 2, 1);
+  }
+  if (g.key === 'warden' || g.key === 'matriarch') {
+    const spr = SPR[g.type],
+      frame = spr?.frames[Math.floor(t * (spr?.fps || 1)) % (spr?.frames?.length || 1)];
+    if (frame) {
+      const sc = Math.min(98 / spr.W, 92 / spr.H);
+      x.drawImage(
+        frame,
+        cv.width / 2 - (spr.W * sc) / 2,
+        cv.height / 2 - (spr.H * sc) / 2,
+        spr.W * sc,
+        spr.H * sc
+      );
+    }
+  } else {
+    x.save();
+    x.translate(cv.width / 2, 61);
+    const c = LATE_BOSSES[g.type] || Object.values(LATE_BOSSES).find((q) => q.key === g.key),
+      fake = {
+        x: 0,
+        y: 0,
+        r: c.r,
+        col: c.col,
+        bossKey: g.key,
+        twinRole: 'blade',
+        introduced: true,
+        bs: {
+          mode: 'wait',
+          kind: '',
+          t: 1,
+          duration: 1,
+          phase: 0,
+          second: false,
+          mid: { phase: 0, clock: t },
+          duet: { clock: t, mode: 'duet', kind: 'crossing' },
+        },
+      };
+    if (g.key === 'regents') {
+      x.scale(0.48, 0.48);
+      fake.x = -48;
+      drawLateBossBody(x, fake);
+      fake.x = 48;
+      fake.twinRole = 'bell';
+      drawLateBossBody(x, fake);
+    } else {
+      x.scale(0.57, 0.57);
+      drawLateBossBody(x, fake);
+    }
+    x.restore();
+  }
+  x.globalAlpha = 1;
+  if (locked) {
+    x.fillStyle = '#07101ac7';
+    x.fillRect(0, 0, cv.width, cv.height);
+    x.strokeStyle = '#60717a66';
+    x.beginPath();
+    x.moveTo(84, 58);
+    x.lineTo(105, 36);
+    x.lineTo(126, 58);
+    x.lineTo(105, 79);
+    x.closePath();
+    x.stroke();
+  }
 }
-function cleanGuardianSession(raw){
- if(!raw||raw.version!==1||raw.mode!=='rush')return null;
- const num=(v,lo,hi)=>Number.isFinite(v)?clamp(v,lo,hi):lo,index=clamp(Math.floor(num(raw.index,0,9)),0,9),defeated=clamp(Math.floor(num(raw.defeated,0,10)),0,10),boons={};
- for(const b of ARCHIVE_BOONS){const n=Math.floor(num(raw.boons?.[b.id],0,10));if(n)boons[b.id]=n;}
- return{version:1,mode:'rush',difficulty:raw.difficulty==='nightfall'?'nightfall':'standard',status:['fight','sanctuary','failed'].includes(raw.status)?raw.status:'fight',index,defeated,hits:Math.floor(num(raw.hits,0,99999)),boons,lastFloor:GUARDIAN_ROSTER[index].floor,elapsed:num(raw.elapsed,0,1e7),fightElapsed:num(raw.fightElapsed,0,1e6),hp:num(raw.hp,.01,1e9),maxHp:num(raw.maxHp,1,1e9),savedAt:num(raw.savedAt,0,9e15)};
+function closeBossRush() {
+  hide('bossRushPanel');
+  show('menu');
+  T('btnBossRush')?.focus({ preventScroll: true });
 }
-function snapshotGuardianSession(){
- if(G.run?.mode!=='rush'||!G.run.guardianMode){return;}
- const gm=G.run.guardianMode;if(gm.defeated>=GUARDIAN_ROSTER.length){save.guardianSession=null;return;}
- const status=gm.sessionState==='sanctuary'?'sanctuary':gm.sessionState==='failed'||G.dead?'failed':'fight';
- save.guardianSession=cleanGuardianSession({version:1,mode:'rush',difficulty:gm.difficulty,status,index:gm.index,defeated:gm.defeated,hits:gm.hits,boons:gm.boons,lastFloor:gm.lastFloor,elapsed:G.run.t,fightElapsed:Math.max(0,G.run.t-gm.fightStart),hp:Math.max(.01,G.player?.hp||1),maxHp:Math.max(1,G.player?.maxHp||1),savedAt:Date.now()});
+function openBossRush() {
+  initAudio();
+  guardianArchiveData();
+  hide('menu');
+  show('bossRushPanel');
+  renderBossRushPanel();
+  T('bossRushClose').focus({ preventScroll: true });
 }
-function restoreGuardianProgress(session){
- const gm=G.run.guardianMode;gm.index=session.index;gm.defeated=session.defeated;gm.hits=session.hits;gm.boons=deepCopy(session.boons);gm.lastFloor=session.lastFloor;gm.sessionState=session.status;G.run.t=session.elapsed;
- recalc();G.player.hp=clamp(session.hp,.01,G.player.maxHp);G.player.ammo=G.player.magSize;
+function renderBossRushPanel() {
+  const data = guardianArchiveData().bossRush,
+    unlocked = !!(save.campaignMedal || save.victories > 0),
+    session = save.guardianSession?.mode === 'rush' ? save.guardianSession : null,
+    cont = T('continueBossRush');
+  T('bossRushLock').textContent = unlocked
+    ? ''
+    : 'THE ARCHIVE WILL NOT RING ALL TEN BELLS UNTIL THE CAMPAIGN HAS BEEN COMPLETED.';
+  cont.hidden = !session;
+  if (session)
+    cont.textContent =
+      session.status === 'failed'
+        ? 'VIEW LAST BOSS RUSH'
+        : 'CONTINUE AT BELL ' + (session.index + 1) + ' · ' + GUARDIAN_ROSTER[session.index].name;
+  T('startBossRushStandard').disabled = !unlocked;
+  T('startBossRushStandard').textContent = unlocked ? 'BEGIN BOSS RUSH' : 'CAMPAIGN REQUIRED';
+  T('startBossRushNightfall').disabled = !unlocked || !data.nightfallUnlocked;
+  T('startBossRushNightfall').textContent = data.nightfallUnlocked ? 'ENTER NIGHTFALL' : 'LOCKED';
+  T('rushStandardRecord').textContent = data.standard.bestTime
+    ? 'BEST ' + modeTime(data.standard.bestTime) + ' · ' + data.standard.bestHits + ' HITS'
+    : 'NO COMPLETE RUN';
+  T('rushNightfallRecord').textContent = data.nightfall.bestTime
+    ? 'BEST ' + modeTime(data.nightfall.bestTime) + ' · ' + data.nightfall.bestHits + ' HITS'
+    : data.nightfallUnlocked
+      ? 'NO COMPLETE RUN'
+      : 'CLEAR THE FIRST BELL TO UNLOCK';
 }
-function resumeBossRush(){
- const session=cleanGuardianSession(save.guardianSession);if(!session)return;
- hide('bossRushPanel');createGuardianModeRun('rush',session.lastFloor,session.difficulty);restoreGuardianProgress(session);
- if(session.status==='sanctuary'){setState('paused');showGuardianSanctuary(GUARDIAN_ROSTER[session.index],true);}
- else if(session.status==='failed'){showGuardianModeFailure('The sequence ended here. Your progress before entering the Archive is still safe.',true);}
- else{startGuardianModeFight(session.lastFloor,true);G.run.guardianMode.fightStart=G.run.t-session.fightElapsed;G.player.hp=clamp(session.hp,.01,G.player.maxHp);G.player.hitCd=Math.max(G.player.hitCd,1.2);pauseGame(true);}
- saveNow();
+function modeBlessingBuild(tier) {
+  const wanted = {
+    dmg: Math.ceil(tier / 3),
+    hp: Math.ceil(tier / 4),
+    rate: Math.floor((tier + 1) / 3),
+    edge: Math.ceil(tier / 4),
+    speed: Math.floor(tier / 5),
+    magazine: Math.floor((tier + 1) / 4),
+    dash: Math.floor((tier + 1) / 4),
+    quickload: Math.floor(tier / 5),
+    crit: tier >= 4 ? 1 : 0,
+    pierce: tier >= 4 ? 1 : 0,
+    regen: tier >= 5 ? 1 : 0,
+    guard: tier >= 5 ? 1 : 0,
+    burn: tier >= 6 ? 1 : 0,
+    orbital: tier >= 7 ? 1 : 0,
+    chain: tier >= 8 ? 1 : 0,
+    aftershock: tier >= 9 ? 1 : 0,
+    runRevive: tier >= 10 ? 1 : 0,
+  };
+  const out = {};
+  for (const [id, n] of Object.entries(wanted)) {
+    const c = POOL.find((o) => o.id === id);
+    if (c && n > 0) out[id] = Math.min(c.max, n);
+  }
+  return out;
 }
-function createGuardianModeRun(mode,floor,difficulty){
- guardianModeToken++;clearInput();META=computeMeta();const tier=mode==='rush'?14:Math.ceil(floor/5)+2,up=modeBlessingBuild(tier);G.run={level:Math.max(4,tier*3),xp:0,up,ess:0,kills:0,t:0,revUsed:false,runRevUsed:false,won:false,mode,forms:normalizeRunForms(save.loadout),evolutions:[],formCasts:0,guardianMode:{difficulty,index:Math.max(0,GUARDIAN_ROSTER.findIndex(g=>g.floor===floor)),hits:0,defeated:0,fightStart:0,boons:{},lastFloor:floor}};G.floor=floor;G.boss=null;G.bossActive=false;G.dead=false;G.pendingLevels=0;G.descending=false;G.enemies=[];G.bullets=[];G.ebul=[];G.picks=[];G.chests=[];G.parts=[];G.texts=[];G.player={x:0,y:0,r:12,hp:1,maxHp:1,shotT:0,hitCd:0,dashT:0,dashCdT:0,kbx:0,kby:0,orbA:0,muzzle:0,face:0,moving:false,lean:0,ghosts:[],ghostT:0,dashDx:1,dashDy:0,dmg:BASE.dmg,shotInt:.4,proj:1,pierce:0,ric:0,regen:0,orbN:0,dashCd:BASE.dashCd,xpMul:1,execB:0,speed:BASE.speed,magnet:BASE.magnet,critC:.05};recalc();G.player.hp=G.player.maxHp;initCombat();G.player.ammo=G.player.magSize;T('chips').replaceChildren();for(const o of POOL)if(up[o.id])addChip(o);renderEvolutionChips();for(const id of ['menu','pause','dead','win','levelup','skills','guardianArchive','bossRushPanel','guardianModeResult','guardianSanctuary','chapterClear','finale'])hide(id);dialogue=null;storyQueue=[];T('conversation').hidden=true;document.body.classList.remove('conversing');document.body.classList.add('guardian-mode');T('btnSaveExit').textContent=mode==='rush'?'LEAVE BOSS RUSH':'RETURN TO ARCHIVE';T('btnAbandon').textContent=mode==='rush'?'ABANDON RUSH':'END PRACTICE';setState('playing');
+function cleanGuardianSession(raw) {
+  if (!raw || raw.version !== 1 || raw.mode !== 'rush') return null;
+  const num = (v, lo, hi) => (Number.isFinite(v) ? clamp(v, lo, hi) : lo),
+    index = clamp(Math.floor(num(raw.index, 0, 9)), 0, 9),
+    defeated = clamp(Math.floor(num(raw.defeated, 0, 10)), 0, 10),
+    boons = {};
+  for (const b of ARCHIVE_BOONS) {
+    const n = Math.floor(num(raw.boons?.[b.id], 0, 10));
+    if (n) boons[b.id] = n;
+  }
+  return {
+    version: 1,
+    mode: 'rush',
+    difficulty: raw.difficulty === 'nightfall' ? 'nightfall' : 'standard',
+    status: ['fight', 'sanctuary', 'failed'].includes(raw.status) ? raw.status : 'fight',
+    index,
+    defeated,
+    hits: Math.floor(num(raw.hits, 0, 99999)),
+    boons,
+    lastFloor: GUARDIAN_ROSTER[index].floor,
+    elapsed: num(raw.elapsed, 0, 1e7),
+    fightElapsed: num(raw.fightElapsed, 0, 1e6),
+    hp: num(raw.hp, 0.01, 1e9),
+    maxHp: num(raw.maxHp, 1, 1e9),
+    savedAt: num(raw.savedAt, 0, 9e15),
+  };
 }
-function applyGuardianModeBoons(){
- if(!isGuardianMode())return;const q=G.run.guardianMode?.boons||{},p=G.player;p.maxHp=Math.round(p.maxHp*(1+.12*(q.heart||0)));p.dmg*=1+.16*(q.fury||0)+.12*(q.crown||0);p.shotInt/=1+.13*(q.focus||0);p.reloadMul=(p.reloadMul||1)*(1+.18*(q.focus||0));p.speed*=1+.09*(q.step||0);p.dashCd*=Math.pow(.86,q.step||0);p.pierce+=(q.wells||0);p.critC+=.07*(q.crown||0);
+function snapshotGuardianSession() {
+  if (G.run?.mode !== 'rush' || !G.run.guardianMode) {
+    return;
+  }
+  const gm = G.run.guardianMode;
+  if (gm.defeated >= GUARDIAN_ROSTER.length) {
+    save.guardianSession = null;
+    return;
+  }
+  const status =
+    gm.sessionState === 'sanctuary'
+      ? 'sanctuary'
+      : gm.sessionState === 'failed' || G.dead
+        ? 'failed'
+        : 'fight';
+  save.guardianSession = cleanGuardianSession({
+    version: 1,
+    mode: 'rush',
+    difficulty: gm.difficulty,
+    status,
+    index: gm.index,
+    defeated: gm.defeated,
+    hits: gm.hits,
+    boons: gm.boons,
+    lastFloor: gm.lastFloor,
+    elapsed: G.run.t,
+    fightElapsed: Math.max(0, G.run.t - gm.fightStart),
+    hp: Math.max(0.01, G.player?.hp || 1),
+    maxHp: Math.max(1, G.player?.maxHp || 1),
+    savedAt: Date.now(),
+  });
 }
-function startGuardianPractice(key,difficulty='standard'){const g=GUARDIAN_ROSTER.find(q=>q.key===key);if(!g||!guardianUnlocked(g))return;if(difficulty==='ascendant'&&!archiveRecord(key,'standard').wins)return;createGuardianModeRun('practice',g.floor,difficulty);startGuardianModeFight(g.floor);}
-function startBossRush(difficulty='standard'){guardianArchiveData();if(!(save.campaignMedal||save.victories>0))return;if(difficulty==='nightfall'&&!save.bossRush.nightfallUnlocked)return;createGuardianModeRun('rush',5,difficulty);startGuardianModeFight(5);}
-function startGuardianModeFight(floor,resuming=false){
- if(!isGuardianMode())return;const gm=G.run.guardianMode,g=GUARDIAN_ROSTER.find(q=>q.floor===floor);gm.index=GUARDIAN_ROSTER.indexOf(g);gm.lastFloor=floor;gm.fightStart=G.run.t;hide('guardianModeResult');hide('guardianSanctuary');G.dead=false;setState('playing');setupFloor(floor);G.run.floorAge=0;G.enemies=G.enemies.filter(e=>e.isBoss);G.picks=[];G.chests=[];G.bullets=[];G.ebul=[];if(G.world?.lateHazards)G.world.lateHazards=[];if(G.world?.hazards)G.world.hazards=[];const bosses=G.enemies.filter(e=>e.isBoss&&!e.dead);G.boss=bosses[0]||G.boss;const mode=G.run.mode,diff=gm.difficulty,idx=gm.index,hpMul=mode==='practice'?(diff==='ascendant'?1.22:.88):(1.16+idx*.065)*(diff==='nightfall'?1.18:1),dmgMul=mode==='practice'?(diff==='ascendant'?1.15:1):(1+idx*.04)*(diff==='nightfall'?1.2:1),playerDmgMul=mode==='practice'?(diff==='ascendant'?1.22:1.32):(diff==='nightfall'?1.38:1.52);G.player.dmg*=playerDmgMul;for(const b of bosses){b.max=Math.round(b.max*hpMul);b.hp=b.max;b.dmg=Math.max(1,Math.round(b.dmg*dmgMul));if(diff==='nightfall')b.spd*=1.07;}const a=arenaBounds(),pos=safePosition(G.world,a.cx,a.bottom-66,G.player.r)||{x:a.cx,y:a.bottom-66};G.player.x=pos.x;G.player.y=pos.y;G.player.kbx=G.player.kby=0;G.player.hitCd=1.35;G.player.dashCdT=0;G.player.reloadT=0;G.player.ammo=G.player.magSize;G.cam.x=(G.player.x+(G.boss?.x||a.cx))/2-G.w/2;G.cam.y=(G.player.y+(G.boss?.y||a.cy))/2-G.h/2;dialogue=null;storyQueue=[];T('conversation').hidden=true;document.body.classList.remove('conversing');if(G.boss?.warden)activateWarden(G.boss);else if(G.boss?.matriarch)activateMatriarch(G.boss);else if(G.boss?.lateBoss)activateLateBoss(G.boss);chapterBannerT=0;fieldNoteT=0;T('chapterBanner').classList.remove('visible');T('fieldNote').classList.remove('visible');updateHUD(0);
- gm.sessionState='fight';if(!resuming)gm.fightStart=G.run.t;saveNow();toast(mode==='rush'?'BELL '+(idx+1)+' OF 10':'ARCHIVE PRACTICE',g.name.replace('THE ',''));
+function restoreGuardianProgress(session) {
+  const gm = G.run.guardianMode;
+  gm.index = session.index;
+  gm.defeated = session.defeated;
+  gm.hits = session.hits;
+  gm.boons = deepCopy(session.boons);
+  gm.lastFloor = session.lastFloor;
+  gm.sessionState = session.status;
+  G.run.t = session.elapsed;
+  recalc();
+  G.player.hp = clamp(session.hp, 0.01, G.player.maxHp);
+  G.player.ammo = G.player.magSize;
 }
-function cleanupGuardianArena(){G.boss=null;G.bossActive=false;G.ebul=[];G.bullets=[];if(G.world?.lateHazards)G.world.lateHazards=[];if(G.world?.hazards)G.world.hazards=[];for(const e of G.enemies)if(e.mechanism||e.owner)e.dead=true;T('bossbar').classList.remove('on');clearInput();}
-function guardianModeGuardianDefeated(b){
- const gm=G.run.guardianMode,mode=G.run.mode,g=GUARDIAN_ROSTER[gm.index],other=b.bossKey==='regents'&&G.enemies.find(e=>e!==b&&!e.dead&&e.bossKey==='regents');if(other){G.boss=other;G.bossActive=true;other.bs.second=true;other.hp=Math.min(other.max,other.hp+Math.round(other.max*.18));T('bossname').textContent='THE LAST REGENT';toast('ONE THRONE REMAINS','the missing step returns');sfx('regentBreak');return;}
- cleanupGuardianArena();const elapsed=Math.max(.1,G.run.t-gm.fightStart);gm.lastTime=elapsed;gm.defeated++;burst(b.x,b.y,42,'#ffd487',300,.85,3,true);sfx('victory');
- if(mode==='practice'){const rec=archiveRecord(g.key,gm.difficulty);rec.wins++;rec.bestTime=!rec.bestTime?elapsed:Math.min(rec.bestTime,elapsed);rec.bestHits=rec.bestHits===null?gm.hits:Math.min(rec.bestHits,gm.hits);saveNow();showGuardianPracticeResult(g,true,elapsed);return;}
- if(gm.defeated>=GUARDIAN_ROSTER.length){finishBossRush();return;}const recovery=gm.difficulty==='nightfall'?.09:.18;G.player.hp=Math.min(G.player.maxHp,G.player.hp+Math.ceil(G.player.maxHp*recovery));showGuardianSanctuary(g);
+function resumeBossRush() {
+  const session = cleanGuardianSession(save.guardianSession);
+  if (!session) return;
+  hide('bossRushPanel');
+  createGuardianModeRun('rush', session.lastFloor, session.difficulty);
+  restoreGuardianProgress(session);
+  if (session.status === 'sanctuary') {
+    setState('paused');
+    showGuardianSanctuary(GUARDIAN_ROSTER[session.index], true);
+  } else if (session.status === 'failed') {
+    showGuardianModeFailure(
+      'The sequence ended here. Your progress before entering the Archive is still safe.',
+      true
+    );
+  } else {
+    startGuardianModeFight(session.lastFloor, true);
+    G.run.guardianMode.fightStart = G.run.t - session.fightElapsed;
+    G.player.hp = clamp(session.hp, 0.01, G.player.maxHp);
+    G.player.hitCd = Math.max(G.player.hitCd, 1.2);
+    pauseGame(true);
+  }
+  saveNow();
 }
-function showGuardianPracticeResult(g,won,elapsed){setState('paused');T('guardianResultKicker').textContent=won?'PRACTICE RECORD COMPLETE':'THE RECORD CLOSES';T('guardianResultRank').textContent=won?guardianRank(G.run.guardianMode.hits,elapsed):'F';T('guardianResultTitle').textContent=won?g.name+' FALLS':'THE EMBER GOES DARK';T('guardianResultText').textContent=won?'The Archive returns every blow exactly as it was. No essence was awarded.':'The record remains available. Learn the law of the room and enter again.';T('guardianResultStats').innerHTML=`<span><b>${modeTime(elapsed)}</b>TIME</span><span><b>${G.run.guardianMode.hits}</b>HITS TAKEN</span><span><b>${g.floor}</b>FLOOR</span><span><b>${G.run.guardianMode.difficulty==='ascendant'?'ASC.':'TRUE'}</b>FORM</span>`;T('guardianResultPrimary').textContent='REMATCH';T('guardianResultPrimary').dataset.action='practice';T('guardianResultNext').hidden=!won||!GUARDIAN_ROSTER[G.run.guardianMode.index+1]||!guardianUnlocked(GUARDIAN_ROSTER[G.run.guardianMode.index+1]);T('guardianResultArchive').hidden=false;show('guardianModeResult');T('guardianResultPrimary').focus({preventScroll:true});}
-function guardianBoonChoices(defeated,difficulty){const start=(defeated*5+(difficulty==='nightfall'?1:0))%ARCHIVE_BOONS.length;return[0,2,5].map(offset=>ARCHIVE_BOONS[(start+offset)%ARCHIVE_BOONS.length]);}
-function showGuardianSanctuary(g,resuming=false){setState('paused');G.run.guardianMode.sessionState='sanctuary';T('sanctuaryKicker').textContent='BELL '+(G.run.guardianMode.defeated)+' OF 10 · '+g.name;T('sanctuaryText').textContent=(G.run.guardianMode.difficulty==='nightfall'?'Only a thin warmth survives. ':'The Archive holds the room still. ')+'Choose one boon before the next guardian wakes.';const grid=T('guardianBoonGrid');grid.replaceChildren();for(const boon of guardianBoonChoices(G.run.guardianMode.defeated,G.run.guardianMode.difficulty)){const b=document.createElement('button');b.className='boon-card';b.innerHTML=`<i>${boon.mark}</i><b>${boon.name}</b><small>${boon.desc}</small>`;on(b,'click',()=>chooseGuardianBoon(boon.id));grid.appendChild(b);}show('guardianSanctuary');grid.firstChild?.focus({preventScroll:true});if(!resuming)sfx('mythic');saveNow();}
-function chooseGuardianBoon(id){if(G.run?.mode!=='rush'||!ARCHIVE_BOONS.some(b=>b.id===id))return;const gm=G.run.guardianMode;gm.boons[id]=(gm.boons[id]||0)+1;const oldMax=G.player.maxHp;recalc();if(id==='heart')G.player.hp=Math.min(G.player.maxHp,G.player.hp+Math.ceil(G.player.maxHp*.48)+(G.player.maxHp-oldMax));else G.player.hp=Math.min(G.player.maxHp,G.player.hp);startGuardianModeFight(GUARDIAN_ROSTER[gm.index+1].floor);}
-function finishBossRush(){const gm=G.run.guardianMode,data=guardianArchiveData().bossRush,diff=gm.difficulty,elapsed=G.run.t,hits=gm.hits,record=data[diff];record.bestTime=!record.bestTime?elapsed:Math.min(record.bestTime,elapsed);record.bestHits=record.bestHits===null?hits:Math.min(record.bestHits,hits);data.clears=(data.clears||0)+1;if(diff==='standard')data.nightfallUnlocked=true;const reward=diff==='nightfall'?1500:900;save.essence+=reward;save.totalEssence+=reward;save.guardianSession=null;saveNow();setState('paused');T('guardianResultKicker').textContent='ALL TEN BELLS FALL SILENT';T('guardianResultRank').textContent=guardianRank(hits,elapsed);T('guardianResultTitle').textContent=diff==='nightfall'?'NIGHTFALL BROKEN':'THE FIRST BELL COMPLETED';T('guardianResultText').textContent=(diff==='standard'?'Nightfall is now open. ':'The hardest record in the Archive has been answered. ')+'◆ '+reward+' permanent essence has been recovered.';T('guardianResultStats').innerHTML=`<span><b>10 / 10</b>GUARDIANS</span><span><b>${modeTime(elapsed)}</b>TIME</span><span><b>${hits}</b>HITS TAKEN</span><span><b>◆ ${reward}</b>ESSENCE</span>`;T('guardianResultPrimary').textContent='RUN AGAIN';T('guardianResultPrimary').dataset.action='rush';T('guardianResultNext').hidden=true;T('guardianResultArchive').hidden=false;show('guardianModeResult');T('guardianResultPrimary').focus({preventScroll:true});sfx('mythic');}
-function showGuardianModeFailure(text,resuming=false){if(!isGuardianMode())return;const token=++guardianModeToken,mode=G.run.mode,gm=G.run.guardianMode,g=GUARDIAN_ROSTER[gm.index],elapsed=G.run.t;G.dead=true;gm.sessionState='failed';setState('dying');clearInput();G.ebul=[];G.bullets=[];if(!resuming){burst(G.player.x,G.player.y,30,'#ff744f',230,.8,3,true);sfx('death');}saveNow();setTimeout(()=>{if(token!==guardianModeToken||!G.run)return;G.dead=false;setState('paused');T('guardianResultKicker').textContent=mode==='rush'?'THE NEXT BELL DOES NOT RING':'THE RECORD CLOSES';T('guardianResultRank').textContent='F';T('guardianResultTitle').textContent=mode==='rush'?'BOSS RUSH ENDED':'THE EMBER GOES DARK';T('guardianResultText').textContent=text||'The Archive waits without judgment.';T('guardianResultStats').innerHTML=mode==='rush'?`<span><b>${gm.defeated} / 10</b>GUARDIANS</span><span><b>${modeTime(elapsed)}</b>TIME</span><span><b>${gm.hits}</b>HITS TAKEN</span><span><b>${g.floor}</b>FINAL FLOOR</span>`:`<span><b>${modeTime(elapsed-gm.fightStart)}</b>TIME</span><span><b>${gm.hits}</b>HITS TAKEN</span><span><b>${g.floor}</b>FLOOR</span><span><b>${gm.difficulty==='ascendant'?'ASC.':'TRUE'}</b>FORM</span>`;T('guardianResultPrimary').textContent=mode==='rush'?'TRY AGAIN':'REMATCH';T('guardianResultPrimary').dataset.action=mode;T('guardianResultNext').hidden=true;T('guardianResultArchive').hidden=false;show('guardianModeResult');T('guardianResultPrimary').focus({preventScroll:true});},resuming?40:780);}
-function guardianResultPrimaryAction(){if(!isGuardianMode())return;const gm=G.run.guardianMode,action=T('guardianResultPrimary').dataset.action;if(action==='rush')startBossRush(gm.difficulty);else startGuardianPractice(GUARDIAN_ROSTER[gm.index].key,gm.difficulty);}
-function startNextGuardianPractice(){if(G.run?.mode!=='practice')return;const next=GUARDIAN_ROSTER[G.run.guardianMode.index+1];if(next&&guardianUnlocked(next))startGuardianPractice(next.key,guardianPracticeDifficulty);}
-function resetGuardianPauseLabels(){T('btnSaveExit').textContent='SAVE & RETURN';T('btnAbandon').textContent='END RUN';document.body.classList.remove('guardian-mode');T('guardianModeHud').hidden=true;}
-function leaveGuardianModes(){guardianModeToken++;for(const id of ['guardianModeResult','guardianSanctuary','guardianArchive','bossRushPanel'])hide(id);resetGuardianPauseLabels();G.dead=false;save.guardianSession=null;backToMenu();saveNow();}
-function returnToGuardianArchive(){guardianModeToken++;for(const id of ['guardianModeResult','guardianSanctuary'])hide(id);resetGuardianPauseLabels();G.dead=false;save.guardianSession=null;backToMenu();saveNow();openGuardianArchive();}
+function createGuardianModeRun(mode, floor, difficulty) {
+  guardianModeToken++;
+  clearInput();
+  META = computeMeta();
+  const tier = mode === 'rush' ? 14 : Math.ceil(floor / 5) + 2,
+    up = modeBlessingBuild(tier);
+  G.run = {
+    level: Math.max(4, tier * 3),
+    xp: 0,
+    up,
+    ess: 0,
+    kills: 0,
+    t: 0,
+    revUsed: false,
+    runRevUsed: false,
+    won: false,
+    mode,
+    forms: normalizeRunForms(save.loadout),
+    evolutions: [],
+    formCasts: 0,
+    guardianMode: {
+      difficulty,
+      index: Math.max(
+        0,
+        GUARDIAN_ROSTER.findIndex((g) => g.floor === floor)
+      ),
+      hits: 0,
+      defeated: 0,
+      fightStart: 0,
+      boons: {},
+      lastFloor: floor,
+    },
+  };
+  G.floor = floor;
+  G.boss = null;
+  G.bossActive = false;
+  G.dead = false;
+  G.pendingLevels = 0;
+  G.descending = false;
+  G.enemies = [];
+  G.bullets = [];
+  G.ebul = [];
+  G.picks = [];
+  G.chests = [];
+  G.parts = [];
+  G.texts = [];
+  G.player = {
+    x: 0,
+    y: 0,
+    r: 12,
+    hp: 1,
+    maxHp: 1,
+    shotT: 0,
+    hitCd: 0,
+    dashT: 0,
+    dashCdT: 0,
+    kbx: 0,
+    kby: 0,
+    orbA: 0,
+    muzzle: 0,
+    face: 0,
+    moving: false,
+    lean: 0,
+    ghosts: [],
+    ghostT: 0,
+    dashDx: 1,
+    dashDy: 0,
+    dmg: BASE.dmg,
+    shotInt: 0.4,
+    proj: 1,
+    pierce: 0,
+    ric: 0,
+    regen: 0,
+    orbN: 0,
+    dashCd: BASE.dashCd,
+    xpMul: 1,
+    execB: 0,
+    speed: BASE.speed,
+    magnet: BASE.magnet,
+    critC: 0.05,
+  };
+  recalc();
+  G.player.hp = G.player.maxHp;
+  initCombat();
+  G.player.ammo = G.player.magSize;
+  T('chips').replaceChildren();
+  for (const o of POOL) if (up[o.id]) addChip(o);
+  renderEvolutionChips();
+  for (const id of [
+    'menu',
+    'pause',
+    'dead',
+    'win',
+    'levelup',
+    'skills',
+    'guardianArchive',
+    'bossRushPanel',
+    'guardianModeResult',
+    'guardianSanctuary',
+    'chapterClear',
+    'finale',
+  ])
+    hide(id);
+  dialogue = null;
+  storyQueue = [];
+  T('conversation').hidden = true;
+  document.body.classList.remove('conversing');
+  document.body.classList.add('guardian-mode');
+  T('btnSaveExit').textContent = mode === 'rush' ? 'LEAVE BOSS RUSH' : 'RETURN TO ARCHIVE';
+  T('btnAbandon').textContent = mode === 'rush' ? 'ABANDON RUSH' : 'END PRACTICE';
+  setState('playing');
+}
+function applyGuardianModeBoons() {
+  if (!isGuardianMode()) return;
+  const q = G.run.guardianMode?.boons || {},
+    p = G.player;
+  p.maxHp = Math.round(p.maxHp * (1 + 0.12 * (q.heart || 0)));
+  p.dmg *= 1 + 0.16 * (q.fury || 0) + 0.12 * (q.crown || 0);
+  p.shotInt /= 1 + 0.13 * (q.focus || 0);
+  p.reloadMul = (p.reloadMul || 1) * (1 + 0.18 * (q.focus || 0));
+  p.speed *= 1 + 0.09 * (q.step || 0);
+  p.dashCd *= Math.pow(0.86, q.step || 0);
+  p.pierce += q.wells || 0;
+  p.critC += 0.07 * (q.crown || 0);
+}
+function startGuardianPractice(key, difficulty = 'standard') {
+  const g = GUARDIAN_ROSTER.find((q) => q.key === key);
+  if (!g || !guardianUnlocked(g)) return;
+  if (difficulty === 'ascendant' && !archiveRecord(key, 'standard').wins) return;
+  createGuardianModeRun('practice', g.floor, difficulty);
+  startGuardianModeFight(g.floor);
+}
+function startBossRush(difficulty = 'standard') {
+  guardianArchiveData();
+  if (!(save.campaignMedal || save.victories > 0)) return;
+  if (difficulty === 'nightfall' && !save.bossRush.nightfallUnlocked) return;
+  createGuardianModeRun('rush', 5, difficulty);
+  startGuardianModeFight(5);
+}
+function startGuardianModeFight(floor, resuming = false) {
+  if (!isGuardianMode()) return;
+  const gm = G.run.guardianMode,
+    g = GUARDIAN_ROSTER.find((q) => q.floor === floor);
+  gm.index = GUARDIAN_ROSTER.indexOf(g);
+  gm.lastFloor = floor;
+  gm.fightStart = G.run.t;
+  hide('guardianModeResult');
+  hide('guardianSanctuary');
+  G.dead = false;
+  setState('playing');
+  setupFloor(floor);
+  G.run.floorAge = 0;
+  G.enemies = G.enemies.filter((e) => e.isBoss);
+  G.picks = [];
+  G.chests = [];
+  G.bullets = [];
+  G.ebul = [];
+  if (G.world?.lateHazards) G.world.lateHazards = [];
+  if (G.world?.hazards) G.world.hazards = [];
+  const bosses = G.enemies.filter((e) => e.isBoss && !e.dead);
+  G.boss = bosses[0] || G.boss;
+  const mode = G.run.mode,
+    diff = gm.difficulty,
+    idx = gm.index,
+    hpMul =
+      mode === 'practice'
+        ? diff === 'ascendant'
+          ? 1.22
+          : 0.88
+        : (1.16 + idx * 0.065) * (diff === 'nightfall' ? 1.18 : 1),
+    dmgMul =
+      mode === 'practice'
+        ? diff === 'ascendant'
+          ? 1.15
+          : 1
+        : (1 + idx * 0.04) * (diff === 'nightfall' ? 1.2 : 1),
+    playerDmgMul =
+      mode === 'practice'
+        ? diff === 'ascendant'
+          ? 1.22
+          : 1.32
+        : diff === 'nightfall'
+          ? 1.38
+          : 1.52;
+  G.player.dmg *= playerDmgMul;
+  for (const b of bosses) {
+    b.max = Math.round(b.max * hpMul);
+    b.hp = b.max;
+    b.dmg = Math.max(1, Math.round(b.dmg * dmgMul));
+    if (diff === 'nightfall') b.spd *= 1.07;
+  }
+  const a = arenaBounds(),
+    pos = safePosition(G.world, a.cx, a.bottom - 66, G.player.r) || { x: a.cx, y: a.bottom - 66 };
+  G.player.x = pos.x;
+  G.player.y = pos.y;
+  G.player.kbx = G.player.kby = 0;
+  G.player.hitCd = 1.35;
+  G.player.dashCdT = 0;
+  G.player.reloadT = 0;
+  G.player.ammo = G.player.magSize;
+  G.cam.x = (G.player.x + (G.boss?.x || a.cx)) / 2 - G.w / 2;
+  G.cam.y = (G.player.y + (G.boss?.y || a.cy)) / 2 - G.h / 2;
+  dialogue = null;
+  storyQueue = [];
+  T('conversation').hidden = true;
+  document.body.classList.remove('conversing');
+  if (G.boss?.warden) activateWarden(G.boss);
+  else if (G.boss?.matriarch) activateMatriarch(G.boss);
+  else if (G.boss?.lateBoss) activateLateBoss(G.boss);
+  chapterBannerT = 0;
+  fieldNoteT = 0;
+  T('chapterBanner').classList.remove('visible');
+  T('fieldNote').classList.remove('visible');
+  updateHUD(0);
+  gm.sessionState = 'fight';
+  if (!resuming) gm.fightStart = G.run.t;
+  saveNow();
+  toast(
+    mode === 'rush' ? 'BELL ' + (idx + 1) + ' OF 10' : 'ARCHIVE PRACTICE',
+    g.name.replace('THE ', '')
+  );
+}
+function cleanupGuardianArena() {
+  G.boss = null;
+  G.bossActive = false;
+  G.ebul = [];
+  G.bullets = [];
+  if (G.world?.lateHazards) G.world.lateHazards = [];
+  if (G.world?.hazards) G.world.hazards = [];
+  for (const e of G.enemies) if (e.mechanism || e.owner) e.dead = true;
+  T('bossbar').classList.remove('on');
+  clearInput();
+}
+function guardianModeGuardianDefeated(b) {
+  const gm = G.run.guardianMode,
+    mode = G.run.mode,
+    g = GUARDIAN_ROSTER[gm.index],
+    other =
+      b.bossKey === 'regents' &&
+      G.enemies.find((e) => e !== b && !e.dead && e.bossKey === 'regents');
+  if (other) {
+    G.boss = other;
+    G.bossActive = true;
+    other.bs.second = true;
+    other.hp = Math.min(other.max, other.hp + Math.round(other.max * 0.18));
+    T('bossname').textContent = 'THE LAST REGENT';
+    toast('ONE THRONE REMAINS', 'the missing step returns');
+    sfx('regentBreak');
+    return;
+  }
+  cleanupGuardianArena();
+  const elapsed = Math.max(0.1, G.run.t - gm.fightStart);
+  gm.lastTime = elapsed;
+  gm.defeated++;
+  burst(b.x, b.y, 42, '#ffd487', 300, 0.85, 3, true);
+  sfx('victory');
+  if (mode === 'practice') {
+    const rec = archiveRecord(g.key, gm.difficulty);
+    rec.wins++;
+    rec.bestTime = !rec.bestTime ? elapsed : Math.min(rec.bestTime, elapsed);
+    rec.bestHits = rec.bestHits === null ? gm.hits : Math.min(rec.bestHits, gm.hits);
+    saveNow();
+    showGuardianPracticeResult(g, true, elapsed);
+    return;
+  }
+  if (gm.defeated >= GUARDIAN_ROSTER.length) {
+    finishBossRush();
+    return;
+  }
+  const recovery = gm.difficulty === 'nightfall' ? 0.09 : 0.18;
+  G.player.hp = Math.min(G.player.maxHp, G.player.hp + Math.ceil(G.player.maxHp * recovery));
+  showGuardianSanctuary(g);
+}
+function showGuardianPracticeResult(g, won, elapsed) {
+  setState('paused');
+  T('guardianResultKicker').textContent = won ? 'PRACTICE RECORD COMPLETE' : 'THE RECORD CLOSES';
+  T('guardianResultRank').textContent = won ? guardianRank(G.run.guardianMode.hits, elapsed) : 'F';
+  T('guardianResultTitle').textContent = won ? g.name + ' FALLS' : 'THE EMBER GOES DARK';
+  T('guardianResultText').textContent = won
+    ? 'The Archive returns every blow exactly as it was. No essence was awarded.'
+    : 'The record remains available. Learn the law of the room and enter again.';
+  T('guardianResultStats').innerHTML =
+    `<span><b>${modeTime(elapsed)}</b>TIME</span><span><b>${G.run.guardianMode.hits}</b>HITS TAKEN</span><span><b>${g.floor}</b>FLOOR</span><span><b>${G.run.guardianMode.difficulty === 'ascendant' ? 'ASC.' : 'TRUE'}</b>FORM</span>`;
+  T('guardianResultPrimary').textContent = 'REMATCH';
+  T('guardianResultPrimary').dataset.action = 'practice';
+  T('guardianResultNext').hidden =
+    !won ||
+    !GUARDIAN_ROSTER[G.run.guardianMode.index + 1] ||
+    !guardianUnlocked(GUARDIAN_ROSTER[G.run.guardianMode.index + 1]);
+  T('guardianResultArchive').hidden = false;
+  show('guardianModeResult');
+  T('guardianResultPrimary').focus({ preventScroll: true });
+}
+function guardianBoonChoices(defeated, difficulty) {
+  const start = (defeated * 5 + (difficulty === 'nightfall' ? 1 : 0)) % ARCHIVE_BOONS.length;
+  return [0, 2, 5].map((offset) => ARCHIVE_BOONS[(start + offset) % ARCHIVE_BOONS.length]);
+}
+function showGuardianSanctuary(g, resuming = false) {
+  setState('paused');
+  G.run.guardianMode.sessionState = 'sanctuary';
+  T('sanctuaryKicker').textContent = 'BELL ' + G.run.guardianMode.defeated + ' OF 10 · ' + g.name;
+  T('sanctuaryText').textContent =
+    (G.run.guardianMode.difficulty === 'nightfall'
+      ? 'Only a thin warmth survives. '
+      : 'The Archive holds the room still. ') + 'Choose one boon before the next guardian wakes.';
+  const grid = T('guardianBoonGrid');
+  grid.replaceChildren();
+  for (const boon of guardianBoonChoices(
+    G.run.guardianMode.defeated,
+    G.run.guardianMode.difficulty
+  )) {
+    const b = document.createElement('button');
+    b.className = 'boon-card';
+    b.innerHTML = `<i>${boon.mark}</i><b>${boon.name}</b><small>${boon.desc}</small>`;
+    on(b, 'click', () => chooseGuardianBoon(boon.id));
+    grid.appendChild(b);
+  }
+  show('guardianSanctuary');
+  grid.firstChild?.focus({ preventScroll: true });
+  if (!resuming) sfx('mythic');
+  saveNow();
+}
+function chooseGuardianBoon(id) {
+  if (G.run?.mode !== 'rush' || !ARCHIVE_BOONS.some((b) => b.id === id)) return;
+  const gm = G.run.guardianMode;
+  gm.boons[id] = (gm.boons[id] || 0) + 1;
+  const oldMax = G.player.maxHp;
+  recalc();
+  if (id === 'heart')
+    G.player.hp = Math.min(
+      G.player.maxHp,
+      G.player.hp + Math.ceil(G.player.maxHp * 0.48) + (G.player.maxHp - oldMax)
+    );
+  else G.player.hp = Math.min(G.player.maxHp, G.player.hp);
+  startGuardianModeFight(GUARDIAN_ROSTER[gm.index + 1].floor);
+}
+function finishBossRush() {
+  const gm = G.run.guardianMode,
+    data = guardianArchiveData().bossRush,
+    diff = gm.difficulty,
+    elapsed = G.run.t,
+    hits = gm.hits,
+    record = data[diff];
+  record.bestTime = !record.bestTime ? elapsed : Math.min(record.bestTime, elapsed);
+  record.bestHits = record.bestHits === null ? hits : Math.min(record.bestHits, hits);
+  data.clears = (data.clears || 0) + 1;
+  if (diff === 'standard') data.nightfallUnlocked = true;
+  const reward = diff === 'nightfall' ? 1500 : 900;
+  save.essence += reward;
+  save.totalEssence += reward;
+  save.guardianSession = null;
+  saveNow();
+  setState('paused');
+  T('guardianResultKicker').textContent = 'ALL TEN BELLS FALL SILENT';
+  T('guardianResultRank').textContent = guardianRank(hits, elapsed);
+  T('guardianResultTitle').textContent =
+    diff === 'nightfall' ? 'NIGHTFALL BROKEN' : 'THE FIRST BELL COMPLETED';
+  T('guardianResultText').textContent =
+    (diff === 'standard'
+      ? 'Nightfall is now open. '
+      : 'The hardest record in the Archive has been answered. ') +
+    '◆ ' +
+    reward +
+    ' permanent essence has been recovered.';
+  T('guardianResultStats').innerHTML =
+    `<span><b>10 / 10</b>GUARDIANS</span><span><b>${modeTime(elapsed)}</b>TIME</span><span><b>${hits}</b>HITS TAKEN</span><span><b>◆ ${reward}</b>ESSENCE</span>`;
+  T('guardianResultPrimary').textContent = 'RUN AGAIN';
+  T('guardianResultPrimary').dataset.action = 'rush';
+  T('guardianResultNext').hidden = true;
+  T('guardianResultArchive').hidden = false;
+  show('guardianModeResult');
+  T('guardianResultPrimary').focus({ preventScroll: true });
+  sfx('mythic');
+}
+function showGuardianModeFailure(text, resuming = false) {
+  if (!isGuardianMode()) return;
+  const token = ++guardianModeToken,
+    mode = G.run.mode,
+    gm = G.run.guardianMode,
+    g = GUARDIAN_ROSTER[gm.index],
+    elapsed = G.run.t;
+  G.dead = true;
+  gm.sessionState = 'failed';
+  setState('dying');
+  clearInput();
+  G.ebul = [];
+  G.bullets = [];
+  if (!resuming) {
+    burst(G.player.x, G.player.y, 30, '#ff744f', 230, 0.8, 3, true);
+    sfx('death');
+  }
+  saveNow();
+  setTimeout(
+    () => {
+      if (token !== guardianModeToken || !G.run) return;
+      G.dead = false;
+      setState('paused');
+      T('guardianResultKicker').textContent =
+        mode === 'rush' ? 'THE NEXT BELL DOES NOT RING' : 'THE RECORD CLOSES';
+      T('guardianResultRank').textContent = 'F';
+      T('guardianResultTitle').textContent =
+        mode === 'rush' ? 'BOSS RUSH ENDED' : 'THE EMBER GOES DARK';
+      T('guardianResultText').textContent = text || 'The Archive waits without judgment.';
+      T('guardianResultStats').innerHTML =
+        mode === 'rush'
+          ? `<span><b>${gm.defeated} / 10</b>GUARDIANS</span><span><b>${modeTime(elapsed)}</b>TIME</span><span><b>${gm.hits}</b>HITS TAKEN</span><span><b>${g.floor}</b>FINAL FLOOR</span>`
+          : `<span><b>${modeTime(elapsed - gm.fightStart)}</b>TIME</span><span><b>${gm.hits}</b>HITS TAKEN</span><span><b>${g.floor}</b>FLOOR</span><span><b>${gm.difficulty === 'ascendant' ? 'ASC.' : 'TRUE'}</b>FORM</span>`;
+      T('guardianResultPrimary').textContent = mode === 'rush' ? 'TRY AGAIN' : 'REMATCH';
+      T('guardianResultPrimary').dataset.action = mode;
+      T('guardianResultNext').hidden = true;
+      T('guardianResultArchive').hidden = false;
+      show('guardianModeResult');
+      T('guardianResultPrimary').focus({ preventScroll: true });
+    },
+    resuming ? 40 : 780
+  );
+}
+function guardianResultPrimaryAction() {
+  if (!isGuardianMode()) return;
+  const gm = G.run.guardianMode,
+    action = T('guardianResultPrimary').dataset.action;
+  if (action === 'rush') startBossRush(gm.difficulty);
+  else startGuardianPractice(GUARDIAN_ROSTER[gm.index].key, gm.difficulty);
+}
+function startNextGuardianPractice() {
+  if (G.run?.mode !== 'practice') return;
+  const next = GUARDIAN_ROSTER[G.run.guardianMode.index + 1];
+  if (next && guardianUnlocked(next)) startGuardianPractice(next.key, guardianPracticeDifficulty);
+}
+function resetGuardianPauseLabels() {
+  T('btnSaveExit').textContent = 'SAVE & RETURN';
+  T('btnAbandon').textContent = 'END RUN';
+  document.body.classList.remove('guardian-mode');
+  T('guardianModeHud').hidden = true;
+}
+function leaveGuardianModes() {
+  guardianModeToken++;
+  for (const id of ['guardianModeResult', 'guardianSanctuary', 'guardianArchive', 'bossRushPanel'])
+    hide(id);
+  resetGuardianPauseLabels();
+  G.dead = false;
+  save.guardianSession = null;
+  backToMenu();
+  saveNow();
+}
+function returnToGuardianArchive() {
+  guardianModeToken++;
+  for (const id of ['guardianModeResult', 'guardianSanctuary']) hide(id);
+  resetGuardianPauseLabels();
+  G.dead = false;
+  save.guardianSession = null;
+  backToMenu();
+  saveNow();
+  openGuardianArchive();
+}
 
-const guardianValidateSave=validateSave;
-validateSave=function(raw){const clean=guardianValidateSave(raw),num=v=>Number.isFinite(v)&&v>=0?Math.min(1e9,v):0;clean.guardianRecords={};if(raw?.guardianRecords&&typeof raw.guardianRecords==='object')for(const g of GUARDIAN_ROSTER){const src=raw.guardianRecords[g.key];if(!src||typeof src!=='object')continue;clean.guardianRecords[g.key]={};for(const d of ['standard','ascendant']){const r=src[d];if(!r||typeof r!=='object')continue;clean.guardianRecords[g.key][d]={wins:Math.floor(num(r.wins)),bestTime:num(r.bestTime),bestHits:r.bestHits===null?null:Math.floor(num(r.bestHits))};}}const br=raw?.bossRush||{};clean.bossRush={clears:Math.floor(num(br.clears)),nightfallUnlocked:br.nightfallUnlocked===true,standard:{bestTime:num(br.standard?.bestTime),bestHits:br.standard?.bestHits===null||br.standard?.bestHits===undefined?null:Math.floor(num(br.standard.bestHits))},nightfall:{bestTime:num(br.nightfall?.bestTime),bestHits:br.nightfall?.bestHits===null||br.nightfall?.bestHits===undefined?null:Math.floor(num(br.nightfall.bestHits))}};clean.guardianSession=cleanGuardianSession(raw?.guardianSession);return clean;};
-const guardianSnapshotRun=snapshotRun;
-snapshotRun=function(){if(isGuardianMode()){snapshotGuardianSession();return;}return guardianSnapshotRun();};
-const guardianBeginDialogue=beginDialogue;
-beginDialogue=function(id,...args){if(isGuardianMode()&&GUARDIAN_SCENES.has(id))return false;return guardianBeginDialogue(id,...args);};
-const guardianRecalc=recalc;
-recalc=function(){guardianRecalc();applyGuardianModeBoons();};
-const guardianHurtPlayer=hurtPlayer;
-hurtPlayer=function(dmg,sx,sy){const gm=isGuardianMode()?G.run.guardianMode:null,p=G.player,beforeHp=p?.hp,beforeCd=p?.hitCd||0,eligible=!!(gm&&p&&!G.dead&&G.state==='playing'&&p.hitCd<=0&&p.dashT<=0);const out=guardianHurtPlayer(dmg,sx,sy);if(eligible&&G.run?.guardianMode===gm&&(p.hp<beforeHp||p.hitCd>beforeCd+.05))gm.hits++;return out;};
-const guardianKillBoss=killBoss;
-killBoss=function(b){if(isGuardianMode()){if(MID_GUARDIAN_KEYS.has(b?.bossKey)){clearMidGuardianHazards(b);discardMidGuardianPieces(b);}for(const e of G.enemies)if(e.mechanism&&e.ownerUid===b.uid)e.dead=true;guardianModeGuardianDefeated(b);return;}return guardianKillBoss(b);};
-const guardianDie=die;
-die=function(){if(isGuardianMode()){showGuardianModeFailure(G.run.mode==='rush'?'The sequence ends here. No completion essence was awarded.':'The record remains ready for another attempt.');return;}return guardianDie();};
-const guardianAbandonRun=abandonRun;
-abandonRun=function(){if(isGuardianMode()){leaveGuardianModes();return;}return guardianAbandonRun();};
-const guardianBackToMenu=backToMenu;
-backToMenu=function(){for(const id of ['guardianModeResult','guardianSanctuary'])hide(id);resetGuardianPauseLabels();const out=guardianBackToMenu();refreshGuardianMenuButtons();return out;};
-const guardianRefreshMenuStats=refreshMenuStats;
-refreshMenuStats=function(){guardianRefreshMenuStats();refreshGuardianMenuButtons();};
-function refreshGuardianMenuButtons(){if(!T('btnGuardianArchive'))return;guardianArchiveData();const unlocked=GUARDIAN_ROSTER.filter(guardianUnlocked).length;T('btnGuardianArchive').querySelector('small').textContent=unlocked+' / 10 GUARDIANS RECOVERED';const rushOpen=!!(save.campaignMedal||save.victories>0),session=save.guardianSession?.mode==='rush'?save.guardianSession:null,b=T('btnBossRush');b.classList.toggle('locked',!rushOpen);T('bossRushMenuState').textContent=session?(session.status==='failed'?'LAST RUSH · '+session.defeated+' / 10 GUARDIANS':'SAVED AT BELL '+(session.index+1)+' · CONTINUE'):rushOpen?(save.bossRush.clears?'BEST '+modeTime(save.bossRush.standard.bestTime||save.bossRush.nightfall.bestTime):'THE TEN BELLS ARE READY'):'COMPLETE THE CAMPAIGN TO UNLOCK';}
-const guardianUpdateHUD=updateHUD;
-updateHUD=function(dt){guardianUpdateHUD(dt);const el=T('guardianModeHud');if(!isGuardianMode()){el.hidden=true;return;}const gm=G.run.guardianMode,g=GUARDIAN_ROSTER[gm.index];el.hidden=false;el.textContent=G.run.mode==='rush'?`BOSS RUSH · ${gm.index+1} / 10 · ${gm.difficulty==='nightfall'?'NIGHTFALL':'FIRST BELL'} · ${modeTime(G.run.t)}`:`ARCHIVE PRACTICE · ${g.name} · ${gm.difficulty==='ascendant'?'ASCENDANT':'TRUE FORM'} · ${modeTime(Math.max(0,G.run.t-gm.fightStart))}`;};
-const guardianAnyBlocking=anyBlockingOverlay;
-anyBlockingOverlay=function(){return guardianAnyBlocking()||['guardianArchive','bossRushPanel','guardianModeResult','guardianSanctuary'].some(id=>T(id)?.classList.contains('open'));};
-const guardianOnEscKey=onEscKey;
-onEscKey=function(){if(T('guardianArchive')?.classList.contains('open')){closeGuardianArchive();return;}if(T('bossRushPanel')?.classList.contains('open')){closeBossRush();return;}if(T('guardianModeResult')?.classList.contains('open')){leaveGuardianModes();return;}return guardianOnEscKey();};
+const guardianValidateSave = validateSave;
+validateSave = function (raw) {
+  const clean = guardianValidateSave(raw),
+    num = (v) => (Number.isFinite(v) && v >= 0 ? Math.min(1e9, v) : 0);
+  clean.guardianRecords = {};
+  if (raw?.guardianRecords && typeof raw.guardianRecords === 'object')
+    for (const g of GUARDIAN_ROSTER) {
+      const src = raw.guardianRecords[g.key];
+      if (!src || typeof src !== 'object') continue;
+      clean.guardianRecords[g.key] = {};
+      for (const d of ['standard', 'ascendant']) {
+        const r = src[d];
+        if (!r || typeof r !== 'object') continue;
+        clean.guardianRecords[g.key][d] = {
+          wins: Math.floor(num(r.wins)),
+          bestTime: num(r.bestTime),
+          bestHits: r.bestHits === null ? null : Math.floor(num(r.bestHits)),
+        };
+      }
+    }
+  const br = raw?.bossRush || {};
+  clean.bossRush = {
+    clears: Math.floor(num(br.clears)),
+    nightfallUnlocked: br.nightfallUnlocked === true,
+    standard: {
+      bestTime: num(br.standard?.bestTime),
+      bestHits:
+        br.standard?.bestHits === null || br.standard?.bestHits === undefined
+          ? null
+          : Math.floor(num(br.standard.bestHits)),
+    },
+    nightfall: {
+      bestTime: num(br.nightfall?.bestTime),
+      bestHits:
+        br.nightfall?.bestHits === null || br.nightfall?.bestHits === undefined
+          ? null
+          : Math.floor(num(br.nightfall.bestHits)),
+    },
+  };
+  clean.guardianSession = cleanGuardianSession(raw?.guardianSession);
+  return clean;
+};
+const guardianSnapshotRun = snapshotRun;
+snapshotRun = function () {
+  if (isGuardianMode()) {
+    snapshotGuardianSession();
+    return;
+  }
+  return guardianSnapshotRun();
+};
+const guardianBeginDialogue = beginDialogue;
+beginDialogue = function (id, ...args) {
+  if (isGuardianMode() && GUARDIAN_SCENES.has(id)) return false;
+  return guardianBeginDialogue(id, ...args);
+};
+const guardianRecalc = recalc;
+recalc = function () {
+  guardianRecalc();
+  applyGuardianModeBoons();
+};
+const guardianHurtPlayer = hurtPlayer;
+hurtPlayer = function (dmg, sx, sy) {
+  const gm = isGuardianMode() ? G.run.guardianMode : null,
+    p = G.player,
+    beforeHp = p?.hp,
+    beforeCd = p?.hitCd || 0,
+    eligible = !!(gm && p && !G.dead && G.state === 'playing' && p.hitCd <= 0 && p.dashT <= 0);
+  const out = guardianHurtPlayer(dmg, sx, sy);
+  if (eligible && G.run?.guardianMode === gm && (p.hp < beforeHp || p.hitCd > beforeCd + 0.05))
+    gm.hits++;
+  return out;
+};
+const guardianKillBoss = killBoss;
+killBoss = function (b) {
+  if (isGuardianMode()) {
+    if (MID_GUARDIAN_KEYS.has(b?.bossKey)) {
+      clearMidGuardianHazards(b);
+      discardMidGuardianPieces(b);
+    }
+    for (const e of G.enemies) if (e.mechanism && e.ownerUid === b.uid) e.dead = true;
+    guardianModeGuardianDefeated(b);
+    return;
+  }
+  return guardianKillBoss(b);
+};
+const guardianDie = die;
+die = function () {
+  if (isGuardianMode()) {
+    showGuardianModeFailure(
+      G.run.mode === 'rush'
+        ? 'The sequence ends here. No completion essence was awarded.'
+        : 'The record remains ready for another attempt.'
+    );
+    return;
+  }
+  return guardianDie();
+};
+const guardianAbandonRun = abandonRun;
+abandonRun = function () {
+  if (isGuardianMode()) {
+    leaveGuardianModes();
+    return;
+  }
+  return guardianAbandonRun();
+};
+const guardianBackToMenu = backToMenu;
+backToMenu = function () {
+  for (const id of ['guardianModeResult', 'guardianSanctuary']) hide(id);
+  resetGuardianPauseLabels();
+  const out = guardianBackToMenu();
+  refreshGuardianMenuButtons();
+  return out;
+};
+const guardianRefreshMenuStats = refreshMenuStats;
+refreshMenuStats = function () {
+  guardianRefreshMenuStats();
+  refreshGuardianMenuButtons();
+};
+function refreshGuardianMenuButtons() {
+  if (!T('btnGuardianArchive')) return;
+  guardianArchiveData();
+  const unlocked = GUARDIAN_ROSTER.filter(guardianUnlocked).length;
+  T('btnGuardianArchive').querySelector('small').textContent =
+    unlocked + ' / 10 GUARDIANS RECOVERED';
+  const rushOpen = !!(save.campaignMedal || save.victories > 0),
+    session = save.guardianSession?.mode === 'rush' ? save.guardianSession : null,
+    b = T('btnBossRush');
+  b.classList.toggle('locked', !rushOpen);
+  T('bossRushMenuState').textContent = session
+    ? session.status === 'failed'
+      ? 'LAST RUSH · ' + session.defeated + ' / 10 GUARDIANS'
+      : 'SAVED AT BELL ' + (session.index + 1) + ' · CONTINUE'
+    : rushOpen
+      ? save.bossRush.clears
+        ? 'BEST ' + modeTime(save.bossRush.standard.bestTime || save.bossRush.nightfall.bestTime)
+        : 'THE TEN BELLS ARE READY'
+      : 'COMPLETE THE CAMPAIGN TO UNLOCK';
+}
+const guardianUpdateHUD = updateHUD;
+updateHUD = function (dt) {
+  guardianUpdateHUD(dt);
+  const el = T('guardianModeHud');
+  if (!isGuardianMode()) {
+    el.hidden = true;
+    return;
+  }
+  const gm = G.run.guardianMode,
+    g = GUARDIAN_ROSTER[gm.index];
+  el.hidden = false;
+  el.textContent =
+    G.run.mode === 'rush'
+      ? `BOSS RUSH · ${gm.index + 1} / 10 · ${gm.difficulty === 'nightfall' ? 'NIGHTFALL' : 'FIRST BELL'} · ${modeTime(G.run.t)}`
+      : `ARCHIVE PRACTICE · ${g.name} · ${gm.difficulty === 'ascendant' ? 'ASCENDANT' : 'TRUE FORM'} · ${modeTime(Math.max(0, G.run.t - gm.fightStart))}`;
+};
+const guardianAnyBlocking = anyBlockingOverlay;
+anyBlockingOverlay = function () {
+  return (
+    guardianAnyBlocking() ||
+    ['guardianArchive', 'bossRushPanel', 'guardianModeResult', 'guardianSanctuary'].some((id) =>
+      T(id)?.classList.contains('open')
+    )
+  );
+};
+const guardianOnEscKey = onEscKey;
+onEscKey = function () {
+  if (T('guardianArchive')?.classList.contains('open')) {
+    closeGuardianArchive();
+    return;
+  }
+  if (T('bossRushPanel')?.classList.contains('open')) {
+    closeBossRush();
+    return;
+  }
+  if (T('guardianModeResult')?.classList.contains('open')) {
+    leaveGuardianModes();
+    return;
+  }
+  return guardianOnEscKey();
+};

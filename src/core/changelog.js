@@ -1,96 +1,617 @@
 'use strict';
 
-const THE_SEVENTH_EMBER_CHANGELOG=[
- {version:2026100901,date:'OCTOBER 9, 2026',title:'ROOMS BEFORE THE FALL',intro:'Memories show what happened. Wick and the Guardians have more to say about the things in front of them.',changes:['Every conversation has been rewritten, including the opening, Wick’s portal interruption, all ten Guardians, chapter clears, and the campaign ending.','All fifty Echoes are silent scenes. Spectral workers, families, and Guardians act inside restored rooms instead of speaking through captions or dialogue boxes.','Each memory has its own timed action, from changing the watch and carrying someone upstairs to the garden frames and Wick learning beside an open book.','Memories play through and fade back to the present automatically. You can still move or tap to look around and leave early with Return or Escape. Their rooms remain free of enemies.','The restored room uses more of the screen. The player keeps the same size, and memory controls fit desktop, portrait, and landscape displays.','The Memories collection replays the new scenes. An interrupted memory can be revisited and completed. Previously seen conversations, collected memories, and saved progress carry over.']},
- {version:2026100802,date:'OCTOBER 8, 2026',title:'A PLACE TO RETURN TO',intro:'The Hearth keeps what the descent leaves behind. Moth has restocked the Back Room.',changes:['The Hearth opens from the title screen and pause menu. Decorate its pixel-art room, choose its recorded music, and display Guardian trophies and collected combination relics.','All thirty-six blessing combinations now have four permanent challenges: discover their ingredients, practice their actual combat effect, finish five floors, and defeat three Guardians. Search, filter, and track a goal from the compact Build button.','The 144 challenges unlock twenty-four furnishing choices, twelve Ember finishes for trails and revolving shards, and thirty-six cabinet relics. Completed goals carry between descents; Archive practice and Boss Rush do not award challenge progress.','After your first Guardian victory, choose any of six optional Vow Bindings for the next descent. Restricted health, Bolt power, charge reserve, dash recovery, damage resistance, and wards earn Guardian seals. Clearing the campaign with all six earns a Hearth crown.','Moth’s Back Room has a rebuilt merchant, patterned wings, animated candles, shelves, counter, and sixteen goods with individual pixel icons. Exclusive relics add seeking glass needles, Flare rings, exploding dash decoys, a fatal-hit rescue, Rekindle volleys, stronger healing, or lasting damage.','Shop stock also includes chosen Epic and Mythic blessings, a two-ingredient combination kit, two-rank upgrades, larger health vessels, three-floor maps, and permanent Essence caches. Preview the actual blessing choices before spending Marks.','Stock, offers, purchases, challenge progress, Hearth choices, and active bindings survive a reload. Existing saves carry over. The Hearth and shop support keyboard, controller, and touchscreen navigation on wide and narrow displays.']},
- {version:2026100801,date:'OCTOBER 8, 2026',title:'BACK TO THE DESCENT',intro:'The Build screen returns control cleanly.',changes:['Escape closes the Build screen even when its search box or effect filter has focus.','Closing a Build screen opened during play returns keyboard focus to the HUD and resumes the descent. Movement and abilities respond immediately.']},
- {version:2026100704,date:'OCTOBER 7, 2026',title:'THE SHAPE OF YOUR FLAME',intro:'Blessings find new ways to work together.',changes:['Eight new blessings join the pool: Hailstone, Tidal Pulse, Storm Coil, Faultline, Moon Shard, Lantern Moths, Saw Halo, and Meteor Heart. Their hit, cast, Flare, and kill counters create recurring abilities.','Thirty new recipes bring the combination library to thirty-six. Frost patches, forked fissures, orbiting lightning, returning waves, razor crescents, meteor swarms, fire moths, and Starstitch interactions reward complementary builds.','The left HUD now has one compact Build button in place of individual blessing and evolution chips. Open it to pause and inspect your inventory, active combinations, missing ingredients, and form evolutions. The same screen is available from pause.','The Build screen includes search, effect families, active recipes, and one-blessing-away filters. Blessing choices show which combinations they complete without long lists of pairings.','Icicles, conductors, fault lines, waves, saw blades, crescents, meteors, and moths have distinct pixel artwork and movement. The original six combinations also receive stronger visual identities.','Combination attacks cannot feed their own Bolt hit counters. Walls block new attacks, Guardians resist repeated freezing, and effect limits keep large builds manageable. Existing blessing ranks, progress, controls, and saved runs carry over.']},
- {version:2026100703,date:'OCTOBER 7, 2026',title:'FROST AND FIRE',intro:'Controller play and new blessing combinations join the descent.',changes:['Standard controllers now support movement, manual aim, Bolt, Flare, Dash, Rekindle, interactions, portal returns, and menu navigation. Settings includes button remapping, stick dead zones, and vibration. Disconnecting during play pauses the run.','Fifteen blessings have been rebuilt around clear hit counters, recurring casts, freezing, lightning, fire, and lasting stat upgrades. Existing blessing ranks and saved runs carry over.','Rime Ember freezes ordinary enemies after four Bolt hits. Guardians are briefly chilled and resist repeated freezing. Frostbite strengthens attacks against chilled targets, and Cold Front spreads frost from defeated enemies.','Six combinations add new effects: Thermal Shock, Shatter, Stormfront, Cinderwheel, Collapsed Sun, and Echo Chamber. Blessing choices show useful pairings and completed combinations.','The pause menu lists every combination and shows which ingredients you hold. New frost, lightning, and impact effects make the combinations visible during combat.','Keyboard, mouse, touchscreen controls, music, artwork, and permanent progress remain available.']},
- {version:2026100702,date:'OCTOBER 7, 2026',title:'MUSIC AT THE THRESHOLD',intro:'The menus and pause screen have their own music.',changes:['Before the First Bell accompanies the title screen and its menus. Dust in the Sunlight plays while the descent is paused, including settings and collections opened from pause.','Audio prepares when the game loads and begins with the first click, tap, or key when the browser requires an interaction. You can hear the menu without starting a run.','Themes crossfade between menus, pause, and the dungeon. Returning to the descent resumes its previous piece from the saved position.','Returning from a hidden tab restores the pause theme, and music volume and mute preferences continue to apply everywhere.','The recorded pieces, combat effects, and saved progress are preserved.']},
- {version:2026100701,date:'OCTOBER 7, 2026',title:'BEHIND THE STONE',intro:'Careful searching has more to find.',changes:['Hidden walls keep their regional textures, with clearer uneven edges, fallen grit, and small traces of blue wax outside the Back Room. The doorway stays concealed until opened.','An Examine prompt appears when you search close to unusual stone in a cleared room. Listening shows its progress, Flare shows how many catches remain, and each step displays the correct control.','The first hidden cache appears on floor four. Later secrets have shorter gaps, and finding hidden rooms brings Moth’s shop into the descent earlier. Guardian modes remain separate.','Touch controls name the current wall action. Flare can target an inspected wall when the aiming stick is at rest, and discovery instructions sit above the controls.','Shop purchases cannot charge twice, Borrowed Blessing correctly lists its Epic or Mythic reward, and Cinder of the Seventh is limited to once per descent.','Chamber artwork, Moth, rewards, recorded music, and existing progress are preserved. Saved wall inspections, broken catches, and purchases resume where you left them.']},
- {version:2026100603,date:'OCTOBER 6, 2026',title:'A LEANER DESCENT',intro:'The descent sheds a few things it no longer needs.',changes:['Obsolete music files and retired music generators have been removed. The twenty-eight recorded pieces and current sound effects are unchanged.','Unused sprite versions, the retired trace screen, and unused interface and save bookkeeping have been cleared away. Current artwork, animated memories, combat, and saved progress are preserved.']},
- {version:2026100602,date:'OCTOBER 6, 2026',title:'DIFFERENT ROOMS, DIFFERENT VOICES',intro:'Six themes change key, four gather pace, and the Back Room band takes a stranger turn.',changes:['Flooded Bellworks moves to E minor, while The Sluice Opens takes a brighter turn in F major.','Copper Teeth now runs in B minor, and Ink Between the Lines has a new C minor melody.','A House Remembered moves to G major. The Bell Does Not Yield gains an E minor theme and a different bass progression.','Each of these six pieces has a revised melody, chord progression, and accompaniment pattern.','Copper Teeth, Siege at Blackstone, The Bell Does Not Yield, and Two Blades, One Vow have faster arrangements, with the recorded instruments kept at their natural pitch.','The faster pieces gain individual drum patterns, quieter ghost notes, marching-snare rolls, and cymbal arrivals. Copper Teeth has syncopated accents, the Twins use paired responses, Siege has longer marching rolls, and The Bell has shorter, sharper fills.','Moth Counts Twice becomes a crooked seven-beat tune with marimba, oboe, low bassoon replies, short brass notes, and chromatic flourishes. No Refunds After Dawn gains swung eighths, playful exchanges, and brief pauses over a steady four-beat groove.']},
- {version:2026100601,date:'OCTOBER 6, 2026',title:'A STEADIER PULSE',intro:'The chamber score returns with clearer harmony and a steadier rhythm.',changes:['Ash at the Door now has a calm four-beat pulse in D minor, with harp, oboe, held strings, and restrained percussion.','Snare patterns follow the beat, fills lead into phrases, and cymbal crashes land at phrase entrances.','Bass lines and arpeggios follow each chord. Most pieces use familiar major or minor keys and four-beat, waltz, or compound rhythms.','Uneven rhythms remain in the Foundry, Observatory, Endless, and the Back Room, where their patterns are deliberate.','Strings carry shared notes through chord changes instead of restarting the whole accompaniment every bar. Recorded instruments, continuous loops, regional alternates, and existing progress are preserved.']},
- {version:2026100501,date:'OCTOBER 5, 2026',title:'MORE MUSIC IN THE DARK',intro:'Longer pieces and new voices accompany the descent.',changes:['The recorded score expands from twelve pieces to twenty-eight. Every piece now runs for over three minutes, with contrasting passages, counter-melodies, development, and a return to its opening.','Every region gains an alternate piece. Memories and Guardian battles have their own music, and Endless rotates through a wider selection as the descent deepens.','The score retains recorded strings, winds, brass, harp, marimba, bass, marching snare, timpani, and cymbals. Percussion follows the meter and phrase entrances.','Music now loops at the exact audio boundary, with instrument releases and room reflections carried across the join. There is no fade to silence between repetitions.','Music resumes from its position after muting or switching tabs, crosses gently between places, and loads only a small selection at a time.','Achievements are now available from the title screen and pause menu, with saved milestones, search, filters, and progress tracking. Existing progress is preserved.']},
- {version:2026100402,date:'OCTOBER 4, 2026',title:'FINDING THEIR STRIDE',intro:'Creature movement follows its shape and weight.',changes:['Walking creatures keep their faces and bodies steady while alternating their feet. Crawlers use staggered steps, and heavy armor moves at a slower pace.','Bats and winged creatures flap from the wing roots. Leeches and eels move their tails while keeping their heads intact.','Slimes move through their lower bodies. Floating lenses, masks, and stars retain their rigid shapes, while spectral creatures have gentler trailing motion.','The Matriarch gains articulated legs and stable bark and bloom details. The Warden takes shorter, connected steps beneath his armor.','Grounded movement follows actual travel, slows before stopping, and rests with planted feet. Lunges and leaps no longer play frantic walking cycles.','Creature silhouettes, palettes, attacks, difficulty, hitboxes, and saves are preserved.']},
- {version:2026100401,date:'OCTOBER 4, 2026',title:'A CLOSER LOOK',intro:'The walls keep their secrets, and the creatures find their feet.',changes:['Hidden rooms are concealed inside real walls with a different texture clue in every region. Look for displaced masonry, roots that bend around clean stone, dry patches, interrupted reflections, and other changes in the architecture.','Hidden entrances no longer fade into view or announce themselves as you walk past. Examine the wall with Use, listen, then aim Flare at the catches before pushing it open.','Revealed walls slide apart into a narrow passage. Entrances avoid corridors and nearby furnishings, and existing hidden-room progress is preserved.','Creatures keep their established artwork and colors while gaining six-frame steps, crawling cycles, wing beats, and swimming motions. Grounded creatures animate as they move and settle when they stop.','The Star Warden gains a detailed helmet, visor, cheek plates, shoulder rivets, and layered armor. The Matriarch and eight later Guardians gain details suited to their existing designs.','Rewards, combat balance, hitboxes, and permanent progress remain unchanged.']},
- {version:2026100301,date:'OCTOBER 3, 2026',title:'A RECORD OF YOUR FLAME',intro:'Achievements arrive, and several blessings burn as they should.',changes:['A new Achievements screen tracks campaign milestones, Guardian victories, combat feats, builds, Skill Tree mastery, hidden rooms, memories, Endless, and Archive challenges. Search, category filters, progress bars, and secret achievements keep the collection easy to explore.','Existing saved milestones and Archive records receive credit automatically. Achievements stay with exported saves, and this update preserves your progress.','Runs with larger Ember magazines, the Warden, or the Matriarch now pass save validation and can resume normally. Reserve, Skill Tree charge upgrades, and Boss Rush charge boons retain their full capacity during combat. A failed checkpoint verification preserves the last valid checkpoint and displays a save notice.','The Seventh Wish remembers your first choice after reloading, prevents duplicate picks, supports keys 1–7, and handles small or exhausted blessing pools.','Invulnerable hits no longer consume wards, and Phoenix Law waits for actual lethal damage after defenses and other revivals.','Perfect Rekindle now works through the HUD and touchscreen, with a gold timing window.','Warm Start, Counterstep, Crucible, Glass Thread, Knotted Light, Red Thread, Counterweave, Empty Chamber, and Hearth of the World receive corrections to their effects.','Starstitch cages require a connected triangle, star doors cannot repeatedly multiply one projectile, and temporary floor effects no longer spill into the next floor.']},
- {version:2026092702,date:'SEPTEMBER 27, 2026',title:'THE CONSTELLATION OPENS',intro:'The descent has ninety-three new ways to burn.',changes:['Eighty new blessings join the four rarity pools, with twenty Commons, twenty Uncommons, twenty Epics, and twenty Mythics.','Thirteen Starstitch blessings introduce enemy and wall pins, damaging strands, cages, pulses, collapsing patterns, and the living Seventh Constellation.','New blessings continue entering the pool through floor 80, so deep campaign and Endless levels keep offering meaningful choices.','The new Mythics can borrow mastered blessings, halt a room in time, summon suns and spectral allies, open linked star doors, bend enemy fire, or turn a seventh draft into seven cards and two choices.','Every new blessing has a complete combat, movement, defense, reward, room, or Rekindle effect rather than existing only as card text.','Starstitch and the largest Mythic effects have their own in-world animation, and the expanded seven-card draft adapts from wide screens to phones and tablets.','Current progress, active descents, Skill Tree purchases, Guardian records, and completed campaigns remain intact.']},
- {version:2026092701,date:'SEPTEMBER 27, 2026',title:'THE WHEEL BELOW',intro:'Endless now remembers every turn.',changes:['Every fifth Endless floor opens a full pixel-art wheel ceremony and binds a permanent Burden for the rest of that descent.','Forty-eight Burdens span the Hunt, Echo, Ground, Swarm, Hunger, Bell, Veil, and Crown, each with three distinct ranks.','Eight rare Calamities enter the wheel in the deep descent and can change future spins, floors, and Guardian fights.','Collected laws reshape rooms, enemies, rewards, Resting Flames, projectiles, darkness, and Guardians instead of merely raising numbers.','Automatic hazards are staggered by one Endless director so a large collection remains readable during combat.','The Weight records every active Burden and Calamity from the HUD or pause menu, with complete keyboard and touchscreen support.','Hidden passages are much rarer, appear only as a faint wall seam, and stay silent until their room is clear.','Opening a hidden passage now requires listening at the wall, breaking three seals with Flare, and returning to the seam; its blessings, Marks, Essence, healing, and run upgrades are dramatically stronger.','Wheel results, seeded outcomes, temporary floor laws, hidden-room discoveries, and active hazards save and resume with the run. Existing saves and completed campaigns remain intact.']},
- {version:2026092201,date:'SEPTEMBER 22, 2026',title:'TWELVE ROOMS, TWELVE VOICES',intro:'The descent has found its orchestra.',changes:['Twelve recorded chamber pieces now carry the title screen, every region, the Back Room, and Endless mode.','Each place has its own melody, meter, instruments, and percussion instead of reshaping one repeated song.','Marching snare, mallets, timpani, and stronger drums now sit clearly in the mix.','Cymbal crashes land on bar lines and phrase entrances throughout the score.','Music crosses gently between places and loops without dropping into silence.','Existing saves, progression, controls, and combat balance are unchanged.']},
- {version:2026092101,date:'SEPTEMBER 21, 2026',title:'ONLY THE FLAME',intro:'The menus have gone quiet again.',changes:['Music settings now contain only the controls a player needs.','Guardian wards no longer explain their hidden strength through a mastery readout.','A short recovery notice replaces the old technical error panel if the game is interrupted.','Startup controls are more resilient while a browser finishes replacing cached files after an update.','Saves, combat balance, progression, and the current soundtrack are unchanged.']},
- {version:2026092004,date:'SEPTEMBER 21, 2026',title:'YOUR DESCENT, YOUR CLOCK',intro:'The clock belongs to every descent.',changes:['The optional timer and seed controls are available in Settings.','A blank seed creates a fresh dungeon; entered, random, and daily seeds can be replayed.','Seeded descents keep the Skill Tree, Ember Forms, story, progression, and normal difficulty.','The compact timer counts active play and pauses with dialogue and menus.','Active runs preserve their seed and random state when saved.','The opening now shows the Ember before the sealed gate in a responsive pixel-art scene.']},
- {version:2026092002,date:'SEPTEMBER 20, 2026',title:'ROOMS BEHIND ROOMS',intro:'The descent has begun keeping things behind its walls.',changes:['Hidden passages can now be uncovered through regional clues, close inspection, or a well-placed Flare.','Eleven hidden chamber types offer rest, trials, wagers, maps, blessings, run improvements, rare Seventh Marks, and other discoveries.','The Back Room now appears deep in the passage network, where Moth trades a run-only currency called Marks for carefully chosen goods.','Every region has its own hidden-door construction, corridor architecture, chamber details, lighting, particles, focal objects, and sound.','Hidden rooms reserve space inside the existing encounter budget, remain optional, support keyboard and touch controls, and save every discovery, purchase, trial, and reward with the run.']},
- {version:2026092001,date:'SEPTEMBER 20, 2026',title:'ONE MEMORY, ONE FORM',intro:'Retired pieces of the old descent have been cleared from the Archive.',changes:['Echoes now open only through their restored-room sequences; the superseded dialogue versions are gone.','The Star Warden now uses only the finished Warden artwork, with the prototype boss image removed.','Existing saves keep every current conversation, recovered Echo, story choice, and progression record.']},
- {version:2026091902,date:'SEPTEMBER 19, 2026',title:'A QUIETER SPARK',intro:'The new counterattack now teaches itself without crowding the fight.',changes:['The Dash Counter appears once in the combat tips when it is first discovered.','Repeated counters now rely on the gold visual effect instead of floating labels and changing HUD text.','The opening floor objectives now describe the journey through the Hollow instead of listing controls.']},
- {version:2026091901,date:'SEPTEMBER 19, 2026',title:'THE EMBER ANSWERS',intro:'The first descent now teaches a complete fighting rhythm.',changes:['A close Dash through an attack now Kindles the next Flare, turning a precise evade into a stronger counterattack.','Flare reaches farther, starts faster, buffers near the end of its recovery, and gains a shorter recovery after a successful Kindled strike.','Dash inputs now buffer briefly, and dashing can cancel Rekindling when danger closes in.','The first floor introduces its creatures room by room without a sealed encounter, while later tutorial floors add distinct room trials.','The first treasure now offers a clear choice between power, movement, and Dash recovery.','Gate creatures now reward attacks during recovery and can be interrupted by a Kindled Flare.','The Star Warden has more health, a clearer shield-and-counter rhythm, a stronger second phase, and a final low-health pattern.','First-descent guidance and objectives now explain the combat rhythm only when each lesson becomes useful.','Echo scenes now bring the active speaker forward inside the restored room, including full-room appearances for Wick and the Ember.']},
- {version:2026091803,date:'SEPTEMBER 18, 2026',title:'WICK WAS LISTENING',intro:'The silence was a bug, not restraint.',changes:['Wick now responds to repeated empty interactions during any ordinary descent.','The hidden exchange no longer requires a discovered portal or an empty floor, and its timing is more forgiving.','Real interactions with gates, Resting Flames, memories, and traces still take priority.']},
- {version:2026091802,date:'SEPTEMBER 18, 2026',title:'A LIGHT WITH OPINIONS',intro:'Wick has begun helping in ways no one requested.',changes:['Once an open portal has been discovered, press Q or use the new on-screen control to return to it from anywhere on the floor.','Portal returns use a brief protected transition and leave the choice to descend in your hands.','Wick may notice unusual behavior around an open gate.','A new secret Epic blessing can mark the room’s greatest threat, strengthen attacks against it, and restore an Ember Bolt charge when it falls.','The secret and portal return both work with keyboard, mouse, and touchscreen controls and remain intact when a run is saved.']},
- {version:2026091801,date:'SEPTEMBER 18, 2026',title:'THE GATE OPENS',intro:'The descent now arrives as a finished scene.',changes:['Reloading now holds on a dedicated Seventh Ember opening screen while the dungeon, save, and menus are prepared.','The complete title screen fades in only after startup is ready, removing the brief half-built menu and frozen controls.','The opening automatically gives way if startup encounters a problem, so it cannot trap the player behind a loading screen.','Saves, progression, controls, and gameplay are unchanged.']},
- {version:2026091707,date:'SEPTEMBER 17, 2026',title:'THE SEVENTH EMBER',intro:'The descent has found its name.',changes:['The game is now titled The Seventh Ember across the title screen, browser, saves, exports, and project identity.','Every menu, overlay, HUD plate, blessing card, dialogue frame, Memory, Skill Tree panel, touch control, and ending screen now shares one carved-stone, ember-gold visual language.','Each region carries its own restrained accent through the interface while text, controls, and combat information remain consistent.','The new name points toward the six vessels who came before the player without giving away what waits below.','Existing progress and active runs move automatically into the renamed save system.','Gameplay, balance, controls, and progression are unchanged.']},
- {version:2026091706,date:'SEPTEMBER 17, 2026',title:'EMBERLIGHT',intro:'The threshold now burns with the same warmth as the Ember.',changes:['Cyan title-screen accents have been replaced with aged gold, bronze, warm ivory, and restrained ember-orange.','The chamber stone, gate aperture, orbiting shards, menu borders, icons, and focus states now share the warmer palette.','Violet remains reserved for Ember Forms and Essence so those systems keep their own identity.','Layout, progress, saves, controls, and gameplay are unchanged.']},
- {version:2026091704,date:'SEPTEMBER 17, 2026',title:'THE GATE IN VIEW',intro:'The descent now begins before the first step.',changes:['The title screen now opens on a full pixel-art chamber with the Ember facing an awakened gate.','Orbiting shards, a living aperture, braziers, drifting motes, and layered chamber lighting give the scene depth and motion.','Navigation now has a clear primary action, polished secondary controls, compact Guardian access, and a cleaner permanent record.','Desktop, Chromebook, tablet, phone, ultrawide, and short landscape layouts each receive a dedicated composition.','Progress, saves, controls, and gameplay are unchanged.']},
- {version:2026091703,date:'SEPTEMBER 17, 2026',title:'A QUIETER THRESHOLD',intro:'The threshold belongs to the Ember again.',changes:['The title screen centers the established pixel-art dungeon and Ember without covering them in oversized decoration.','The menu has quieter framing, cleaner lettering, and simpler controls that fit the game’s visual style.','The full title menu remains readable on desktop, Chromebook, tablet, phone, and short landscape displays.','Progress, saves, controls, and gameplay are unchanged.']},
- {version:2026091702,date:'SEPTEMBER 17, 2026',title:'AT THE THRESHOLD',intro:'The first sight of the descent has been rebuilt.',changes:['The title screen now frames the Ember in a larger animated sigil with orbiting shards and layered depth.','Menu actions, Guardian modes, and permanent records now share a clearer hierarchy and stronger focus states.','Phone, tablet, desktop, ultrawide, and short landscape layouts now fit the complete menu without clipping or overflow.','Progress, saves, controls, and gameplay are unchanged.']},
- {version:2026091701,date:'SEPTEMBER 17, 2026',title:'THE OLD WARD STIRS',intro:'The old wards speak through the arena now.',changes:['Guardian wards now answer the Ember through shifting defenses, arena pressure, and attunement.','The Skill Tree now keeps its focus on the sigils that remain between descents.','Run records, menus, and combat messages now share a consistent voice.','Combat behavior, difficulty, progression, music, and existing saves are unchanged.']},
- {version:2026091601,date:'SEPTEMBER 16, 2026',title:'FALLING LIGHT',intro:'Falling Light now follows the descent.',changes:['The score carries melody, harmony, counterline, percussion, and a rolling bass through the game.','Each region reshapes the central theme into its own movement, while Guardians intensify the arrangement.','Music begins at the title screen and responds to exploration, crowded rooms, and boss fights.','Music and effects have separate volume controls, and the mute controls remain available.','Menus, HUD, dialogue, blessing cards, Skill Tree, settings, and run screens share one interface style.','The interface reorganizes for desktop, tablet, phone, portrait, and short landscape displays.']},
- {version:2026091504,date:'SEPTEMBER 15, 2026',title:'EVERY STRIKE LANDS',intro:'Combat now carries its weight from the first creature to the final Guardian.',changes:['Enemy deaths now resolve with distinct fractures, blooms, ripples, cinders, ink, or starlight while preserving every established sprite.','Clearing an ordinary room or breaking a sealed encounter releases the room with a visual and audible finish.','Every Guardian receives a consistent phase-change moment with a title unique to the encounter.','The score now gathers pace and percussion as nearby enemies and projectiles raise the pressure.','Elemental attacks have clearer impact colors, while Flare, critical hits, dashes, near misses, damage, and Rekindling retain their existing feedback.','Combat numbers, cooldowns, enemy timing, and existing saves are unchanged.']},
- {version:2026091503,date:'SEPTEMBER 15, 2026',title:'A FALSE ALARM SILENCED',intro:'The game will no longer mistake harmless browser events for an unknown error.',changes:['Removed the persistent “Error: unknown” notice caused by message-less browser events.','Unexpected failures still produce a useful message, can be dismissed, and disappear automatically after ten seconds.','Repeated copies of the same error are suppressed so they cannot cover the game.','Existing saves and progression are preserved.']},
- {version:2026091502,date:'SEPTEMBER 15, 2026',title:'THE FIRST DESCENT',intro:'The Hollow Gate now teaches by watching what you do and what you face.',changes:['First-run guidance appears when an action becomes useful and disappears as soon as it is learned.','The first rooms introduce enemies one at a time before sealed encounters and mixed groups begin.','Movement, Ember Bolt, Flare, Dash, Rekindling, Resting Flames, blessings, and the Warden each receive a focused introduction.','Early deaths now connect the Run Recap to a suggested Skill Tree upgrade.','The Warden’s opening and the passage into the Rootbound Gardens have clearer guidance and presentation.','Existing progress is preserved. Experienced players will not see first-descent guidance.']},
- {version:2026091501,date:'SEPTEMBER 15, 2026',title:'EVERY DESCENT LEAVES A RECORD',intro:'See what happened, choose your next goal, and preserve the record.',changes:['Run recaps show your last encounter, blessings, forms, defeated guardians, and earned essence.','View an affordable sigil or the next step toward your chosen form directly in the Skill Tree.','Copy a run record for your own notes. Records remain on your device until you copy them.','Your last recap survives a reload without affecting permanent progress.']},
- {
-  version:2026091401,
-  date:'SEPTEMBER 14, 2026',
-  title:'THE PROGRESSION REBUILD',
-  intro:'Runs now grow at a deliberate pace from the Hollow Gate to the Heart of the Star.',
-  changes:[
-   'Blessing choices are paced across the full campaign and continue deep into Endless.',
-   'Reward caches now appear in chosen rooms instead of multiplying with a lucky floor layout.',
-   'The Skill Tree is once again a long-term pursuit: early sigils stay affordable, while deep branches take commitment.',
-   'Enemies gain health and damage more steadily through the later regions.',
-   'Later Guardians now wake with stronger wards, longer encounters, and deeper phase changes.',
-   'How to Play now matches the current controls.'
-  ]
- }
+const THE_SEVENTH_EMBER_CHANGELOG = [
+  {
+    version: 2026101001,
+    date: 'OCTOBER 10, 2026',
+    title: 'A STEADIER DESCENT',
+    intro: 'Save recovery, blessings, and controls have received a reliability pass.',
+    changes: [
+      'Recovered saves repair the main copy correctly. Campaign and Boss Rush checkpoints recover separately, and damaged copies are kept for recovery.',
+      'A tab with outdated progress cannot overwrite a reset or a newer save from another tab. Partial storage failures preserve the fullest verified copy available.',
+      'Returning Heat no longer prevents a refunded cast from applying its Ember Form, evolution progress, and cast effects.',
+      'Permanent Flare recovery upgrades now stack with Practiced Flare. Glass Shards finish their last wall ricochet.',
+      'Controller buttons and sticks must be released before they can carry into a newly opened screen. Locked options are skipped when adjusting selectors.',
+      'Touch Flare and Rekindle activate once, obey open menus, and clear their pressed and power indicators when canceled.',
+      'The Hearth’s Ground filter now shows its Fissure combinations and challenges.',
+      'Selecting an invalid backup clears the previous import preview. Canceled or outdated file reads cannot bring an old preview back.',
+      'Portal returns and floor transitions ignore callbacks from an earlier run. A transition that completes while the tab is hidden leaves the game paused.',
+      'Keyboard, mouse, and tab events wait for startup to finish before using controls or saving progress.',
+      'Existing saves and permanent progression remain compatible.',
+    ],
+  },
+  {
+    version: 2026100901,
+    date: 'OCTOBER 9, 2026',
+    title: 'ROOMS BEFORE THE FALL',
+    intro:
+      'Memories show what happened. Wick and the Guardians have more to say about the things in front of them.',
+    changes: [
+      'Every conversation has been rewritten, including the opening, Wick’s portal interruption, all ten Guardians, chapter clears, and the campaign ending.',
+      'All fifty Echoes are silent scenes. Spectral workers, families, and Guardians act inside restored rooms instead of speaking through captions or dialogue boxes.',
+      'Each memory has its own timed action, from changing the watch and carrying someone upstairs to the garden frames and Wick learning beside an open book.',
+      'Memories play through and fade back to the present automatically. You can still move or tap to look around and leave early with Return or Escape. Their rooms remain free of enemies.',
+      'The restored room uses more of the screen. The player keeps the same size, and memory controls fit desktop, portrait, and landscape displays.',
+      'The Memories collection replays the new scenes. An interrupted memory can be revisited and completed. Previously seen conversations, collected memories, and saved progress carry over.',
+    ],
+  },
+  {
+    version: 2026100802,
+    date: 'OCTOBER 8, 2026',
+    title: 'A PLACE TO RETURN TO',
+    intro: 'The Hearth keeps what the descent leaves behind. Moth has restocked the Back Room.',
+    changes: [
+      'The Hearth opens from the title screen and pause menu. Decorate its pixel-art room, choose its recorded music, and display Guardian trophies and collected combination relics.',
+      'All thirty-six blessing combinations now have four permanent challenges: discover their ingredients, practice their actual combat effect, finish five floors, and defeat three Guardians. Search, filter, and track a goal from the compact Build button.',
+      'The 144 challenges unlock twenty-four furnishing choices, twelve Ember finishes for trails and revolving shards, and thirty-six cabinet relics. Completed goals carry between descents; Archive practice and Boss Rush do not award challenge progress.',
+      'After your first Guardian victory, choose any of six optional Vow Bindings for the next descent. Restricted health, Bolt power, charge reserve, dash recovery, damage resistance, and wards earn Guardian seals. Clearing the campaign with all six earns a Hearth crown.',
+      'Moth’s Back Room has a rebuilt merchant, patterned wings, animated candles, shelves, counter, and sixteen goods with individual pixel icons. Exclusive relics add seeking glass needles, Flare rings, exploding dash decoys, a fatal-hit rescue, Rekindle volleys, stronger healing, or lasting damage.',
+      'Shop stock also includes chosen Epic and Mythic blessings, a two-ingredient combination kit, two-rank upgrades, larger health vessels, three-floor maps, and permanent Essence caches. Preview the actual blessing choices before spending Marks.',
+      'Stock, offers, purchases, challenge progress, Hearth choices, and active bindings survive a reload. Existing saves carry over. The Hearth and shop support keyboard, controller, and touchscreen navigation on wide and narrow displays.',
+    ],
+  },
+  {
+    version: 2026100801,
+    date: 'OCTOBER 8, 2026',
+    title: 'BACK TO THE DESCENT',
+    intro: 'The Build screen returns control cleanly.',
+    changes: [
+      'Escape closes the Build screen even when its search box or effect filter has focus.',
+      'Closing a Build screen opened during play returns keyboard focus to the HUD and resumes the descent. Movement and abilities respond immediately.',
+    ],
+  },
+  {
+    version: 2026100704,
+    date: 'OCTOBER 7, 2026',
+    title: 'THE SHAPE OF YOUR FLAME',
+    intro: 'Blessings find new ways to work together.',
+    changes: [
+      'Eight new blessings join the pool: Hailstone, Tidal Pulse, Storm Coil, Faultline, Moon Shard, Lantern Moths, Saw Halo, and Meteor Heart. Their hit, cast, Flare, and kill counters create recurring abilities.',
+      'Thirty new recipes bring the combination library to thirty-six. Frost patches, forked fissures, orbiting lightning, returning waves, razor crescents, meteor swarms, fire moths, and Starstitch interactions reward complementary builds.',
+      'The left HUD now has one compact Build button in place of individual blessing and evolution chips. Open it to pause and inspect your inventory, active combinations, missing ingredients, and form evolutions. The same screen is available from pause.',
+      'The Build screen includes search, effect families, active recipes, and one-blessing-away filters. Blessing choices show which combinations they complete without long lists of pairings.',
+      'Icicles, conductors, fault lines, waves, saw blades, crescents, meteors, and moths have distinct pixel artwork and movement. The original six combinations also receive stronger visual identities.',
+      'Combination attacks cannot feed their own Bolt hit counters. Walls block new attacks, Guardians resist repeated freezing, and effect limits keep large builds manageable. Existing blessing ranks, progress, controls, and saved runs carry over.',
+    ],
+  },
+  {
+    version: 2026100703,
+    date: 'OCTOBER 7, 2026',
+    title: 'FROST AND FIRE',
+    intro: 'Controller play and new blessing combinations join the descent.',
+    changes: [
+      'Standard controllers now support movement, manual aim, Bolt, Flare, Dash, Rekindle, interactions, portal returns, and menu navigation. Settings includes button remapping, stick dead zones, and vibration. Disconnecting during play pauses the run.',
+      'Fifteen blessings have been rebuilt around clear hit counters, recurring casts, freezing, lightning, fire, and lasting stat upgrades. Existing blessing ranks and saved runs carry over.',
+      'Rime Ember freezes ordinary enemies after four Bolt hits. Guardians are briefly chilled and resist repeated freezing. Frostbite strengthens attacks against chilled targets, and Cold Front spreads frost from defeated enemies.',
+      'Six combinations add new effects: Thermal Shock, Shatter, Stormfront, Cinderwheel, Collapsed Sun, and Echo Chamber. Blessing choices show useful pairings and completed combinations.',
+      'The pause menu lists every combination and shows which ingredients you hold. New frost, lightning, and impact effects make the combinations visible during combat.',
+      'Keyboard, mouse, touchscreen controls, music, artwork, and permanent progress remain available.',
+    ],
+  },
+  {
+    version: 2026100702,
+    date: 'OCTOBER 7, 2026',
+    title: 'MUSIC AT THE THRESHOLD',
+    intro: 'The menus and pause screen have their own music.',
+    changes: [
+      'Before the First Bell accompanies the title screen and its menus. Dust in the Sunlight plays while the descent is paused, including settings and collections opened from pause.',
+      'Audio prepares when the game loads and begins with the first click, tap, or key when the browser requires an interaction. You can hear the menu without starting a run.',
+      'Themes crossfade between menus, pause, and the dungeon. Returning to the descent resumes its previous piece from the saved position.',
+      'Returning from a hidden tab restores the pause theme, and music volume and mute preferences continue to apply everywhere.',
+      'The recorded pieces, combat effects, and saved progress are preserved.',
+    ],
+  },
+  {
+    version: 2026100701,
+    date: 'OCTOBER 7, 2026',
+    title: 'BEHIND THE STONE',
+    intro: 'Careful searching has more to find.',
+    changes: [
+      'Hidden walls keep their regional textures, with clearer uneven edges, fallen grit, and small traces of blue wax outside the Back Room. The doorway stays concealed until opened.',
+      'An Examine prompt appears when you search close to unusual stone in a cleared room. Listening shows its progress, Flare shows how many catches remain, and each step displays the correct control.',
+      'The first hidden cache appears on floor four. Later secrets have shorter gaps, and finding hidden rooms brings Moth’s shop into the descent earlier. Guardian modes remain separate.',
+      'Touch controls name the current wall action. Flare can target an inspected wall when the aiming stick is at rest, and discovery instructions sit above the controls.',
+      'Shop purchases cannot charge twice, Borrowed Blessing correctly lists its Epic or Mythic reward, and Cinder of the Seventh is limited to once per descent.',
+      'Chamber artwork, Moth, rewards, recorded music, and existing progress are preserved. Saved wall inspections, broken catches, and purchases resume where you left them.',
+    ],
+  },
+  {
+    version: 2026100603,
+    date: 'OCTOBER 6, 2026',
+    title: 'A LEANER DESCENT',
+    intro: 'The descent sheds a few things it no longer needs.',
+    changes: [
+      'Obsolete music files and retired music generators have been removed. The twenty-eight recorded pieces and current sound effects are unchanged.',
+      'Unused sprite versions, the retired trace screen, and unused interface and save bookkeeping have been cleared away. Current artwork, animated memories, combat, and saved progress are preserved.',
+    ],
+  },
+  {
+    version: 2026100602,
+    date: 'OCTOBER 6, 2026',
+    title: 'DIFFERENT ROOMS, DIFFERENT VOICES',
+    intro: 'Six themes change key, four gather pace, and the Back Room band takes a stranger turn.',
+    changes: [
+      'Flooded Bellworks moves to E minor, while The Sluice Opens takes a brighter turn in F major.',
+      'Copper Teeth now runs in B minor, and Ink Between the Lines has a new C minor melody.',
+      'A House Remembered moves to G major. The Bell Does Not Yield gains an E minor theme and a different bass progression.',
+      'Each of these six pieces has a revised melody, chord progression, and accompaniment pattern.',
+      'Copper Teeth, Siege at Blackstone, The Bell Does Not Yield, and Two Blades, One Vow have faster arrangements, with the recorded instruments kept at their natural pitch.',
+      'The faster pieces gain individual drum patterns, quieter ghost notes, marching-snare rolls, and cymbal arrivals. Copper Teeth has syncopated accents, the Twins use paired responses, Siege has longer marching rolls, and The Bell has shorter, sharper fills.',
+      'Moth Counts Twice becomes a crooked seven-beat tune with marimba, oboe, low bassoon replies, short brass notes, and chromatic flourishes. No Refunds After Dawn gains swung eighths, playful exchanges, and brief pauses over a steady four-beat groove.',
+    ],
+  },
+  {
+    version: 2026100601,
+    date: 'OCTOBER 6, 2026',
+    title: 'A STEADIER PULSE',
+    intro: 'The chamber score returns with clearer harmony and a steadier rhythm.',
+    changes: [
+      'Ash at the Door now has a calm four-beat pulse in D minor, with harp, oboe, held strings, and restrained percussion.',
+      'Snare patterns follow the beat, fills lead into phrases, and cymbal crashes land at phrase entrances.',
+      'Bass lines and arpeggios follow each chord. Most pieces use familiar major or minor keys and four-beat, waltz, or compound rhythms.',
+      'Uneven rhythms remain in the Foundry, Observatory, Endless, and the Back Room, where their patterns are deliberate.',
+      'Strings carry shared notes through chord changes instead of restarting the whole accompaniment every bar. Recorded instruments, continuous loops, regional alternates, and existing progress are preserved.',
+    ],
+  },
+  {
+    version: 2026100501,
+    date: 'OCTOBER 5, 2026',
+    title: 'MORE MUSIC IN THE DARK',
+    intro: 'Longer pieces and new voices accompany the descent.',
+    changes: [
+      'The recorded score expands from twelve pieces to twenty-eight. Every piece now runs for over three minutes, with contrasting passages, counter-melodies, development, and a return to its opening.',
+      'Every region gains an alternate piece. Memories and Guardian battles have their own music, and Endless rotates through a wider selection as the descent deepens.',
+      'The score retains recorded strings, winds, brass, harp, marimba, bass, marching snare, timpani, and cymbals. Percussion follows the meter and phrase entrances.',
+      'Music now loops at the exact audio boundary, with instrument releases and room reflections carried across the join. There is no fade to silence between repetitions.',
+      'Music resumes from its position after muting or switching tabs, crosses gently between places, and loads only a small selection at a time.',
+      'Achievements are now available from the title screen and pause menu, with saved milestones, search, filters, and progress tracking. Existing progress is preserved.',
+    ],
+  },
+  {
+    version: 2026100402,
+    date: 'OCTOBER 4, 2026',
+    title: 'FINDING THEIR STRIDE',
+    intro: 'Creature movement follows its shape and weight.',
+    changes: [
+      'Walking creatures keep their faces and bodies steady while alternating their feet. Crawlers use staggered steps, and heavy armor moves at a slower pace.',
+      'Bats and winged creatures flap from the wing roots. Leeches and eels move their tails while keeping their heads intact.',
+      'Slimes move through their lower bodies. Floating lenses, masks, and stars retain their rigid shapes, while spectral creatures have gentler trailing motion.',
+      'The Matriarch gains articulated legs and stable bark and bloom details. The Warden takes shorter, connected steps beneath his armor.',
+      'Grounded movement follows actual travel, slows before stopping, and rests with planted feet. Lunges and leaps no longer play frantic walking cycles.',
+      'Creature silhouettes, palettes, attacks, difficulty, hitboxes, and saves are preserved.',
+    ],
+  },
+  {
+    version: 2026100401,
+    date: 'OCTOBER 4, 2026',
+    title: 'A CLOSER LOOK',
+    intro: 'The walls keep their secrets, and the creatures find their feet.',
+    changes: [
+      'Hidden rooms are concealed inside real walls with a different texture clue in every region. Look for displaced masonry, roots that bend around clean stone, dry patches, interrupted reflections, and other changes in the architecture.',
+      'Hidden entrances no longer fade into view or announce themselves as you walk past. Examine the wall with Use, listen, then aim Flare at the catches before pushing it open.',
+      'Revealed walls slide apart into a narrow passage. Entrances avoid corridors and nearby furnishings, and existing hidden-room progress is preserved.',
+      'Creatures keep their established artwork and colors while gaining six-frame steps, crawling cycles, wing beats, and swimming motions. Grounded creatures animate as they move and settle when they stop.',
+      'The Star Warden gains a detailed helmet, visor, cheek plates, shoulder rivets, and layered armor. The Matriarch and eight later Guardians gain details suited to their existing designs.',
+      'Rewards, combat balance, hitboxes, and permanent progress remain unchanged.',
+    ],
+  },
+  {
+    version: 2026100301,
+    date: 'OCTOBER 3, 2026',
+    title: 'A RECORD OF YOUR FLAME',
+    intro: 'Achievements arrive, and several blessings burn as they should.',
+    changes: [
+      'A new Achievements screen tracks campaign milestones, Guardian victories, combat feats, builds, Skill Tree mastery, hidden rooms, memories, Endless, and Archive challenges. Search, category filters, progress bars, and secret achievements keep the collection easy to explore.',
+      'Existing saved milestones and Archive records receive credit automatically. Achievements stay with exported saves, and this update preserves your progress.',
+      'Runs with larger Ember magazines, the Warden, or the Matriarch now pass save validation and can resume normally. Reserve, Skill Tree charge upgrades, and Boss Rush charge boons retain their full capacity during combat. A failed checkpoint verification preserves the last valid checkpoint and displays a save notice.',
+      'The Seventh Wish remembers your first choice after reloading, prevents duplicate picks, supports keys 1–7, and handles small or exhausted blessing pools.',
+      'Invulnerable hits no longer consume wards, and Phoenix Law waits for actual lethal damage after defenses and other revivals.',
+      'Perfect Rekindle now works through the HUD and touchscreen, with a gold timing window.',
+      'Warm Start, Counterstep, Crucible, Glass Thread, Knotted Light, Red Thread, Counterweave, Empty Chamber, and Hearth of the World receive corrections to their effects.',
+      'Starstitch cages require a connected triangle, star doors cannot repeatedly multiply one projectile, and temporary floor effects no longer spill into the next floor.',
+    ],
+  },
+  {
+    version: 2026092702,
+    date: 'SEPTEMBER 27, 2026',
+    title: 'THE CONSTELLATION OPENS',
+    intro: 'The descent has ninety-three new ways to burn.',
+    changes: [
+      'Eighty new blessings join the four rarity pools, with twenty Commons, twenty Uncommons, twenty Epics, and twenty Mythics.',
+      'Thirteen Starstitch blessings introduce enemy and wall pins, damaging strands, cages, pulses, collapsing patterns, and the living Seventh Constellation.',
+      'New blessings continue entering the pool through floor 80, so deep campaign and Endless levels keep offering meaningful choices.',
+      'The new Mythics can borrow mastered blessings, halt a room in time, summon suns and spectral allies, open linked star doors, bend enemy fire, or turn a seventh draft into seven cards and two choices.',
+      'Every new blessing has a complete combat, movement, defense, reward, room, or Rekindle effect rather than existing only as card text.',
+      'Starstitch and the largest Mythic effects have their own in-world animation, and the expanded seven-card draft adapts from wide screens to phones and tablets.',
+      'Current progress, active descents, Skill Tree purchases, Guardian records, and completed campaigns remain intact.',
+    ],
+  },
+  {
+    version: 2026092701,
+    date: 'SEPTEMBER 27, 2026',
+    title: 'THE WHEEL BELOW',
+    intro: 'Endless now remembers every turn.',
+    changes: [
+      'Every fifth Endless floor opens a full pixel-art wheel ceremony and binds a permanent Burden for the rest of that descent.',
+      'Forty-eight Burdens span the Hunt, Echo, Ground, Swarm, Hunger, Bell, Veil, and Crown, each with three distinct ranks.',
+      'Eight rare Calamities enter the wheel in the deep descent and can change future spins, floors, and Guardian fights.',
+      'Collected laws reshape rooms, enemies, rewards, Resting Flames, projectiles, darkness, and Guardians instead of merely raising numbers.',
+      'Automatic hazards are staggered by one Endless director so a large collection remains readable during combat.',
+      'The Weight records every active Burden and Calamity from the HUD or pause menu, with complete keyboard and touchscreen support.',
+      'Hidden passages are much rarer, appear only as a faint wall seam, and stay silent until their room is clear.',
+      'Opening a hidden passage now requires listening at the wall, breaking three seals with Flare, and returning to the seam; its blessings, Marks, Essence, healing, and run upgrades are dramatically stronger.',
+      'Wheel results, seeded outcomes, temporary floor laws, hidden-room discoveries, and active hazards save and resume with the run. Existing saves and completed campaigns remain intact.',
+    ],
+  },
+  {
+    version: 2026092201,
+    date: 'SEPTEMBER 22, 2026',
+    title: 'TWELVE ROOMS, TWELVE VOICES',
+    intro: 'The descent has found its orchestra.',
+    changes: [
+      'Twelve recorded chamber pieces now carry the title screen, every region, the Back Room, and Endless mode.',
+      'Each place has its own melody, meter, instruments, and percussion instead of reshaping one repeated song.',
+      'Marching snare, mallets, timpani, and stronger drums now sit clearly in the mix.',
+      'Cymbal crashes land on bar lines and phrase entrances throughout the score.',
+      'Music crosses gently between places and loops without dropping into silence.',
+      'Existing saves, progression, controls, and combat balance are unchanged.',
+    ],
+  },
+  {
+    version: 2026092101,
+    date: 'SEPTEMBER 21, 2026',
+    title: 'ONLY THE FLAME',
+    intro: 'The menus have gone quiet again.',
+    changes: [
+      'Music settings now contain only the controls a player needs.',
+      'Guardian wards no longer explain their hidden strength through a mastery readout.',
+      'A short recovery notice replaces the old technical error panel if the game is interrupted.',
+      'Startup controls are more resilient while a browser finishes replacing cached files after an update.',
+      'Saves, combat balance, progression, and the current soundtrack are unchanged.',
+    ],
+  },
+  {
+    version: 2026092004,
+    date: 'SEPTEMBER 21, 2026',
+    title: 'YOUR DESCENT, YOUR CLOCK',
+    intro: 'The clock belongs to every descent.',
+    changes: [
+      'The optional timer and seed controls are available in Settings.',
+      'A blank seed creates a fresh dungeon; entered, random, and daily seeds can be replayed.',
+      'Seeded descents keep the Skill Tree, Ember Forms, story, progression, and normal difficulty.',
+      'The compact timer counts active play and pauses with dialogue and menus.',
+      'Active runs preserve their seed and random state when saved.',
+      'The opening now shows the Ember before the sealed gate in a responsive pixel-art scene.',
+    ],
+  },
+  {
+    version: 2026092002,
+    date: 'SEPTEMBER 20, 2026',
+    title: 'ROOMS BEHIND ROOMS',
+    intro: 'The descent has begun keeping things behind its walls.',
+    changes: [
+      'Hidden passages can now be uncovered through regional clues, close inspection, or a well-placed Flare.',
+      'Eleven hidden chamber types offer rest, trials, wagers, maps, blessings, run improvements, rare Seventh Marks, and other discoveries.',
+      'The Back Room now appears deep in the passage network, where Moth trades a run-only currency called Marks for carefully chosen goods.',
+      'Every region has its own hidden-door construction, corridor architecture, chamber details, lighting, particles, focal objects, and sound.',
+      'Hidden rooms reserve space inside the existing encounter budget, remain optional, support keyboard and touch controls, and save every discovery, purchase, trial, and reward with the run.',
+    ],
+  },
+  {
+    version: 2026092001,
+    date: 'SEPTEMBER 20, 2026',
+    title: 'ONE MEMORY, ONE FORM',
+    intro: 'Retired pieces of the old descent have been cleared from the Archive.',
+    changes: [
+      'Echoes now open only through their restored-room sequences; the superseded dialogue versions are gone.',
+      'The Star Warden now uses only the finished Warden artwork, with the prototype boss image removed.',
+      'Existing saves keep every current conversation, recovered Echo, story choice, and progression record.',
+    ],
+  },
+  {
+    version: 2026091902,
+    date: 'SEPTEMBER 19, 2026',
+    title: 'A QUIETER SPARK',
+    intro: 'The new counterattack now teaches itself without crowding the fight.',
+    changes: [
+      'The Dash Counter appears once in the combat tips when it is first discovered.',
+      'Repeated counters now rely on the gold visual effect instead of floating labels and changing HUD text.',
+      'The opening floor objectives now describe the journey through the Hollow instead of listing controls.',
+    ],
+  },
+  {
+    version: 2026091901,
+    date: 'SEPTEMBER 19, 2026',
+    title: 'THE EMBER ANSWERS',
+    intro: 'The first descent now teaches a complete fighting rhythm.',
+    changes: [
+      'A close Dash through an attack now Kindles the next Flare, turning a precise evade into a stronger counterattack.',
+      'Flare reaches farther, starts faster, buffers near the end of its recovery, and gains a shorter recovery after a successful Kindled strike.',
+      'Dash inputs now buffer briefly, and dashing can cancel Rekindling when danger closes in.',
+      'The first floor introduces its creatures room by room without a sealed encounter, while later tutorial floors add distinct room trials.',
+      'The first treasure now offers a clear choice between power, movement, and Dash recovery.',
+      'Gate creatures now reward attacks during recovery and can be interrupted by a Kindled Flare.',
+      'The Star Warden has more health, a clearer shield-and-counter rhythm, a stronger second phase, and a final low-health pattern.',
+      'First-descent guidance and objectives now explain the combat rhythm only when each lesson becomes useful.',
+      'Echo scenes now bring the active speaker forward inside the restored room, including full-room appearances for Wick and the Ember.',
+    ],
+  },
+  {
+    version: 2026091803,
+    date: 'SEPTEMBER 18, 2026',
+    title: 'WICK WAS LISTENING',
+    intro: 'The silence was a bug, not restraint.',
+    changes: [
+      'Wick now responds to repeated empty interactions during any ordinary descent.',
+      'The hidden exchange no longer requires a discovered portal or an empty floor, and its timing is more forgiving.',
+      'Real interactions with gates, Resting Flames, memories, and traces still take priority.',
+    ],
+  },
+  {
+    version: 2026091802,
+    date: 'SEPTEMBER 18, 2026',
+    title: 'A LIGHT WITH OPINIONS',
+    intro: 'Wick has begun helping in ways no one requested.',
+    changes: [
+      'Once an open portal has been discovered, press Q or use the new on-screen control to return to it from anywhere on the floor.',
+      'Portal returns use a brief protected transition and leave the choice to descend in your hands.',
+      'Wick may notice unusual behavior around an open gate.',
+      'A new secret Epic blessing can mark the room’s greatest threat, strengthen attacks against it, and restore an Ember Bolt charge when it falls.',
+      'The secret and portal return both work with keyboard, mouse, and touchscreen controls and remain intact when a run is saved.',
+    ],
+  },
+  {
+    version: 2026091801,
+    date: 'SEPTEMBER 18, 2026',
+    title: 'THE GATE OPENS',
+    intro: 'The descent now arrives as a finished scene.',
+    changes: [
+      'Reloading now holds on a dedicated Seventh Ember opening screen while the dungeon, save, and menus are prepared.',
+      'The complete title screen fades in only after startup is ready, removing the brief half-built menu and frozen controls.',
+      'The opening automatically gives way if startup encounters a problem, so it cannot trap the player behind a loading screen.',
+      'Saves, progression, controls, and gameplay are unchanged.',
+    ],
+  },
+  {
+    version: 2026091707,
+    date: 'SEPTEMBER 17, 2026',
+    title: 'THE SEVENTH EMBER',
+    intro: 'The descent has found its name.',
+    changes: [
+      'The game is now titled The Seventh Ember across the title screen, browser, saves, exports, and project identity.',
+      'Every menu, overlay, HUD plate, blessing card, dialogue frame, Memory, Skill Tree panel, touch control, and ending screen now shares one carved-stone, ember-gold visual language.',
+      'Each region carries its own restrained accent through the interface while text, controls, and combat information remain consistent.',
+      'The new name points toward the six vessels who came before the player without giving away what waits below.',
+      'Existing progress and active runs move automatically into the renamed save system.',
+      'Gameplay, balance, controls, and progression are unchanged.',
+    ],
+  },
+  {
+    version: 2026091706,
+    date: 'SEPTEMBER 17, 2026',
+    title: 'EMBERLIGHT',
+    intro: 'The threshold now burns with the same warmth as the Ember.',
+    changes: [
+      'Cyan title-screen accents have been replaced with aged gold, bronze, warm ivory, and restrained ember-orange.',
+      'The chamber stone, gate aperture, orbiting shards, menu borders, icons, and focus states now share the warmer palette.',
+      'Violet remains reserved for Ember Forms and Essence so those systems keep their own identity.',
+      'Layout, progress, saves, controls, and gameplay are unchanged.',
+    ],
+  },
+  {
+    version: 2026091704,
+    date: 'SEPTEMBER 17, 2026',
+    title: 'THE GATE IN VIEW',
+    intro: 'The descent now begins before the first step.',
+    changes: [
+      'The title screen now opens on a full pixel-art chamber with the Ember facing an awakened gate.',
+      'Orbiting shards, a living aperture, braziers, drifting motes, and layered chamber lighting give the scene depth and motion.',
+      'Navigation now has a clear primary action, polished secondary controls, compact Guardian access, and a cleaner permanent record.',
+      'Desktop, Chromebook, tablet, phone, ultrawide, and short landscape layouts each receive a dedicated composition.',
+      'Progress, saves, controls, and gameplay are unchanged.',
+    ],
+  },
+  {
+    version: 2026091703,
+    date: 'SEPTEMBER 17, 2026',
+    title: 'A QUIETER THRESHOLD',
+    intro: 'The threshold belongs to the Ember again.',
+    changes: [
+      'The title screen centers the established pixel-art dungeon and Ember without covering them in oversized decoration.',
+      'The menu has quieter framing, cleaner lettering, and simpler controls that fit the game’s visual style.',
+      'The full title menu remains readable on desktop, Chromebook, tablet, phone, and short landscape displays.',
+      'Progress, saves, controls, and gameplay are unchanged.',
+    ],
+  },
+  {
+    version: 2026091702,
+    date: 'SEPTEMBER 17, 2026',
+    title: 'AT THE THRESHOLD',
+    intro: 'The first sight of the descent has been rebuilt.',
+    changes: [
+      'The title screen now frames the Ember in a larger animated sigil with orbiting shards and layered depth.',
+      'Menu actions, Guardian modes, and permanent records now share a clearer hierarchy and stronger focus states.',
+      'Phone, tablet, desktop, ultrawide, and short landscape layouts now fit the complete menu without clipping or overflow.',
+      'Progress, saves, controls, and gameplay are unchanged.',
+    ],
+  },
+  {
+    version: 2026091701,
+    date: 'SEPTEMBER 17, 2026',
+    title: 'THE OLD WARD STIRS',
+    intro: 'The old wards speak through the arena now.',
+    changes: [
+      'Guardian wards now answer the Ember through shifting defenses, arena pressure, and attunement.',
+      'The Skill Tree now keeps its focus on the sigils that remain between descents.',
+      'Run records, menus, and combat messages now share a consistent voice.',
+      'Combat behavior, difficulty, progression, music, and existing saves are unchanged.',
+    ],
+  },
+  {
+    version: 2026091601,
+    date: 'SEPTEMBER 16, 2026',
+    title: 'FALLING LIGHT',
+    intro: 'Falling Light now follows the descent.',
+    changes: [
+      'The score carries melody, harmony, counterline, percussion, and a rolling bass through the game.',
+      'Each region reshapes the central theme into its own movement, while Guardians intensify the arrangement.',
+      'Music begins at the title screen and responds to exploration, crowded rooms, and boss fights.',
+      'Music and effects have separate volume controls, and the mute controls remain available.',
+      'Menus, HUD, dialogue, blessing cards, Skill Tree, settings, and run screens share one interface style.',
+      'The interface reorganizes for desktop, tablet, phone, portrait, and short landscape displays.',
+    ],
+  },
+  {
+    version: 2026091504,
+    date: 'SEPTEMBER 15, 2026',
+    title: 'EVERY STRIKE LANDS',
+    intro: 'Combat now carries its weight from the first creature to the final Guardian.',
+    changes: [
+      'Enemy deaths now resolve with distinct fractures, blooms, ripples, cinders, ink, or starlight while preserving every established sprite.',
+      'Clearing an ordinary room or breaking a sealed encounter releases the room with a visual and audible finish.',
+      'Every Guardian receives a consistent phase-change moment with a title unique to the encounter.',
+      'The score now gathers pace and percussion as nearby enemies and projectiles raise the pressure.',
+      'Elemental attacks have clearer impact colors, while Flare, critical hits, dashes, near misses, damage, and Rekindling retain their existing feedback.',
+      'Combat numbers, cooldowns, enemy timing, and existing saves are unchanged.',
+    ],
+  },
+  {
+    version: 2026091503,
+    date: 'SEPTEMBER 15, 2026',
+    title: 'A FALSE ALARM SILENCED',
+    intro: 'The game will no longer mistake harmless browser events for an unknown error.',
+    changes: [
+      'Removed the persistent “Error: unknown” notice caused by message-less browser events.',
+      'Unexpected failures still produce a useful message, can be dismissed, and disappear automatically after ten seconds.',
+      'Repeated copies of the same error are suppressed so they cannot cover the game.',
+      'Existing saves and progression are preserved.',
+    ],
+  },
+  {
+    version: 2026091502,
+    date: 'SEPTEMBER 15, 2026',
+    title: 'THE FIRST DESCENT',
+    intro: 'The Hollow Gate now teaches by watching what you do and what you face.',
+    changes: [
+      'First-run guidance appears when an action becomes useful and disappears as soon as it is learned.',
+      'The first rooms introduce enemies one at a time before sealed encounters and mixed groups begin.',
+      'Movement, Ember Bolt, Flare, Dash, Rekindling, Resting Flames, blessings, and the Warden each receive a focused introduction.',
+      'Early deaths now connect the Run Recap to a suggested Skill Tree upgrade.',
+      'The Warden’s opening and the passage into the Rootbound Gardens have clearer guidance and presentation.',
+      'Existing progress is preserved. Experienced players will not see first-descent guidance.',
+    ],
+  },
+  {
+    version: 2026091501,
+    date: 'SEPTEMBER 15, 2026',
+    title: 'EVERY DESCENT LEAVES A RECORD',
+    intro: 'See what happened, choose your next goal, and preserve the record.',
+    changes: [
+      'Run recaps show your last encounter, blessings, forms, defeated guardians, and earned essence.',
+      'View an affordable sigil or the next step toward your chosen form directly in the Skill Tree.',
+      'Copy a run record for your own notes. Records remain on your device until you copy them.',
+      'Your last recap survives a reload without affecting permanent progress.',
+    ],
+  },
+  {
+    version: 2026091401,
+    date: 'SEPTEMBER 14, 2026',
+    title: 'THE PROGRESSION REBUILD',
+    intro: 'Runs now grow at a deliberate pace from the Hollow Gate to the Heart of the Star.',
+    changes: [
+      'Blessing choices are paced across the full campaign and continue deep into Endless.',
+      'Reward caches now appear in chosen rooms instead of multiplying with a lucky floor layout.',
+      'The Skill Tree is once again a long-term pursuit: early sigils stay affordable, while deep branches take commitment.',
+      'Enemies gain health and damage more steadily through the later regions.',
+      'Later Guardians now wake with stronger wards, longer encounters, and deeper phase changes.',
+      'How to Play now matches the current controls.',
+    ],
+  },
 ];
-const THE_SEVENTH_EMBER_CHANGELOG_CURRENT=Math.max(...THE_SEVENTH_EMBER_CHANGELOG.map(entry=>entry.version));
+const THE_SEVENTH_EMBER_CHANGELOG_CURRENT = Math.max(
+  ...THE_SEVENTH_EMBER_CHANGELOG.map((entry) => entry.version)
+);
 
-function readSeenChangelog(){
- try{const n=Number(localStorage.getItem(CHANGELOG_SEEN_KEY));return Number.isFinite(n)&&n>0?n:0;}
- catch(_){return 0;}
+function readSeenChangelog() {
+  try {
+    const n = Number(localStorage.getItem(CHANGELOG_SEEN_KEY));
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  } catch (_) {
+    return 0;
+  }
 }
-function writeSeenChangelog(version){try{localStorage.setItem(CHANGELOG_SEEN_KEY,String(version));}catch(_){ }}
-function progressionResetBelongsToThisBrowser(){
- try{
-   const raw=localStorage.getItem(PROGRESSION_RESET_MARKER),record=raw?JSON.parse(raw):null;
-   return record?.status==='reset';
- }catch(_){return typeof progressionMigration!=='undefined'&&progressionMigration?.status==='reset';}
+function writeSeenChangelog(version) {
+  try {
+    localStorage.setItem(CHANGELOG_SEEN_KEY, String(version));
+  } catch (_) {}
 }
-function renderChangelogEntries(entries){
- const wrap=T('changelogEntries');wrap.replaceChildren();
- for(const entry of entries){
-  const article=document.createElement('article'),head=document.createElement('div'),title=document.createElement('h3'),intro=document.createElement('p'),list=document.createElement('ul');
-  article.className='changelog-entry';head.className='changelog-entry-head';head.textContent=entry.date;title.textContent=entry.title;intro.textContent=entry.intro;
-  for(const change of entry.changes){const item=document.createElement('li');item.textContent=change;list.appendChild(item);}
-  article.append(head,title,intro,list);wrap.appendChild(article);
- }
+function progressionResetBelongsToThisBrowser() {
+  try {
+    const raw = localStorage.getItem(PROGRESSION_RESET_MARKER),
+      record = raw ? JSON.parse(raw) : null;
+    return record?.status === 'reset';
+  } catch (_) {
+    return typeof progressionMigration !== 'undefined' && progressionMigration?.status === 'reset';
+  }
 }
-function closeTheSeventhEmberUpdates(){
- writeSeenChangelog(THE_SEVENTH_EMBER_CHANGELOG_CURRENT);hide('changelog');
- const target=save.resume?T('btnContinue'):T('btnStart');target?.focus({preventScroll:true});
+function renderChangelogEntries(entries) {
+  const wrap = T('changelogEntries');
+  wrap.replaceChildren();
+  for (const entry of entries) {
+    const article = document.createElement('article'),
+      head = document.createElement('div'),
+      title = document.createElement('h3'),
+      intro = document.createElement('p'),
+      list = document.createElement('ul');
+    article.className = 'changelog-entry';
+    head.className = 'changelog-entry-head';
+    head.textContent = entry.date;
+    title.textContent = entry.title;
+    intro.textContent = entry.intro;
+    for (const change of entry.changes) {
+      const item = document.createElement('li');
+      item.textContent = change;
+      list.appendChild(item);
+    }
+    article.append(head, title, intro, list);
+    wrap.appendChild(article);
+  }
 }
-function showTheSeventhEmberUpdates(){
- const seen=readSeenChangelog(),returning=progressionResetBelongsToThisBrowser()||seen>0;
- if(!returning){writeSeenChangelog(THE_SEVENTH_EMBER_CHANGELOG_CURRENT);return;}
- const unread=THE_SEVENTH_EMBER_CHANGELOG.filter(entry=>entry.version>seen).sort((a,b)=>a.version-b.version);
- if(!unread.length)return;
- const reset=progressionResetBelongsToThisBrowser()&&seen===0;
- T('resetNotice').hidden=!reset;T('changelogClose').textContent=reset?'BEGIN AGAIN':'RETURN TO THE SEVENTH EMBER';
- renderChangelogEntries(unread);show('changelog');T('changelogClose').focus({preventScroll:true});
+function closeTheSeventhEmberUpdates() {
+  writeSeenChangelog(THE_SEVENTH_EMBER_CHANGELOG_CURRENT);
+  hide('changelog');
+  const target = save.resume ? T('btnContinue') : T('btnStart');
+  target?.focus({ preventScroll: true });
+}
+function showTheSeventhEmberUpdates() {
+  const seen = readSeenChangelog(),
+    returning = progressionResetBelongsToThisBrowser() || seen > 0;
+  if (!returning) {
+    writeSeenChangelog(THE_SEVENTH_EMBER_CHANGELOG_CURRENT);
+    return;
+  }
+  const unread = THE_SEVENTH_EMBER_CHANGELOG.filter((entry) => entry.version > seen).sort(
+    (a, b) => a.version - b.version
+  );
+  if (!unread.length) return;
+  const reset = progressionResetBelongsToThisBrowser() && seen === 0;
+  T('resetNotice').hidden = !reset;
+  T('changelogClose').textContent = reset ? 'BEGIN AGAIN' : 'RETURN TO THE SEVENTH EMBER';
+  renderChangelogEntries(unread);
+  show('changelog');
+  T('changelogClose').focus({ preventScroll: true });
 }
 
-on(T('changelogClose'),'click',closeTheSeventhEmberUpdates);
-const changelogBlocking=anyBlockingOverlay;
-anyBlockingOverlay=function(){return T('changelog').classList.contains('open')||changelogBlocking();};
-const changelogEscape=onEscKey;
-onEscKey=function(){if(T('changelog').classList.contains('open')){closeTheSeventhEmberUpdates();return;}return changelogEscape();};
+on(T('changelogClose'), 'click', closeTheSeventhEmberUpdates);
+const changelogBlocking = anyBlockingOverlay;
+anyBlockingOverlay = function () {
+  return T('changelog').classList.contains('open') || changelogBlocking();
+};
+const changelogEscape = onEscKey;
+onEscKey = function () {
+  if (T('changelog').classList.contains('open')) {
+    closeTheSeventhEmberUpdates();
+    return;
+  }
+  return changelogEscape();
+};

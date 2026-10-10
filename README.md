@@ -12,7 +12,7 @@ The Seventh Ember is a modular browser roguelike with a fifty-floor campaign, pe
 - `src/render/` owns sprites, environment art, the Ember, and the world interface.
 - `src/chapters/`, `src/enemies/`, and `src/bosses/` contain encounter-specific behavior.
 - `src/progression/` contains blessings, rarity, forms, and the permanent skill tree.
-- `src/story/` contains the hidden Living Archive state, recovered traces, remembered rooms, and all fifty Echo tableaus.
+- `src/story/` contains the Living Archive state, the dialogue collection, and fifty silent memories.
 - `assets/music/` contains twenty-eight recorded pieces, with longer arrangements and continuous loop boundaries. Regional alternates, memories, Guardian encounters, and Endless use separate selections. Hosted playback uses looping audio buffers and keeps a small cache; local files use the browser media transport.
 - `src/input/`, `src/combat/`, `src/audio/`, and `src/interface/` contain focused supporting systems.
 
@@ -20,13 +20,17 @@ The Seventh Ember is a modular browser roguelike with a fifty-floor campaign, pe
 
 Scripts load in dependency order at the bottom of `index.html`. Each directory owns a distinct part of the game while sharing the same browser runtime.
 
-The Living Archive records behavior rather than presenting an alignment meter. Echo attention, interrupted memories, protected rooms, Resting Flames, and guardian finishes can alter later dialogue, guardian adaptation, environmental details, and the campaign ending. Echo rooms remain enemy-free and let the player move or tap toward the people or evidence inside each restored tableau.
+The Living Archive records actions and discoveries. Echo rooms remain enemy-free, restore their surroundings, and tell their stories through staged actions. Players can move inside a memory, watch it finish, leave early, or replay it from the Memories menu. Conversations with Wick and the Guardians are kept separately in `src/story/story-copy.js`.
 
 The Achievements screen tracks 115 milestones across seven categories. Recorded progress receives credit when a save loads, and achievements are included in exported backups.
 
 ## Running the game
 
 Open `index.html` in a modern browser or serve this directory with any static web server. GitHub Pages can host the directory directly.
+
+## Source style
+
+JavaScript, CSS, and HTML use the formatting settings in `.prettierrc.json`. Keep names descriptive, retain stored IDs when refactoring, and put shared behavior in the module that owns it. The formatter is a development tool; the game has no runtime dependency on it.
 
 ## Release direction
 

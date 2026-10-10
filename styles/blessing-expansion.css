@@ -2,8 +2,11 @@
   width: min(1320px, 97vw);
   max-height: min(94dvh, 900px);
   overflow: auto;
-  border-color: rgba(255, 211, 132, .72);
-  box-shadow: 0 0 0 1px rgba(255, 232, 174, .13) inset, 0 0 70px rgba(222, 133, 60, .2), 0 26px 70px rgba(0, 0, 0, .72);
+  border-color: rgba(255, 211, 132, 0.72);
+  box-shadow:
+    0 0 0 1px rgba(255, 232, 174, 0.13) inset,
+    0 0 70px rgba(222, 133, 60, 0.2),
+    0 26px 70px rgba(0, 0, 0, 0.72);
 }
 
 body:has(#levelup.open) #runTimerHud {
@@ -11,7 +14,7 @@ body:has(#levelup.open) #runTimerHud {
 }
 
 #luWrap.seventh-wish-draft::before {
-  background: linear-gradient(90deg, transparent, rgba(255, 207, 122, .72), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 207, 122, 0.72), transparent);
 }
 
 #luWrap.seventh-wish-draft #cards {
@@ -29,18 +32,18 @@ body:has(#levelup.open) #runTimerHud {
 }
 
 #luWrap.seventh-wish-draft .card .nm {
-  font-size: clamp(.74rem, 1vw, .9rem);
+  font-size: clamp(0.74rem, 1vw, 0.9rem);
 }
 
 #luWrap.seventh-wish-draft .card .ds {
-  font-size: .72rem;
+  font-size: 0.72rem;
   line-height: 1.45;
 }
 
 #luWrap.seventh-wish-draft .card.wish-taken {
-  opacity: .3;
-  filter: grayscale(.72) saturate(.45);
-  transform: translateY(4px) scale(.98);
+  opacity: 0.3;
+  filter: grayscale(0.72) saturate(0.45);
+  transform: translateY(4px) scale(0.98);
 }
 
 @media (max-width: 1050px) {

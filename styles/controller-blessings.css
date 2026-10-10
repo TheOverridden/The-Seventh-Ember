@@ -1,17 +1,127 @@
-.controller-settings{margin:22px 0;padding:20px 0;border-top:1px solid #725035;border-bottom:1px solid #725035}
-.controller-settings h3,.combo-panel h3{margin:4px 0 12px;color:#ffe0a4;font-size:20px}
-.controller-settings header>span,.combo-panel header>span{color:#bba583;letter-spacing:.16em;font-size:10px}
-#controllerStatus{color:#ffd48c;line-height:1.5;font-size:13px}
-.controller-guide{font-size:12px;color:#c6bda9;line-height:1.7}
-.controller-bindings{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
-.controller-bindings>div{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px;background:#211d18;border:1px solid #514234;font-size:12px}
-.controller-bindings button{background:#352a1e;color:#ffe2b3;border:1px solid #917044;padding:8px 12px;min-width:64px;cursor:pointer;font:inherit}
-.controller-bindings button.listening{color:#18100a;background:#ffe0a4}
-#controllerDeadzone{width:110px;min-width:60px;accent-color:#eab774}#controllerDeadzoneValue{font-size:12px;min-width:28px;color:#ffe0a4}
-.controller-active :is(button,input,select,a,[role=button]):focus{outline:3px solid #ffdfa1!important;outline-offset:4px;box-shadow:0 0 18px #f5b35e55!important}
-#controllerHint{display:none;position:fixed;bottom:12px;left:50%;transform:translateX(-50%);padding:8px 14px;background:#18130eed;border:1px solid #876641;color:#ebd3a7;font-size:11px;white-space:nowrap;pointer-events:none;z-index:14}
-.controller-active.controller-playing #controllerHint{display:block}
-.controller-active #touchControls{display:none!important}
-#controllerAudio{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:160;font-size:10px}#controllerAudio[hidden]{display:none}
-.card .combo-preview{border-top:1px solid #9c764d66;margin:10px 0 0;padding-top:9px;font-size:11px;line-height:1.5;color:#eac890}.card .combo-preview.complete{color:#ffdf8c}
-@media(max-width:540px){.controller-bindings{grid-template-columns:1fr}#controllerHint{font-size:9px;max-width:92vw;white-space:normal;text-align:center;bottom:6px}}
+.controller-settings {
+  margin: 22px 0;
+  padding: 20px 0;
+  border-top: 1px solid #725035;
+  border-bottom: 1px solid #725035;
+}
+.controller-settings h3,
+.combo-panel h3 {
+  margin: 4px 0 12px;
+  color: #ffe0a4;
+  font-size: 20px;
+}
+.controller-settings header > span,
+.combo-panel header > span {
+  color: #bba583;
+  letter-spacing: 0.16em;
+  font-size: 10px;
+}
+#controllerStatus {
+  color: #ffd48c;
+  line-height: 1.5;
+  font-size: 13px;
+}
+.controller-guide {
+  font-size: 12px;
+  color: #c6bda9;
+  line-height: 1.7;
+}
+.controller-bindings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 16px 0;
+}
+.controller-bindings > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  background: #211d18;
+  border: 1px solid #514234;
+  font-size: 12px;
+}
+.controller-bindings button {
+  background: #352a1e;
+  color: #ffe2b3;
+  border: 1px solid #917044;
+  padding: 8px 12px;
+  min-width: 64px;
+  cursor: pointer;
+  font: inherit;
+}
+.controller-bindings button.listening {
+  color: #18100a;
+  background: #ffe0a4;
+}
+#controllerDeadzone {
+  width: 110px;
+  min-width: 60px;
+  accent-color: #eab774;
+}
+#controllerDeadzoneValue {
+  font-size: 12px;
+  min-width: 28px;
+  color: #ffe0a4;
+}
+.controller-active :is(button, input, select, a, [role='button']):focus {
+  outline: 3px solid #ffdfa1 !important;
+  outline-offset: 4px;
+  box-shadow: 0 0 18px #f5b35e55 !important;
+}
+#controllerHint {
+  display: none;
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  background: #18130eed;
+  border: 1px solid #876641;
+  color: #ebd3a7;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 14;
+}
+.controller-active.controller-playing #controllerHint {
+  display: block;
+}
+.controller-active #touchControls {
+  display: none !important;
+}
+#controllerAudio {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 160;
+  font-size: 10px;
+}
+#controllerAudio[hidden] {
+  display: none;
+}
+.card .combo-preview {
+  border-top: 1px solid #9c764d66;
+  margin: 10px 0 0;
+  padding-top: 9px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #eac890;
+}
+.card .combo-preview.complete {
+  color: #ffdf8c;
+}
+@media (max-width: 540px) {
+  .controller-bindings {
+    grid-template-columns: 1fr;
+  }
+  #controllerHint {
+    font-size: 9px;
+    max-width: 92vw;
+    white-space: normal;
+    text-align: center;
+    bottom: 6px;
+  }
+}
