@@ -1301,6 +1301,7 @@ function drawHollowFloor(ctx) {
     ctx.restore();
   }
   for (const h of w.hazards) {
+    if (combatClarityDeferWarnings && h.phase !== 'rest') continue;
     if (G.floor >= 6) {
       drawGardenBramble(ctx, h);
       continue;
@@ -1829,6 +1830,7 @@ damageEnemy = function (e, dmg, ang, crit, kb) {
   if (
     e.type === 'gateShield' &&
     e.action !== 'recover' &&
+    !(e.expSeverT > G.t && G.run?.up?.severingLight) &&
     Math.abs(angleDiff(ang + Math.PI, e.face || 0)) < 1.15
   )
     dmg *= 0.4;

@@ -448,7 +448,7 @@ const BLESSINGS = [
     w: 1,
     icon: 'sparkles',
     name: 'White Star',
-    ds: 'Every fourth cast detonates for 280% damage across a vast area',
+    ds: 'Every fourth cast carries a White Star that bursts for 280% damage on impact',
   },
   {
     id: 'twinFlame',

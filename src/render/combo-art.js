@@ -238,6 +238,7 @@ function drawComboEmblem(ctx, family, x, y, size = 38) {
 const synergyDrawBullets = drawBullets;
 drawBullets = function (ctx) {
   const bullets = G.bullets;
+  if (!bullets.some((b) => b.comboArt)) return synergyDrawBullets(ctx);
   G.bullets = bullets.filter((b) => !b.comboArt);
   try {
     synergyDrawBullets(ctx);
@@ -246,15 +247,24 @@ drawBullets = function (ctx) {
   }
   ctx.save();
   ctx.imageSmoothingEnabled = false;
-  for (const b of bullets)
+  const pressure = combatVisualPressure(),
+    tailAlpha = combatVisualAlpha('trail');
+  for (let index = 0; index < bullets.length; index++) {
+    const b = bullets[index];
     if (b.comboArt) {
+      if (!combatVisualVisible(b.x, b.y, 76)) continue;
       const a = Math.atan2(b.vy, b.vx);
+      const tail = combatVisualAllowance('trail', index, bullets.length);
       ctx.save();
       ctx.translate(Math.round(b.x), Math.round(b.y));
       ctx.rotate(a);
       if (b.comboArt === 'hailstone' || b.comboArt === 'whiteout') {
-        ctx.fillStyle = '#a2d7ec44';
-        ctx.fillRect(-30, -3, 25, 6);
+        if (tail) {
+          ctx.globalAlpha = tailAlpha;
+          ctx.fillStyle = '#a2d7ec44';
+          ctx.fillRect(-30, -3, 25, 6);
+          ctx.globalAlpha = 1;
+        }
         comboPolygon(
           ctx,
           [
@@ -277,7 +287,8 @@ drawBullets = function (ctx) {
           ],
           '#e5faff'
         );
-        if (b.comboArt === 'whiteout') {
+        if (b.comboArt === 'whiteout' && tail) {
+          ctx.globalAlpha = tailAlpha;
           ctx.strokeStyle = '#c1eaff';
           ctx.lineWidth = 2;
           ctx.beginPath();
@@ -289,19 +300,23 @@ drawBullets = function (ctx) {
           ctx.stroke();
         }
       } else if (b.comboArt === 'moonShard' || b.comboArt === 'eclipse') {
-        ctx.globalAlpha = 0.35;
-        ctx.translate(-12, 0);
-        comboCrescentArt(ctx, b.r + 5, b.eclipsed);
-        ctx.translate(12, 0);
-        ctx.globalAlpha = 1;
+        if (tail) {
+          ctx.globalAlpha = 0.35 * tailAlpha;
+          ctx.translate(-12, 0);
+          comboCrescentArt(ctx, b.r + 5, b.eclipsed);
+          ctx.translate(12, 0);
+          ctx.globalAlpha = 1;
+        }
         comboCrescentArt(ctx, b.r + 5, b.eclipsed, blessingComboActive('bloodMoon'));
         ctx.fillStyle = b.eclipsed ? '#c9baf3' : '#ead5a3';
         ctx.fillRect(-18, -2, 6, 4);
       } else if (b.comboArt === 'gearstorm' || b.comboArt === 'sawfire') {
         ctx.rotate(-a);
-        if (b.comboArt === 'sawfire') {
+        if (b.comboArt === 'sawfire' && tail) {
+          ctx.globalAlpha = tailAlpha;
           ctx.fillStyle = '#d8853b88';
           ctx.fillRect(-20, -7, 28, 14);
+          ctx.globalAlpha = 1;
         }
         comboBlade(ctx, 0, 0, 16, G.t * 10, false);
       } else if (b.comboArt === 'moonSplinter')
@@ -317,8 +332,8 @@ drawBullets = function (ctx) {
           '#ae5546'
         );
       else if (b.comboArt === 'echoChamber') {
-        for (let i = 2; i >= 0; i--) {
-          ctx.globalAlpha = 1 - i * 0.3;
+        for (let i = tail && pressure < 0.6 ? 2 : 0; i >= 0; i--) {
+          ctx.globalAlpha = i ? (1 - i * 0.3) * tailAlpha : 1;
           ctx.save();
           ctx.translate(-i * 16, (i % 2 ? 1 : -1) * i * 4);
           comboPolygon(
@@ -379,13 +394,18 @@ drawBullets = function (ctx) {
       }
       ctx.restore();
     }
+  }
   ctx.restore();
 };
 function comboDrawField(ctx, f) {
   const p = G.player,
     age = f.age,
-    u = clamp(age / f.max, 0, 1);
+    u = clamp(age / f.max, 0, 1),
+    fieldAlpha = combatVisualAlpha('friendly'),
+    glowAlpha = combatVisualAlpha('glow'),
+    pressure = combatVisualPressure();
   ctx.save();
+  ctx.globalAlpha = fieldAlpha;
   ctx.translate(Math.round(f.x), Math.round(f.y));
   if (f.type === 'conductor') {
     if (blessingComboActive('ballLightning')) {
@@ -442,7 +462,7 @@ function comboDrawField(ctx, f) {
           );
     }
     ctx.strokeStyle = '#e2d8f1';
-    ctx.globalAlpha = 0.4;
+    ctx.globalAlpha = 0.4 * fieldAlpha;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.ellipse(0, 10, 24, 8, 0, 0, TAU);
@@ -478,15 +498,16 @@ function comboDrawField(ctx, f) {
     const back = age > 0.85,
       r = f.radius * clamp(back ? 2 - age / 0.85 : age / 0.85, 0, 1),
       ice = blessingComboActive('permafrost');
-    ctx.globalAlpha = 0.32;
+    ctx.globalAlpha = 0.32 * glowAlpha;
     ctx.strokeStyle = ice ? '#a8ddf4' : '#559696';
     ctx.lineWidth = 14;
     ctx.beginPath();
     ctx.arc(0, 0, r, 0, TAU);
     ctx.stroke();
-    ctx.globalAlpha = 0.85;
-    for (let i = 0; i < 24; i++) {
-      const a = (i * TAU) / 24;
+    ctx.globalAlpha = 0.85 * fieldAlpha;
+    const crests = pressure > 0.55 ? 12 : 24;
+    for (let i = 0; i < crests; i++) {
+      const a = (i * TAU) / crests;
       ctx.save();
       ctx.rotate(a);
       ctx.translate(r, 0);
@@ -528,12 +549,12 @@ function comboDrawField(ctx, f) {
       }
     }
   } else if (f.type === 'meteor') {
-    ctx.globalAlpha = 0.2;
+    ctx.globalAlpha = 0.2 * glowAlpha;
     ctx.fillStyle = '#d09a55';
     ctx.beginPath();
     ctx.ellipse(0, 0, f.radius * 0.6 * (0.5 + u * 0.5), f.radius * 0.25, 0, 0, TAU);
     ctx.fill();
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = fieldAlpha;
     const lift = (1 - u) * 210,
       dx = (1 - u) * 75;
     ctx.translate(-dx, -lift);
@@ -571,10 +592,10 @@ function comboDrawField(ctx, f) {
     ctx.fillStyle = '#fff6d3';
     ctx.fillRect(-4, -6, 8, 10);
   } else if (f.type === 'frost') {
-    ctx.globalAlpha = Math.min(0.8, f.t);
+    ctx.globalAlpha = Math.min(0.8, f.t) * fieldAlpha;
     ctx.fillStyle = '#9ccddd22';
     ctx.fillRect(-f.radius * 0.6, -f.radius * 0.45, f.radius * 1.2, f.radius * 0.9);
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < (pressure > 0.55 ? 4 : 7); i++) {
       const a = i * 2.399,
         r = f.radius * (0.25 + (i % 3) * 0.2);
       comboPolygon(
@@ -591,7 +612,7 @@ function comboDrawField(ctx, f) {
     }
   } else if (f.type === 'magma') {
     const r = f.radius;
-    ctx.globalAlpha = Math.min(0.7, f.t);
+    ctx.globalAlpha = Math.min(0.7, f.t) * fieldAlpha;
     comboPolygon(
       ctx,
       [
@@ -634,9 +655,10 @@ function comboDrawField(ctx, f) {
   ctx.restore();
 }
 function comboDrawEffect(ctx, f) {
-  const u = clamp(1 - f.t / f.max, 0, 1);
+  const u = clamp(1 - f.t / f.max, 0, 1),
+    pressure = combatVisualPressure();
   ctx.save();
-  ctx.globalAlpha = Math.sin(Math.PI * (0.1 + u * 0.85));
+  ctx.globalAlpha = Math.sin(Math.PI * (0.1 + u * 0.85)) * combatVisualAlpha('impact');
   if (f.type === 'arc' || f.type === 'strand') {
     const dx = f.x2 - f.x,
       dy = f.y2 - f.y,
@@ -666,9 +688,10 @@ function comboDrawEffect(ctx, f) {
     ctx.translate(f.x, f.y);
     const r = (f.radius || 90) * (0.2 + u * 0.8);
     if (f.type === 'shatter' || f.type === 'icebreaker' || f.type === 'thermalShock') {
-      for (let i = 0; i < 12; i++) {
+      const fragments = pressure > 0.55 ? 6 : 12;
+      for (let i = 0; i < fragments; i++) {
         ctx.save();
-        ctx.rotate((i * TAU) / 12 + u * 0.3);
+        ctx.rotate((i * TAU) / fragments + u * 0.3);
         ctx.translate(r, 0);
         const h = 18 * (1 - u) + 5;
         comboPolygon(
@@ -711,9 +734,10 @@ function comboDrawEffect(ctx, f) {
         );
       }
     } else if (f.type === 'meteorImpact' || f.type === 'collapsedSun' || f.type === 'soulLantern') {
-      for (let i = 0; i < 10; i++) {
+      const fragments = pressure > 0.55 ? 6 : 10;
+      for (let i = 0; i < fragments; i++) {
         ctx.save();
-        ctx.rotate((i * TAU) / 10);
+        ctx.rotate((i * TAU) / fragments);
         ctx.translate(r, 0);
         comboPolygon(
           ctx,
@@ -763,9 +787,11 @@ drawCombatFX = function (ctx) {
   if (!G.player || !G.run) return;
   const s = blessingComboState();
   ctx.save();
-  for (const f of s.fields) comboDrawField(ctx, f);
+  for (const f of s.fields)
+    if (combatVisualVisible(f.x, f.y, Math.max(f.radius || 0, f.reach || 0, 270)))
+      comboDrawField(ctx, f);
   for (const e of G.enemies)
-    if (!e.dead && blessingChilled(e)) {
+    if (!e.dead && blessingChilled(e) && combatVisualVisible(e.x, e.y, e.r + 26)) {
       ctx.save();
       ctx.translate(e.x, e.y);
       ctx.globalAlpha = e.isBoss ? 0.5 : 0.8;
@@ -793,7 +819,7 @@ drawCombatFX = function (ctx) {
       const a = G.player.orbA + (i / Math.max(1, G.player.orbN)) * TAU;
       ctx.strokeStyle = '#ec994e';
       ctx.lineWidth = 5;
-      ctx.globalAlpha = 0.6;
+      ctx.globalAlpha = 0.6 * combatVisualAlpha('trail');
       ctx.beginPath();
       ctx.arc(G.player.x, G.player.y, 64, a - 0.5, a);
       ctx.stroke();
@@ -801,10 +827,11 @@ drawCombatFX = function (ctx) {
     }
   if (blessingComboActive('collapsedSun'))
     for (const f of G.run.cardFields || [])
-      if (f.kind === 'blackHole') {
+      if (f.kind === 'blackHole' && combatVisualVisible(f.x, f.y, 110)) {
         ctx.save();
         ctx.translate(f.x, f.y);
         ctx.rotate(G.t * 0.65);
+        ctx.globalAlpha = combatVisualAlpha('friendly');
         ctx.fillStyle = '#110d19';
         ctx.beginPath();
         ctx.arc(0, 0, 24, 0, TAU);
@@ -814,14 +841,23 @@ drawCombatFX = function (ctx) {
         ctx.beginPath();
         ctx.ellipse(0, 0, 55, 17, -0.35, 0, TAU);
         ctx.stroke();
-        for (let i = 0; i < 12; i++) {
-          const a = (i * TAU) / 12 + G.t,
+        const fragments = combatVisualPressure() > 0.55 ? 6 : 12;
+        for (let i = 0; i < fragments; i++) {
+          const a = (i * TAU) / fragments + G.t,
             r = 65 + (i % 3) * 20;
           ctx.fillStyle = i % 2 ? '#d89654' : '#fff0bc';
           ctx.fillRect(Math.cos(a) * r - 3, Math.sin(a) * r * 0.65 - 2, 6, 4);
         }
         ctx.restore();
       }
-  for (const f of s.effects) comboDrawEffect(ctx, f);
+  for (let i = 0; i < s.effects.length; i++) {
+    const f = s.effects[i],
+      reach = Math.max(f.radius || 90, Math.hypot((f.x2 ?? f.x) - f.x, (f.y2 ?? f.y) - f.y));
+    if (
+      combatVisualVisible(f.x, f.y, reach + 24) &&
+      combatVisualAllowance('impact', i, s.effects.length)
+    )
+      comboDrawEffect(ctx, f);
+  }
   ctx.restore();
 };

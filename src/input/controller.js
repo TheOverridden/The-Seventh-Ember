@@ -13,11 +13,16 @@ const controller = {
   previous: [],
   blocked: new Set(),
   stickBlocked: false,
+  aimBlocked: false,
   binding: null,
   scope: null,
+  focusMemory: new WeakMap(),
+  textEntry: null,
   direction: '',
   repeatAt: 0,
+  scrollAt: 0,
   status: '',
+  canvasLabel: '',
   uiDirty: true,
 };
 function controllerPreferences(raw = save.controller) {
@@ -93,7 +98,12 @@ function controllerRelease() {
     });
     const move = controllerStick(pad.axes[0], pad.axes[1], controllerPreferences().deadzone);
     if (move.x || move.y) controller.stickBlocked = true;
+    const aim = controllerStick(pad.axes[2], pad.axes[3], controllerPreferences().deadzone);
+    if (aim.x || aim.y) controller.aimBlocked = true;
   }
+  interactQueued = dashQueued = meleeQueued = reloadQueued = false;
+  dashBufferT = 0;
+  meleeBufferT = 0;
 }
 function controllerSetActive(active) {
   controllerInput.active = active;
@@ -105,6 +115,7 @@ function controllerSetActive(active) {
 }
 function controllerVisible(el) {
   return (
+    !!el &&
     !el.hidden &&
     !el.closest('[hidden],[inert]') &&
     el.getClientRects().length > 0 &&
@@ -112,6 +123,9 @@ function controllerVisible(el) {
   );
 }
 function controllerScope() {
+  if (controller.textEntry && controllerVisible(T('controllerKeyboard')))
+    return T('controllerKeyboard');
+  if (G.state === 'echo' && controllerVisible(T('memoryStage'))) return T('memoryStage');
   if (G.state === 'dialogue' && controllerVisible(T('conversation'))) return T('conversation');
   const overlays = [...document.querySelectorAll('.ov.open')].filter(controllerVisible);
   overlays.sort(
@@ -122,19 +136,47 @@ function controllerScope() {
 }
 function controllerTargets(scope) {
   return [
-    ...scope.querySelectorAll('button,input:not([type=file]),select,a[href],[tabindex="0"]'),
+    ...scope.querySelectorAll(
+      'button,input:not([type=file]),textarea,select,a[href],[tabindex="0"]'
+    ),
   ].filter((el) => !el.disabled && el.tabIndex >= 0 && controllerVisible(el));
+}
+function controllerFocusKey(el) {
+  if (el.id) return '#' + el.id;
+  const owner = el.closest('[data-form]'),
+    region = el.parentElement?.closest('[id]')?.id || '',
+    data = Object.entries(el.dataset || {})
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => k + ':' + v)
+      .join('|');
+  return [region, owner?.dataset.form || '', data, el.textContent.trim()].join(' / ');
+}
+function controllerRememberFocus(scope, el) {
+  if (!scope || !el || !scope.contains(el)) return;
+  controller.focusMemory.set(scope, { el, key: controllerFocusKey(el) });
+}
+function controllerPlaceFocus(scope, el, scroll = true) {
+  if (!el) return;
+  el.focus({ preventScroll: true });
+  controllerRememberFocus(scope, el);
+  if (scroll) el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 function controllerFocus(scope) {
   const targets = controllerTargets(scope);
   let focus = document.activeElement;
   if (!targets.includes(focus)) {
+    const remembered = controller.focusMemory.get(scope);
     focus =
+      (targets.includes(remembered?.el) ? remembered.el : null) ||
+      (remembered && targets.find((el) => controllerFocusKey(el) === remembered.key)) ||
       targets.find((el) => el.id === 'dialogueNext') ||
+      (scope.id === 'skills' && targets.find((el) => el.dataset.node === selectedNode?.id)) ||
+      (scope.id === 'menu' && targets.find((el) => el.id === 'btnContinue')) ||
       targets.find((el) => el.classList.contains('primary')) ||
       targets[0];
-    focus?.focus({ preventScroll: true });
+    controllerPlaceFocus(scope, focus);
   }
+  controllerRememberFocus(scope, focus);
   return { targets, focus };
 }
 function controllerAdjustSelect(select, step) {
@@ -169,6 +211,8 @@ function controllerNavigate(scope, direction) {
     focus.dispatchEvent(new Event('change', { bubbles: true }));
     return;
   }
+  const candidates =
+    scope.id === 'skills' && focus.dataset.node ? targets.filter((el) => el.dataset.node) : targets;
   const box = focus.getBoundingClientRect(),
     x = box.x + box.width / 2,
     y = box.y + box.height / 2,
@@ -176,7 +220,7 @@ function controllerNavigate(scope, direction) {
     sign = direction === 'left' || direction === 'up' ? -1 : 1;
   let best = null,
     score = Infinity;
-  for (const el of targets) {
+  for (const el of candidates) {
     if (el === focus) continue;
     const r = el.getBoundingClientRect(),
       dx = r.x + r.width / 2 - x,
@@ -191,8 +235,7 @@ function controllerNavigate(scope, direction) {
     }
   }
   if (best) {
-    best.focus({ preventScroll: true });
-    best.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    controllerPlaceFocus(scope, best);
     sfx('ui');
   } else if (scope.scrollHeight > scope.clientHeight)
     scope.scrollBy({
@@ -200,19 +243,211 @@ function controllerNavigate(scope, direction) {
       behavior: 'auto',
     });
 }
+function controllerScroll(scope, stick, now) {
+  const dt = clamp((now - controller.scrollAt) / 1000, 0, 0.04);
+  controller.scrollAt = now;
+  if (controller.aimBlocked || Math.abs(stick.y) < 0.28) return;
+  const scrolls = [scope, ...scope.querySelectorAll('*')].filter(
+    (el) =>
+      controllerVisible(el) &&
+      el.scrollHeight > el.clientHeight + 4 &&
+      /auto|scroll/.test(getComputedStyle(el).overflowY)
+  );
+  const focused = document.activeElement;
+  let scroll = scrolls.filter((el) => el.contains(focused)).at(-1);
+  if (!scroll) scroll = scrolls.sort((a, b) => b.clientHeight - a.clientHeight)[0];
+  if (scroll) scroll.scrollTop += stick.y * 620 * dt;
+}
+function controllerActivate(scope) {
+  const { focus } = controllerFocus(scope);
+  if (!focus) return;
+  controllerRememberFocus(scope, focus);
+  if (focus.matches('input[type=range]')) return;
+  if (focus.matches('input[type=text],input[type=search],input[type=number],textarea')) {
+    if (!focus.readOnly) controllerOpenKeyboard(focus);
+  } else if (focus.tagName === 'SELECT') controllerNavigate(scope, 'right');
+  else focus.click();
+  if (controllerScope() === scope) controllerFocus(scope);
+  controllerRelease();
+}
 function controllerBack(scope) {
+  if (controller.textEntry) {
+    controllerCloseKeyboard(false);
+    return;
+  }
+  if (G.state === 'echo' && activeMemoryEcho) {
+    closeRememberedTrace();
+    return;
+  }
   if (G.state === 'dialogue') {
     finishDialogue();
     return;
   }
-  const back = [...scope.querySelectorAll('button')]
-    .filter(controllerVisible)
-    .find((el) => /^(BACK|CLOSE|DONE|CANCEL|RETURN)$/i.test(el.textContent.trim()));
+  if (scope.id === 'hearthTrialResult' && G.state === 'paused') {
+    pauseGame(false);
+    return;
+  }
+  if (scope.id === 'guardianSanctuary') {
+    controllerPlaceFocus(scope, T('guardianRushAbandon'));
+    return;
+  }
+  const buttons = controllerTargets(scope).filter((el) => el.tagName === 'BUTTON'),
+    routes = {
+      menu: null,
+      pause: 'btnResume',
+      skills: 'btnTreeBack',
+      settings: 'btnSettingsClose',
+      howto: 'btnHowClose',
+      forms: 'btnFormsBack',
+      hearth: 'hearthClose',
+      hearthTrialResult: 'trialReturn',
+      guardianArchive: 'guardianArchiveClose',
+      bossRushPanel: 'bossRushClose',
+      guardianModeResult: 'guardianResultMenu',
+      blessingCombos: 'comboClose',
+      achievements: 'achievementClose',
+      runRecap: 'recapClose',
+      dead: 'btnDeadMenu',
+      win: 'btnWinEnd',
+      memories: 'memoriesClose',
+      chapterClear: 'chapterExplore',
+      confirmRun: 'btnCancelRun',
+      changelog: 'changelogClose',
+      burdenLedger: 'burdenLedgerClose',
+      secretRoom: 'secretLeave',
+      finale: 'endingFinish',
+    },
+    draftBack = buttons.find((el) => /^BACK TO THE COUNTER$/i.test(el.textContent.trim())),
+    back =
+      draftBack ||
+      buttons.find((el) => el.id === routes[scope.id]) ||
+      buttons.find((el) => /^(BACK|CLOSE|DONE|CANCEL|RETURN)(\s|$)/i.test(el.textContent.trim())) ||
+      buttons.find((el) => /^Close\b/i.test(el.getAttribute('aria-label') || ''));
   if (back) {
     back.click();
     return;
   }
   onEscKey();
+}
+function controllerOpenKeyboard(input) {
+  controller.textEntry = {
+    input,
+    scope: controllerScope(),
+    value: input.value,
+    uppercase: false,
+  };
+  T('controllerKeyboardTitle').textContent =
+    input.getAttribute('aria-label') ||
+    input.placeholder ||
+    input.closest('label')?.textContent.trim() ||
+    'Enter text';
+  T('controllerKeyboardValue').value = input.value;
+  for (const key of T('controllerKeyboardKeys').querySelectorAll('[data-controller-char]')) {
+    key.textContent = key.dataset.controllerChar === ' ' ? 'SPACE' : key.dataset.controllerChar;
+    key.disabled = input.type === 'number' && !/^[0-9.-]$/.test(key.dataset.controllerChar);
+  }
+  T('controllerKeyboard').classList.add('open');
+  controllerPlaceFocus(
+    T('controllerKeyboard'),
+    controllerTargets(T('controllerKeyboard')).find((el) => el.dataset.controllerChar)
+  );
+  controllerRelease();
+}
+function controllerCloseKeyboard(apply) {
+  const entry = controller.textEntry;
+  if (!entry) return;
+  controller.textEntry = null;
+  T('controllerKeyboard').classList.remove('open');
+  if (entry.input.isConnected) {
+    if (apply) {
+      entry.input.value = entry.value;
+      entry.input.dispatchEvent(new Event('input', { bubbles: true }));
+      entry.input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    controllerPlaceFocus(entry.scope, entry.input);
+  }
+  controllerRelease();
+}
+function controllerEditText(char) {
+  const entry = controller.textEntry;
+  if (!entry) return;
+  const limit = entry.input.maxLength > 0 ? entry.input.maxLength : 80;
+  if (char === 'backspace') entry.value = Array.from(entry.value).slice(0, -1).join('');
+  else if (char === 'clear') entry.value = '';
+  else if (entry.value.length < limit) entry.value += entry.uppercase ? char.toUpperCase() : char;
+  T('controllerKeyboardValue').value = entry.value;
+  T('controllerKeyboardValue').scrollLeft = T('controllerKeyboardValue').scrollWidth;
+}
+function controllerRefreshPrompts() {
+  const active = controllerInput.active,
+    bindings = controllerPreferences().bindings,
+    scope = active ? controllerScope() : null,
+    prompt = T('prompt')?.querySelector('kbd');
+  if (active && prompt && prompt.style.display !== 'none') {
+    const text = T('promptTxt')?.textContent || '',
+      flare =
+        /FLARE THE CATCHES/.test(text) ||
+        prompt.textContent === 'K' ||
+        prompt.textContent === 'FLARE';
+    prompt.textContent = controllerButtonName(bindings[flare ? 'flare' : 'use']);
+  }
+  for (const [selector, action, fallback] of [
+    ['#btnReload kbd', 'rekindle', 'R'],
+    ['#btnMelee kbd', 'flare', 'K'],
+    ['#portalRecall .portal-key', 'portal', 'Q'],
+    ['#btnPause kbd', null, 'Esc'],
+    ['#achievementClose kbd', null, 'Esc'],
+  ]) {
+    const el = document.querySelector(selector),
+      label = active
+        ? controllerButtonName(action ? bindings[action] : selector.includes('achievement') ? 1 : 9)
+        : fallback;
+    if (el && el.textContent !== label) el.textContent = label;
+  }
+  const guide = T('controllerMenuGuide');
+  if (!guide) return;
+  guide.hidden = !active || !scope || !T('controllerAudio').hidden;
+  if (guide.hidden) return;
+  const text =
+    scope.id === 'skills'
+      ? 'D-pad / stick  Sigils · ' +
+        controllerButtonName(0) +
+        '  Inspect · ' +
+        controllerButtonName(5) +
+        '  Actions · ' +
+        controllerButtonName(4) +
+        '  Tree · ' +
+        controllerButtonName(1) +
+        '  Back'
+      : scope.id === 'memoryStage'
+        ? 'Left stick  Move · ' +
+          controllerButtonName(0) +
+          '  Return · ' +
+          controllerButtonName(1) +
+          '  Leave memory'
+        : scope.id === 'controllerKeyboard'
+          ? controllerButtonName(0) +
+            '  Type · ' +
+            controllerButtonName(2) +
+            '  Delete · ' +
+            controllerButtonName(1) +
+            '  Cancel · D-pad / stick  Navigate'
+          : ['levelup', 'endlessWheel', 'endlessOath', 'wickGift'].includes(scope.id) ||
+              (scope.id === 'finale' && T('endingResults')?.hidden)
+            ? controllerButtonName(0) + '  Choose · D-pad / stick  Navigate · Right stick  Scroll'
+            : scope.id === 'guardianSanctuary'
+              ? controllerButtonName(0) +
+                '  Choose · ' +
+                controllerButtonName(1) +
+                '  End Rush options · D-pad / stick  Navigate'
+              : controllerButtonName(0) +
+                '  Choose · ' +
+                controllerButtonName(1) +
+                '  Back · D-pad / stick  Navigate · Right stick  Scroll';
+  if (guide.textContent !== text) guide.textContent = text;
+  if (G.state === 'dialogue')
+    T('dialogueKeys').textContent =
+      controllerButtonName(0) + ' CONTINUE · ' + controllerButtonName(1) + ' SKIP';
 }
 function controllerUpdateSettings() {
   save.controller = controllerPreferences();
@@ -240,7 +475,9 @@ function controllerUpdateSettings() {
   T('controllerDeadzoneValue').textContent = Math.round(save.controller.deadzone * 100) + '%';
   T('controllerRumble').checked = save.controller.rumble;
   T('controllerGuide').textContent =
-    'Left stick moves. Right stick aims. Hold the Bolt trigger to fire. D-pad navigates menus; ' +
+    'Left stick moves. Right stick aims. Hold ' +
+    controllerButtonName(save.controller.bindings.bolt) +
+    ' to fire. D-pad navigates menus; ' +
     controllerButtonName(0) +
     ' confirms and ' +
     controllerButtonName(1) +
@@ -254,10 +491,39 @@ function controllerUpdateSettings() {
     ' Flare · ' +
     controllerButtonName(save.controller.bindings.dash) +
     ' Dash · ' +
+    controllerButtonName(save.controller.bindings.rekindle) +
+    ' Rekindle · ' +
     controllerButtonName(save.controller.bindings.use) +
     ' Use · ' +
+    controllerButtonName(save.controller.bindings.portal) +
+    ' Portal · ' +
     controllerButtonName(9) +
     ' Pause';
+  if (controller.canvasLabel)
+    T('cv').setAttribute(
+      'aria-label',
+      controller.canvasLabel +
+        ' With a controller, move with the left stick, aim with the right stick, ' +
+        T('controllerHint').textContent +
+        '.'
+    );
+}
+function controllerDisconnect(index = controller.index) {
+  if (!controller.pad || index !== controller.index) return;
+  const active = controllerInput.active;
+  controllerRelease();
+  controller.pad = null;
+  controller.index = null;
+  controller.previous = [];
+  controller.blocked.clear();
+  controller.stickBlocked = controller.aimBlocked = false;
+  controller.binding = null;
+  controllerSetActive(false);
+  controllerUpdateSettings();
+  if (active && G.state === 'playing') {
+    pauseGame(true);
+    toast('CONTROLLER DISCONNECTED', 'Reconnect, or use the keyboard and mouse.');
+  }
 }
 function controllerPoll(now) {
   let pads = [];
@@ -268,18 +534,7 @@ function controllerPoll(now) {
   } catch (_) {}
   let pad = pads.find((p) => p.index === controller.index);
   if (!pad && controller.pad) {
-    const wasActive = controllerInput.active;
-    controller.pad = null;
-    controller.index = null;
-    controller.previous = [];
-    controller.blocked.clear();
-    controller.stickBlocked = false;
-    controllerSetActive(false);
-    controllerUpdateSettings();
-    if (wasActive && G.state === 'playing') {
-      pauseGame(true);
-      toast('CONTROLLER DISCONNECTED', 'Reconnect, or use the keyboard and mouse.');
-    }
+    controllerDisconnect();
     return;
   }
   if (!pad)
@@ -303,6 +558,7 @@ function controllerPoll(now) {
     move = controllerStick(pad.axes[0], pad.axes[1], prefs.deadzone),
     aim = controllerStick(pad.axes[2], pad.axes[3], prefs.deadzone);
   if (!move.x && !move.y) controller.stickBlocked = false;
+  if (!aim.x && !aim.y) controller.aimBlocked = false;
   if (document.hidden || !document.hasFocus()) {
     controllerRelease();
     return;
@@ -310,10 +566,12 @@ function controllerPoll(now) {
   if (pressed.some(Boolean) || move.x || move.y || aim.x || aim.y) {
     const waking = !controllerInput.active;
     if (waking) {
-      const stickBlocked = controller.stickBlocked;
+      const stickBlocked = controller.stickBlocked,
+        aimBlocked = controller.aimBlocked;
       clearInput();
       controllerSetActive(true);
       controller.stickBlocked = stickBlocked;
+      controller.aimBlocked = aimBlocked;
       const angle = G.player?.face || 0;
       controllerInput.aimX = Math.cos(angle);
       controllerInput.aimY = Math.sin(angle);
@@ -363,8 +621,14 @@ function controllerPoll(now) {
     controllerInput.fire = false;
     controllerInput.moveX = controllerInput.active && !controller.stickBlocked ? move.x : 0;
     controllerInput.moveY = controllerInput.active && !controller.stickBlocked ? move.y : 0;
-    if (pressed[0]) advanceMemory();
-    else if (pressed[1] || pressed[9]) closeRememberedTrace();
+    controller.scope = T('memoryStage');
+    if (pressed[0]) {
+      if (!T('memoryAdvance')?.disabled) advanceMemory();
+      controllerRelease();
+    } else if (pressed[1] || pressed[9]) {
+      closeRememberedTrace();
+      controllerRelease();
+    }
     return;
   }
   const scope = controllerScope();
@@ -380,6 +644,13 @@ function controllerPoll(now) {
     controllerInput.moveX = controllerInput.moveY = 0;
     controllerInput.fire = false;
     if (!controllerInput.active) return;
+    if (
+      !scope.contains(document.activeElement) ||
+      document.activeElement.disabled ||
+      !controllerVisible(document.activeElement)
+    )
+      controllerFocus(scope);
+    controllerScroll(scope, aim, now);
     const down = (i) => held[i] && !controller.blocked.has(i),
       stick = controller.stickBlocked ? { x: 0, y: 0 } : move;
     let direction = down(12)
@@ -405,24 +676,28 @@ function controllerPoll(now) {
     }
     controller.direction = direction;
     if (pressed[0]) {
-      const { focus } = controllerFocus(scope);
-      if (focus?.matches('input[type=checkbox]')) focus.click();
-      else if (focus?.tagName === 'SELECT') controllerNavigate(scope, 'right');
-      else focus?.click();
-      controllerRelease();
+      controllerActivate(scope);
     } else if (pressed[1]) {
       controllerBack(scope);
       controllerRelease();
-    } else if (pressed[9] && G.state === 'paused' && scope.id === 'pause') {
+    } else if (
+      pressed[9] &&
+      (scope.id === 'pause' || scope.id === 'hearthTrialResult') &&
+      G.state === 'paused'
+    ) {
       pauseGame(false);
       controllerRelease();
-    } else if (G.skillsOpen && (pressed[4] || pressed[5])) {
+    } else if (scope.id === 'skills' && (pressed[4] || pressed[5])) {
       const target = pressed[5]
         ? !T('btnUnlock').disabled
           ? T('btnUnlock')
           : T('btnTreeBack')
         : document.querySelector('[data-node].selected') || document.querySelector('[data-node]');
-      target?.focus({ preventScroll: true });
+      controllerPlaceFocus(scope, target);
+      controllerRelease();
+    } else if (scope.id === 'controllerKeyboard' && pressed[2]) {
+      controllerEditText('backspace');
+      controllerRelease();
     }
     return;
   }
@@ -433,7 +708,7 @@ function controllerPoll(now) {
   if (!controllerInput.active) return;
   controllerInput.moveX = controller.stickBlocked ? 0 : move.x;
   controllerInput.moveY = controller.stickBlocked ? 0 : move.y;
-  if (aim.x || aim.y) {
+  if (!controller.aimBlocked && (aim.x || aim.y)) {
     controllerInput.aimX = aim.x;
     controllerInput.aimY = aim.y;
   }
@@ -470,7 +745,9 @@ syncSettings = function () {
 const controllerLoop = loop;
 loop = function (now) {
   controllerPoll(now);
-  return controllerLoop(now);
+  const result = controllerLoop(now);
+  controllerRefreshPrompts();
+  return result;
 };
 const controllerSetState = setState;
 setState = function (state) {
@@ -480,24 +757,8 @@ setState = function (state) {
 };
 const controllerUpdateHUD = updateHUD;
 updateHUD = function (dt) {
-  const result = controllerUpdateHUD(dt),
-    active = controllerInput.active,
-    bindings = controllerPreferences().bindings,
-    key = T('prompt').querySelector('kbd');
-  if (active && key.style.display !== 'none')
-    key.textContent = controllerButtonName(
-      bindings[key.textContent === 'K' || key.textContent === 'FLARE' ? 'flare' : 'use']
-    );
-  for (const [selector, action, fallback] of [
-    ['#btnReload kbd', 'rekindle', 'R'],
-    ['#btnMelee kbd', 'flare', 'K'],
-    ['#portalRecall .portal-key', 'portal', 'Q'],
-    ['#btnPause kbd', null, 'Esc'],
-  ]) {
-    const el = document.querySelector(selector),
-      label = active ? controllerButtonName(action ? bindings[action] : 9) : fallback;
-    if (el && el.textContent !== label) el.textContent = label;
-  }
+  const result = controllerUpdateHUD(dt);
+  controllerRefreshPrompts();
   return result;
 };
 document.addEventListener(
@@ -518,10 +779,18 @@ document.addEventListener(
 addEventListener('gamepadconnected', () => {
   controller.uiDirty = true;
 });
-addEventListener('gamepaddisconnected', () => {
+addEventListener('gamepaddisconnected', (event) => {
+  controllerDisconnect(event.gamepad?.index);
   controller.uiDirty = true;
 });
 addEventListener('blur', () => controllerRelease());
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) controllerRelease();
+});
+document.addEventListener('focusin', (event) => {
+  const scope = controllerScope();
+  if (scope?.contains(event.target)) controllerRememberFocus(scope, event.target);
+});
 {
   const section = document.createElement('section');
   section.className = 'controller-settings';
@@ -574,6 +843,65 @@ addEventListener('blur', () => controllerRelease());
   hint.id = 'controllerHint';
   hint.setAttribute('aria-hidden', 'true');
   document.body.appendChild(hint);
+  const guide = document.createElement('div');
+  guide.id = 'controllerMenuGuide';
+  guide.hidden = true;
+  guide.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(guide);
+  const keyboard = document.createElement('div');
+  keyboard.id = 'controllerKeyboard';
+  keyboard.className = 'ov';
+  keyboard.setAttribute('role', 'dialog');
+  keyboard.setAttribute('aria-modal', 'true');
+  keyboard.setAttribute('aria-labelledby', 'controllerKeyboardTitle');
+  keyboard.innerHTML =
+    '<section class="controller-keyboard-shell"><h3 id="controllerKeyboardTitle">Enter text</h3><input id="controllerKeyboardValue" readonly tabindex="-1" aria-label="Text to enter"><div id="controllerKeyboardKeys"></div><div class="controller-keyboard-actions"><button type="button" id="controllerKeyboardCase">UPPER / LOWER</button><button type="button" id="controllerKeyboardErase">DELETE</button><button type="button" id="controllerKeyboardClear">CLEAR</button><button type="button" id="controllerKeyboardCancel">CANCEL</button><button type="button" id="controllerKeyboardDone" class="primary">DONE</button></div></section>';
+  document.body.appendChild(keyboard);
+  for (const char of 'abcdefghijklmnopqrstuvwxyz0123456789-_. ') {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.controllerChar = char;
+    button.textContent = char === ' ' ? 'SPACE' : char;
+    button.addEventListener('click', () => controllerEditText(char));
+    T('controllerKeyboardKeys').appendChild(button);
+  }
+  T('controllerKeyboardCase').addEventListener('click', () => {
+    if (!controller.textEntry) return;
+    controller.textEntry.uppercase = !controller.textEntry.uppercase;
+    for (const key of T('controllerKeyboardKeys').querySelectorAll('[data-controller-char]'))
+      key.textContent =
+        key.dataset.controllerChar === ' '
+          ? 'SPACE'
+          : controller.textEntry.uppercase
+            ? key.dataset.controllerChar.toUpperCase()
+            : key.dataset.controllerChar;
+  });
+  T('controllerKeyboardErase').addEventListener('click', () => controllerEditText('backspace'));
+  T('controllerKeyboardClear').addEventListener('click', () => controllerEditText('clear'));
+  T('controllerKeyboardCancel').addEventListener('click', () => controllerCloseKeyboard(false));
+  T('controllerKeyboardDone').addEventListener('click', () => controllerCloseKeyboard(true));
+  keyboard.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        controllerCloseKeyboard(false);
+      } else if (event.key === 'Tab') {
+        const targets = controllerTargets(keyboard),
+          first = targets[0],
+          last = targets.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
+    },
+    true
+  );
   const audio = document.createElement('button');
   audio.id = 'controllerAudio';
   audio.className = 'btn';
@@ -584,9 +912,5 @@ addEventListener('blur', () => controllerRelease());
     audio.hidden = true;
   });
   document.body.appendChild(audio);
-  T('cv').setAttribute(
-    'aria-label',
-    T('cv').getAttribute('aria-label') +
-      ' With a controller, move with the left stick, aim with the right stick, RT for Bolt, LT for Flare, RB to Dash, LB to Rekindle, A to interact, X to return to a portal, and Menu to pause.'
-  );
+  controller.canvasLabel = T('cv').getAttribute('aria-label') || 'The Seventh Ember';
 }

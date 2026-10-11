@@ -205,7 +205,7 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
     else if (e.bossKey === 'colossus' && e.bs.mode === 'cool') dmg *= 1.45;
     else if (e.bs.mode === 'recover') dmg *= kind === 'melee' || kind === 'meleeWave' ? 1.28 : 1.1;
   }
-  if (e.ai === 'late') {
+  if (e.ai === 'late' && !(e.expSeverT > G.t && u.severingLight)) {
     if (e.type === 'mirrorShell' && e.specialMode === 'shell') dmg *= 0.22;
     if (e.type === 'barrierKnight' && e.specialMode === 'barrier') dmg *= 0.18;
     const mourner = G.enemies.find(
@@ -281,7 +281,7 @@ killEnemy = function (e) {
   if (was || !e.dead || !G.run) return;
   const rank = G.run.up.leech || 0;
   if (rank && G.run.kills > kills && G.run.kills % 6 === 0) {
-    G.player.hp = Math.min(G.player.maxHp, G.player.hp + 5 * rank);
+    cardHeal(5 * rank);
     addText(G.player.x, G.player.y - 20, 'WARM HANDS', '#ffc982', 12);
   }
 };

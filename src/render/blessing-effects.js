@@ -6,6 +6,9 @@ drawCombatFX = function (ctx) {
   const p = G.player;
   if (!p || !G.run) return;
   const t = save.motion ? 0 : G.tAll;
+  const fieldAlpha = combatVisualAlpha('friendly'),
+    glowAlpha = combatVisualAlpha('glow'),
+    pressure = combatVisualPressure();
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
   if (p.cardWard > 0) {
@@ -21,7 +24,7 @@ drawCombatFX = function (ctx) {
       const a = (p.voidOrbitA || 0) + (i * TAU) / 3,
         x = p.x + Math.cos(a) * 78,
         y = p.y + Math.sin(a) * 78;
-      glowImg('violet', x, y, 27, 0.52);
+      glowImg('violet', x, y, 27, 0.52 * glowAlpha);
       ctx.save();
       ctx.translate(Math.round(x), Math.round(y));
       ctx.rotate(a + t * 0.65);
@@ -38,34 +41,38 @@ drawCombatFX = function (ctx) {
   for (const f of G.run.cardFields || []) {
     const max = f.kind === 'blackHole' ? (f.mythicReforged ? 175 : 125) : 90,
       life = clamp(f.t / (f.kind === 'blackHole' ? (f.mythicReforged ? 7 : 4) : 3), 0, 1);
+    if (!combatVisualVisible(f.x, f.y, max + 8)) continue;
     ctx.strokeStyle = f.kind === 'blackHole' ? '#ae83ff' : '#ff9861';
-    ctx.globalAlpha = 0.2 + 0.3 * life;
+    ctx.globalAlpha = (0.2 + 0.3 * life) * fieldAlpha;
     ctx.lineWidth = f.mythicReforged ? 3 : 2;
-    for (let i = 0; i < (f.mythicReforged ? 5 : 3); i++) {
+    const rings = pressure > 0.6 ? 2 : f.mythicReforged ? 5 : 3;
+    for (let i = 0; i < rings; i++) {
+      const band = rings === 2 ? i * (f.mythicReforged ? 4 : 2) : i;
       ctx.beginPath();
       ctx.arc(
         f.x,
         f.y,
-        max * (0.22 + i * 0.16) + Math.sin(t * 3 + i) * 5,
+        max * (0.22 + band * 0.16) + Math.sin(t * 3 + band) * 5,
         t * (i % 2 ? -0.9 : 0.65),
         t * (i % 2 ? -0.9 : 0.65) + 4.9
       );
       ctx.stroke();
     }
     if (f.mythicReforged) {
-      glowImg('violet', f.x, f.y, 82, 0.34);
+      glowImg('violet', f.x, f.y, 82, 0.34 * glowAlpha);
       ctx.fillStyle = '#090611';
-      ctx.globalAlpha = 0.9;
+      ctx.globalAlpha = 0.9 * fieldAlpha;
       ctx.beginPath();
       ctx.arc(f.x, f.y, 17 + Math.sin(t * 5) * 2, 0, TAU);
       ctx.fill();
     }
   }
   for (const q of G.run.cardStrikes || []) {
+    if (!combatVisualVisible(q.x, q.y, 160)) continue;
     const power = q.power || 1.8;
     ctx.strokeStyle = '#fff0b5';
     ctx.lineWidth = power >= 3 ? 3 : 2;
-    ctx.globalAlpha = 0.35 + clamp(1 - q.t / 0.9, 0, 1) * 0.55;
+    ctx.globalAlpha = (0.35 + clamp(1 - q.t / 0.9, 0, 1) * 0.55) * fieldAlpha;
     ctx.beginPath();
     ctx.moveTo(q.x, q.y - (power >= 3 ? 150 : 120));
     ctx.lineTo(q.x, q.y + 9);
@@ -75,8 +82,9 @@ drawCombatFX = function (ctx) {
     ctx.stroke();
   }
   for (const q of G.run.cardFlares || []) {
+    if (!combatVisualVisible(q.x, q.y, 58)) continue;
     ctx.strokeStyle = '#ffc778';
-    ctx.globalAlpha = 0.5;
+    ctx.globalAlpha = 0.5 * fieldAlpha;
     ctx.beginPath();
     ctx.arc(q.x, q.y, 28 + (1 - q.t / 0.32) * 25, q.a - 0.8, q.a + 0.8);
     ctx.stroke();

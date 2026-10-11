@@ -342,6 +342,13 @@ function drawHearthTrialEvents(ctx) {
       ctx.fillStyle = f.hp < f.max * 0.3 ? '#e98372' : '#f3cb80';
       ctx.fillRect(f.x - 31, f.y + 27, (62 * f.hp) / f.max, 3);
     }
+  if (!combatClarityDeferWarnings) drawHearthTrialMarks(ctx);
+  ctx.restore();
+}
+function drawHearthTrialMarks(ctx) {
+  const ev = hearthTrial?.events;
+  if (!ev) return;
+  ctx.save();
   for (const mark of ev.marks) {
     const warn = mark.age < mark.warning;
     ctx.fillStyle = warn ? '#d89151' : '#ffe6ac';

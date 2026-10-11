@@ -244,7 +244,7 @@ const EXPANDED_CARD_ROWS = [
     25,
     'scissors',
     'Severing Light',
-    'Flare temporarily strips enemy armor and resistance',
+    'Flare strips ordinary enemy armor and resistance for 3s, plus 1s per extra rank',
   ],
   [
     'crackedBell',
@@ -606,7 +606,7 @@ const EXPANDED_CARD_ROWS = [
     40,
     'sunrise',
     'The Long Dawn',
-    'A recurring sunrise crosses the room, destroys enemies, and restores health',
+    'Every 45s, a sunrise strikes all enemies for 600% damage and restores 12% health',
   ],
   [
     'crownlessKing',
@@ -616,7 +616,7 @@ const EXPANDED_CARD_ROWS = [
     44,
     'crown',
     'The Crownless King',
-    'The first elite defeated each floor surrenders one of its traits',
+    'The first elite defeated each floor grants damage, speed, critical chance, or casting speed for that floor',
   ],
   [
     'unmakingFlame',
@@ -666,7 +666,7 @@ const EXPANDED_CARD_ROWS = [
     64,
     'sparkles',
     'Living Constellation',
-    'Defeated enemies become following stars that cast their own Bolts',
+    'Defeated enemies become following stars that cast Bolts. Gather up to seven stars',
   ],
   [
     'blackBell',
@@ -716,7 +716,7 @@ const EXPANDED_CARD_ROWS = [
     76,
     'flame',
     'The Only Ember Left',
-    'Fighting a lone Guardian grants power, speed, and free Flares after dodges',
+    'Against a lone Guardian, gain 75% damage, 20% speed, and a free Flare every third Dash',
   ],
   [
     'archiveFire',
@@ -756,7 +756,7 @@ const EXPANDED_CARD_ROWS = [
     80,
     'sparkle',
     'The Final Match',
-    'Guardian final phases grant infinite charges and overwhelming power',
+    'Below 32% Guardian health, gain infinite charges, double damage, and faster Bolt and Flare recovery',
   ],
 
   ['brightNeedle', 0, 3, 6, 8, 'needle', 'Bright Needle', 'Starstitch pins appear more frequently'],
@@ -1028,6 +1028,28 @@ function expansionState() {
 }
 function expansionLiving() {
   return (G.enemies || []).filter((e) => !e.dead);
+}
+function expansionFinalMatchActive() {
+  return (
+    blessingRank('finalMatch') > 0 &&
+    G.bossActive &&
+    (G.enemies || []).some((e) => e.isBoss && !e.dead && e.hp / e.max < 0.32)
+  );
+}
+function expansionInterruptEnemy(e, delay) {
+  if (e.dead || e.isBoss || delay <= 0) return;
+  e.atkT = Math.max(e.atkT || 0, delay);
+  e.t1 = Math.max(e.t1 || 0, delay);
+  if (['gate', 'garden', 'late'].includes(e.ai)) {
+    e.action = 'recover';
+    e.actionT = Math.max(e.actionT || 0, delay);
+    e.strikeT = 0;
+    e.strikeHit = true;
+  }
+  if (e.ai === 'late' && e.specialMode) {
+    finishLateSpecial(e);
+    e.specialCd = Math.max(e.specialCd || 0, delay);
+  }
 }
 function expansionNearest(x, y, filter = () => true) {
   let found = null,
@@ -1455,6 +1477,7 @@ setupFloor = function (f) {
   s.emptyChamberT = 0;
   s.shatteredFragments = 0;
   s.guardianFinalUid = 0;
+  s.finalMatchT = 0;
   expansionBorrowBlessing();
   recalc();
   return out;
@@ -1570,7 +1593,7 @@ fireVolley = function () {
     s.doppelReady--;
   }
   if (blessingRank('seventhHand'))
-    for (const b of created.slice(0, 3))
+    for (const b of created)
       s.echoShots.push({
         delay: 0.34,
         x: s.handX ?? p.x,
@@ -1581,6 +1604,10 @@ fireVolley = function () {
     p.ammo = Math.min(p.magSize, p.ammo + 1);
     p.reloadT = 0;
     p.shotT *= 0.7;
+  }
+  if (expansionFinalMatchActive()) {
+    p.ammo = p.magSize;
+    p.reloadT = 0;
   }
 };
 
@@ -1633,7 +1660,11 @@ strikeMelee = function () {
   }
   if (blessingRank('duelistEmber') && expansionLiving().length === 1)
     mult *= 1 + 0.48 * blessingRank('duelistEmber');
-  const targets = expansionFlareTargets();
+  const targets = expansionFlareTargets(),
+    sever = blessingRank('severingLight');
+  if (sever)
+    for (const e of targets)
+      if (!e.isBoss) e.expSeverT = Math.max(e.expSeverT || 0, G.t + 2 + sever);
   MELEE.damage *= mult;
   try {
     expansionStrikeMelee();
@@ -1652,17 +1683,15 @@ strikeMelee = function () {
   if (relay && targets.length)
     p.ammo = Math.min(p.magSize, p.ammo + Math.min(relay, 1 + Math.floor(targets.length / 4)));
   const heavy = blessingRank('heavyArc'),
-    sever = blessingRank('severingLight'),
     cracked = blessingRank('crackedBell');
   for (const e of targets) {
     if (heavy && !e.isBoss) {
       const a = Math.atan2(e.y - p.y, e.x - p.x);
       e.kbx += Math.cos(a) * 75 * heavy;
       e.kby += Math.sin(a) * 75 * heavy;
-      e.atkT = Math.max(e.atkT || 0, 0.1 * heavy);
+      expansionInterruptEnemy(e, 0.1 * heavy);
     }
-    if (sever) e.expSeverT = Math.max(e.expSeverT || 0, G.t + 2 + sever);
-    if (cracked) e.atkT = Math.max(e.atkT || 0, 0.45 * cracked);
+    if (cracked) expansionInterruptEnemy(e, 0.45 * cracked);
   }
   if (blessingRank('forkedArc') && targets.length) {
     for (const turn of [-0.58, 0.58])
@@ -1688,13 +1717,17 @@ strikeMelee = function () {
   }
   if (blessingRank('closingArgument'))
     for (const e of targets)
-      if (!e.dead && !e.isBoss && e.hp / e.max < 0.15 + 0.07 * blessingRank('closingArgument'))
-        damageEnemy(e, e.hp + 1, Math.atan2(e.y - p.y, e.x - p.x), false, 1, 'closingArgument');
+      if (!e.dead && !e.isBoss && e.hp / e.max < 0.15 + 0.07 * blessingRank('closingArgument')) {
+        e.hp = 0;
+        killEnemy(e);
+      }
   if (blessingRank('unmakingFlame'))
     for (const e of targets)
       if (!e.dead) {
-        if (!e.isBoss && e.hp / e.max < 0.35) damageEnemy(e, e.hp + 1, 0, false, 0, 'unmaking');
-        else if (e.isBoss && (!e.expUnmakingT || e.expUnmakingT <= G.t)) {
+        if (!e.isBoss && e.hp / e.max < 0.35) {
+          e.hp = 0;
+          killEnemy(e);
+        } else if (e.isBoss && (!e.expUnmakingT || e.expUnmakingT <= G.t)) {
           e.expUnmakingT = G.t + 8;
           damageEnemy(e, e.max * 0.045, 0, false, 0, 'unmaking');
         }
@@ -1730,7 +1763,6 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
   if (s?.ashDividendT > 0) amount *= 1 + 0.18 * blessingRank('ashDividend');
   if (s?.ashMemoryType && e.type === s.ashMemoryType)
     amount *= 1 + 0.06 * blessingRank('ashMemory');
-  if (e.expSeverT > G.t) amount *= 1 + 0.12 * blessingRank('severingLight');
   if (
     (e.mechanism || e.type === 'barrierKnight' || e.type === 'mirrorShell') &&
     blessingRank('hammerSpark') &&
@@ -1765,7 +1797,7 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
     amount *= 1 + s.shatteredFragments * 0.08 * blessingRank('shatteredCrown');
   if (e.isBoss && blessingRank('onlyEmber') && !expansionLiving().some((q) => q !== e && !q.isBoss))
     amount *= 1.75;
-  if (s?.finalMatchT > 0) amount *= 2;
+  if (expansionFinalMatchActive()) amount *= 2;
   if (blessingRank('duelistEmber') && expansionLiving().length === 1)
     amount *= 1 + 0.22 * blessingRank('duelistEmber');
   if (kind === 'burn' && blessingRank('crucible'))
@@ -1933,7 +1965,7 @@ killEnemy = function (e) {
     recalc();
     toast('THE CROWNLESS KING', ['power taken', 'speed taken', 'sight taken', 'cadence taken'][n]);
   }
-  if (blessingRank('livingConstellation') && !isBoss && s.livingStars.length < 7 && chance(0.22)) {
+  if (blessingRank('livingConstellation') && !isBoss && !mechanism && s.livingStars.length < 7) {
     s.livingStars.push({
       a: Math.random() * TAU,
       t: 999,
@@ -1995,8 +2027,7 @@ updatePicks = function (dt) {
   const p = G.player,
     s = expansionState();
   if (!p || !s) return expansionUpdatePicks(dt);
-  let room = Math.max(0, p.maxHp - p.hp),
-    excess = 0;
+  let room = Math.max(0, p.maxHp - p.hp);
   const before = new Map(G.picks.map((o) => [o, { kind: o.kind, val: o.val }]));
   expansionUpdatePicks(dt);
   for (const [pick, item] of before) {
@@ -2005,11 +2036,9 @@ updatePicks = function (dt) {
       s.warmTrailT = Math.min(6, (s.warmTrailT || 0) + 1.2 * blessingRank('warmTrail'));
     if (item.kind === 'heart') {
       if (room <= 0 && blessingRank('hearthTax')) addEss(blessingRank('hearthTax'));
-      excess += Math.max(0, item.val - room);
       room = Math.max(0, room - item.val);
     }
   }
-  expansionOverheal(excess);
 };
 
 function expansionRoomTick(dt) {
@@ -2032,11 +2061,7 @@ function expansionRoomTick(dt) {
     if (index >= 0 && !s.visitedRooms[index]) {
       s.visitedRooms[index] = true;
       if (enemies.length && blessingRank('pilgrimHeat'))
-        p.cardWard =
-          (p.cardWard || 0) +
-          p.maxHp *
-            (0.025 + 0.015 * blessingRank('pilgrimHeat')) *
-            (1 + 0.15 * blessingRank('temperedGlow'));
+        p.cardWard = (p.cardWard || 0) + p.maxHp * (0.025 + 0.015 * blessingRank('pilgrimHeat'));
     }
   }
   s.roomAge = (s.roomAge || 0) + dt;
@@ -2054,6 +2079,7 @@ function expansionDashTick(dt) {
   if (!s || !p) return;
   const dashing = p.dashT > 0;
   if (dashing && !s.wasDashing) {
+    s.dashSerial = (s.dashSerial || 0) + 1;
     s.dashStartX = p.x;
     s.dashStartY = p.y;
     s.dashDanger = false;
@@ -2084,8 +2110,8 @@ function expansionDashTick(dt) {
       for (const e of expansionLiving()) {
         const near = d2(e.x, e.y, p.x, p.y) < (e.r + 34) ** 2;
         if (!near) continue;
-        if (blessingRank('backdraft') && e.burnT > 0 && e.expBackDash !== s.dashStartX) {
-          e.expBackDash = s.dashStartX;
+        if (blessingRank('backdraft') && e.burnT > 0 && e.expBackDash !== s.dashSerial) {
+          e.expBackDash = s.dashSerial;
           e.burnT += 1.2 * blessingRank('backdraft');
           damageEnemy(e, p.dmg * 0.32 * blessingRank('backdraft'), p.face, false, 0.2, 'backdraft');
         }
@@ -2471,20 +2497,19 @@ tickBlessings = function (dt) {
       s.longDawnActive = true;
       for (const e of expansionLiving()) damageEnemy(e, p.dmg * 6, 0, false, 1, 'longDawn');
       s.longDawnActive = false;
+      expansionHeal(p.maxHp * 0.12, 'THE LONG DAWN');
       burst(p.x, p.y, 60, '#fff0a8', 420, 1.2, 6, true);
       toast('THE LONG DAWN', 'morning crosses the room');
       sfx('mythic');
     }
   }
-  if (
-    blessingRank('finalMatch') &&
-    G.boss &&
-    !G.boss.dead &&
-    G.boss.hp / G.boss.max < 0.32 &&
-    s.guardianFinalUid !== G.boss.uid
-  ) {
-    s.guardianFinalUid = G.boss.uid;
-    s.finalMatchT = 8;
+  const finalMatch = expansionFinalMatchActive(),
+    finalGuardian = finalMatch
+      ? G.enemies.find((e) => e.isBoss && !e.dead && e.hp / e.max < 0.32)
+      : null;
+  s.finalMatchT = finalMatch ? 1 : 0;
+  if (finalGuardian && s.guardianFinalUid !== finalGuardian.uid) {
+    s.guardianFinalUid = finalGuardian.uid;
     p.ammo = p.magSize;
     p.reloadT = 0;
     p.meleeCdT = 0;
@@ -2492,7 +2517,7 @@ tickBlessings = function (dt) {
     toast('THE FINAL MATCH', 'burn brighter than the ending');
     sfx('mythic');
   }
-  if (s.finalMatchT > 0) {
+  if (finalMatch) {
     p.ammo = p.magSize;
     p.reloadT = 0;
     p.shotT -= dt * 0.5;
@@ -2567,7 +2592,7 @@ updateBullets = function (dt) {
         const a = Math.atan2(target.y - b.y, target.x - b.x),
           wantX = Math.cos(a) * speed,
           wantY = Math.sin(a) * speed,
-          k = 0.025 * blessingRank('kindredSparks');
+          k = 1 - Math.pow(1 - 0.025 * blessingRank('kindredSparks'), dt * 60);
         b.vx = lerp(b.vx, wantX, k);
         b.vy = lerp(b.vy, wantY, k);
       }

@@ -65,7 +65,7 @@
   min-width: 28px;
   color: #ffe0a4;
 }
-.controller-active :is(button, input, select, a, [role='button']):focus {
+.controller-active :is(button, input, textarea, select, a, [role='button']):focus {
   outline: 3px solid #ffdfa1 !important;
   outline-offset: 4px;
   box-shadow: 0 0 18px #f5b35e55 !important;
@@ -101,6 +101,92 @@
 }
 #controllerAudio[hidden] {
   display: none;
+}
+#controllerMenuGuide {
+  position: fixed;
+  bottom: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100vw - 34px);
+  padding: 7px 13px;
+  color: #ead5b1;
+  background: #16110ded;
+  border: 1px solid #88643a;
+  box-shadow: 0 4px 18px #0008;
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 510;
+}
+#controllerMenuGuide[hidden] {
+  display: none;
+}
+#controllerKeyboard {
+  z-index: 500;
+  background: #070504e8;
+  padding: 30px;
+}
+.controller-keyboard-shell {
+  width: min(750px, 92vw);
+  padding: 24px;
+  background: linear-gradient(140deg, #2b2018, #16110e 75%);
+  border: 1px solid #b88952;
+  box-shadow:
+    0 24px 80px #000b,
+    inset 0 0 0 5px #16110e;
+}
+.controller-keyboard-shell h3 {
+  margin: 0 0 14px;
+  color: #ffe0a4;
+  font:
+    24px Georgia,
+    serif;
+}
+#controllerKeyboardValue {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 18px;
+  padding: 12px;
+  border: 1px solid #856547;
+  color: #f9e8c8;
+  background: #0d0b09;
+  font: 18px system-ui;
+}
+#controllerKeyboardKeys {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 7px;
+}
+.controller-keyboard-shell button {
+  min-height: 42px;
+  color: #f4deb8;
+  background: #30261c;
+  border: 1px solid #8a6742;
+  font: 16px system-ui;
+  cursor: pointer;
+}
+.controller-keyboard-shell button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+#controllerKeyboardKeys button[data-controller-char=' '] {
+  font-size: 9px;
+}
+.controller-keyboard-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 17px;
+}
+.controller-keyboard-actions button {
+  flex: 1;
+  padding: 8px;
+  font-size: 11px;
+}
+.controller-keyboard-actions .primary {
+  background: #be8c4e;
+  color: #1b120a;
+  border-color: #f0cb87;
 }
 .card .combo-preview {
   border-top: 1px solid #9c764d66;

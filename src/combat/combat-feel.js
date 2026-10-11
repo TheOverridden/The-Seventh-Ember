@@ -1,9 +1,26 @@
-const COMBAT_FEEL = { casts: [], impacts: [], deaths: [], hurtT: 0, hurtA: 0, serial: 0 };
+const COMBAT_FEEL = {
+  casts: [],
+  impacts: [],
+  deaths: [],
+  hurtT: 0,
+  hurtA: 0,
+  serial: 0,
+  shakeAt: -1,
+};
 function combatFeelReset() {
   COMBAT_FEEL.casts.length = 0;
   COMBAT_FEEL.impacts.length = 0;
   COMBAT_FEEL.deaths.length = 0;
   COMBAT_FEEL.hurtT = 0;
+  COMBAT_FEEL.shakeAt = -1;
+}
+function combatFeelShake(amount, limit) {
+  if (save.motion || !G.cam) return;
+  const now = performance.now() / 1000;
+  if (now - COMBAT_FEEL.shakeAt < 0.06) return;
+  COMBAT_FEEL.shakeAt = now;
+  const pressure = typeof combatVisualPressure === 'function' ? combatVisualPressure() : 0;
+  G.cam.shake = Math.min(limit, G.cam.shake + amount * (1 - pressure * 0.65));
 }
 function combatFeelColor(kind, crit) {
   if (crit) return '#fff3ae';
@@ -89,7 +106,7 @@ fireVolley = function () {
     made[i].feelBorn = G.tAll;
     made[i].feelLead = i === made.length >> 1;
   }
-  G.cam.shake = Math.min(0.45, G.cam.shake + 0.055);
+  combatFeelShake(0.055, 0.45);
 };
 const combatFeelStrikeMelee = strikeMelee;
 strikeMelee = function () {
@@ -99,7 +116,7 @@ strikeMelee = function () {
   combatFeelCast('flare', p.x, p.y, a, 1 + 0.14 * (G.run?.up?.edge || 0));
   p.feelFlareT = 0.32;
   combatFeelStrikeMelee();
-  G.cam.shake = Math.min(0.72, G.cam.shake + 0.16);
+  combatFeelShake(0.16, 0.72);
 };
 const combatFeelDamageEnemy = damageEnemy;
 damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
@@ -115,10 +132,7 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
   e.feelHitA = Number.isFinite(ang) ? ang : 0;
   e.feelHitPower = Math.min(1.7, 0.55 + (dealt / Math.max(1, e.max)) * 5 + (crit ? 0.3 : 0));
   combatFeelImpact(e, dealt, e.feelHitA, crit, kind, killed);
-  G.cam.shake = Math.min(
-    0.9,
-    G.cam.shake + (kind === 'melee' ? 0.11 : crit ? 0.07 : 0.025) + (killed ? 0.08 : 0)
-  );
+  combatFeelShake((kind === 'melee' ? 0.11 : crit ? 0.07 : 0.025) + (killed ? 0.08 : 0), 0.7);
   if (kind === 'melee') sfx('feelFlareImpact');
   else if (crit) sfx('feelBoltImpact');
   if (killed) sfx('feelBreak');
@@ -171,7 +185,7 @@ drawEnemies = function (ctx) {
   for (const e of G.enemies || []) {
     if (!e.dead && e.feelHitT > 0) {
       const q = e.feelHitT / Math.max(0.001, e.feelHitMax || e.feelHitT),
-        kick = Math.sin(q * Math.PI) * 5 * (e.feelHitPower || 1),
+        kick = save.motion ? 0 : Math.sin(q * Math.PI) * 5 * (e.feelHitPower || 1),
         ox = Math.cos(e.feelHitA || 0) * kick,
         oy = Math.sin(e.feelHitA || 0) * kick;
       shifted.push([e, e.x, e.y]);
@@ -179,16 +193,22 @@ drawEnemies = function (ctx) {
       e.y += oy;
     }
   }
-  combatFeelDrawEnemies(ctx);
+  try {
+    combatFeelDrawEnemies(ctx);
+  } finally {
+    for (const [e, x, y] of shifted) {
+      e.x = x;
+      e.y = y;
+    }
+  }
   for (const [e, x, y] of shifted) {
-    e.x = x;
-    e.y = y;
+    if (!combatVisualVisible(x, y, (e.r || 12) + 24)) continue;
     const q = e.feelHitT / Math.max(0.001, e.feelHitMax || e.feelHitT),
       r = (e.r || 12) + 5 + (1 - q) * 7;
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.strokeStyle = e.feelHitPower > 1.1 ? '#fff2af' : '#dff7ff';
-    ctx.globalAlpha = q * 0.58;
+    ctx.globalAlpha = q * 0.58 * combatVisualAlpha('impact');
     ctx.lineWidth = 2;
     for (let i = 0; i < 4; i++) {
       const a = (e.feelHitA || 0) + Math.PI + (i * Math.PI) / 2;
@@ -204,20 +224,31 @@ const combatFeelDrawBullets = drawBullets;
 drawBullets = function (ctx) {
   combatFeelDrawBullets(ctx);
   const t = save.motion ? 0 : G.tAll;
+  const tailAlpha = combatVisualAlpha('trail'),
+    pressure = combatVisualPressure();
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
-  for (const b of G.bullets) {
-    if (b.melee) continue;
+  for (let i = 0; i < G.bullets.length; i++) {
+    const b = G.bullets[i];
+    if (
+      b.melee ||
+      !combatVisualVisible(b.x, b.y, 56) ||
+      !combatVisualAllowance('trail', i, G.bullets.length)
+    )
+      continue;
     const speed = Math.max(1, Math.hypot(b.vx, b.vy)),
       nx = b.vx / speed,
       ny = b.vy / speed,
       size = b.comet ? 2.1 : b.whiteStar ? 1.55 : 1,
       age = Math.max(0, t - (b.feelBorn || t));
     ctx.strokeStyle = b.whiteStar ? '#dcfbff' : '#ffcc77';
-    ctx.globalAlpha = b.whiteStar ? 0.74 : 0.48;
+    ctx.globalAlpha = (b.whiteStar ? 0.74 : 0.48) * tailAlpha;
     ctx.lineWidth = 1.2 * size;
     ctx.beginPath();
-    ctx.moveTo(b.x - nx * 14 * size, b.y - ny * 14 * size);
+    ctx.moveTo(
+      b.x - nx * 14 * size * (1 - pressure * 0.45),
+      b.y - ny * 14 * size * (1 - pressure * 0.45)
+    );
     ctx.lineTo(b.x + nx * 4, b.y + ny * 4);
     ctx.stroke();
     ctx.fillStyle = '#ffffff';
@@ -229,14 +260,14 @@ drawBullets = function (ctx) {
     ctx.fillStyle = b.whiteStar ? '#9eeaff' : '#ff9b4d';
     ctx.fillRect(-8 * size, -1 * size, 6 * size, 2 * size);
     ctx.restore();
-    if (b.feelLead || b.comet || b.whiteStar) {
+    if (pressure < 0.6 && (b.feelLead || b.comet || b.whiteStar)) {
       const a = t * 9 + (b.feelSeed || 0);
       ctx.fillStyle = b.whiteStar ? '#bdf7ff' : '#ffe19a';
-      ctx.globalAlpha = 0.42;
+      ctx.globalAlpha = 0.42 * tailAlpha;
       ctx.fillRect(b.x + Math.cos(a) * 7 * size - 1, b.y + Math.sin(a) * 7 * size - 1, 2, 2);
       ctx.fillRect(b.x - Math.cos(a) * 7 * size - 1, b.y - Math.sin(a) * 7 * size - 1, 2, 2);
     }
-    if (age < 0.08) {
+    if (age < 0.08 && pressure < 0.5) {
       ctx.strokeStyle = '#fff0bd';
       ctx.globalAlpha = (0.08 - age) * 5;
       ctx.beginPath();
@@ -249,7 +280,11 @@ drawBullets = function (ctx) {
 function drawCombatFeelWorld(ctx) {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
+  const castAlpha = combatVisualAlpha('friendly'),
+    impactAlpha = combatVisualAlpha('impact'),
+    pressure = combatVisualPressure();
   for (const c of COMBAT_FEEL.casts) {
+    if (!combatVisualVisible(c.x, c.y, c.kind === 'flare' ? 120 * c.power : 65)) continue;
     const q = 1 - c.life / c.max,
       fade = Math.sin(Math.PI * Math.min(1, q));
     ctx.save();
@@ -257,7 +292,7 @@ function drawCombatFeelWorld(ctx) {
     ctx.rotate(c.a);
     if (c.kind === 'bolt') {
       ctx.strokeStyle = '#ffd88c';
-      ctx.globalAlpha = (1 - q) * 0.72;
+      ctx.globalAlpha = (1 - q) * 0.72 * castAlpha;
       ctx.lineWidth = 2;
       for (let i = 0; i < 3; i++) {
         ctx.beginPath();
@@ -266,23 +301,24 @@ function drawCombatFeelWorld(ctx) {
       }
       for (let i = -2; i <= 2; i++) {
         ctx.fillStyle = i % 2 ? '#ffffff' : '#ff9b4b';
-        ctx.globalAlpha = (1 - q) * (0.35 + Math.abs(i) * 0.08);
+        ctx.globalAlpha = (1 - q) * (0.35 + Math.abs(i) * 0.08) * castAlpha;
         ctx.fillRect(6 + q * (13 + Math.abs(i) * 3), i * 4 - 1, 7 - Math.abs(i), 2);
       }
     } else if (c.kind === 'flare') {
       const lead = -0.98 + Math.sqrt(q) * 1.96,
         trail = Math.max(-0.98, lead - 1.34);
       ctx.strokeStyle = '#ffb45f';
-      ctx.globalAlpha = fade * 0.22;
+      ctx.globalAlpha = fade * 0.22 * combatVisualAlpha('glow');
       ctx.lineWidth = 8;
       ctx.beginPath();
       ctx.arc(0, 0, (42 + q * 42) * c.power, -0.98, 0.98);
       ctx.stroke();
-      for (let i = 0; i < 7; i++) {
-        const d = i / 6,
+      const bands = pressure > 0.55 ? 4 : 7;
+      for (let i = 0; i < bands; i++) {
+        const d = i / (bands - 1),
           rr = (38 + q * 48) * c.power - i * 2;
         ctx.strokeStyle = i < 2 ? '#ffffff' : i < 5 ? '#ffe5a1' : '#ff9d54';
-        ctx.globalAlpha = fade * (0.28 + d * 0.68);
+        ctx.globalAlpha = fade * (0.28 + d * 0.68) * castAlpha;
         ctx.lineWidth = 1 + d * 4.5;
         ctx.beginPath();
         ctx.arc(0, 0, rr, trail + d * 0.035, lead);
@@ -299,7 +335,7 @@ function drawCombatFeelWorld(ctx) {
       for (let i = 0; i < 11; i++) {
         const a = -0.9 + i * 0.18,
           rr = 32 + q * (48 + (i % 3) * 8);
-        ctx.globalAlpha = fade * (0.28 + (i % 3) * 0.14);
+        ctx.globalAlpha = fade * (0.28 + (i % 3) * 0.14) * castAlpha;
         ctx.fillRect(Math.cos(a) * rr - 2, Math.sin(a) * rr - 1, 5, 3);
       }
     } else {
@@ -315,7 +351,13 @@ function drawCombatFeelWorld(ctx) {
     }
     ctx.restore();
   }
-  for (const h of COMBAT_FEEL.impacts) {
+  for (let i = 0; i < COMBAT_FEEL.impacts.length; i++) {
+    const h = COMBAT_FEEL.impacts[i];
+    if (
+      !combatVisualVisible(h.x, h.y, h.r + 46) ||
+      !combatVisualAllowance('impact', i, COMBAT_FEEL.impacts.length)
+    )
+      continue;
     const q = 1 - h.life / h.max,
       fade = 1 - q;
     ctx.save();
@@ -323,7 +365,7 @@ function drawCombatFeelWorld(ctx) {
     ctx.rotate(h.a);
     ctx.strokeStyle = h.col;
     ctx.fillStyle = h.col;
-    ctx.globalAlpha = fade * (h.crit ? 0.95 : 0.7);
+    ctx.globalAlpha = fade * (h.crit ? 0.95 : 0.7) * impactAlpha;
     ctx.lineWidth = h.kind === 'melee' ? 3 : 2;
     ctx.beginPath();
     ctx.moveTo(-5 - q * 4, 0);
@@ -335,19 +377,25 @@ function drawCombatFeelWorld(ctx) {
       ctx.fillRect(Math.cos(a) * rr - 1, Math.sin(a) * rr - 1, 3 + (h.crit ? 2 : 0), 2);
     }
     ctx.strokeStyle = h.crit ? '#ffffff' : h.col;
-    ctx.globalAlpha = fade * 0.5;
+    ctx.globalAlpha = fade * 0.5 * impactAlpha;
     ctx.beginPath();
     ctx.arc(0, 0, h.r * (0.35 + q * 0.85), 0, TAU);
     ctx.stroke();
     ctx.restore();
   }
-  for (const d of COMBAT_FEEL.deaths) {
+  for (let i = 0; i < COMBAT_FEEL.deaths.length; i++) {
+    const d = COMBAT_FEEL.deaths[i];
+    if (
+      !combatVisualVisible(d.x, d.y, d.r * 4) ||
+      !combatVisualAllowance('debris', i, COMBAT_FEEL.deaths.length)
+    )
+      continue;
     const q = 1 - d.life / d.max,
       fade = 1 - q;
     ctx.save();
     ctx.translate(d.x, d.y);
     ctx.strokeStyle = d.col;
-    ctx.globalAlpha = fade * 0.48;
+    ctx.globalAlpha = fade * 0.48 * impactAlpha;
     ctx.lineWidth = 2;
     for (let i = 0; i < 2; i++) {
       ctx.beginPath();
@@ -358,7 +406,7 @@ function drawCombatFeelWorld(ctx) {
       const a = (i * TAU) / 8 + d.seed,
         rr = d.r * (0.6 + q * 2.5);
       ctx.fillStyle = i % 2 ? '#ffffff' : d.col;
-      ctx.globalAlpha = fade * (0.24 + (i % 3) * 0.08);
+      ctx.globalAlpha = fade * (0.24 + (i % 3) * 0.08) * impactAlpha;
       ctx.fillRect(Math.cos(a) * rr - 2, Math.sin(a) * rr - 2, 4, 4);
     }
     ctx.restore();

@@ -211,6 +211,7 @@ damageEnemy = function (e, damage, angle, crit, kb, kind = 'shot') {
   const hp = e.hp,
     result = synergyDamageEnemy(e, damage, angle, crit, kb, kind);
   if (e.hp >= hp) return result;
+  if (kind === 'sawfire') blessingIgnite(e, Math.max(1, blessingRank('burn')), 3);
   const s = blessingComboState(),
     p = G.player;
   if (kind === 'hailstone') {

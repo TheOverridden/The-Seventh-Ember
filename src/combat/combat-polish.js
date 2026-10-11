@@ -11,14 +11,24 @@ const COMBAT_POLISH = {
   appliedX: 0,
   appliedY: 0,
   serial: 0,
+  feedbackAt: -1,
+  rumbleAt: -1,
+  nearSoundAt: -1,
 };
 
 function combatPolishReduced() {
   return !!save.motion;
 }
-function combatPolishFreeze(t) {
+function combatPolishFreeze(t, urgent = false) {
   if (combatPolishReduced()) return;
-  COMBAT_POLISH.freeze = Math.min(0.06, Math.max(COMBAT_POLISH.freeze, t));
+  const now = performance.now() / 1000;
+  if (!urgent && now - COMBAT_POLISH.feedbackAt < 0.095) return;
+  COMBAT_POLISH.feedbackAt = now;
+  const pressure = typeof combatVisualPressure === 'function' ? combatVisualPressure() : 0;
+  COMBAT_POLISH.freeze = Math.min(
+    0.06,
+    Math.max(COMBAT_POLISH.freeze, urgent ? t : t * (1 - pressure * 0.6))
+  );
 }
 function combatPolishFlash(amount, col) {
   COMBAT_POLISH.flash = Math.max(
@@ -29,6 +39,9 @@ function combatPolishFlash(amount, col) {
 }
 function combatPolishRumble(duration, strong, weak) {
   if (combatPolishReduced()) return;
+  const now = performance.now() / 1000;
+  if (duration < 30 && now - COMBAT_POLISH.rumbleAt < 0.075) return;
+  COMBAT_POLISH.rumbleAt = now;
   const touch = document.body?.classList.contains('touch');
   try {
     if (touch && navigator.vibrate) navigator.vibrate(Math.min(45, duration));
@@ -56,6 +69,7 @@ function combatPolishReset() {
   COMBAT_POLISH.dashes.length = 0;
   COMBAT_POLISH.near.length = 0;
   COMBAT_POLISH.flash = 0;
+  COMBAT_POLISH.feedbackAt = COMBAT_POLISH.rumbleAt = COMBAT_POLISH.nearSoundAt = -1;
   COMBAT_POLISH.lookX = COMBAT_POLISH.lookY = COMBAT_POLISH.appliedX = COMBAT_POLISH.appliedY = 0;
 }
 function combatPolishSpawn(e, boss) {
@@ -147,8 +161,8 @@ killEnemy = function (e) {
     result = combatPolishKillEnemy(e);
   if (e.dead) {
     combatPolishDebris(e);
-    combatPolishFreeze(boss ? 0.055 : 0.032);
-    combatPolishFlash(boss ? 0.17 : 0.055, boss ? '#ffe0aa' : e.col);
+    combatPolishFreeze(boss ? 0.055 : e.elite ? 0.028 : 0.016, boss);
+    if (boss) combatPolishFlash(0.075, '#ffe0aa');
     combatPolishRumble(boss ? 42 : 18, boss ? 0.75 : 0.2, boss ? 0.55 : 0.25);
   }
   return result;
@@ -166,7 +180,6 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind) {
       combatPolishRumble(15, 0.18, 0.32);
     } else if (crit) {
       combatPolishFreeze(0.014);
-      combatPolishFlash(0.035, '#fff0ae');
       combatPolishRumble(10, 0.12, 0.2);
     }
   }
@@ -179,8 +192,8 @@ hurtPlayer = function (dmg, sx, sy) {
     before = p?.hp,
     result = combatPolishHurtPlayer(dmg, sx, sy);
   if (p && p.hp < before) {
-    combatPolishFreeze(0.04);
-    combatPolishFlash(0.12, '#ff5f68');
+    combatPolishFreeze(0.04, true);
+    combatPolishFlash(0.06, '#ff5f68');
     combatPolishRumble(38, 0.7, 0.42);
   }
   return result;
@@ -230,16 +243,21 @@ function combatPolishDashStart(p) {
 }
 function combatPolishNearMisses(p) {
   if (!p || p.dashT <= 0) return;
+  let made = 0;
   for (const b of G.ebul || []) {
     if (b.polishDodged) continue;
     const rr = (p.r || 9) + (b.r || 5) + 25,
       dd = d2(p.x, p.y, b.x, b.y);
     if (dd < rr * rr && dd > ((p.r || 9) + (b.r || 5) + 2) ** 2) {
       b.polishDodged = true;
+      if (made++ >= 3) continue;
       const max = 0.3;
       COMBAT_POLISH.near.push({ x: b.x, y: b.y, a: Math.atan2(b.vy, b.vx), life: max, max });
+      if (COMBAT_POLISH.near.length > 24) COMBAT_POLISH.near.shift();
       combatPolishRumble(12, 0.08, 0.22);
-      if (AC && save.sfx) {
+      const now = performance.now() / 1000;
+      if (AC && save.sfx && now - COMBAT_POLISH.nearSoundAt >= 0.1) {
+        COMBAT_POLISH.nearSoundAt = now;
         bell(880, 0.16, 0.012, 0, false);
         air(0.08, 0.012, 2600, 900, 1.2, 0);
       }
@@ -307,6 +325,7 @@ drawBullets = function (ctx) {
   combatPolishDrawBullets(ctx);
   ctx.save();
   for (const b of G.ebul || []) {
+    if (!combatVisualVisible(b.x, b.y, 34)) continue;
     const sp = Math.max(1, Math.hypot(b.vx || 0, b.vy || 0)),
       nx = (b.vx || 0) / sp,
       ny = (b.vy || 0) / sp,
@@ -337,19 +356,21 @@ drawBullets = function (ctx) {
       Math.max(2, r * 0.64),
       Math.max(2, r * 0.64)
     );
-    ctx.strokeStyle = '#ff7c9c';
-    ctx.globalAlpha = 0.28 + pulse * 0.15;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, r + 3 + pulse * 2, 0, TAU);
-    ctx.stroke();
+    if (combatVisualPressure() < 0.55) {
+      ctx.strokeStyle = '#ff7c9c';
+      ctx.globalAlpha = 0.28 + pulse * 0.15;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, r + 3 + pulse * 2, 0, TAU);
+      ctx.stroke();
+    }
   }
   for (const b of G.bullets || []) {
-    if (b.melee) continue;
+    if (b.melee || !combatVisualVisible(b.x, b.y, 20)) continue;
     const r = b.whiteStar ? 3 : 2;
     ctx.globalCompositeOperation = 'lighter';
     ctx.fillStyle = '#fffdf0';
-    ctx.globalAlpha = 0.88;
+    ctx.globalAlpha = 0.72 + combatVisualAlpha('friendly') * 0.16;
     ctx.fillRect(Math.round(b.x - r), Math.round(b.y - r), r * 2, r * 2);
   }
   ctx.restore();
@@ -358,7 +379,10 @@ drawBullets = function (ctx) {
 function combatPolishDrawWorld(ctx) {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
+  const glowAlpha = combatVisualAlpha('glow'),
+    trailAlpha = combatVisualAlpha('trail');
   for (const s of COMBAT_POLISH.spawns) {
+    if (!combatVisualVisible(s.x, s.y, s.r * 4 + 28)) continue;
     const q = 1 - s.life / s.max,
       fade = Math.sin(Math.PI * Math.min(1, q)),
       r = s.r * (0.55 + q * (s.boss ? 2.8 : 1.7));
@@ -366,7 +390,7 @@ function combatPolishDrawWorld(ctx) {
     ctx.translate(s.x, s.y);
     ctx.rotate((save.motion ? 0 : G.tAll) * 0.35 + s.seed);
     ctx.strokeStyle = s.col;
-    ctx.globalAlpha = fade * (s.boss ? 0.55 : 0.32);
+    ctx.globalAlpha = fade * (s.boss ? 0.55 : 0.32) * glowAlpha;
     ctx.lineWidth = s.boss ? 2 : 1;
     for (let i = 0; i < (s.boss ? 3 : 2); i++) {
       const rr = r + i * 7;
@@ -385,38 +409,45 @@ function combatPolishDrawWorld(ctx) {
       const a = i * 2.399 + s.seed,
         rr = r * (0.35 + (i % 4) * 0.18),
         sz = s.boss ? 3 : 2;
-      ctx.globalAlpha = fade * (0.18 + (i % 3) * 0.08);
+      ctx.globalAlpha = fade * (0.18 + (i % 3) * 0.08) * glowAlpha;
       ctx.fillRect(Math.cos(a) * rr - sz / 2, Math.sin(a) * rr - q * 16 - sz / 2, sz, sz);
     }
     ctx.restore();
   }
-  for (const d of COMBAT_POLISH.debris) {
+  for (let i = 0; i < COMBAT_POLISH.debris.length; i++) {
+    const d = COMBAT_POLISH.debris[i];
+    if (
+      !combatVisualVisible(d.x, d.y, 16) ||
+      !combatVisualAllowance('debris', i, COMBAT_POLISH.debris.length)
+    )
+      continue;
     const q = d.life / d.max;
     ctx.save();
     ctx.translate(d.x, d.y);
     ctx.rotate(d.rot);
     ctx.fillStyle = d.col;
-    ctx.globalAlpha = q * q * 0.78;
+    ctx.globalAlpha = q * q * 0.78 * combatVisualAlpha('debris');
     ctx.fillRect(-d.size / 2, -d.size / 2, d.size, d.size);
     ctx.fillStyle = '#ffffff';
-    ctx.globalAlpha = q * 0.22;
+    ctx.globalAlpha = q * 0.22 * glowAlpha;
     ctx.fillRect(-d.size * 0.18, -d.size * 0.18, d.size * 0.36, d.size * 0.36);
     ctx.restore();
   }
   for (const d of COMBAT_POLISH.dashes) {
+    if (!combatVisualVisible(d.x, d.y, 80)) continue;
     const q = 1 - d.life / d.max,
       fade = 1 - q;
     ctx.save();
     ctx.translate(d.x, d.y);
     ctx.rotate(d.a);
     ctx.strokeStyle = '#ffe0a0';
-    ctx.globalAlpha = fade * 0.52;
+    ctx.globalAlpha = fade * 0.52 * trailAlpha;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.ellipse(0, 0, 15 + q * 30, 9 + q * 17, 0, 0, TAU);
     ctx.stroke();
     for (let i = -2; i <= 2; i++) {
-      ctx.globalAlpha = fade * (0.18 + (2 - Math.abs(i)) * 0.08);
+      ctx.globalAlpha = fade * (0.18 + (2 - Math.abs(i)) * 0.08) * trailAlpha;
       ctx.beginPath();
       ctx.moveTo(-8, i * 5);
       ctx.lineTo(-32 - q * 34, i * 8);
@@ -425,6 +456,7 @@ function combatPolishDrawWorld(ctx) {
     ctx.restore();
   }
   for (const n of COMBAT_POLISH.near) {
+    if (!combatVisualVisible(n.x, n.y, 36)) continue;
     const q = 1 - n.life / n.max,
       fade = 1 - q;
     ctx.save();
@@ -440,7 +472,12 @@ function combatPolishDrawWorld(ctx) {
     ctx.stroke();
     ctx.restore();
   }
-  if (G.player && G.state === 'playing' && !document.body.classList.contains('touch')) {
+  if (
+    G.player &&
+    G.state === 'playing' &&
+    !document.body.classList.contains('touch') &&
+    !(typeof controllerInput !== 'undefined' && controllerInput.active)
+  ) {
     const wx = mouse.x + G.cam.x,
       wy = mouse.y + G.cam.y,
       t = combatPolishReduced() ? 0 : G.tAll;
@@ -478,7 +515,7 @@ render = function () {
   ctx.save();
   ctx.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
   ctx.fillStyle = COMBAT_POLISH.flashCol;
-  ctx.globalAlpha = Math.min(0.13, COMBAT_POLISH.flash);
+  ctx.globalAlpha = Math.min(0.075, COMBAT_POLISH.flash) * combatVisualAlpha('flash');
   ctx.fillRect(0, 0, G.w, G.h);
   ctx.restore();
 };

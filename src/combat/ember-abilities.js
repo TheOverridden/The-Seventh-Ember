@@ -107,6 +107,7 @@ function beginReload() {
   const p = G.player;
   if (G.state !== 'playing' || !p || p.reloadT > 0 || p.ammo >= p.magSize) return false;
   p.reloadT = p.reloadDuration;
+  p.autoRekindle = false;
   sfx('ui');
   return true;
 }
@@ -171,6 +172,7 @@ function combatTick(dt) {
   if (p.reloadT > 0) {
     p.reloadT = Math.max(0, p.reloadT - dt);
     if (p.reloadT === 0) {
+      p.autoRekindle = false;
       p.ammo = p.magSize;
       sfx('ui');
     }
@@ -426,12 +428,12 @@ fireVolley = function () {
   initCombat();
   if (p.reloadT > 0 || p.meleeWindT > 0 || p.meleeHitT > 0.08) return;
   if (p.ammo <= 0) {
-    beginReload();
+    if (beginReload()) p.autoRekindle = true;
     return;
   }
   p.ammo--;
   beforeCombat.fireVolley();
-  if (p.ammo === 0) beginReload();
+  if (p.ammo === 0 && beginReload()) p.autoRekindle = true;
 };
 recalc = function () {
   beforeCombat.recalc();

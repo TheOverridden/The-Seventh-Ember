@@ -459,6 +459,7 @@ function cleanGuardianSession(raw) {
     fightElapsed: num(raw.fightElapsed, 0, 1e6),
     hp: num(raw.hp, 0.01, 1e9),
     maxHp: num(raw.maxHp, 1, 1e9),
+    secret: raw.secret === true && index === 9 && defeated === 10,
     savedAt: num(raw.savedAt, 0, 9e15),
   };
 }
@@ -467,7 +468,7 @@ function snapshotGuardianSession() {
     return;
   }
   const gm = G.run.guardianMode;
-  if (gm.defeated >= GUARDIAN_ROSTER.length) {
+  if (gm.secretDefeated || (gm.defeated >= GUARDIAN_ROSTER.length && !gm.secret)) {
     save.guardianSession = null;
     return;
   }
@@ -491,6 +492,7 @@ function snapshotGuardianSession() {
     fightElapsed: Math.max(0, G.run.t - gm.fightStart),
     hp: Math.max(0.01, G.player?.hp || 1),
     maxHp: Math.max(1, G.player?.maxHp || 1),
+    secret: gm.secret === true,
     savedAt: Date.now(),
   });
 }
@@ -502,6 +504,7 @@ function restoreGuardianProgress(session) {
   gm.boons = deepCopy(session.boons);
   gm.lastFloor = session.lastFloor;
   gm.sessionState = session.status;
+  gm.secret = session.secret;
   G.run.t = session.elapsed;
   recalc();
   G.player.hp = clamp(session.hp, 0.01, G.player.maxHp);
@@ -523,6 +526,7 @@ function resumeBossRush() {
     );
   } else {
     startGuardianModeFight(session.lastFloor, true);
+    if (session.secret) revealUncountedGuardian();
     G.run.guardianMode.fightStart = G.run.t - session.fightElapsed;
     G.player.hp = clamp(session.hp, 0.01, G.player.maxHp);
     G.player.hitCd = Math.max(G.player.hitCd, 1.2);
@@ -690,6 +694,7 @@ function startGuardianModeFight(floor, resuming = false) {
   if (G.world?.lateHazards) G.world.lateHazards = [];
   if (G.world?.hazards) G.world.hazards = [];
   const bosses = G.enemies.filter((e) => e.isBoss && !e.dead);
+  if (G.run.mode === 'rush') prepareBossRushArena(bosses);
   G.boss = bosses[0] || G.boss;
   const mode = G.run.mode,
     diff = gm.difficulty,

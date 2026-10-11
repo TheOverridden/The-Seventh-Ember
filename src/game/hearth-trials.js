@@ -1209,6 +1209,13 @@ function drawHearthTrialArena(ctx) {
     ctx.fillRect(rune.x - 3, rune.y - 3, 6, 6);
     if (!rune.recovered) glowImg('violet', rune.x, rune.y, 64, 0.3 + Math.sin(t * 3) * 0.1);
   }
+  if (!combatClarityDeferWarnings) drawHearthTrialSweeps(ctx);
+}
+function drawHearthTrialSweeps(ctx) {
+  const q = hearthTrial;
+  if (!q) return;
+  const t = save.motion ? 0 : G.tAll;
+  ctx.save();
   for (const sweep of q.sweeps) {
     const progress = clamp((sweep.t - sweep.warning) / 5, 0, 1),
       coordinate = sweep.vertical ? TILE * (3 + 22 * progress) : TILE * (3 + 15 * progress),
@@ -1220,6 +1227,7 @@ function drawHearthTrialArena(ctx) {
     else ctx.fillRect(TILE * 3, coordinate - (warning ? 2 : 6), TILE * 22, warning ? 4 : 12);
     ctx.globalAlpha = 1;
   }
+  ctx.restore();
 }
 const hearthTrialSnapshot = snapshotRun;
 snapshotRun = function () {

@@ -257,10 +257,15 @@ function los(wld, x1, y1, x2, y2) {
 }
 
 function part(x, y, vx, vy, life, size, col, glow) {
-  if (G.parts.length > 420 * G.partScale) {
-    G.parts.shift();
+  const limit = Math.max(1, Math.floor(420 * G.partScale));
+  const particle = { x, y, vx, vy, life, max: life, size, col, glow: !!glow };
+  if (G.parts.length > limit) G.parts.length = limit;
+  if (G.parts.length === limit) {
+    G.particleCursor = ((G.particleCursor || 0) + 1) % limit;
+    G.parts[G.particleCursor] = particle;
+  } else {
+    G.parts.push(particle);
   }
-  G.parts.push({ x, y, vx, vy, life, max: life, size, col, glow: !!glow });
 }
 function burst(x, y, n, col, spd, life, size, glow) {
   n = Math.ceil(n * G.partScale);
@@ -618,12 +623,12 @@ function hurtPlayer(dmg, sx, sy) {
     } else die();
   }
 }
-function nova(x, y, r, dmg) {
+function nova(x, y, r, dmg, kind = 'nova') {
   burst(x, y, 26, '#ffb45e', 300, 0.6, 3, true);
   G.parts.push({ x, y, vx: 0, vy: 0, life: 0.4, max: 0.4, size: r, col: 'ring', glow: true });
   for (const e of G.enemies) {
     if (!e.dead && d2(x, y, e.x, e.y) < r * r)
-      damageEnemy(e, dmg, Math.atan2(e.y - y, e.x - x), false, 1.6);
+      damageEnemy(e, dmg, Math.atan2(e.y - y, e.x - x), false, 1.6, kind);
   }
   G.cam.shake = Math.min(0.8, G.cam.shake + 0.3);
 }

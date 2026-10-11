@@ -26,6 +26,8 @@ function render() {
   const amp = save.motion ? 0 : cam.shake * cam.shake * 10;
   const sx = rand(-1, 1) * amp,
     sy = rand(-1, 1) * amp;
+  COMBAT_CLARITY.offsetX = sx;
+  COMBAT_CLARITY.offsetY = sy;
   ctx.save();
   ctx.translate(-cam.x + sx, -cam.y + sy);
   drawTiles(ctx);
@@ -124,7 +126,7 @@ function drawTorches(ctx) {
 function drawPortalChests(ctx) {
   const t = G.tAll,
     p = G.portal;
-  if (p) {
+  if (p && combatVisualVisible(p.x, p.y, 90)) {
     const pulse = 1 + Math.sin(t * 2.4) * 0.06;
     glowImg('gold', p.x, p.y, p.active ? 70 : 40, p.active ? 0.5 : 0.14);
     drawSpr('portal', p.x, p.y, pulse * (p.active ? 1 : 0.9), 0, p.active ? 1 : 0.45);
@@ -140,12 +142,14 @@ function drawPortalChests(ctx) {
     }
   }
   for (const c of G.chests) {
+    if (!combatVisualVisible(c.x, c.y, 50)) continue;
     if (!c.opened) glowImg('gold', c.x, c.y, 26, 0.25 + Math.sin(t * 3 + c.x) * 0.08);
     drawSpr(c.opened ? 'chestOpen' : 'chest', c.x, c.y, 1, 0, c.opened ? 0.55 : 1);
   }
 }
 function drawPicks(ctx) {
   for (const o of G.picks) {
+    if (!combatVisualVisible(o.x, o.y, 30)) continue;
     const bob = Math.sin(o.t) * 2;
     if (o.kind === 'xp') glowImg('cyan', o.x, o.y, 11, 0.45);
     else if (o.kind === 'ess') glowImg('violet', o.x, o.y, 13, 0.5);
@@ -175,6 +179,7 @@ function drawEnemies(ctx) {
   const t = G.tAll;
   for (const e of G.enemies) {
     if (e.dead) continue;
+    if (!combatVisualVisible(e.x, e.y, e.isBoss ? 380 : e.r * 3 + 60)) continue;
     if (e.ai === 'late' || e.ai === 'lateBoss') {
       drawLateEnemy(ctx, e);
       continue;
@@ -269,16 +274,20 @@ function drawBullets(ctx) {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
   for (const b of G.bullets) {
+    if (!combatVisualVisible(b.x, b.y, 80 + Math.hypot(b.vx, b.vy) * 0.05)) continue;
+    ctx.globalAlpha = combatVisualAlpha('trail');
     ctx.strokeStyle = 'rgba(255,180,90,.55)';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(b.x - b.vx * 0.035, b.y - b.vy * 0.035);
     ctx.lineTo(b.x, b.y);
     ctx.stroke();
+    ctx.globalAlpha = 1;
     drawSpr('bEmber', b.x, b.y, 1, 0, 1, b.x * 0.01);
-    glowImg('ember', b.x, b.y, 12, 0.4);
+    glowImg('ember', b.x, b.y, 12, 0.4 * combatVisualAlpha('glow'));
   }
   for (const b of G.ebul) {
+    if (!combatVisualVisible(b.x, b.y, 80 + Math.hypot(b.vx, b.vy) * 0.05)) continue;
     if (b.garden) {
       drawSeedShot(ctx, b);
       continue;
@@ -432,8 +441,11 @@ function drawPlayer(ctx) {
 }
 function drawParticles(ctx) {
   ctx.save();
-  for (const o of G.parts) {
-    const a = clamp(o.life / o.max, 0, 1);
+  for (let i = 0; i < G.parts.length; i++) {
+    const o = G.parts[i];
+    if (!combatVisualVisible(o.x, o.y, o.size * 2)) continue;
+    if (o.col !== 'ring' && !combatVisualAllowance('debris', i, G.parts.length)) continue;
+    const a = clamp(o.life / o.max, 0, 1) * combatVisualAlpha(o.glow ? 'glow' : 'debris');
     if (o.col === 'ring') {
       ctx.globalCompositeOperation = 'lighter';
       ctx.strokeStyle = 'rgba(255,180,94,' + a * 0.7 + ')';
@@ -459,6 +471,7 @@ function drawParticles(ctx) {
 function drawTexts(ctx) {
   ctx.textAlign = 'center';
   for (const o of G.texts) {
+    if (!combatVisualVisible(o.x, o.y, 100)) continue;
     const a = clamp(o.life / o.max, 0, 1);
     ctx.font = '800 ' + o.size + 'px system-ui, sans-serif';
     ctx.globalAlpha = a;
@@ -483,7 +496,7 @@ function lightingPass(sx, sy) {
     const x = (wx - cam.x + sx) / 4,
       y = (wy - cam.y + sy) / 4,
       rr = r / 4;
-    if (x < -rr || y < -rr || x > lw + rr || y > lh + rr) return;
+    if (x < -rr || y < -rr || x > lw + rr || y > lh + rr) return false;
     const g = lctx.createRadialGradient(x, y, rr * 0.08, x, y, rr);
     g.addColorStop(0, 'rgba(255,255,255,' + a + ')');
     g.addColorStop(1, 'rgba(255,255,255,0)');
@@ -491,6 +504,7 @@ function lightingPass(sx, sy) {
     lctx.beginPath();
     lctx.arc(x, y, rr, 0, TAU);
     lctx.fill();
+    return true;
   };
   const p = G.player,
     t = G.tAll;
@@ -502,18 +516,18 @@ function lightingPass(sx, sy) {
   if (G.portal) hole(G.portal.x, G.portal.y, G.portal.active ? 215 : 100, 0.9);
   let oc = 0;
   for (const o of G.picks) {
-    if (oc++ > 26) break;
-    hole(o.x, o.y, 62, 0.6);
+    if (oc >= 27) break;
+    if (hole(o.x, o.y, 62, 0.6)) oc++;
   }
   let bc = 0;
   for (const b of G.bullets) {
-    if (bc++ > 12) break;
-    hole(b.x, b.y, 66, 0.65);
+    if (bc >= 13) break;
+    if (hole(b.x, b.y, 66, 0.65)) bc++;
   }
   let ec = 0;
   for (const b of G.ebul) {
-    if (ec++ > 10) break;
-    hole(b.x, b.y, 56, 0.55);
+    if (ec >= 11) break;
+    if (hole(b.x, b.y, 56, 0.55)) ec++;
   }
   if (G.boss && !G.boss.dead) hole(G.boss.x, G.boss.y, 260, 0.95);
   for (const c of G.chests) hole(c.x, c.y, 86, 0.55);
@@ -1118,10 +1132,12 @@ let lastT = 0,
   fpsTick = 0;
 function loop(now) {
   requestAnimationFrame(loop);
-  const dt = clamp((now - lastT) / 1000, 0, 0.033);
+  const elapsed = Math.max(0, (now - lastT) / 1000);
+  const dt = clamp(elapsed, 0, 0.033);
   lastT = now;
   G.tAll = (G.tAll || 0) + dt;
-  fpsE = lerp(fpsE, 1 / Math.max(dt, 0.0001), 0.05);
+  if (!document.hidden && elapsed > 0 && elapsed < 0.25) fpsE = lerp(fpsE, 1 / elapsed, 0.05);
+  G.fps = fpsE;
   fpsTick -= dt;
   if (fpsTick <= 0) {
     fpsTick = 0.5;

@@ -188,7 +188,7 @@ const LONG_DESCENT_BLESSINGS = [
     minFloor: 17,
     icon: 'orbit',
     name: 'Swift Orbit',
-    ds: 'Cinders orbit faster and hit harder',
+    ds: 'Existing orbiting cinders move 18% faster and deal 25% more damage per rank',
   },
   {
     id: 'kindleMark',
@@ -349,7 +349,7 @@ const LONG_DESCENT_BLESSINGS = [
     minFloor: 37,
     icon: 'triangle',
     name: 'Prism Bolt',
-    ds: 'Ricochets retain more damage and seek farther',
+    ds: 'Ricochet Rune’s bouncing Bolts retain more damage and reach farther',
   },
   {
     id: 'sunspot',
@@ -379,7 +379,7 @@ const LONG_DESCENT_BLESSINGS = [
     minFloor: 43,
     icon: 'heart',
     name: 'Heartfire',
-    ds: 'Healing briefly raises damage and casting speed',
+    ds: 'Heart drops and instant healing boost damage and cast speed for 4 seconds',
   },
 
   {
@@ -460,7 +460,7 @@ const LONG_DESCENT_BLESSINGS = [
     minFloor: 52,
     icon: 'flame-kindling',
     name: 'Worldfire',
-    ds: 'Burning enemies erupt for 240% damage and ignite everything nearby',
+    ds: 'Defeated burning enemies erupt for 240% damage and ignite nearby enemies',
   },
   {
     id: 'voidOrbit',
@@ -509,8 +509,7 @@ const longFire = fireVolley;
 fireVolley = function () {
   const p = G.player,
     u = G.run.up,
-    start = G.bullets.length,
-    beforeAmmo = p.ammo;
+    start = G.bullets.length;
   longFire();
   if (G.bullets.length === start) return;
   const created = G.bullets.slice(start);
@@ -530,10 +529,10 @@ fireVolley = function () {
     const b = created[0];
     G.bullets.push({
       ...b,
-      r: 10 + 2 * u.comet,
+      r: 10 + 2 * u.comet + (p.bulletSize || 1) - 1,
       dmg: b.dmg * (1.4 + 0.5 * u.comet),
       pierce: 7,
-      life: 1.8,
+      life: 1.8 * (p.bulletLife || 1),
       comet: true,
       hits: null,
     });
@@ -558,11 +557,16 @@ fireVolley = function () {
         y: p.y,
         vx: Math.cos(a + i * 0.14) * BASE.bulletSpd,
         vy: Math.sin(a + i * 0.14) * BASE.bulletSpd,
-        r: 6,
+        r: 6 + (p.bulletSize || 1) - 1,
         dmg: p.dmg * 0.82,
-        pierce: 2,
-        ric: 0,
-        life: 1.25,
+        pierce: 2 + p.pierce,
+        ric: p.ric,
+        life: 1.25 * (p.bulletLife || 1),
+        seeking: u.seeking ? 0.055 * u.seeking : 0,
+        emberMine: u.emberMine || 0,
+        ricRange: u.prismBolt ? 330 + 70 * u.prismBolt : 270,
+        ricPower: u.prismBolt ? 0.82 + 0.07 * u.prismBolt : 0.7,
+        blast: u.blast || 0,
         hits: null,
         late: true,
       });
@@ -581,8 +585,6 @@ fireVolley = function () {
     });
     sfx('mythic');
   }
-  if (u.refund && beforeAmmo > p.ammo && chance(0.1 * u.refund + p.critC * 0.2))
-    p.ammo = Math.min(p.magSize, p.ammo + 1);
 };
 const longStrike = strikeMelee;
 strikeMelee = function () {
@@ -642,8 +644,18 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
     e.cardMark = Math.min(8, (e.cardMark || 0) + 1);
     dmg *= 1 + e.cardMark * 0.025 * u.kindleMark;
   }
+  const before = e.hp;
   longDamage(e, dmg, ang, crit, kb, kind);
-  if (crit && !e.dead) {
+  if (crit && e.hp < before) {
+    if (kind === 'shot' && u.refund && chance(0.1 * u.refund + p.critC * 0.2)) {
+      p.ammo = Math.min(p.magSize, p.ammo + 1);
+      if (p.autoRekindle && p.reloadT > 0) {
+        p.reloadT = 0;
+        p.autoRekindle = false;
+        p._wasReloading = false;
+        p._masteryReload = false;
+      }
+    }
     G.run.cardCrit = (G.run.cardCrit || 0) + 1;
     if (u.critMend && G.run.cardCrit % (10 - 2 * u.critMend) === 0)
       cardHeal(3 * u.critMend, 'MERCIFUL SPARK');
@@ -684,16 +696,27 @@ hurtPlayer = function (dmg, sx, sy) {
   if (G.bossActive && u.bossWard) dmg *= 1 - 0.07 * u.bossWard;
   if (u.radiantDebt) dmg *= 1.15;
   if (p.cardWard > 0) {
-    const used = Math.min(p.cardWard, dmg);
+    const wardPower = 1 + 0.15 * (u.temperedGlow || 0);
+    const used = Math.min(p.cardWard, dmg / wardPower);
     p.cardWard -= used;
-    dmg -= used;
+    dmg -= used * wardPower;
     if (dmg < 1) {
       sfx('shield');
       return;
     }
     dmg = Math.max(1, Math.round(dmg));
   }
-  if (p.hp - dmg <= 0 && u.dawnward && G.run.dawnwardFloor !== G.floor) {
+  const hp = p.hp;
+  longHurt(dmg, sx, sy);
+  if (p.hp < hp && u.phoenixWake) {
+    G.run.cardFields = G.run.cardFields || [];
+    G.run.cardFields.push({ x: p.x, y: p.y, t: 3, tick: 0, kind: 'phoenix', rank: u.phoenixWake });
+  }
+};
+const longDie = die;
+die = function () {
+  const p = G.player;
+  if (p?.hp <= 0 && G.run?.up?.dawnward && G.run.dawnwardFloor !== G.floor) {
     G.run.dawnwardFloor = G.floor;
     p.hp = Math.max(1, Math.round(p.maxHp * 0.55));
     p.hitCd = 4;
@@ -705,14 +728,10 @@ hurtPlayer = function (dmg, sx, sy) {
     burst(p.x, p.y, 48, '#fff1b0', 340, 1, 4, true);
     toast('DAWNWARD', 'death refused · flame restored');
     sfx('mythic');
+    saveNow();
     return;
   }
-  const hp = p.hp;
-  longHurt(dmg, sx, sy);
-  if (p.hp < hp && u.phoenixWake) {
-    G.run.cardFields = G.run.cardFields || [];
-    G.run.cardFields.push({ x: p.x, y: p.y, t: 3, tick: 0, kind: 'phoenix', rank: u.phoenixWake });
-  }
+  return longDie();
 };
 const longKill = killEnemy;
 killEnemy = function (e) {

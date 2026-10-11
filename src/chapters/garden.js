@@ -763,7 +763,7 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
     if (canWakeEnemy(e)) e.aggro = true;
   }
   if (live && crit && !e.growth && G.run.up.afterbloom && !(G.player.bloomCd > 0)) {
-    G.player.hp = Math.min(G.player.maxHp, G.player.hp + 2);
+    cardHeal(2);
     G.player.bloomCd = 1;
   }
 };

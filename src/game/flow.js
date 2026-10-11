@@ -14,13 +14,13 @@ function recalc() {
   p.hp = Math.min(p.hp, p.maxHp);
   p.dmg = BASE.dmg * META.dmg * (1 + 0.18 * g('dmg')) * (1 + 0.4 * g('glass'));
   p.shotInt = Math.max(0.07, 1 / (BASE.rate * META.rate * (1 + 0.15 * g('rate'))));
-  p.speed = BASE.speed * META.speed * (1 + 0.1 * g('speed'));
+  p.speed = BASE.speed * META.speed * (1 + 0.07 * g('speed'));
   p.magnet = BASE.magnet * META.mag * (1 + 0.35 * g('magnet'));
   p.critC = BASE.crit + META.crit + 0.08 * g('crit');
   p.proj = 1 + g('proj');
   p.pierce = g('pierce');
   p.ric = g('ric');
-  p.regen = 0.6 * g('regen');
+  p.regen = 0.35 * g('regen');
   p.orbN = g('orbital');
   p.dashCd = BASE.dashCd * META.dash * Math.pow(0.85, g('dash'));
   p.xpMul = META.xp * (1 + 0.15 * g('xp'));
@@ -905,9 +905,7 @@ function updatePicks(dt) {
         sfx('ess');
         burst(o.x, o.y, 4, '#c99bff', 90, 0.3, 1.8, true);
       } else {
-        p.hp = Math.min(p.maxHp, p.hp + o.val);
-        addText(p.x, p.y - 20, '+' + o.val, '#ff8ba0', 13);
-        sfx('heart');
+        cardHeal(o.val);
         burst(o.x, o.y, 5, '#ff5d76', 100, 0.35, 2, true);
       }
       ps.splice(i, 1);
