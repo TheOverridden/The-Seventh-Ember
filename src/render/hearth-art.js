@@ -1385,7 +1385,8 @@ function drawHearthEmber(ctx, x, y, t) {
     );
   };
   for (const s of shards) if (!s.front) shard(s);
-  sprite('pIdle', 0, cy);
+  if (typeof drawHearthCore !== 'function' || !drawHearthCore(ctx, 0, cy, h.core, 'pIdle', t))
+    sprite('pIdle', 0, cy);
   for (const s of shards) if (s.front) shard(s);
   if (!save.motion)
     for (let i = 0; i < 4; i++) {

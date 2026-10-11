@@ -42,6 +42,23 @@ const HEARTH_VOWS = [
     short: 'NO WARDS',
   },
 ];
+const HEARTH_CORES = [
+  ['ember', 'Original Ember', 'The familiar Hearthgold flame, unchanged.'],
+  ['molten', 'Molten Heart', 'A bronze shell split by pulsing molten seams.'],
+  ['starlit', 'Starlit Core', 'A midnight vessel carrying a shifting constellation.'],
+  ['ghost', 'Ghost Light', 'A pale, flowing wisp with a hollow lantern heart.'],
+  ['prism', 'Prism Core', 'A faceted crystal with a turning spectrum inside.'],
+  ['hollowSun', 'Hollow Sun', 'A broken golden corona surrounding a dark heart.'],
+].map(([id, name, detail]) => ({ id, name, detail }));
+function hearthCoreUnlocked(id, rush = save.bossRush) {
+  return (
+    HEARTH_CORES.some((item) => item.id === id) &&
+    (id === 'ember' ||
+      ['standard', 'nightfall'].some(
+        (tier) => Number.isFinite(rush?.[tier]?.bestTime) && rush[tier].bestTime > 0
+      ))
+  );
+}
 const HEARTH_PALETTES = [
   ['ember', 'Hearthgold', '#ffc76c', '#fff1c6'],
   ['rime', 'Rimeglass', '#a7e7eb', '#ecffff'],
@@ -93,9 +110,9 @@ const HEARTH_MUSIC = [
 let hearthRevision = 0,
   hearthDirty = false,
   hearthSaveClock = 0;
-function cleanHearth(raw) {
+function cleanHearth(raw, rush = save.bossRush) {
   const h = {
-    version: 3,
+    version: 4,
     progress: {},
     completed: {},
     vowSeals: {},
@@ -103,6 +120,7 @@ function cleanHearth(raw) {
     selectedVows: [],
     trail: 'ember',
     shards: 'ember',
+    core: 'ember',
     music: HEARTH_MUSIC[0][0],
     layout: {
       floor: 'oak',
@@ -143,6 +161,7 @@ function cleanHearth(raw) {
     const p = HEARTH_PALETTES.find((p) => p.id === raw[key]);
     if (p) h[key] = p.id;
   }
+  if (hearthCoreUnlocked(raw.core, rush)) h.core = raw.core;
   if (HEARTH_MUSIC.some((m) => m[0] === raw.music)) h.music = raw.music;
   h.trials = cleanHearthTrials(raw.trials);
   const choices = [
@@ -181,7 +200,8 @@ function cleanHearth(raw) {
   return h;
 }
 function hearthData() {
-  if (save.hearth?.version !== 3) save.hearth = cleanHearth(save.hearth);
+  if (save.hearth?.version !== 4) save.hearth = cleanHearth(save.hearth);
+  if (!hearthCoreUnlocked(save.hearth.core)) save.hearth.core = 'ember';
   return save.hearth;
 }
 function hearthVowsUnlocked() {
@@ -225,7 +245,7 @@ function hearthRecordGuardian(key) {
 const hearthValidateSave = validateSave;
 validateSave = function (raw) {
   const out = hearthValidateSave(raw);
-  out.hearth = cleanHearth(raw?.hearth);
+  out.hearth = cleanHearth(raw?.hearth, out.bossRush);
   return out;
 };
 const hearthValidateCheckpoint = validateCheckpoint;

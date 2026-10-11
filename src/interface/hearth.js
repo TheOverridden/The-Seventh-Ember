@@ -117,10 +117,27 @@ function hearthCustomize() {
     }
     select.value = h[key];
   }
+  const coreSelect = T('hearthCore'),
+    coreUnlocked = hearthCoreUnlocked('molten'),
+    core = HEARTH_CORES.find((item) => item.id === h.core) || HEARTH_CORES[0];
+  coreSelect.replaceChildren();
+  for (const item of HEARTH_CORES) {
+    const option = document.createElement('option');
+    option.value = item.id;
+    option.disabled = !hearthCoreUnlocked(item.id);
+    option.textContent = item.name + (option.disabled ? ' · Clear Boss Rush' : '');
+    coreSelect.appendChild(option);
+  }
+  coreSelect.value = core.id;
+  coreSelect.disabled = !coreUnlocked;
+  T('hearthCoreStatus').textContent = coreUnlocked
+    ? core.detail + ' Boss Rush reward · Appearance only.'
+    : 'Clear Boss Rush to unlock five animated Ember cores. Existing victories count.';
   T('hearthMusic').value = h.music;
   T('hearthRewardInspect').hidden = !hearthView.reward;
   const equipped = HEARTH_PALETTES.find((p) => p.id === h.shards);
-  T('hearthEmberName').textContent = equipped.name;
+  T('hearthEmberName').textContent =
+    core.id === 'ember' ? equipped.name : core.name + ' · ' + equipped.name + ' shards';
   T('hearthRoomStatus').textContent =
     HEARTH_DECOR.filter((d) => hearthCosmeticUnlocked('decor', d.id)).length +
     ' / ' +
@@ -134,21 +151,46 @@ function hearthTrialIcon(trial, size = 64) {
   canvas.setAttribute('aria-hidden', 'true');
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
-  if (trial.id === 'guardian' && SPR.gateWarden?.frames[0]) {
-    const scale = Math.max(1, Math.floor(size / 27)),
-      width = 23 * scale,
-      height = 21 * scale;
-    ctx.drawImage(
-      SPR.gateWarden.frames[0],
-      8,
-      0,
-      23,
-      21,
-      Math.floor((size - width) / 2),
-      Math.floor((size - height) / 2),
-      width,
-      height
-    );
+  if (trial.id === 'guardian') {
+    ctx.save();
+    ctx.scale(size / 64, size / 64);
+    const pixel = (x, y, w, h, color) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, w, h);
+    };
+    for (const [x, y, w, h] of [
+      [4, 22, 12, 15],
+      [48, 22, 12, 15],
+      [24, 4, 16, 10],
+    ]) {
+      pixel(x, y, w, h, '#4a332b');
+      pixel(x + 2, y + 2, w - 4, h - 4, '#c89e5d');
+      pixel(x + 3, y + 3, w - 6, 3, '#efd298');
+    }
+    pixel(15, 27, 6, 5, '#997649');
+    pixel(43, 27, 6, 5, '#997649');
+    pixel(29, 13, 6, 6, '#997649');
+    pixel(20, 17, 24, 31, '#493932');
+    pixel(17, 23, 30, 19, '#93724d');
+    pixel(23, 21, 18, 23, '#251c20');
+    pixel(27, 23, 10, 19, '#e37542');
+    pixel(30, 20, 4, 23, '#ffe1a0');
+    pixel(24, 30, 16, 4, '#ffb65c');
+    pixel(18, 43, 28, 6, '#b08756');
+    pixel(22, 49, 5, 8, '#665246');
+    pixel(37, 49, 5, 8, '#665246');
+    pixel(29, 49, 6, 12, '#997649');
+    pixel(17, 57, 13, 3, '#c3a375');
+    pixel(35, 57, 13, 3, '#c3a375');
+    ctx.restore();
+  } else if (trial.id === 'twinFlames') {
+    for (const x of [size * 0.29, size * 0.71]) {
+      ctx.save();
+      ctx.translate(x, size * 0.8);
+      ctx.scale(size / 105, size / 105);
+      hearthFlame(ctx, 0, 0, 0, 0.85);
+      ctx.restore();
+    }
   } else if (trial.family === 'flare' || trial.family === 'flame' || trial.family === 'fire') {
     ctx.save();
     ctx.translate(size / 2, size * 0.8);
@@ -206,7 +248,15 @@ function hearthRewardIcon(reward, compact = false) {
       ctx.fillStyle = c;
       ctx.fillRect(x, y, w, h);
     };
-  if (palette) {
+  if (reward.kind === 'essence') {
+    px(17, 3, 6, 4, '#ead5ff');
+    px(12, 7, 16, 7, '#c0a0f0');
+    px(7, 14, 26, 12, '#9773cc');
+    px(12, 26, 16, 7, '#78539f');
+    px(17, 33, 6, 4, '#b992e1');
+    px(15, 12, 5, 13, '#ead5ff');
+    px(20, 16, 5, 5, '#d5b7ff');
+  } else if (palette) {
     if (reward.kind === 'trail') {
       for (let i = 0; i < 4; i++)
         px(5 + i * 7, 24 - i * 4, 4 + i, 4 + i, i === 3 ? palette.light : palette.color);
@@ -294,17 +344,20 @@ function hearthRenderTrials() {
   if (!HEARTH_TRIALS.some((t) => t.id === hearthView.trial)) hearthView.trial = HEARTH_TRIALS[0].id;
   list.replaceChildren();
   let cleared = 0;
-  for (const trial of HEARTH_TRIALS) {
+  for (const [index, trial] of HEARTH_TRIALS.entries()) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'hearth-trial-card' + (trial.id === hearthView.trial ? ' selected' : '');
     button.dataset.trial = trial.id;
     button.setAttribute('aria-pressed', String(trial.id === hearthView.trial));
     const body = document.createElement('span'),
+      order = document.createElement('small'),
       name = document.createElement('strong'),
       rule = document.createElement('span'),
       marks = document.createElement('span');
     body.className = 'hearth-trial-card-copy';
+    order.className = 'hearth-trial-order';
+    order.textContent = 'TRIAL ' + String(index + 1).padStart(2, '0');
     name.textContent = trial.name;
     rule.className = 'hearth-trial-rule';
     rule.textContent = trial.rule;
@@ -318,7 +371,7 @@ function hearthRenderTrials() {
       if (record?.clears) cleared++;
       marks.appendChild(mark);
     }
-    body.append(name, rule, marks);
+    body.append(order, name, rule, marks);
     button.append(hearthTrialIcon(trial), body);
     on(button, 'click', (event) => {
       hearthSelectTrial(trial.id, 0);
@@ -340,7 +393,9 @@ function hearthRenderTrialDetail() {
     level = trial.tiers[tier],
     record = hearthTrialRecord(trial.id, tier),
     unlocked = hearthTrialUnlocked(trial.id, tier),
-    panel = T('hearthTrialDetail');
+    panel = T('hearthTrialDetail'),
+    difficulty =
+      typeof hearthTrialSettings === 'function' ? hearthTrialSettings(trial.id, tier) : null;
   hearthView.tier = tier;
   panel.replaceChildren();
   panel.dataset.tier = tier;
@@ -349,7 +404,10 @@ function hearthRenderTrialDetail() {
   const title = document.createElement('div'),
     eyebrow = document.createElement('small'),
     name = document.createElement('h3');
-  eyebrow.textContent = 'HEARTH TRIAL';
+  eyebrow.textContent =
+    'TRIAL ' +
+    String(HEARTH_TRIALS.indexOf(trial) + 1).padStart(2, '0') +
+    (trial.id === 'guardian' ? ' · THE CRUCIBLE' : ' · HEARTH ARENA');
   name.textContent = trial.name;
   title.append(eyebrow, name);
   heading.append(hearthTrialIcon(trial, 88), title);
@@ -382,11 +440,21 @@ function hearthRenderTrialDetail() {
   detail.className = 'hearth-trial-description';
   detail.textContent = level.detail || trial.description || '';
   detail.hidden = !detail.textContent;
+  const demand = document.createElement('p');
+  demand.className = 'hearth-trial-demand';
+  demand.textContent =
+    trial.id === 'guardian'
+      ? [4000, 6500, 9500][tier].toLocaleString() + ' GUARDIAN HEALTH'
+      : difficulty
+        ? difficulty.waves + ' WAVES · UP TO ' + difficulty.cap + ' ENEMIES AT ONCE'
+        : '';
+  demand.hidden = !demand.textContent;
   const loadout = document.createElement('div');
   loadout.className = 'hearth-trial-loadout';
   const loadoutName = document.createElement('strong'),
     loadoutDetail = document.createElement('p');
-  loadoutName.textContent = 'FIXED LOADOUT';
+  loadoutName.textContent =
+    'FIXED LOADOUT' + (difficulty ? ' · ' + difficulty.playerHp + ' HEALTH' : '');
   loadoutDetail.textContent =
     level.loadout ||
     trial.loadout ||
@@ -404,14 +472,19 @@ function hearthRenderTrialDetail() {
       label = document.createElement('strong'),
       kind = document.createElement('small');
     item.className =
-      'hearth-trial-reward' + (hearthCosmeticUnlocked(r.kind, r.id) ? ' earned' : '');
+      'hearth-trial-reward' +
+      ((r.kind === 'essence' ? !!record?.clears : hearthCosmeticUnlocked(r.kind, r.id))
+        ? ' earned'
+        : '');
     label.textContent = r.label;
     kind.textContent =
-      r.kind === 'decor'
-        ? 'HEARTH FURNISHING'
-        : r.kind === 'shards'
-          ? 'REVOLVING SHARDS'
-          : 'EMBER TRAIL';
+      r.kind === 'essence'
+        ? 'ONCE PER DIFFICULTY · MEDAL RECORDED'
+        : r.kind === 'decor'
+          ? 'HEARTH FURNISHING'
+          : r.kind === 'shards'
+            ? 'REVOLVING SHARDS'
+            : 'EMBER TRAIL';
     copy.append(label, kind);
     item.append(hearthRewardIcon(r), copy);
     reward.appendChild(item);
@@ -448,7 +521,7 @@ function hearthRenderTrialDetail() {
   on(start, 'click', () => startHearthTrial(trial.id, tier));
   const body = document.createElement('div');
   body.className = 'hearth-trial-detail-body';
-  body.append(rule, detail, loadout, reward, records, note);
+  body.append(rule, demand, detail, loadout, reward, records, note);
   panel.append(heading, tiers, body, start);
 }
 function hearthRenderVows() {
@@ -566,9 +639,9 @@ function installHearth() {
     <div class="hearth-content">
       <section id="hearthRoomPanel"><div class="hearth-room-grid">
         <div class="hearth-scene"><div class="hearth-scene-heading"><span>YOUR ROOM</span><small id="hearthRoomStatus"></small></div><div class="hearth-scene-frame"><canvas id="hearthCanvas" width="640" height="360" role="img" aria-label="Your Hearth: a stone fireplace, timber beams, windows, Guardian trophies, and your revolving Ember."></canvas></div><div class="hearth-scene-caption"><div><small>YOUR EMBER</small><strong id="hearthEmberName"></strong></div><button id="hearthBegin" type="button">BEGIN DESCENT ›</button></div><button id="hearthVisitTrials" class="hearth-room-trial-link" type="button"><span class="hearth-link-mark" aria-hidden="true">◆</span><span><strong>Visit the Trial Board</strong><small>Clear special arenas to earn furnishings and Ember finishes.</small></span><span aria-hidden="true">›</span></button></div>
-        <aside class="hearth-workbench"><div class="hearth-workbench-heading"><small>FURNISHINGS & FINISHES</small><h3>Make it yours</h3></div><div id="hearthSlots"><button data-slot="floor" type="button">FLOOR</button><button data-slot="banner" type="button">BANNERS</button><button data-slot="lights" type="button">LIGHTS</button><button data-slot="shelf" type="button">SHELVES</button><button data-slot="rug" type="button">RUG</button><button data-slot="window" type="button">WINDOW</button></div><div id="hearthChoices"></div><div id="hearthRewardInspect" hidden><p id="hearthRewardInfo" aria-live="polite"></p><button id="hearthRewardView" type="button">VIEW TRIAL ›</button></div><div class="hearth-finishes"><label>Ember trail<select id="hearthTrail"></select></label><label>Revolving shards<select id="hearthShards"></select></label><label>Hearth music<select id="hearthMusic"></select></label></div></aside>
+        <aside class="hearth-workbench"><div class="hearth-workbench-heading"><small>FURNISHINGS & FINISHES</small><h3>Make it yours</h3></div><div id="hearthSlots"><button data-slot="floor" type="button">FLOOR</button><button data-slot="banner" type="button">BANNERS</button><button data-slot="lights" type="button">LIGHTS</button><button data-slot="shelf" type="button">SHELVES</button><button data-slot="rug" type="button">RUG</button><button data-slot="window" type="button">WINDOW</button></div><div id="hearthChoices"></div><div id="hearthRewardInspect" hidden><p id="hearthRewardInfo" aria-live="polite"></p><button id="hearthRewardView" type="button">VIEW TRIAL ›</button></div><div class="hearth-finishes"><label>Ember core<select id="hearthCore" aria-describedby="hearthCoreStatus"></select></label><p id="hearthCoreStatus" class="hearth-trial-safety" aria-live="polite"></p><label>Ember trail<select id="hearthTrail"></select></label><label>Revolving shards<select id="hearthShards"></select></label><label>Hearth music<select id="hearthMusic"></select></label></div></aside>
       </div></section>
-      <section id="hearthTrialsPanel" hidden><div class="hearth-trials-heading"><div><small>SIX ARENAS · THREE DIFFICULTIES</small><h3>The Trial Board</h3><p>Choose a restriction. Clear the room. Bring something home.</p></div><strong id="hearthTrialCount"></strong></div><div class="hearth-trials-grid"><div id="hearthTrialList"></div><article id="hearthTrialDetail"></article></div></section>
+      <section id="hearthTrialsPanel" hidden><div class="hearth-trials-heading"><div><small>SIXTEEN ARENAS · THREE DIFFICULTIES</small><h3>The Trial Board</h3><p>Every tier raises the stakes. Later arenas push further. Earn rewards on your first clear.</p></div><strong id="hearthTrialCount"></strong></div><div class="hearth-trials-grid"><div id="hearthTrialList" aria-label="Sixteen Hearth trials, ordered by challenge"></div><article id="hearthTrialDetail"></article></div></section>
       <section id="hearthVowsPanel" hidden><p id="hearthVowIntro"></p><div class="hearth-vow-actions"><strong id="hearthVowSummary"></strong><button class="btn" id="hearthAllVows" type="button">BIND ALL SIX</button><button class="btn" id="hearthClearVows" type="button">CLEAR</button></div><div id="hearthVowList"></div><p id="hearthCrowns"></p><p class="hearth-vow-note">Seals and crowns are permanent trophies. Bindings do not increase Essence rewards or apply to Archive practice and Boss Rush.</p></section>
     </div>
   </section>`;
@@ -623,6 +696,14 @@ function installHearth() {
       hearthRevision++;
       saveNow('hearth-style');
     });
+  on(T('hearthCore'), 'change', () => {
+    const id = T('hearthCore').value;
+    if (!hearthCoreUnlocked(id)) return hearthCustomize();
+    hearthData().core = id;
+    hearthRevision++;
+    hearthRefresh();
+    saveNow('hearth-core');
+  });
   on(T('hearthAllVows'), 'click', () => {
     if (hearthVowsUnlocked()) {
       hearthData().selectedVows = HEARTH_VOWS.map((v) => v.id);

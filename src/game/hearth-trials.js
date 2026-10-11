@@ -8,6 +8,7 @@ const HEARTH_TRIAL_COLORS = {
   defense: ['#f8d38b', '#7c6241', '#262319'],
   constellation: ['#c4bcf1', '#605575', '#242030'],
   guardian: ['#e9d598', '#726647', '#27251e'],
+  ...Object.fromEntries(Object.entries(HEARTH_TRIAL_RULES).map(([id, rule]) => [id, rule.colors])),
 };
 function isHearthTrial() {
   return !!(hearthTrial && G.run?.mode === 'trial');
@@ -60,7 +61,7 @@ function createHearthTrialRoom(id) {
       if ((x < 4 || x > 23) && (y < 4 || y > 16)) continue;
       grid[y * W + x] = 1;
     }
-  if (id === 'flare' || id === 'oneHeart')
+  if (['flare', 'oneHeart', 'pursuit', 'pressure', 'glasshouse'].includes(id))
     for (const [x, y] of [
       [8, 8],
       [19, 12],
@@ -80,9 +81,11 @@ function createHearthTrialRoom(id) {
     pi: 0,
     region: 'hearthTrial',
     lateKey:
+      HEARTH_TRIAL_RULES[id]?.region ||
       { stitch: 'observatory', flare: 'foundry', oneHeart: 'reservoir', constellation: 'choir' }[
         id
-      ] || '',
+      ] ||
+      '',
     props: [],
     torches: [],
     fixtures: [],
@@ -93,12 +96,13 @@ function createHearthTrialRoom(id) {
   };
 }
 function hearthTrialPlayer(id) {
+  const settings = hearthTrialSettings(id, hearthTrial.tier);
   return {
     x: TILE * 14.5,
     y: TILE * 14.5,
     r: 12,
-    hp: id === 'oneHeart' ? 30 : 140,
-    maxHp: id === 'oneHeart' ? 30 : 140,
+    hp: settings.playerHp,
+    maxHp: settings.playerHp,
     shotT: 0,
     hitCd: 1.5,
     dashT: 0,
@@ -115,7 +119,7 @@ function hearthTrialPlayer(id) {
     dashDx: 1,
     dashDy: 0,
     dmg: id === 'stitch' || id === 'constellation' ? 44 : 23,
-    shotInt: 0.3,
+    shotInt: id === 'crossfire' ? 0.24 : 0.3,
     proj: 1,
     pierce: 0,
     ric: 0,
@@ -127,8 +131,8 @@ function hearthTrialPlayer(id) {
     speed: 224,
     magnet: 0,
     critC: 0,
-    magSize: 8,
-    ammo: 8,
+    magSize: id === 'crossfire' ? 6 : 8,
+    ammo: id === 'crossfire' ? 6 : 8,
     reloadDuration: 1.2,
     reloadT: 0,
     meleeCdT: 0,
@@ -169,6 +173,7 @@ function startHearthTrial(id, tier = 0) {
       guardianSession: save.guardianSession,
       feel: { ...COMBAT_FEEL },
       polish: { ...COMBAT_POLISH },
+      finale: { ...COMBAT_FINALE },
       overlays: [...document.querySelectorAll('.ov.open')].map((el) => el.id),
       labels: {
         saveExit: T('btnSaveExit').textContent,
@@ -177,6 +182,8 @@ function startHearthTrial(id, tier = 0) {
         bossOn: T('bossbar').classList.contains('on'),
         chapterOn: T('chapterBanner').classList.contains('visible'),
         fieldOn: T('fieldNote').classList.contains('visible'),
+        phaseOn: phaseCallout.classList.contains('visible'),
+        phaseContent: phaseCallout.innerHTML,
         meleeText: [...T('btnMelee').childNodes]
           .filter((node) => node.nodeType === 3)
           .map((node) => [node, node.textContent]),
@@ -194,7 +201,8 @@ function startHearthTrial(id, tier = 0) {
     elapsed: 0,
     hits: 0,
     wave: 0,
-    waves: id === 'guardian' ? 1 : 3 + tier,
+    settings: hearthTrialSettings(id, tier),
+    waves: hearthTrialSettings(id, tier).waves,
     kills: 0,
     spawned: 0,
     clock: 2.5,
@@ -295,6 +303,17 @@ function startHearthTrial(id, tier = 0) {
     appliedY: 0,
     serial: 0,
   });
+  Object.assign(COMBAT_FINALE, {
+    finishers: [],
+    waves: [],
+    phaseByUid: new Map(),
+    clearedRooms: new Set(),
+    intensity: 0,
+    target: 0,
+    calloutT: 0,
+    serial: 0,
+  });
+  phaseCallout.classList.remove('visible');
   Object.assign(MELEE, {
     damage: 2.6,
     reach: 105,
@@ -334,6 +353,7 @@ function startHearthTrial(id, tier = 0) {
       { x: TILE * 21.5, y: TILE * 7.5, recovered: false },
       { x: TILE * 14.5, y: TILE * 16.5, recovered: false },
     ];
+  initHearthTrialEvents();
   syncHearthTrialHUD();
   return true;
 }
@@ -354,6 +374,9 @@ function leaveHearthTrial(openBoard = false) {
   Object.assign(MELEE, old.melee);
   Object.assign(COMBAT_FEEL, old.feel);
   Object.assign(COMBAT_POLISH, old.polish);
+  Object.assign(COMBAT_FINALE, old.finale);
+  phaseCallout.innerHTML = old.labels.phaseContent;
+  phaseCallout.classList.toggle('visible', old.labels.phaseOn);
   dialogue = old.dialogue;
   storyQueue = old.storyQueue;
   armoryNotices = old.notices;
@@ -436,9 +459,18 @@ function hearthTrialRoster(wave) {
       ['guard', 'ranged', 'support', 'orbit', 'guard', 'rush', 'ranged', 'orbit'],
     ];
   let roles = all[Math.min(wave, all.length - 1)].slice();
-  if (tier === 0) roles = roles.slice(0, 4 + Math.min(2, wave));
-  if (tier === 2) roles.push(wave % 2 ? 'guard' : 'ranged');
-  return roles.map((role) => ({ type: HEARTH_TRIAL_ENEMIES[hearthTrial.id][role], role }));
+  if (tier === 0) roles = roles.slice(0, 5 + Math.min(2, wave));
+  if (tier > 0) roles.push('rush', wave % 2 ? 'guard' : 'ranged');
+  if (tier === 2) roles.push('orbit', 'support');
+  const added = HEARTH_TRIAL_RULES[hearthTrial.id],
+    roleOrder = ['rush', 'orbit', 'ranged', 'guard', 'support'];
+  if (added) roles.push(wave % 2 ? 'ranged' : 'guard');
+  return roles.map((role) => ({
+    type: added
+      ? added.roster[roleOrder.indexOf(role)]
+      : HEARTH_TRIAL_ENEMIES[hearthTrial.id][role],
+    role,
+  }));
 }
 function hearthTrialGate(index) {
   const points = [
@@ -453,18 +485,20 @@ function spawnHearthTrialEnemy(type, point, serial) {
   const t = ETYPES[type],
     role = point.role || LATE_ENEMIES[type]?.role || 'guard',
     tier = hearthTrial.tier,
+    settings = hearthTrial.settings,
     wave = hearthTrial.wave,
     hp = Math.round(
-      (role === 'guard' ? 90 : role === 'support' ? 48 : role === 'ranged' ? 40 : 36) *
-        (1 + tier * 0.26 + Math.max(0, wave - 1) * 0.1)
+      (role === 'guard' ? 145 : role === 'support' ? 95 : role === 'ranged' ? 76 : 70) *
+        settings.hpMul *
+        (1 + Math.max(0, wave - 1) * 0.1)
     ),
     pos = safePosition(G.world, point.x, point.y, t.r) || point,
     e = spawnEnemy(type, pos.x, pos.y, false);
   Object.assign(e, {
     hp,
     max: hp,
-    spd: Math.max(65, Math.min(130, t.spd)) * (1 + tier * 0.07),
-    dmg: 8 + tier * 3,
+    spd: Math.max(75, Math.min(165, t.spd)) * settings.speedMul,
+    dmg: settings.damage,
     xp: 0,
     kbx: 0,
     kby: 0,
@@ -478,42 +512,19 @@ function spawnHearthTrialEnemy(type, point, serial) {
     trialEnemy: true,
     trialRole: role,
     trialFlame:
-      hearthTrial.id === 'defense' &&
+      hearthTrialProtectsFlames() &&
       (['guard', 'rush'].includes(role) || (role === 'ranged' && serial % 2 === 0)),
+    flameIndex: 0,
   });
+  if (e.trialFlame && hearthTrial.id === 'twinFlames')
+    e.flameIndex = hearthTrial.flameSpawned++ % 2;
+  if (e.ai === 'late') e.specialCd = (1.3 + (serial % 4) * 0.3) / (1 + tier * 0.18);
   CREATURE_MOTION.set(e, { x: e.x, y: e.y, travel: 0, phase: 0, moving: false });
   return e;
 }
-function spawnHearthTrialGuardian() {
-  const tier = hearthTrial.tier,
-    e = spawnHearthTrialEnemy('gateShield', { ...hearthTrialGate(0), role: 'guard' }, 1);
-  Object.assign(e, {
-    type: 'trialGuardian',
-    spr: 'gateWarden',
-    ai: 'trialGuardian',
-    r: 31,
-    hp: 2100 + tier * 800,
-    max: 2100 + tier * 800,
-    spd: 74,
-    dmg: 11 + tier * 4,
-    kb: 0.08,
-    col: '#e7cb8c',
-    isBoss: true,
-    name: 'WARDEN’S REFLECTION',
-    trialMode: 'walk',
-    trialClock: 2,
-    trialCycle: 0,
-    phase: 0,
-    tier: 1,
-  });
-  G.boss = e;
-  G.bossActive = true;
-  T('bossname').textContent = e.name;
-  T('bossbar').classList.add('on');
-}
 function tickHearthTrialWaves(dt) {
   const q = hearthTrial,
-    cap = [3, 5, 7][q.tier];
+    cap = q.settings.cap;
   q.clock -= dt;
   for (let i = q.gates.length - 1; i >= 0; i--) {
     const gate = q.gates[i];
@@ -527,90 +538,39 @@ function tickHearthTrialWaves(dt) {
   }
   const alive = G.enemies.filter((e) => !e.dead).length;
   if (!q.queue.length && !alive && !q.gates.length) {
-    if (q.wave >= q.waves) {
-      if (q.id === 'constellation' && q.recovered < 3) return;
-      q.sealT += dt;
-      if (q.sealT > 0.75) finishHearthTrial(true);
-      return;
+    if (q.id === 'relay' && q.wave > 0 && q.recovered < Math.min(4, q.wave)) {
+      if (q.clock <= 0) {
+        q.queue = [
+          { type: 'pageWraith', role: 'orbit' },
+          { type: 'quillSentinel', role: 'ranged' },
+        ];
+        q.clock = 0.2;
+      }
+    } else {
+      if (q.wave >= q.waves) {
+        if (!hearthTrialObjectivesMet()) return;
+        q.sealT += dt;
+        if (q.sealT > 0.75) finishHearthTrial(true);
+        return;
+      }
+      if (q.clock > 0) return;
+      q.queue = q.id === 'guardian' ? [{ type: 'guardian' }] : hearthTrialRoster(q.wave);
+      q.wave++;
+      q.clock = 0.2;
     }
-    if (q.clock > 0) return;
-    q.queue = q.id === 'guardian' ? [{ type: 'guardian' }] : hearthTrialRoster(q.wave);
-    q.wave++;
-    q.clock = 0.2;
   }
   if (q.queue.length && alive + q.gates.length < cap && q.clock <= 0) {
     let gateIndex = (q.spawned + q.gates.length + q.wave) % 4,
       point = hearthTrialGate(gateIndex);
     if (d2(point.x, point.y, G.player.x, G.player.y) < 125 ** 2)
       point = hearthTrialGate(gateIndex + 2);
-    q.gates.push({ ...point, ...q.queue.shift(), t: 1.1, max: 1.1 });
-    q.clock = q.tier === 2 ? 0.75 : 1.05;
-  }
-}
-function tickHearthTrialGuardian(e, dt) {
-  const p = G.player,
-    q = hearthTrial,
-    enraged = e.hp < e.max * 0.5,
-    speed = enraged ? 1.2 : 1;
-  e.trialClock -= dt * speed;
-  if (e.trialMode === 'wind') {
-    if (e.trialClock <= 0) {
-      e.trialMode = 'dash';
-      e.trialClock = 0.5;
-      sfx('dash');
-    }
-  } else if (e.trialMode === 'dash') {
-    moveEnt(G.world, e, Math.cos(e.trialAngle) * 510 * dt, Math.sin(e.trialAngle) * 510 * dt);
-    if (e.trialClock <= 0) {
-      e.trialMode = 'rest';
-      e.trialClock = 0.95;
-    }
-  } else if (e.trialMode === 'beam') {
-    const old = e.trialAngle;
-    e.trialAngle += dt * (enraged ? 1.3 : 1) * (q.tier === 2 ? 1.25 : 0.8);
-    const a = Math.atan2(p.y - e.y, p.x - e.x),
-      d = Math.hypot(p.x - e.x, p.y - e.y);
-    if (d > 38 && Math.abs(angleDiff(a, (old + e.trialAngle) / 2)) * d < p.r + 8)
-      hurtPlayer(e.dmg, e.x, e.y);
-    if (e.trialClock <= 0) {
-      e.trialMode = 'rest';
-      e.trialClock = 1.1;
-    }
-  } else if (e.trialMode === 'beamWind') {
-    if (e.trialClock <= 0) {
-      e.trialMode = 'beam';
-      e.trialClock = 4.1;
-      sfx('charge');
-    }
-  } else {
-    if (e.trialMode === 'walk') {
-      const a = Math.atan2(p.y - e.y, p.x - e.x);
-      moveEnt(G.world, e, Math.cos(a) * e.spd * dt, Math.sin(a) * e.spd * dt);
-    }
-    if (e.trialClock <= 0) {
-      const cycle = e.trialCycle++ % (q.tier ? 4 : 3);
-      if (cycle === 0) {
-        e.trialMode = 'wind';
-        e.trialClock = 0.65;
-        e.trialAngle = Math.atan2(p.y - e.y, p.x - e.x);
-      } else if (cycle === 3) {
-        e.trialMode = 'beamWind';
-        e.trialAngle = Math.atan2(p.y - e.y, p.x - e.x) - 0.7;
-        e.trialClock = 0.9;
-      } else {
-        const count = cycle === 1 ? 8 + q.tier * 2 : 3 + q.tier * 2,
-          a = Math.atan2(p.y - e.y, p.x - e.x);
-        for (let i = 0; i < count; i++) {
-          const angle =
-            cycle === 1
-              ? (i / count) * TAU + e.trialCycle * 0.25
-              : a + (i - (count - 1) / 2) * 0.16;
-          enemyShoot(e, angle, 155 + q.tier * 22, e.dmg * 0.7);
-        }
-        e.trialMode = 'walk';
-        e.trialClock = enraged ? 1.3 : 1.8;
-      }
-    }
+    q.gates.push({
+      ...point,
+      ...q.queue.shift(),
+      t: q.settings.telegraph,
+      max: q.settings.telegraph,
+    });
+    q.clock = q.settings.spawnGap;
   }
 }
 function tickHearthTrialEnemies(dt) {
@@ -621,7 +581,7 @@ function tickHearthTrialEnemies(dt) {
     e.hitT = Math.max(0, e.hitT - dt);
     e.atkT -= dt;
     e.t1 -= dt;
-    const target = e.trialFlame ? q.flame : p,
+    const target = hearthTrialTarget(e),
       dx = target.x - e.x,
       dy = target.y - e.y,
       distance = Math.hypot(dx, dy) || 1;
@@ -630,7 +590,10 @@ function tickHearthTrialEnemies(dt) {
       if (e.frozenUntil > G.t) e.kbx = e.kby = 0;
       else {
         if (e.ai === 'garden') gardenEnemyAI(e, dt, distance, dx, dy, target);
-        else if (e.ai === 'late') lateEnemyAI(e, dt, distance, dx, dy);
+        else if (e.ai === 'late') {
+          e.specialCd = Math.max(0, e.specialCd - dt * q.tier * 0.18);
+          lateEnemyAI(e, dt, distance, dx, dy);
+        }
         moveEnt(G.world, e, e.kbx * dt, e.kby * dt);
       }
     }
@@ -641,13 +604,13 @@ function tickHearthTrialEnemies(dt) {
       hurtPlayer(e.dmg, e.x, e.y);
     }
     if (
-      q.id === 'defense' &&
+      hearthTrialProtectsFlames() &&
       e.trialFlame &&
       e.atkT <= 0 &&
-      d2(e.x, e.y, q.flame.x, q.flame.y) < (e.r + 28) ** 2
+      d2(e.x, e.y, target.x, target.y) < (e.r + 28) ** 2
     ) {
       e.atkT = 1;
-      hurtHearthTrialFlame(4 + q.tier * 2);
+      hurtHearthTrialFlame(6 + q.tier * 3, target);
     }
     const motion = CREATURE_MOTION.get(e),
       profile = creatureProfile(e),
@@ -679,13 +642,19 @@ function tickHearthTrialEnemies(dt) {
   }
   G.enemies = G.enemies.filter((e) => !e.dead);
 }
-function hurtHearthTrialFlame(amount) {
+function hurtHearthTrialFlame(amount, flame = hearthTrial?.flame) {
   if (!isHearthTrial() || hearthTrial.result) return;
-  const f = hearthTrial.flame;
+  const f = flame;
   f.hp = Math.max(0, f.hp - amount);
   f.hitT = 0.2;
   burst(f.x, f.y, 6, '#ff9e76', 85, 0.3, 2, true);
-  if (f.hp <= 0) finishHearthTrial(false, 'The Hearth flame went out.');
+  if (f.hp <= 0)
+    finishHearthTrial(
+      false,
+      hearthTrial.id === 'twinFlames'
+        ? 'One of the two flames went out.'
+        : 'The Hearth flame went out.'
+    );
 }
 function updateHearthTrial(dt) {
   const p = G.player,
@@ -724,7 +693,7 @@ function updateHearthTrial(dt) {
     my /= magnitude;
   }
   p.moving = magnitude > 0.01;
-  if (dashQueued && p.dashCdT <= 0 && p.dashT <= 0) {
+  if (dashQueued && q.id !== 'pursuit' && p.dashCdT <= 0 && p.dashT <= 0) {
     const a = magnitude ? Math.atan2(my, mx) : aimAngle();
     p.dashT = 0.18;
     p.dashDx = Math.cos(a);
@@ -764,7 +733,7 @@ function updateHearthTrial(dt) {
     if (!p.meleeWindT) strikeMelee();
   }
   interactQueued = false;
-  for (const rune of q.runes)
+  for (const rune of q.id === 'constellation' ? q.runes : [])
     if (!rune.recovered && d2(p.x, p.y, rune.x, rune.y) < 34 ** 2) {
       rune.recovered = true;
       q.recovered++;
@@ -773,9 +742,13 @@ function updateHearthTrial(dt) {
       sfx('stitchPin');
     }
   if (q.id === 'stitch' || q.id === 'constellation') tickHearthTrialStitch(dt);
+  tickHearthTrialEvents(dt);
+  if (q.result) return;
   tickHearthTrialWaves(dt);
   if (q.result) return;
   tickHearthTrialEnemies(dt);
+  if (q.result) return;
+  tickHearthGuardianHazards(dt);
   if (q.result) return;
   tickLateHazards(dt);
   if (q.result) return;
@@ -784,7 +757,8 @@ function updateHearthTrial(dt) {
   tickHearthTrialSweeps(dt);
   if (q.result) return;
   updateFx(dt);
-  q.flame.hitT = Math.max(0, q.flame.hitT - dt);
+  combatFinaleTick(dt);
+  for (const flame of q.flames) flame.hitT = Math.max(0, flame.hitT - dt);
   const targetX = p.x - G.w / 2,
     targetY = p.y - G.h * 0.46;
   G.cam.x = lerp(G.cam.x, targetX, 1 - Math.exp(-dt * 7));
@@ -797,7 +771,7 @@ function tickHearthTrialSweeps(dt) {
   if (!q.tier || !['oneHeart', 'constellation'].includes(q.id)) return;
   q.sweepClock -= dt;
   if (q.sweepClock <= 0) {
-    q.sweepClock = q.tier === 2 ? 7.5 : 11;
+    q.sweepClock = q.tier === 2 ? 5.5 : 8.5;
     q.sweeps.push({ vertical: q.sweepSerial++ % 2 === 0, t: 0, life: 6.2, warning: 1.2 });
   }
   for (const sweep of q.sweeps) {
@@ -834,11 +808,10 @@ function updateHearthTrialShots(dt) {
   for (let i = G.bullets.length - 1; i >= 0; i--) {
     const b = G.bullets[i];
     b.life -= dt;
+    if (hearthTrial.id === 'glasshouse' && b.trialBounces === undefined) b.trialBounces = 1;
     const steps = Math.max(1, Math.ceil((Math.hypot(b.vx, b.vy) * dt) / 14));
     for (let step = 0; step < steps && b.life > 0; step++) {
-      b.x += (b.vx * dt) / steps;
-      b.y += (b.vy * dt) / steps;
-      if (solidPx(G.world, b.x, b.y)) b.life = 0;
+      moveHearthTrialShot(b, dt / steps);
       for (const e of G.enemies) {
         if (e.dead || b.life <= 0) continue;
         if (d2(e.x, e.y, b.x, b.y) < (e.r + b.r) ** 2) {
@@ -852,22 +825,27 @@ function updateHearthTrialShots(dt) {
   for (let i = G.ebul.length - 1; i >= 0; i--) {
     const b = G.ebul[i];
     b.life -= dt;
-    b.x += b.vx * dt;
-    b.y += b.vy * dt;
-    if (solidPx(G.world, b.x, b.y)) b.life = 0;
-    if (b.life > 0 && d2(b.x, b.y, G.player.x, G.player.y) < (b.r + G.player.r) ** 2) {
-      if (G.player.dashT <= 0) {
+    const steps = Math.max(1, Math.ceil((Math.hypot(b.vx, b.vy) * dt) / 12));
+    if (hearthTrial.id === 'glasshouse' && b.trialBounces === undefined)
+      b.trialBounces = hearthTrial.tier + 1;
+    for (let step = 0; step < steps && b.life > 0; step++) {
+      moveHearthTrialShot(b, dt / steps);
+      if (
+        b.life > 0 &&
+        d2(b.x, b.y, G.player.x, G.player.y) < (b.r + G.player.r) ** 2 &&
+        G.player.dashT <= 0
+      ) {
         hurtPlayer(b.dmg, b.x, b.y);
         b.life = 0;
       }
-    }
-    if (
-      b.life > 0 &&
-      hearthTrial.id === 'defense' &&
-      d2(b.x, b.y, hearthTrial.flame.x, hearthTrial.flame.y) < 28 ** 2
-    ) {
-      hurtHearthTrialFlame(4 + hearthTrial.tier * 2);
-      b.life = 0;
+      if (b.life > 0 && hearthTrialProtectsFlames())
+        for (const flame of hearthTrial.flames) {
+          if (d2(b.x, b.y, flame.x, flame.y) < 28 ** 2) {
+            hurtHearthTrialFlame(6 + hearthTrial.tier * 3, flame);
+            b.life = 0;
+            break;
+          }
+        }
     }
     if (b.life <= 0) G.ebul.splice(i, 1);
   }
@@ -888,9 +866,28 @@ function syncHearthTrialHUD() {
           ? 'STARS ' + q.recovered + ' / 3 · WAVE ' + Math.max(1, q.wave) + ' / ' + q.waves
           : q.id === 'guardian'
             ? G.boss
-              ? 'REFLECTION ' + Math.ceil(100 * Math.max(0, G.boss.hp / G.boss.max)) + '%'
-              : 'THE REFLECTION APPROACHES'
-            : 'WAVE ' + Math.max(1, q.wave) + ' / ' + q.waves + ' · ' + alive + ' REMAINING';
+              ? 'CRUCIBLE ' +
+                Math.ceil(100 * Math.max(0, G.boss.hp / G.boss.max)) +
+                '% · PHASE ' +
+                (G.boss.cruciblePhase || 1)
+              : 'THE CRUCIBLE APPROACHES'
+            : q.id === 'twinFlames'
+              ? 'FLAMES ' +
+                q.flames.map((f) => Math.ceil((f.hp * 100) / f.max) + '%').join(' / ') +
+                ' · WAVE ' +
+                Math.max(1, q.wave) +
+                ' / ' +
+                q.waves
+              : q.id === 'relay'
+                ? 'BEACONS ' + q.recovered + ' / 4 · WAVE ' + Math.max(1, q.wave) + ' / ' + q.waves
+                : q.id === 'lastLight' || q.id === 'blackout'
+                  ? 'LIGHT ' +
+                    (q.events.exposure > 0.1 ? 'LEAVE THE DARK' : 'SAFE') +
+                    ' · WAVE ' +
+                    Math.max(1, q.wave) +
+                    ' / ' +
+                    q.waves
+                  : 'WAVE ' + Math.max(1, q.wave) + ' / ' + q.waves + ' · ' + alive + ' REMAINING';
   setTxt('trialObjective', objective);
   T('trialProgress').style.width =
     (q.id === 'defense'
@@ -907,12 +904,17 @@ function syncHearthTrialHUD() {
     defense: 'Intercept enemies and shots before they reach the central flame.',
     constellation:
       'Touch the three broken stars, then finish every wave. Bolt places pins; Flare collapses them.',
-    guardian: 'Watch the reflection’s stance. Dash through the turning light.',
+    guardian:
+      'The bronze arms show the next strike. Dash through furnace sweeps; attack the open core during recovery.',
+    ...Object.fromEntries(Object.entries(HEARTH_TRIAL_RULES).map(([id, rule]) => [id, rule.hint])),
   };
   setTxt('trialHint', hints[q.id]);
   T('hpfill').style.width = Math.max(0, (100 * p.hp) / p.maxHp) + '%';
   setTxt('hptext', Math.max(0, Math.ceil(p.hp)) + ' / ' + p.maxHp);
-  T('dashmeter').style.setProperty('--p', clamp(1 - p.dashCdT / p.dashCd, 0, 1).toFixed(3));
+  T('dashmeter').style.setProperty(
+    '--p',
+    q.id === 'pursuit' ? '0' : clamp(1 - p.dashCdT / p.dashCd, 0, 1).toFixed(3)
+  );
   T('lowvig').style.opacity = p.hp < p.maxHp * 0.3 ? 1 : 0;
   const v = Number(T('vig').style.opacity || 0);
   T('vig').style.opacity = Math.max(0, v - 0.04);
@@ -935,11 +937,13 @@ function syncHearthTrialHUD() {
   );
   setTxt(
     'bladeReady',
-    p.meleeCdT > 0
-      ? 'FLARE RECOVERING'
-      : q.id === 'stitch' || q.id === 'constellation'
-        ? 'COLLAPSE THREADS'
-        : 'FLARE READY'
+    q.id === 'crossfire'
+      ? 'FLARE DISABLED'
+      : p.meleeCdT > 0
+        ? 'FLARE RECOVERING'
+        : q.id === 'stitch' || q.id === 'constellation'
+          ? 'COLLAPSE THREADS'
+          : 'FLARE READY'
   );
   T('bladeProgress').style.width = 100 * (1 - clamp(p.meleeCdT / MELEE.cooldown, 0, 1)) + '%';
   T('reloadProgress').style.width =
@@ -960,9 +964,9 @@ function syncHearthTrialHUD() {
     el.setAttribute('aria-disabled', String(disabled));
   }
   for (const [id, disabled] of [
-    ['touchMelee', p.meleeCdT > 0],
-    ['touchDash', p.dashCdT > 0],
-    ['btnMelee', p.meleeCdT > 0],
+    ['touchMelee', p.meleeCdT > 0 || q.id === 'crossfire'],
+    ['touchDash', p.dashCdT > 0 || q.id === 'pursuit'],
+    ['btnMelee', p.meleeCdT > 0 || q.id === 'crossfire'],
   ]) {
     T(id).classList.toggle('cooling', disabled);
     T(id).setAttribute('aria-disabled', String(disabled));
@@ -972,13 +976,13 @@ function syncHearthTrialHUD() {
     'touchMelee',
     1 - clamp(p.meleeCdT / MELEE.cooldown, 0, 1),
     stitch ? 'COLLAPSE' : 'FLARE',
-    p.meleeCdT > 0 ? p.meleeCdT.toFixed(1) + 's' : 'READY'
+    q.id === 'crossfire' ? 'DISABLED' : p.meleeCdT > 0 ? p.meleeCdT.toFixed(1) + 's' : 'READY'
   );
   setPrecisionTouchButton(
     'touchDash',
     1 - clamp(p.dashCdT / p.dashCd, 0, 1),
     'DASH',
-    p.dashCdT > 0 ? p.dashCdT.toFixed(1) + 's' : 'READY'
+    q.id === 'pursuit' ? 'DISABLED' : p.dashCdT > 0 ? p.dashCdT.toFixed(1) + 's' : 'READY'
   );
   setPrecisionTouchButton(
     'touchReload',
@@ -1023,7 +1027,9 @@ function showHearthTrialResult(paused = false) {
   setTxt('trialResultTime', modeTime(q.elapsed));
   setTxt('trialResultHits', q.hits);
   T('trialResultRewards').textContent = cleared
-    ? hearthTrialRewardText(q.id, q.tier)
+    ? q.result.awards?.length
+      ? q.result.awards.map((reward) => reward.label).join(' · ')
+      : 'Clear recorded · rewards already earned'
     : 'Fixed loadout · no lost Essence';
   T('trialRetry').textContent = paused ? 'RESUME TRIAL' : 'RETRY TRIAL';
   show('hearthTrialResult');
@@ -1038,7 +1044,7 @@ function finishHearthTrial(cleared, reason = '') {
   clearInput();
   setState('trialResult');
   if (cleared) {
-    hearthAwardTrial(q.id, q.tier, q.elapsed, q.hits);
+    q.result.awards = hearthAwardTrial(q.id, q.tier, q.elapsed, q.hits) || [];
     sfx('victory');
   } else sfx('death');
   saveNow('trial-result');
@@ -1214,21 +1220,6 @@ function drawHearthTrialArena(ctx) {
     else ctx.fillRect(TILE * 3, coordinate - (warning ? 2 : 6), TILE * 22, warning ? 4 : 12);
     ctx.globalAlpha = 1;
   }
-  const boss = G.boss;
-  if (boss && ['wind', 'beamWind', 'beam'].includes(boss.trialMode)) {
-    ctx.save();
-    ctx.translate(boss.x, boss.y);
-    ctx.rotate(boss.trialAngle);
-    const beam = boss.trialMode === 'beam';
-    ctx.fillStyle = beam ? '#fff2b7' : '#cc9f6e';
-    ctx.globalAlpha = beam ? 0.85 : 0.3 + Math.sin(t * 18) * 0.1;
-    ctx.fillRect(24, beam ? -5 : -2, 1100, beam ? 10 : 4);
-    if (beam) {
-      ctx.globalAlpha = 0.2;
-      ctx.fillRect(24, -13, 1100, 26);
-    }
-    ctx.restore();
-  }
 }
 const hearthTrialSnapshot = snapshotRun;
 snapshotRun = function () {
@@ -1255,13 +1246,15 @@ render = function () {
   ctx.save();
   ctx.translate(-Math.round(G.cam.x), -Math.round(G.cam.y));
   drawHearthTrialArena(ctx);
+  drawHearthTrialEvents(ctx);
+  drawHearthGuardianHazards(ctx);
   for (const hazard of G.world.lateHazards) drawLateHazard(ctx, hazard);
   for (const e of G.enemies) {
     if (e.dead) continue;
     if (e.isBoss) {
       ctx.fillStyle = '#03060c88';
       ctx.fillRect(e.x - 31, e.y + 22, 62, 9);
-      drawCreatureSprite(ctx, e, e.spr, e.x, e.y, 1.35, 0, 0.92, e.seed);
+      drawHearthTrialGuardian(ctx, e);
       if (e.trialMode === 'rest') glowImg('ember', e.x, e.y - 5, 42, 0.18);
     }
   }
@@ -1334,7 +1327,8 @@ const hearthTrialBeginMelee = beginMelee;
 beginMelee = function () {
   if (!isHearthTrial()) return hearthTrialBeginMelee();
   const p = G.player;
-  if (G.state !== 'playing' || p.meleeCdT > 0 || p.dashT > 0) return false;
+  if (G.state !== 'playing' || hearthTrial.id === 'crossfire' || p.meleeCdT > 0 || p.dashT > 0)
+    return false;
   p.meleeAngle = aimAngle();
   p.meleeWindT = MELEE.windup;
   p.meleeCdT = MELEE.cooldown;
@@ -1414,6 +1408,10 @@ damageEnemy = function (e, amount, angle = 0, crit = false, kb = 1, kind = 'shot
   )
     return;
   if (hearthTrial.id === 'flare' && kind !== 'melee') return;
+  if (hearthTrial.id === 'crossfire' && kind === 'melee') return;
+  if (hearthTrial.id === 'pressure' && d2(e.x, e.y, G.player.x, G.player.y) > 180 ** 2)
+    amount *= 0.25;
+  if (e.isBoss) amount = hearthGuardianDamage(e, amount, kind);
   amount = Math.max(0, Math.round(amount));
   if (!amount) return;
   e.hp -= amount;

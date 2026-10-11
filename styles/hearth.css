@@ -445,15 +445,20 @@
 #hearthTrialList {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 9px;
+  max-height: calc(min(860px, 96dvh) - 290px);
+  overflow: auto;
+  padding: 3px 7px 3px 3px;
+  scrollbar-color: #83623e #151617;
+  overscroll-behavior: contain;
 }
 .hearth-trial-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: start;
   text-align: left;
-  min-height: 192px;
-  padding: 18px;
+  min-height: 143px;
+  padding: 13px;
   gap: 10px;
   color: #e6d6b7;
   border: 1px solid #5e4b34;
@@ -494,16 +499,21 @@
   flex: 1;
   min-width: 0;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+}
+.hearth-trial-order {
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: #bb9869;
 }
 .hearth-trial-card strong {
   font:
-    500 20px Georgia,
+    500 18px Georgia,
     serif;
   color: #f2d6a6;
 }
 .hearth-trial-rule {
-  font-size: 11px;
+  font-size: 10px;
   color: #b6a891;
   line-height: 1.55;
 }
@@ -522,7 +532,7 @@
 #hearthTrialDetail {
   display: flex;
   flex-direction: column;
-  max-height: calc(min(860px, 96dvh) - 300px);
+  max-height: calc(min(860px, 96dvh) - 290px);
   background: linear-gradient(140deg, #38291e, #201f1b 45%);
   border: 1px solid #8b683f;
   padding: 21px;
@@ -604,6 +614,16 @@
   line-height: 1.7;
   color: #b5a691;
   margin: 0 0 17px;
+}
+.hearth-trial-demand {
+  margin: 0 0 12px;
+  padding: 9px 10px;
+  border: 1px solid #775430;
+  color: #efbb77;
+  background: #34261c;
+  font-size: 9px;
+  line-height: 1.6;
+  letter-spacing: 0.6px;
 }
 .hearth-trial-loadout {
   background: #141615;
@@ -1077,10 +1097,15 @@ body[data-hearth-trial='flare'] #touchReload {
     gap: 16px;
   }
   .hearth-trial-card {
-    padding: 15px;
+    padding: 11px;
+    gap: 8px;
   }
   .hearth-trial-card strong {
-    font-size: 18px;
+    font-size: 16px;
+  }
+  .hearth-trial-card .hearth-trial-icon {
+    width: 40px;
+    height: 40px;
   }
   #hearthTrialDetail {
     padding: 17px;
@@ -1131,9 +1156,11 @@ body[data-hearth-trial='flare'] #touchReload {
   }
   #hearthTrialList {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-height: 340px;
   }
   .hearth-trial-card {
-    min-height: 190px;
+    min-height: 135px;
+    flex-direction: column;
   }
   .hearth-trial-icon {
     width: 45px;
@@ -1260,7 +1287,7 @@ body[data-hearth-trial='flare'] #touchReload {
     gap: 8px;
   }
   .hearth-trial-card {
-    min-height: 122px;
+    min-height: 108px;
     padding: 12px;
     gap: 7px;
     flex-direction: row;
@@ -1277,7 +1304,7 @@ body[data-hearth-trial='flare'] #touchReload {
   }
   .hearth-trial-card-copy {
     align-self: stretch;
-    gap: 10px;
+    gap: 7px;
   }
   #hearthTrialDetail {
     padding: 17px 14px;
@@ -1358,9 +1385,10 @@ body[data-hearth-trial='flare'] #touchReload {
   }
   #hearthTrialList {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 55dvh;
   }
   .hearth-trial-card {
-    min-height: 170px;
+    min-height: 128px;
   }
   .trial-hud {
     top: 10px;

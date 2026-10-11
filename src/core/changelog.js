@@ -2,6 +2,19 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101101,
+    date: 'OCTOBER 11, 2026',
+    title: 'THE CRUCIBLE',
+    intro: 'Sixteen Hearth Trials. Three difficulties each. A new guardian waits in the arena.',
+    changes: [
+      'Added Crossfire, The Pursuit, The Last Light, Ember Relay, Under Pressure, The Glasshouse, The Gauntlet, Cinder Rain, Twin Flames, and Blackout. Their rooms test aim, movement, close combat, defense, and control of the arena.',
+      'Every trial is harder. Waves are longer and denser, enemies have more health and damage, and Blaze and Inferno increase the pressure further. Each arena keeps its fixed loadout.',
+      'The Crucible replaces the Warden reflection in Guardian Trial. Its bronze kiln, ember core, and hammer arms are new artwork. Blaze adds furnace sweeps and quench rings; Inferno adds return strikes, tempering pillars, and chained attacks.',
+      'The ten new trials award Essence once per difficulty and record clear medals, times, and hits. Existing clear records and cosmetic unlocks are preserved.',
+      'Clearing either Boss Rush unlocks five new Ember core finishes in the Hearth. Molten Heart, Starlit Core, Ghost Light, Prism Core, and Hollow Sun change the center Ember independently of shards and trails. Previous Boss Rush clears count; the original Ember remains available.',
+    ],
+  },
+  {
     version: 2026101005,
     date: 'OCTOBER 10, 2026',
     title: 'TRIAL ENEMIES',

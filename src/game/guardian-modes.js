@@ -872,7 +872,8 @@ function finishBossRush() {
     diff = gm.difficulty,
     elapsed = G.run.t,
     hits = gm.hits,
-    record = data[diff];
+    record = data[diff],
+    unlockedCore = typeof hearthCoreUnlocked === 'function' && !hearthCoreUnlocked('molten', data);
   record.bestTime = !record.bestTime ? elapsed : Math.min(record.bestTime, elapsed);
   record.bestHits = record.bestHits === null ? hits : Math.min(record.bestHits, hits);
   data.clears = (data.clears || 0) + 1;
@@ -891,6 +892,7 @@ function finishBossRush() {
     (diff === 'standard'
       ? 'Nightfall is now open. '
       : 'The hardest record in the Archive has been answered. ') +
+    (unlockedCore ? 'Ember core customization is now unlocked in the Hearth. ' : '') +
     '◆ ' +
     reward +
     ' permanent essence has been recovered.';
