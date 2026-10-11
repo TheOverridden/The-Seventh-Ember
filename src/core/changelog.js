@@ -9,7 +9,7 @@ const THE_SEVENTH_EMBER_CHANGELOG = [
       'Boss Rush has its own arena. Blessing interactions and controller navigation have been repaired.',
     changes: [
       'Boss Rush now takes place in a dedicated stone chamber with bronze inlays, animated braziers, and ten bells that track your progress. Each guardian keeps its own attacks and arena mechanisms. Saved Rushes resume in the new chamber.',
-      'Fixed lost checkpoints during the encounter after the tenth bell. Saved health and elapsed time are preserved when returning.',
+      'Fixed a Boss Rush checkpoint failure. Returning to a saved fight preserves health and elapsed time.',
       'Combat effects ease back in crowded fights. Hostile shots and attack warnings stay above friendly effects, unnecessary flashes are reduced, and objects outside the view cost less to draw.',
       'Controllers remember menu focus, navigate the Skill Tree more reliably, scroll long panels, and open a text keyboard for seeds and searches. Pausing, switching menus, losing focus, or disconnecting releases held inputs.',
       'Repaired Returning Heat, Seventh Hand, Sevenfold Flame, Comet, Supernova, Merciful Spark, Dawnward, Severing Light, Heavy Arc, Cracked Bell, Backdraft, Living Constellation, The Long Dawn, The Final Match, Tempered Glow, Closing Argument, Unmaking Flame, and Sawfire. Heart pickups, Warm Hands, and Afterbloom now work with overheal wards and Heartfire.',
