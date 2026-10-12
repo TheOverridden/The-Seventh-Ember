@@ -488,7 +488,7 @@ function spawnMatriarch() {
     max: MATRIARCH_HP,
     r: 33,
     dmg: 22,
-    spd: 57,
+    spd: 0,
     xp: 135,
     col: '#ba87a1',
     tier: 2,
@@ -510,6 +510,9 @@ function spawnMatriarch() {
   return b;
 }
 function activateMatriarch(b) {
+  b.ms.rootX = b.x;
+  b.ms.rootY = b.y;
+  b.kbx = b.kby = 0;
   b.introduced = true;
   b.aggro = true;
   G.bossActive = true;
@@ -567,11 +570,30 @@ function plantGrowth(b, type) {
     return;
   }
 }
+function matriarchRootPoint(b, distance, branch) {
+  const spread = branch * 0.35,
+    bend = branch * 0.12 * Math.sin((distance / 410) * Math.PI),
+    angle = b.ms.a + spread + bend;
+  return {
+    x: (b.ms.rootX ?? b.x) + Math.cos(angle) * distance,
+    y: (b.ms.rootY ?? b.y) + Math.sin(angle) * distance,
+  };
+}
 function matriarchAI(b, dt, d, dx, dy) {
+  b.kbx = b.kby = 0;
   if (!b.introduced) return;
   const a = b.ms,
     p = G.player,
     w = G.world;
+  if (!Number.isFinite(a.rootX) || !Number.isFinite(a.rootY)) {
+    a.rootX = b.x;
+    a.rootY = b.y;
+  }
+  b.x = a.rootX;
+  b.y = a.rootY;
+  dx = p.x - b.x;
+  dy = p.y - b.y;
+  d = Math.hypot(dx, dy);
   a.t -= dt;
   const maxSpeed = p.speed * 1.1;
   a.vx = lerp(
@@ -603,8 +625,9 @@ function matriarchAI(b, dt, d, dx, dy) {
     return;
   }
   if (a.mode === 'windup') {
-    if (a.t > 0.22 && (a.kind === 'lash' || a.kind === 'seeds')) {
-      const lead = a.kind === 'lash' ? 0.36 : Math.min(0.95, d / 290 + 0.22);
+    if (a.t > 0.22 && ['lash', 'seeds', 'rootwake'].includes(a.kind)) {
+      const lead =
+        a.kind === 'lash' ? 0.36 : a.kind === 'rootwake' ? 0.25 : Math.min(0.95, d / 290 + 0.22);
       a.a = Math.atan2(p.y + a.vy * lead - b.y, p.x + a.vx * lead - b.x);
     }
     if (a.t > 0) return;
@@ -622,6 +645,13 @@ function matriarchAI(b, dt, d, dx, dy) {
         shootSeed(b, a.a + angle, a.second ? 305 : 290, b.dmg * (a.second ? 0.72 : 0.65));
       a.mode = 'recover';
       a.t = a.second ? 0.76 : 0.95;
+      return;
+    }
+    if (a.kind === 'rootwake') {
+      a.mode = 'rootwake';
+      a.t = a.duration = 2.05;
+      a.rootHitT = 0;
+      sfx('boss');
       return;
     }
     a.mode = a.kind === 'lash' ? 'lash' : 'rake';
@@ -646,6 +676,33 @@ function matriarchAI(b, dt, d, dx, dy) {
     if (a.t <= 0) {
       a.mode = 'recover';
       a.t = a.second ? 0.6 : 1.0;
+    }
+    return;
+  }
+  if (a.mode === 'rootwake') {
+    const age = a.duration - Math.max(0, a.t),
+      front = Math.min(410, 42 + age * 225),
+      start = Math.max(42, front - 78);
+    a.rootHitT = Math.max(0, (a.rootHitT || 0) - dt);
+    if (!a.rootHitT && age < 1.88)
+      for (let branch = -1; branch <= 1; branch++) {
+        for (let distance = start; distance < front; distance += 22) {
+          const from = matriarchRootPoint(b, distance, branch),
+            to = matriarchRootPoint(b, Math.min(front, distance + 22), branch);
+          if (
+            segmentDistance(p.x, p.y, from.x, from.y, to.x, to.y) < p.r + 7 &&
+            los(w, b.x, b.y, p.x, p.y)
+          ) {
+            hurtPlayer(b.dmg * 0.95, from.x, from.y);
+            a.rootHitT = 0.3;
+            break;
+          }
+        }
+        if (a.rootHitT) break;
+      }
+    if (a.t <= 0) {
+      a.mode = 'recover';
+      a.t = 1.1;
     }
     return;
   }
@@ -687,16 +744,9 @@ function matriarchAI(b, dt, d, dx, dy) {
     return;
   }
   a.a = Math.atan2(dy, dx);
-  if (d > 150)
-    moveEnt(
-      w,
-      b,
-      (dx / Math.max(d, 1)) * (a.second ? 82 : 57) * dt,
-      (dy / Math.max(d, 1)) * (a.second ? 74 : 57) * dt
-    );
   if (a.t > 0) return;
   const pattern = a.second
-    ? ['plant', 'rake', 'lash', 'seeds', 'rake', 'plant', 'lash']
+    ? ['rootwake', 'plant', 'rake', 'lash', 'seeds', 'rootwake', 'rake', 'plant', 'lash']
     : ['plant', 'lash', 'rake', 'seeds'];
   a.kind = pattern[a.step++ % pattern.length];
   if (a.kind === 'rake' && d > 190) a.kind = 'lash';
@@ -704,17 +754,19 @@ function matriarchAI(b, dt, d, dx, dy) {
   a.followup = false;
   a.a = Math.atan2(dy, dx);
   a.t = a.duration =
-    a.kind === 'plant'
-      ? a.second
-        ? 0.78
-        : 0.95
-      : a.kind === 'seeds'
+    a.kind === 'rootwake'
+      ? 0.72
+      : a.kind === 'plant'
         ? a.second
-          ? 0.62
-          : 0.75
-        : a.second
-          ? 0.48
-          : 0.7;
+          ? 0.78
+          : 0.95
+        : a.kind === 'seeds'
+          ? a.second
+            ? 0.62
+            : 0.75
+          : a.second
+            ? 0.48
+            : 0.7;
 }
 hollowBeforeUpdate = function (dt) {
   if (G.player?.bloomCd > 0) G.player.bloomCd = Math.max(0, G.player.bloomCd - dt);
@@ -829,13 +881,16 @@ validateCheckpoint = function (r) {
       if (
         e.ai !== 'matriarch' ||
         !a ||
-        !['wait', 'windup', 'rake', 'lash', 'recover', 'bloom'].includes(a.mode) ||
-        !['', 'plant', 'rake', 'lash', 'seeds'].includes(a.kind) ||
+        !['wait', 'windup', 'rake', 'lash', 'rootwake', 'recover', 'bloom'].includes(a.mode) ||
+        !['', 'plant', 'rake', 'lash', 'seeds', 'rootwake'].includes(a.kind) ||
         !n(a.t) ||
         !n(a.duration, 0) ||
         !n(a.a) ||
         !n(a.step, 0) ||
-        typeof a.second !== 'boolean'
+        typeof a.second !== 'boolean' ||
+        (a.rootX !== undefined && !n(a.rootX)) ||
+        (a.rootY !== undefined && !n(a.rootY)) ||
+        (a.rootHitT !== undefined && !n(a.rootHitT, 0, 0.3))
       )
         throw Error('Invalid Matriarch phase');
     }
@@ -848,23 +903,17 @@ validateCheckpoint = function (r) {
 function bakeGardenSprites() {
   bakeGardenCreatureVariants();
 
-  SPR.gardenMatriarch = pxGen(
+  SPR.gardenMatriarchRoots = pxGen(
     60,
     48,
-    8,
-    (i, j, f) => {
-      const phase = 0,
-        x = i - 29.5,
-        y = j,
-        stepX = [0, 0, 1, 1, 0, 0, -1, -1],
-        stepY = [0, -1, -1, 0, 0, 0, 0, 0];
+    1,
+    (i, j) => {
       for (let side of [-1, 1])
         for (let k = 0; k < 3; k++) {
-          const stride = (f + (k % 2 === 0 ? 0 : 4) + (side < 0 ? 4 : 0)) % 8,
-            bx = 29.5 + side * (9 + k * 2),
+          const bx = 29.5 + side * (9 + k * 2),
             by = 27 + k * 4,
-            tx = 29.5 + side * (27 - k * 2) + stepX[stride] * 1.4,
-            ty = 32 + k * 5 + Math.sin(k * 1.7) * 1.8 + stepY[stride] * 1.8,
+            tx = 29.5 + side * (27 - k * 2),
+            ty = 32 + k * 5 + Math.sin(k * 1.7) * 1.8,
             kx = bx + (tx - bx) * 0.55,
             ky = by + (ty - by) * 0.45 - 2;
           const d = Math.min(
@@ -872,12 +921,36 @@ function bakeGardenSprites() {
             segmentDistance(i, j, kx, ky, tx, ty)
           );
           if (d < 2.5) return d > 1.4 ? '#182a20' : k === 1 ? '#91a36d' : '#506d49';
+          if (Math.abs(i - tx) < 3 && j >= ty && j < ty + 3)
+            return j > ty + 1 ? '#243529' : '#4a6242';
         }
-      const hx = x,
-        hy = y - 11,
+      return null;
+    },
+    { fps: 1, sc: 2.15 }
+  );
+  SPR.gardenMatriarch = pxGen(
+    60,
+    48,
+    40,
+    (i, j, f) => {
+      const bank = Math.floor(f / 8),
+        frame = f % 8,
+        breath = [0, 0, 1, 1, 1, 0, -1, -1][frame],
+        coil = bank === 1 ? frame / 7 : 0,
+        surge = bank === 2 ? [0, 1, 2, 2, 1, 0, -1, -1][frame] : 0,
+        opening = bank === 3 ? frame / 7 : bank === 4 ? 1 : 0,
+        chestLift = bank === 0 || bank === 4 ? breath * 0.45 : surge * 0.6 - coil,
+        x = i - 29.5,
+        y = j + chestLift,
+        hx = x - (bank === 0 || bank === 4 ? [0, 0, 1, 1, 0, 0, -1, -1][frame] : surge * 0.45),
+        hy = y - 11 - coil * 1.5,
         ang = Math.atan2(hy, hx),
         rad = Math.hypot(hx, hy),
-        petal = 10 + Math.cos(ang * 7 + phase * 0.08) * 3.2;
+        petal =
+          10 +
+          opening * 1.2 -
+          coil * 1.1 +
+          Math.cos(ang * 7 + breath * 0.025) * (3.2 + opening * 1.1 - coil * 0.45);
       if (rad < petal) {
         if (rad > petal - 1.5) return '#3b263d';
         if (rad > 6.1) {
@@ -886,20 +959,23 @@ function bakeGardenSprites() {
           return hy < 0 ? '#ddaeb8' : '#a46b82';
         }
         if (rad > 4.5) return '#ebd7bd';
-        if ((i === 27 || i === 28 || i === 31 || i === 32) && j >= 10 && j <= 12) return '#f7e6a8';
+        if (Math.abs(Math.abs(hx) - 2) < 1 && hy >= -1 && hy <= 1) return '#f7e6a8';
         return '#171c22';
       }
-      const abdomen = (x * x) / 245 + ((y - 28) * (y - 28)) / 115;
+      const abdomen = (x * x) / (245 + breath * 7 - coil * 10) + ((y - 28) * (y - 28)) / 115;
       if (abdomen < 1.08) {
         if (abdomen > 0.9) return '#15261d';
         if (y < 24) return Math.abs(x) > 8 && y === 22 ? '#bfd0a1' : '#7d9a69';
         if (y % 4 === 0 && Math.abs(x) > 9) return '#89a06e';
         if (Math.abs(x) > 12 && y > 26 && y < 33) return '#36553d';
         if ((Math.floor(x / 4) + Math.floor(y / 3)) % 5 === 0) return '#c7aa91';
-        if (Math.abs(x) < 7 && y > 28 && y < 35) return '#8f7169';
+        if (Math.abs(x) < 7 && y > 28 && y < 35) {
+          if (Math.abs(x) < 2 && Math.abs(y - 31 - breath * 0.5) < 1.3) return '#c6a088';
+          return '#8f7169';
+        }
         return y < 30 ? '#4e704d' : '#294335';
       }
-      const chest = (x * x) / 120 + ((y - 20) * (y - 20)) / 72;
+      const chest = (x * x) / (120 + breath * 6 + coil * 8) + ((y - 20) * (y - 20)) / 72;
       if (chest < 1) {
         if (chest > 0.82) return '#1a2a20';
         return y < 19 ? '#91a873' : '#3e6142';
@@ -1087,11 +1163,52 @@ function drawRootArm(ctx, b, a, reach, alpha = 1, bend = 12) {
   }
   ctx.restore();
 }
+function drawMatriarchRootwake(ctx, b) {
+  const a = b.ms;
+  if (a.mode !== 'rootwake') return;
+  const age = a.duration - Math.max(0, a.t),
+    front = Math.min(410, 42 + age * 225);
+  ctx.save();
+  for (let branch = -1; branch <= 1; branch++)
+    for (let distance = 42; distance < Math.min(425, front + 26); distance += 22) {
+      const point = matriarchRootPoint(b, distance, branch),
+        passed = front - distance,
+        emerging = passed >= 0 && passed < 78 && age < 1.88,
+        height = emerging ? 3 + 17 * Math.sin(Math.PI * clamp(passed / 78, 0, 1)) : 0;
+      if (passed > 135) continue;
+      if (solidPx(G.world, point.x, point.y)) continue;
+      ctx.globalAlpha = passed < 0 ? 0.6 : clamp(1 - Math.max(0, passed - 78) / 57, 0, 1);
+      ctx.fillStyle = '#27382a';
+      ctx.fillRect(Math.round(point.x) - 8, Math.round(point.y) + 2, 16, 3);
+      ctx.fillStyle = '#6f7655';
+      ctx.fillRect(Math.round(point.x) - 7, Math.round(point.y), 4, 2);
+      ctx.fillRect(Math.round(point.x) + 4, Math.round(point.y) - 1, 3, 2);
+      if (height <= 0) continue;
+      const x = Math.round(point.x),
+        y = Math.round(point.y),
+        h = Math.round(height);
+      ctx.fillStyle = '#1c3023';
+      ctx.beginPath();
+      ctx.moveTo(x - 6, y + 3);
+      ctx.lineTo(x - 2, y - h);
+      ctx.lineTo(x + 5, y + 3);
+      ctx.fill();
+      ctx.fillStyle = '#87a060';
+      ctx.fillRect(x - 2, y - h + 3, 2, Math.max(1, h - 4));
+      ctx.fillStyle = '#d0c894';
+      ctx.fillRect(x - 2, y - h, 2, 3);
+      ctx.fillStyle = '#71845a';
+      ctx.fillRect(x + 5, y + 4 - Math.round(Math.min(5, h * 0.2)), 3, 2);
+    }
+  ctx.restore();
+}
 function drawGardenEnemy(ctx, e) {
-  const t = save.motion ? 0 : G.tAll;
+  const t = save.motion ? 0 : G.tAll,
+    baseX = e.matriarch ? (e.ms.rootX ?? e.x) : e.x,
+    baseY = e.matriarch ? (e.ms.rootY ?? e.y) : e.y;
   ctx.fillStyle = '#0006';
   ctx.beginPath();
-  ctx.ellipse(e.x, e.y + e.r * 0.7, e.r * 0.95, e.r * 0.35, 0, 0, TAU);
+  ctx.ellipse(baseX, baseY + e.r * 0.7, e.r * 0.95, e.r * 0.35, 0, 0, TAU);
   ctx.fill();
   if (e.matriarch) {
     const a = e.ms,
@@ -1100,39 +1217,25 @@ function drawGardenEnemy(ctx, e) {
     const lash = a.mode === 'lash',
       rake = a.mode === 'rake',
       activeU = lash || rake ? clamp(1 - a.t / a.duration, 0, 1) : 0;
-    let bx = e.x,
-      by = e.y - 9,
-      sx = 1,
-      sy = 1,
-      rot = Math.sin(t * 1.1) * 0.018;
-    if (wind && a.kind === 'lash') {
-      bx -= Math.cos(a.a) * charge * 9;
-      by -= Math.sin(a.a) * charge * 9;
-      sy = 1 + charge * 0.09;
-      sx = 1 - charge * 0.08;
-    }
-    if (wind && a.kind === 'plant') {
-      by += charge * 9;
-      sx = 1 + charge * 0.09;
-      sy = 1 - charge * 0.07;
-    }
-    if (wind && a.kind === 'rake') {
-      rot -= Math.sin(a.a) * charge * 0.1;
-      sx = 1 - charge * 0.05;
-    }
-    if (lash) {
-      const surge = Math.sin(Math.PI * activeU);
-      bx += Math.cos(a.a) * surge * 8;
-      by += Math.sin(a.a) * surge * 8;
-      sy = 1 + surge * 0.05;
-    }
-    if (rake) rot += (-0.08 + 0.16 * activeU) * (a.followup ? -1 : 1);
-    if (a.mode === 'bloom') {
-      const u = 1 - a.t / 1.1;
-      sx = 1 + Math.sin(u * Math.PI * 3) * 0.09;
-      sy = 1 + Math.sin(u * Math.PI * 3) * 0.12;
-    }
+    const bx = baseX,
+      by = baseY - 9,
+      rootwake = a.mode === 'rootwake';
     const pose = { ...e, x: bx, y: by + 8 };
+    if (typeof combatClarityDeferWarnings === 'undefined' || !combatClarityDeferWarnings)
+      drawMatriarchRootwake(ctx, e);
+    const roots = SPR.gardenMatriarchRoots;
+    if (roots) {
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(
+        roots.frames[0],
+        bx - (roots.W * roots.sc) / 2,
+        by - (roots.H * roots.sc) / 2,
+        roots.W * roots.sc,
+        roots.H * roots.sc
+      );
+      ctx.restore();
+    }
     glowImg(a.second ? 'orchid' : 'teal', bx, by + 4, 86, a.mode === 'bloom' ? 0.62 : 0.28);
     if (wind && a.kind === 'lash') {
       const r = 62 * (1 - charge);
@@ -1157,18 +1260,40 @@ function drawGardenEnemy(ctx, e) {
         aa = a.a + sign * (-1.05 + 2.1 * activeU);
       drawRootArm(ctx, pose, aa, 148, 1, sign * 18);
       drawRootArm(ctx, pose, a.a - sign * 0.92, 68, 0.62, -sign * 14);
-    } else if (wind && a.kind === 'plant') {
-      drawRootArm(ctx, pose, a.a - 1.3, 62 + charge * 45, 0.8, 30);
-      drawRootArm(ctx, pose, a.a + 1.3, 62 + charge * 45, 0.8, -30);
+    } else if (
+      (wind && ['plant', 'rootwake'].includes(a.kind)) ||
+      rootwake ||
+      (a.mode === 'recover' && a.kind === 'rootwake')
+    ) {
+      const hold = rootwake
+        ? 1
+        : a.mode === 'recover'
+          ? smoothBoss(clamp(a.t / 1.1, 0, 1))
+          : charge;
+      drawRootArm(ctx, pose, a.a - 1.3, 62 + hold * 45, 0.8, 30);
+      drawRootArm(ctx, pose, a.a + 1.3, 62 + hold * 45, 0.8, -30);
     } else {
       drawRootArm(ctx, pose, a.a - 0.86, 64, 0.78, 15);
       drawRootArm(ctx, pose, a.a + 0.86, 64, 0.78, -15);
     }
     ctx.save();
     ctx.translate(bx, by);
-    ctx.rotate(rot);
-    ctx.scale(sx, sy);
-    drawCreatureSprite(ctx, e, 'gardenMatriarch', 0, 0);
+    const sprite = SPR.gardenMatriarch;
+    if (sprite) {
+      const idleFrame = save.motion ? 0 : Math.floor((t * 4 + (e.seed || 0)) % 8),
+        progress = clamp(1 - a.t / Math.max(0.01, a.duration), 0, 1),
+        attackFrame = Math.min(7, Math.floor(progress * 8)),
+        bank = a.mode === 'bloom' ? 3 : wind ? 1 : lash || rake || rootwake ? 2 : a.second ? 4 : 0,
+        frame = bank * 8 + (bank === 0 || bank === 4 ? idleFrame : attackFrame);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(
+        sprite.frames[frame],
+        (-sprite.W * sprite.sc) / 2,
+        (-sprite.H * sprite.sc) / 2,
+        sprite.W * sprite.sc,
+        sprite.H * sprite.sc
+      );
+    }
     ctx.restore();
     if (wind && a.kind === 'seeds') {
       glowImg('gold', bx, by - 20, 13 + charge * 14, 0.24 + charge * 0.45);

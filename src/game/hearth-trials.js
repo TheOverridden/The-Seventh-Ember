@@ -182,8 +182,6 @@ function startHearthTrial(id, tier = 0) {
         bossOn: T('bossbar').classList.contains('on'),
         chapterOn: T('chapterBanner').classList.contains('visible'),
         fieldOn: T('fieldNote').classList.contains('visible'),
-        phaseOn: phaseCallout.classList.contains('visible'),
-        phaseContent: phaseCallout.innerHTML,
         meleeText: [...T('btnMelee').childNodes]
           .filter((node) => node.nodeType === 3)
           .map((node) => [node, node.textContent]),
@@ -310,10 +308,8 @@ function startHearthTrial(id, tier = 0) {
     clearedRooms: new Set(),
     intensity: 0,
     target: 0,
-    calloutT: 0,
     serial: 0,
   });
-  phaseCallout.classList.remove('visible');
   Object.assign(MELEE, {
     damage: 2.6,
     reach: 105,
@@ -375,8 +371,6 @@ function leaveHearthTrial(openBoard = false) {
   Object.assign(COMBAT_FEEL, old.feel);
   Object.assign(COMBAT_POLISH, old.polish);
   Object.assign(COMBAT_FINALE, old.finale);
-  phaseCallout.innerHTML = old.labels.phaseContent;
-  phaseCallout.classList.toggle('visible', old.labels.phaseOn);
   dialogue = old.dialogue;
   storyQueue = old.storyQueue;
   armoryNotices = old.notices;

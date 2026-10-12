@@ -376,13 +376,6 @@ function midPieceBroken(owner, e) {
   owner.bs.mode = 'cool';
   owner.bs.t = owner.bs.duration = 1.05;
   clearMidGuardianHazards(owner);
-  const note = {
-    bellkeeper: 'Both bells go quiet.',
-    colossus: 'Pressure gone. The core opens.',
-    astronomer: 'The light loses its path.',
-    scribe: 'The last seal tears.',
-  }[owner.bossKey];
-  fieldNote(note, 2.3);
   sfx('midBreak');
 }
 const middleKillEnemy = killEnemy;
@@ -1066,15 +1059,6 @@ function middleGuardianAI(b, dt, d, dx, dy) {
     clearMidGuardianHazards(b);
     G.ebul = [];
     burst(b.x, b.y, 32, b.col, 190, 0.9, 3, true);
-    fieldNote(
-      {
-        bellkeeper: 'The drowned bells answer together.',
-        colossus: 'The second furnace opens.',
-        astronomer: 'The dome loses its horizon.',
-        scribe: 'The clean copy tears in half.',
-      }[b.bossKey],
-      2.8
-    );
     sfx('midPhase');
     return;
   }

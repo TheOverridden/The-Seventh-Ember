@@ -2,6 +2,20 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101201,
+    date: 'OCTOBER 12, 2026',
+    title: 'GUARDIANS IN MOTION',
+    intro: 'New attacks below half health, individual body animations, and a stronger Crucible.',
+    changes: [
+      'Every guardian gains an additional second-half attack. The Warden throws and catches a returning glaive. The Matriarch sends curved roots through the ground. The Bellkeeper sends a toll outward and back. The Colossus advances with three heavy footfalls.',
+      'The Astronomer fires through a shifting aperture. The Scribe folds ink creases across the room. The Regents exchange places in a new synchronized measure. The Seraph releases feather walls before a committed swoop. The Tyrant advances behind alternating broadsides. The Keeper closes its cradle before releasing inward seals and outward embers.',
+      'Rebuilt each guardian’s body animation around its own joints, attack preparation, release, and recovery. Their silhouettes and palettes remain familiar. The Bellkeeper visibly dives beneath the water, travels toward a committed destination, and resurfaces through spray.',
+      'The Hollow Matriarch remains rooted throughout the fight. Removed phase-change banners and messages announcing broken mechanisms; the fights keep their visual and sound cues.',
+      'The Crucible uses hammer, vent, and ground cues instead of large attack diagrams. Added a three-hammer stamping sequence below half health, smoother arm motion, committed charge aim, and stronger pressure against continuous circling. Its recovery openings remain available.',
+      'Existing saves, permanent upgrades, and trial records carry over.',
+    ],
+  },
+  {
     version: 2026101102,
     date: 'OCTOBER 11, 2026',
     title: 'THE BELL CHAMBER',

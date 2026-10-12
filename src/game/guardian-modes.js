@@ -781,7 +781,6 @@ function guardianModeGuardianDefeated(b) {
     other.bs.second = true;
     other.hp = Math.min(other.max, other.hp + Math.round(other.max * 0.18));
     T('bossname').textContent = 'THE LAST REGENT';
-    toast('ONE THRONE REMAINS', 'the missing step returns');
     sfx('regentBreak');
     return;
   }

@@ -6,21 +6,7 @@ const COMBAT_FINALE = {
   clearedRooms: new Set(),
   intensity: 0,
   target: 0,
-  calloutT: 0,
   serial: 0,
-};
-const COMBAT_PHASE_TITLES = {
-  warden: 'THE SHIELD BREAKS',
-  matriarch: 'THE ROOTS WAKE',
-  bellkeeper: 'THE SECOND CHOIR RISES',
-  colossus: 'THE FURNACE OPENS',
-  astronomer: 'THE LENSES TURN',
-  scribe: 'THE OLD INK RUNS',
-  regents: 'ONE THRONE REMAINS',
-  seraph: 'THE WINGS TURN',
-  tyrant: 'THE CITADEL MOVES',
-  keeper: 'THE STAR OPENS',
-  uncounted: 'THE COUNT BREAKS',
 };
 function combatFinaleReduced() {
   return !!save.motion;
@@ -139,25 +125,7 @@ function combatFinalePhase(e) {
   if (e.bs) return e.bs.second ? 2 : 1;
   return e.hp <= e.max * 0.5 ? 2 : 1;
 }
-const phaseCallout = document.createElement('div');
-phaseCallout.id = 'combatPhaseCallout';
-phaseCallout.setAttribute('role', 'status');
-phaseCallout.innerHTML =
-  '<span id="combatPhaseLabel">PHASE II</span><strong id="combatPhaseTitle"></strong>';
-document.body.append(phaseCallout);
-function combatFinalePhaseTitle(e) {
-  return (
-    COMBAT_PHASE_TITLES[e.warden ? 'warden' : e.matriarch ? 'matriarch' : e.bossKey] ||
-    'THE GUARDIAN CHANGES'
-  );
-}
-function combatFinalePhaseShift(e, phase) {
-  T('combatPhaseLabel').textContent = 'PHASE ' + ['I', 'II', 'III', 'IV'][Math.min(3, phase - 1)];
-  T('combatPhaseTitle').textContent = combatFinalePhaseTitle(e);
-  phaseCallout.classList.remove('visible');
-  void phaseCallout.offsetWidth;
-  phaseCallout.classList.add('visible');
-  COMBAT_FINALE.calloutT = 1.8;
+function combatFinalePhaseShift(e) {
   if (typeof combatPolishFreeze === 'function') combatPolishFreeze(0.052);
   if (typeof combatPolishFlash === 'function') combatPolishFlash(0.11, e.col || '#fff0bd');
   sfx('combatPhaseShift');
@@ -184,7 +152,7 @@ function combatFinaleScanPhases() {
     if (before === undefined) COMBAT_FINALE.phaseByUid.set(e.uid, phase);
     else if (phase > before) {
       COMBAT_FINALE.phaseByUid.set(e.uid, phase);
-      combatFinalePhaseShift(e, phase);
+      combatFinalePhaseShift(e);
     }
   }
   for (const uid of COMBAT_FINALE.phaseByUid.keys())
@@ -213,10 +181,6 @@ function combatFinaleTick(dt) {
     COMBAT_FINALE.target,
     1 - Math.exp(-dt * (COMBAT_FINALE.target > COMBAT_FINALE.intensity ? 3.6 : 1.5))
   );
-  if (COMBAT_FINALE.calloutT > 0) {
-    COMBAT_FINALE.calloutT -= dt;
-    if (COMBAT_FINALE.calloutT <= 0) phaseCallout.classList.remove('visible');
-  }
   combatFinaleScanPhases();
 }
 
@@ -233,7 +197,6 @@ setupFloor = function (f) {
   COMBAT_FINALE.phaseByUid.clear();
   COMBAT_FINALE.clearedRooms.clear();
   COMBAT_FINALE.intensity = COMBAT_FINALE.target = 0;
-  phaseCallout.classList.remove('visible');
   return combatFinaleSetup(f);
 };
 if (typeof combatFeelColor === 'function') {

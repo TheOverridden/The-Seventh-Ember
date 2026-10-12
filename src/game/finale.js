@@ -183,7 +183,6 @@ killEnemy = function (e) {
     if (owner && bossNodes(owner).length === 0) {
       owner.bs.exposed = 5;
       owner.bs.mechanismCd = 22;
-      fieldNote('The core is open.', 2.3);
     }
     return;
   }
@@ -640,7 +639,6 @@ function authoredBossAI(b, dt, d, dx, dy) {
     if (b.bossKey === 'keeper') {
       for (const e of bossNodes(b)) e.dead = true;
       s.mechanismCd = 99999;
-      fieldNote(phase === 1 ? 'The cradle turns.' : 'The last lock breaks.', 3);
     }
     return;
   }
@@ -750,29 +748,9 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
     e.wb.parries = (e.wb.parries || 0) + 1;
     G.player.hitCd = Math.max(G.player.hitCd, 0.25);
     burst(e.x, e.y, 16, '#ffe1a0', 160, 0.4, 2, true);
-    fieldNote('His guard breaks.', 1.8);
     dmg *= 1.4;
   }
   depthFirstDamage(e, dmg, ang, crit, kb, kind);
-};
-const depthMatriarch = matriarchAI;
-matriarchAI = function (b, dt, d, dx, dy) {
-  const s = b.ms;
-  if (b.introduced && b.hp < b.max * 0.25 && !s.uprooted) {
-    s.uprooted = true;
-    s.mode = 'bloom';
-    s.t = s.duration = 1.25;
-    for (const e of G.enemies) if (e.owner === b.uid && e.type === 'gardenNest') e.dead = true;
-    fieldNote('She tears free of the roots.', 2.5);
-    burst(b.x, b.y, 28, '#c594a8', 150, 0.7, 3, true);
-  }
-  depthMatriarch(b, dt, d, dx, dy);
-  if (s.uprooted && s.mode === 'wait' && d > 150)
-    moveEnt(G.world, b, (dx / Math.max(1, d)) * 27 * dt, (dy / Math.max(1, d)) * 27 * dt);
-  if (s.uprooted && s.mode === 'windup' && s.kind === 'plant') {
-    s.kind = 'lash';
-    s.t = Math.min(s.t, 0.58);
-  }
 };
 bellkeeperAI = function (b, dt, d, dx, dy) {
   if (!b.introduced) return;
@@ -2101,11 +2079,7 @@ updateHUD = function (dt) {
   if (b.matriarch) {
     setTxt(
       'floorObjective',
-      b.ms.uprooted
-        ? 'UPROOTED · the nests fall silent'
-        : b.ms.second
-          ? 'IN BLOOM · clear the growing roots'
-          : 'THE NURSERY · nests can be destroyed'
+      b.ms.second ? 'IN BLOOM · clear the growing roots' : 'THE NURSERY · nests can be destroyed'
     );
     return;
   }

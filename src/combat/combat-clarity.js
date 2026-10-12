@@ -101,6 +101,7 @@ function combatClarityDrawWarnings(ctx) {
       drawWardenEnvironment(ctx);
     }
     for (const e of G.enemies) {
+      if (!e.dead && e.matriarch) drawMatriarchRootwake(ctx, e);
       if (e.dead || e.lateBoss || e.ai !== 'late') continue;
       if (e.specialMode === 'tether' || combatVisualVisible(e.x, e.y, e.r + 80))
         drawLateEnemySkill(ctx, e);

@@ -52,15 +52,6 @@ middleGuardianAI = function (b, dt, d, dx, dy) {
     clearMidGuardianHazards(b);
     G.ebul = [];
     burst(b.x, b.y, 36, b.col, 230, 0.9, 3, true);
-    fieldNote(
-      {
-        bellkeeper: 'The last bell cracks.',
-        colossus: 'The furnace sheds its casing.',
-        astronomer: 'The final lens turns inward.',
-        scribe: 'The page begins writing itself.',
-      }[b.bossKey],
-      2.6
-    );
     sfx('midPhase');
     return;
   }

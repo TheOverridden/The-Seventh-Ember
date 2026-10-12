@@ -773,7 +773,6 @@ killBoss = function (b) {
       other.bs.second = true;
       other.hp = Math.min(other.max, other.hp + Math.round(other.max * 0.18));
       T('bossname').textContent = 'THE LAST REGENT';
-      toast('ONE THRONE REMAINS', 'the survivor changes the pattern');
       sfx('roar2');
       saveNow();
       return;

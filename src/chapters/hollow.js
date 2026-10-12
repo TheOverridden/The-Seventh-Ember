@@ -678,6 +678,247 @@ function setupHollowFloor(f) {
   announceHollowFloor();
   if (f === 2) queueStory('walks');
 }
+function wardenArmorPixel(x, y, cape = 0) {
+  if (y <= 7) {
+    const ray =
+      (Math.abs(x) < 1.5 && y < 5) ||
+      (Math.abs(x - 5) < 1.3 && y > 1) ||
+      (Math.abs(x + 5) < 1.3 && y > 1) ||
+      (Math.abs(x) < 7 && Math.abs(y - (5 - Math.abs(x) * 0.45)) < 1.2);
+    if (ray) return y < 2 ? '#f8df9d' : '#a58b59';
+  }
+  const helm = y >= 5 && y <= 18 && Math.abs(x) < 8.5 - Math.max(0, 8 - y) * 0.35;
+  if (helm) {
+    if (Math.abs(x) > 6.7 || y === 5 || y === 17) return '#111824';
+    if (y >= 10 && y <= 13) {
+      if (y === 10 && Math.abs(x) > 3) return '#c1b895';
+      return Math.abs(x) > 4 ? '#7f8f94' : Math.abs(x) > 1 ? '#f4d59b' : '#0a1019';
+    }
+    if (Math.abs(x) < 0.8 && y < 10) return '#8a9996';
+    if (y === 7 && Math.abs(x) > 2.5) return '#e1dfcd';
+    if (y > 13) {
+      if (Math.abs(x) < 1.2) return '#819291';
+      if (y === 15 && Math.abs(x) > 3 && Math.abs(x) < 5) return '#101b27';
+      if (Math.abs(x) > 5.2 && y < 16) return '#97a6a3';
+    }
+    return y < 9 ? '#c6cbbf' : '#405361';
+  }
+  const shoulder = y >= 14 && y <= 22 && Math.abs(x) < 17 - (y - 14) * 0.65;
+  if (shoulder) {
+    if (Math.abs(x) > 14 || y === 14 || y === 21) return '#111924';
+    if (y === 18 && Math.abs(x) > 11 && Math.abs(x) < 13) return '#dac695';
+    if (y === 20 && Math.abs(x) > 7) return '#233340';
+    return y < 17 ? '#d6d7c7' : Math.abs(x) > 10 ? '#7f9297' : '#394c5d';
+  }
+  const torso = y >= 18 && y <= 34 && Math.abs(x) < 11 - (y - 18) * 0.12;
+  if (torso) {
+    if (Math.abs(x) > 8.5 || y === 33) return '#14202b';
+    if (Math.abs(x) + Math.abs(y - 25) < 4) return '#ffe08a';
+    if (Math.abs(x) + Math.abs(y - 25) < 6) return '#a78352';
+    if (Math.abs(x) > 5 && Math.abs(x) < 6.5 && y > 22) return '#6d8186';
+    if (y === 21 && Math.abs(x) > 3) return '#a4b4ab';
+    if (y === 29 && Math.abs(x) > 4 && Math.abs(x) < 7) return '#b79e6c';
+    return y < 23 ? '#70858b' : y % 5 === 0 ? '#a8b6af' : '#354959';
+  }
+  if (y >= 31 && y <= 41) {
+    const leg = Math.abs(x - 6) < 4 || Math.abs(x + 6) < 4;
+    if (leg) {
+      if (y > 39 || (Math.abs(x - 6) > 2.8 && Math.abs(x + 6) > 2.8)) return '#141c29';
+      return y % 4 === 0 ? '#9baaa9' : '#455665';
+    }
+  }
+  const capeW = y < 17 ? 0 : 10 + (y - 17) * 0.23;
+  if (y >= 16 && y <= 40 && Math.abs(x) < capeW) {
+    if (Math.abs(x) > capeW - 1.6 || y > 37 + (Math.abs(x) % 3)) return '#121725';
+    return Math.floor(x + y + cape) % 7 === 0 ? '#513c68' : '#252b42';
+  }
+  return null;
+}
+function wardenArmorLimb(x, y, points, width, knee) {
+  let dist = Infinity;
+  for (let i = 1; i < points.length; i++)
+    dist = Math.min(dist, segmentDistance(x, y, ...points[i - 1], ...points[i]));
+  if (dist > width) return null;
+  if (dist > width - 0.9) return '#111824';
+  if (Math.abs(y - knee) < 0.8) return '#a9b5ad';
+  if (dist < 0.8) return '#73878d';
+  return x < points[0][0] ? '#354959' : '#526772';
+}
+const WARDEN_POSES = {
+  walk: [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 1, -1, -1, 1],
+    [0, 0, 2, -2, -2, 2],
+    [0, 0, 1, -1, -1, 1],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, -1, 1, 1, -1],
+    [0, 0, -2, 2, 2, -2],
+    [0, 0, -1, 1, 1, -1],
+  ],
+  brace: [
+    [0, 0, 0, 0, 0, 0],
+    [-1, 1, -1, 1, -1, 2],
+    [-2, 2, -2, 2, -3, 3],
+    [-2, 2, -2, 2, -5, 4],
+  ],
+  sweep: [
+    [-2, 2, -2, 2, -5, 4],
+    [-1, 1, -2, 2, -4, 2],
+    [1, 0, -1, 3, 2, 0],
+    [2, 0, 0, 3, 5, -1],
+    [2, 1, 0, 2, 4, 0],
+    [1, 1, 0, 1, 2, 1],
+  ],
+  cast: [
+    [-1, 1, -2, 2, -3, 2],
+    [-2, 1, -2, 2, -5, 3],
+    [0, 0, -1, 2, 2, 0],
+    [2, 0, 0, 3, 6, -2],
+    [1, 0, 0, 2, 5, -1],
+    [0, 1, 0, 1, 2, 0],
+  ],
+  rain: [
+    [0, 0, -1, 1, 0, 0],
+    [0, -1, -1, 1, -1, -4],
+    [0, -1, -2, 2, -2, -7],
+    [0, -2, -2, 2, -2, -10],
+    [0, -2, -2, 2, -2, -12],
+  ],
+  recover: [
+    [2, 1, 0, 3, 4, -1],
+    [1, 1, 0, 2, 3, 0],
+    [0, 1, 0, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0],
+  ],
+  break: [
+    [0, 0, 0, 0, 0, 0],
+    [0, 2, -1, 1, 0, 3],
+    [0, 3, -2, 2, 1, 5],
+    [0, 1, -2, 2, 2, -1],
+    [0, 0, -1, 1, 2, -3],
+  ],
+};
+function wardenPosePixel(i, j, frame, pose) {
+  const [lean, drop, leftStep, rightStep, reach, lift] = WARDEN_POSES[pose][frame],
+    x = i - 25.5,
+    y = j - 3;
+  const hand = wardenArmorLimb(
+    x,
+    y,
+    [
+      [14 + lean, 19 + drop],
+      [15 + lean + reach * 0.35, 25 + drop + lift * 0.4],
+      [12 + lean + reach, 31 + drop + lift],
+    ],
+    2.6,
+    25 + drop + lift * 0.4
+  );
+  if (hand) return hand;
+  const leftHand = wardenArmorLimb(
+    x,
+    y,
+    [
+      [-14 + lean, 19 + drop],
+      [-15 + lean - reach * 0.15, 25 + drop - lift * 0.15],
+      [-12 + lean - reach * 0.3, 31 + drop - lift * 0.2],
+    ],
+    2.6,
+    25 + drop
+  );
+  if (leftHand) return leftHand;
+  if (y >= 31)
+    for (const [side, step] of [
+      [-1, leftStep],
+      [1, rightStep],
+    ]) {
+      const rise = pose === 'walk' ? Math.max(0, side * step) * 0.7 : 0,
+        leg = wardenArmorLimb(
+          x,
+          y,
+          [
+            [side * 6 + lean * 0.5, 30 + drop],
+            [side * 6 + step * 0.45, 35 + drop * 0.4 - rise * 0.3],
+            [side * 6 + step, 40 - rise],
+          ],
+          3.7,
+          35 + drop * 0.4 - rise * 0.3
+        );
+      if (leg) {
+        if (y > 39 - rise) return '#16212c';
+        return leg;
+      }
+    }
+  const bodyY = y - drop,
+    bodyX = x - lean * clamp((bodyY - 9) / 21, 0, 1);
+  if (bodyY <= 33) {
+    const body = wardenArmorPixel(bodyX, bodyY, 0);
+    if (body) return body;
+  }
+  const hem = 10 + (y - 17) * 0.23,
+    capeX = x + Math.round((leftStep - rightStep) * clamp((y - 20) / 20, 0, 1) * 0.25);
+  if (y >= 17 && y <= 40 && Math.abs(capeX) < hem) {
+    if (Math.abs(capeX) > hem - 1.6 || y > 37 + (Math.abs(capeX) % 3)) return '#121725';
+    return Math.floor(capeX + y) % 7 === 0 ? '#513c68' : '#252b42';
+  }
+  return null;
+}
+function bakeWardenPoses() {
+  for (const [pose, frames] of Object.entries(WARDEN_POSES))
+    SPR['wardenBody_' + pose] = pxGen(
+      52,
+      49,
+      frames.length,
+      (i, j, f) => wardenPosePixel(i, j, f, pose),
+      { fps: 8, sc: 2.2 }
+    );
+}
+function wardenPoseFrame(b) {
+  const a = b.wb;
+  if (a.mode === 'windup') {
+    const u = clamp(1 - a.t / Math.max(0.01, a.duration), 0, 1),
+      pose = a.kind === 'stars' ? 'rain' : a.kind === 'returningGlaive' ? 'cast' : 'brace',
+      last = a.kind === 'returningGlaive' ? 1 : WARDEN_POSES[pose].length - 1;
+    return { pose, frame: Math.min(last, Math.floor(u * (last + 1))) };
+  }
+  if (a.mode === 'swing')
+    return {
+      pose: 'sweep',
+      frame: Math.min(5, Math.floor((1 - a.t / (a.swingDuration || 0.28)) * 6)),
+    };
+  if (a.mode === 'reaping') {
+    const age = a.castAge || 0;
+    return {
+      pose: 'cast',
+      frame: age < 0.24 ? 2 + Math.min(2, Math.floor(age / 0.08)) : age > 1.35 ? 5 : 4,
+    };
+  }
+  if (a.mode === 'lunge') return { pose: 'sweep', frame: 3 };
+  if (a.mode === 'rain') return { pose: 'rain', frame: 4 };
+  if (a.mode === 'break')
+    return {
+      pose: 'break',
+      frame: Math.min(4, Math.floor((1 - a.t / (a.final ? 0.72 : 1.05)) * 5)),
+    };
+  if (a.mode === 'recover') {
+    const duration = a.recoverDuration || (a.second ? 0.58 : 1.15);
+    return { pose: 'recover', frame: Math.min(3, Math.floor(clamp(1 - a.t / duration, 0, 1) * 4)) };
+  }
+  return {
+    pose: 'walk',
+    frame: save.motion || !a.walking ? 0 : Math.floor((a.walkTravel || 0) / 13) % 8,
+  };
+}
+function drawWardenBody(ctx, b, x, y, alpha = 1) {
+  const { pose, frame } = wardenPoseFrame(b),
+    spr = SPR['wardenBody_' + pose];
+  if (!spr) return;
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  ctx.globalAlpha = alpha;
+  ctx.drawImage(spr.frames[Math.max(0, frame)], x - 57.2, y - 53.9, 114.4, 107.8);
+  ctx.restore();
+}
+
 function bakeHollowSprites() {
   SPR.gateHound = SPR.bat;
   SPR.gateSentry = SPR.slime;
@@ -693,99 +934,8 @@ function bakeHollowSprites() {
     c: '#344457',
     b: '#252d3b',
   };
-  const warden = [
-    '...........g...........',
-    '.......g...g...g.......',
-    '.......gg..g..gg.......',
-    '........ggggggg........',
-    '........glllllg........',
-    '........smeemss........',
-    '........ksssssk........',
-    '.......gmlllllmg.......',
-    '....ggmmslllllsmmgg....',
-    '...gmssssmmmmsssssmg...',
-    '..gmmssccgggggccssmmg..',
-    '..mssscccllllcccssssm..',
-    '..msskcccllllcccksssm..',
-    '...sskcccggggccckss....',
-    '...kkmccccccccccmkk....',
-    '.....mcccllllcccm......',
-    '.....mcggggggggcm......',
-    '.....mccccccccccm......',
-    '.....sccccccccccs......',
-    '.....scccckkccccs......',
-    '.....sccsskkssccs......',
-    '.....ssssk..kssss......',
-    '......mssk..kssm.......',
-    '......mssk..kssm.......',
-    '.....gmmmk..kmmmg......',
-  ];
-
-  SPR.gateWarden = pxGen(
-    38,
-    43,
-    6,
-    (i, j, f) => {
-      const beat = Math.sin((f / 6) * TAU),
-        x = i - 18.5 - beat * (j > 17 ? (j - 17) / 60 : 0),
-        y = j;
-      if (y <= 7) {
-        const ray =
-          (Math.abs(x) < 1.5 && y < 5) ||
-          (Math.abs(x - 5) < 1.3 && y > 1) ||
-          (Math.abs(x + 5) < 1.3 && y > 1) ||
-          (Math.abs(x) < 7 && Math.abs(y - (5 - Math.abs(x) * 0.45)) < 1.2);
-        if (ray) return y < 2 ? '#f8df9d' : '#a58b59';
-      }
-      const helm = y >= 5 && y <= 18 && Math.abs(x) < 8.5 - Math.max(0, 8 - y) * 0.35;
-      if (helm) {
-        if (Math.abs(x) > 6.7 || y === 5 || y === 17) return '#111824';
-        if (y >= 10 && y <= 13) {
-          if (y === 10 && Math.abs(x) > 3) return '#c1b895';
-          return Math.abs(x) > 4 ? '#7f8f94' : Math.abs(x) > 1 ? '#f4d59b' : '#0a1019';
-        }
-        if (Math.abs(x) < 0.8 && y < 10) return '#8a9996';
-        if (y === 7 && Math.abs(x) > 2.5) return '#e1dfcd';
-        if (y > 13) {
-          if (Math.abs(x) < 1.2) return '#819291';
-          if (y === 15 && Math.abs(x) > 3 && Math.abs(x) < 5) return '#101b27';
-          if (Math.abs(x) > 5.2 && y < 16) return '#97a6a3';
-        }
-        return y < 9 ? '#c6cbbf' : '#405361';
-      }
-      const shoulder = y >= 14 && y <= 22 && Math.abs(x) < 17 - (y - 14) * 0.65;
-      if (shoulder) {
-        if (Math.abs(x) > 14 || y === 14 || y === 21) return '#111924';
-        if (y === 18 && Math.abs(x) > 11 && Math.abs(x) < 13) return '#dac695';
-        if (y === 20 && Math.abs(x) > 7) return '#233340';
-        return y < 17 ? '#d6d7c7' : Math.abs(x) > 10 ? '#7f9297' : '#394c5d';
-      }
-      const torso = y >= 18 && y <= 34 && Math.abs(x) < 11 - (y - 18) * 0.12;
-      if (torso) {
-        if (Math.abs(x) > 8.5 || y === 33) return '#14202b';
-        if (Math.abs(x) + Math.abs(y - 25) < 4) return '#ffe08a';
-        if (Math.abs(x) + Math.abs(y - 25) < 6) return '#a78352';
-        if (Math.abs(x) > 5 && Math.abs(x) < 6.5 && y > 22) return '#6d8186';
-        if (y === 21 && Math.abs(x) > 3) return '#a4b4ab';
-        if (y === 29 && Math.abs(x) > 4 && Math.abs(x) < 7) return '#b79e6c';
-        return y < 23 ? '#70858b' : y % 5 === 0 ? '#a8b6af' : '#354959';
-      }
-      if (y >= 31 && y <= 41) {
-        const leg = Math.abs(x - 6) < 4 || Math.abs(x + 6) < 4;
-        if (leg) {
-          if (y > 39 || (Math.abs(x - 6) > 2.8 && Math.abs(x + 6) > 2.8)) return '#141c29';
-          return y % 4 === 0 ? '#9baaa9' : '#455665';
-        }
-      }
-      const capeW = y < 17 ? 0 : 10 + (y - 17) * 0.23;
-      if (y >= 16 && y <= 40 && Math.abs(x) < capeW) {
-        if (Math.abs(x) > capeW - 1.6 || y > 37 + (Math.abs(x) % 3)) return '#121725';
-        return Math.floor(x + y + f) % 7 === 0 ? '#513c68' : '#252b42';
-      }
-      return null;
-    },
-    { fps: 6, sc: 2.2 }
-  );
+  SPR.gateWarden = pxGen(38, 43, 1, (i, j) => wardenArmorPixel(i - 18.5, j), { fps: 1, sc: 2.2 });
+  bakeWardenPoses();
   SPR.wardenShield = px(
     [
       [
@@ -962,13 +1112,46 @@ function activateWarden(b) {
 }
 const WARDEN_HP = 1850;
 const WARDEN_REACH = 134;
+function wardenReturningGlaivePoint(b, age) {
+  const a = b.wb,
+    out = age <= 0.68,
+    u = clamp(out ? age / 0.68 : (age - 0.68) / 0.78, 0, 1),
+    ease = out ? 1 - Math.pow(1 - u, 1.35) : u * u * (3 - 2 * u),
+    startX = out ? a.castX : a.castEndX,
+    startY = out ? a.castY : a.castEndY,
+    endX = out ? a.castEndX : b.x + Math.cos(a.a) * 20,
+    endY = out ? a.castEndY : b.y + Math.sin(a.a) * 20,
+    curve = Math.sin(Math.PI * u) * (out ? 42 : -54);
+  return {
+    x: startX + (endX - startX) * ease - Math.sin(a.a) * curve,
+    y: startY + (endY - startY) * ease + Math.cos(a.a) * curve,
+  };
+}
+function wardenBeginGlaive(b, distance) {
+  const a = b.wb;
+  let range = clamp(distance + 34, 180, 310);
+  for (; range > 32; range -= 18)
+    if (!solidPx(G.world, b.x + Math.cos(a.a) * range, b.y + Math.sin(a.a) * range)) break;
+  if (solidPx(G.world, b.x + Math.cos(a.a) * range, b.y + Math.sin(a.a) * range)) range = 20;
+  a.castX = b.x + Math.cos(a.a) * 20;
+  a.castY = b.y + Math.sin(a.a) * 20;
+  a.castEndX = b.x + Math.cos(a.a) * range;
+  a.castEndY = b.y + Math.sin(a.a) * range;
+  a.castAge = 0;
+  a.castHitOut = false;
+  a.castHitBack = false;
+  a.mode = 'reaping';
+  a.t = 1.58;
+  sfx('charge');
+}
 function wardenAI(b, dt, d, dx, dy) {
   if (!b.introduced) return;
   const a = b.wb,
     p = G.player,
     w = G.world;
   a.t -= dt;
-  if (!a.second && b.hp <= b.max * 0.56) {
+  a.walking = false;
+  if (!a.second && b.hp <= b.max * 0.5) {
     a.second = true;
     a.mode = 'break';
     a.t = 1.05;
@@ -992,6 +1175,7 @@ function wardenAI(b, dt, d, dx, dy) {
     if (a.t <= 0) {
       a.mode = 'recover';
       a.t = 0.6;
+      a.recoverDuration = a.t;
     }
     return;
   }
@@ -1006,12 +1190,44 @@ function wardenAI(b, dt, d, dx, dy) {
     if (hit || a.t <= 0) {
       a.mode = 'recover';
       a.t = a.second ? 0.54 : 1.05;
+      a.recoverDuration = a.t;
       burst(b.x, b.y, 12, '#8973a9', 130, 0.45, 2, false);
+    }
+    return;
+  }
+  if (a.mode === 'reaping') {
+    const prior = a.castAge || 0;
+    a.castAge = prior + dt;
+    for (const [lo, hi, field] of [
+      [0, 0.68, 'castHitOut'],
+      [0.68, 1.46, 'castHitBack'],
+    ]) {
+      if (a[field] || a.castAge < lo || prior > hi) continue;
+      const from = wardenReturningGlaivePoint(b, clamp(prior, lo, hi)),
+        to = wardenReturningGlaivePoint(b, clamp(a.castAge, lo, hi));
+      if (
+        segmentDistance(p.x, p.y, from.x, from.y, to.x, to.y) < 15 + p.r &&
+        los(w, to.x, to.y, p.x, p.y)
+      ) {
+        hurtPlayer(b.dmg + 2, to.x, to.y);
+        a[field] = true;
+      }
+    }
+    if (a.t <= 0) {
+      a.mode = 'recover';
+      a.t = a.final ? 0.6 : 0.84;
+      a.recoverDuration = a.t;
+      burst(b.x + Math.cos(a.a) * 24, b.y + Math.sin(a.a) * 24, 5, '#e6ca95', 60, 0.28, 1.6, false);
+      sfx('hit');
     }
     return;
   }
   if (a.mode === 'windup') {
     if (a.t > 0) return;
+    if (a.kind === 'returningGlaive') {
+      wardenBeginGlaive(b, d);
+      return;
+    }
     if (a.kind === 'lunge') {
       a.mode = 'lunge';
       a.t = a.second ? 0.5 : 0.46;
@@ -1086,6 +1302,7 @@ function wardenAI(b, dt, d, dx, dy) {
       } else {
         a.mode = 'recover';
         a.t = a.second ? 0.58 : 1.15;
+        a.recoverDuration = a.t;
       }
     }
     return;
@@ -1113,6 +1330,7 @@ function wardenAI(b, dt, d, dx, dy) {
     if (a.t <= 0) {
       a.mode = 'recover';
       a.t = a.second ? 0.34 : 0.7;
+      a.recoverDuration = a.t;
     }
     return;
   }
@@ -1120,6 +1338,7 @@ function wardenAI(b, dt, d, dx, dy) {
     a.marks = [];
     a.mode = 'recover';
     a.t = 0.7;
+    a.recoverDuration = a.t;
     return;
   }
   if (a.mode === 'recover') {
@@ -1132,50 +1351,77 @@ function wardenAI(b, dt, d, dx, dy) {
     return;
   }
   a.a = Math.atan2(dy, dx);
-  if (d > 104)
+  if (d > 104) {
+    const bx = b.x,
+      by = b.y;
     moveEnt(
       w,
       b,
       (dx / d) * (a.final ? 118 : a.second ? 104 : 80) * dt,
       (dy / d) * (a.final ? 118 : a.second ? 104 : 80) * dt
     );
+    const travel = Math.hypot(b.x - bx, b.y - by);
+    a.walkTravel = ((a.walkTravel || 0) + travel) % 104;
+    a.walking = travel > 0.01;
+  }
   if (a.t > 0) return;
   const sequence = a.final
-    ? ['double', 'stars', 'lunge', 'double', 'stars', 'lunge']
+    ? ['double', 'returningGlaive', 'stars', 'lunge', 'returningGlaive', 'double']
     : a.second
-      ? ['double', 'lunge', 'stars', 'double', 'lunge']
+      ? ['double', 'returningGlaive', 'lunge', 'stars', 'double']
       : ['sweep', 'lunge', 'sweep', 'stars'];
   a.kind = sequence[a.step++ % sequence.length];
   if (d > 230 && a.kind === 'sweep') a.kind = 'lunge';
   a.followup = false;
   a.mode = 'windup';
   a.duration =
-    a.kind === 'stars'
+    a.kind === 'returningGlaive'
       ? a.final
-        ? 0.66
-        : a.second
-          ? 0.82
-          : 0.95
-      : a.kind === 'lunge'
+        ? 0.5
+        : 0.64
+      : a.kind === 'stars'
         ? a.final
-          ? 0.4
+          ? 0.66
           : a.second
-            ? 0.5
-            : 0.72
-        : a.final
-          ? 0.36
-          : a.second
-            ? 0.46
-            : 0.66;
+            ? 0.82
+            : 0.95
+        : a.kind === 'lunge'
+          ? a.final
+            ? 0.4
+            : a.second
+              ? 0.5
+              : 0.72
+          : a.final
+            ? 0.36
+            : a.second
+              ? 0.46
+              : 0.66;
   a.t = a.duration;
   a.a = Math.atan2(p.y - b.y, p.x - b.x);
   a.marks = [];
 }
 
+function drawWardenReturningGlaive(ctx, b) {
+  const a = b.wb,
+    pos = wardenReturningGlaivePoint(b, Math.min(1.46, a.castAge || 0)),
+    angle = a.a + (a.castAge || 0) * TAU * 1.65;
+  glowImg('gold', pos.x, pos.y, 26, 0.2);
+  ctx.save();
+  ctx.translate(pos.x, pos.y);
+  ctx.fillStyle = '#100d1aaa';
+  ctx.beginPath();
+  ctx.ellipse(0, 10, 17, 5, 0, 0, TAU);
+  ctx.fill();
+  ctx.rotate(angle);
+  ctx.scale(0.44, 0.44);
+  drawWardenGlaive(ctx, -80, 0, 0);
+  ctx.restore();
+}
 function drawWardenEnvironment(ctx) {
   const b = G.boss;
   if (!b?.warden || !b.introduced) return;
   const a = b.wb;
+  if (a.mode === 'reaping') drawWardenReturningGlaive(ctx, b);
   if (a.mode === 'rain' || a.mode === 'recover')
     for (const m of a.marks) {
       if (m.landed) {
@@ -1435,17 +1681,9 @@ function drawGateEnemy(ctx, e) {
     const lunge = a.mode === 'lunge',
       lungeU = lunge ? 1 - a.t / (a.second ? 0.5 : 0.46) : 0,
       stars = wind && a.kind === 'stars';
-    const pull = wind && !stars ? windU : 0,
-      flow = swing ? Math.sin(Math.PI * swingU) : lunge ? Math.sin(Math.PI * lungeU) : 0;
-    const bodyX = -Math.cos(a.a) * pull * 7,
-      bodyY = -8 - Math.sin(a.a) * pull * 7 - (stars ? windU * 9 : 0);
-    const bodyRot = lunge
-      ? Math.cos(a.a) * 0.16
-      : swing
-        ? -0.08 + 0.16 * swingU
-        : Math.sin(t * 1.4) * 0.012 - Math.sin(a.a) * pull * 0.07;
-    const sx = 1 - pull * 0.07,
-      sy = 1 + pull * 0.08;
+    const flow = swing ? Math.sin(Math.PI * swingU) : lunge ? Math.sin(Math.PI * lungeU) : 0,
+      bodyX = 0,
+      bodyY = -8;
     glowImg(
       a.second ? 'ember' : 'gold',
       e.x,
@@ -1455,22 +1693,14 @@ function drawGateEnemy(ctx, e) {
     );
     if (lunge && !save.motion)
       for (let i = 3; i > 0; i--)
-        drawCreatureSprite(
+        drawWardenBody(
           ctx,
           e,
-          'gateWarden',
           e.x - Math.cos(a.a) * i * 14,
           e.y - 9 - Math.sin(a.a) * i * 14,
-          1,
-          bodyRot,
           0.08 * i
         );
-    ctx.save();
-    ctx.translate(e.x + bodyX, e.y + bodyY);
-    ctx.rotate(bodyRot);
-    ctx.scale(sx, sy);
-    drawCreatureSprite(ctx, e, 'gateWarden', 0, 0);
-    ctx.restore();
+    drawWardenBody(ctx, e, e.x + bodyX, e.y + bodyY);
     if (a.second) {
       ctx.save();
       ctx.translate(e.x + bodyX, e.y + bodyY);
@@ -1513,7 +1743,8 @@ function drawGateEnemy(ctx, e) {
     if (!Number.isFinite(a.visualA)) a.visualA = targetA;
     if (swing || lunge || save.motion) a.visualA = targetA;
     else a.visualA += angleDiff(targetA, a.visualA) * 0.24;
-    drawWardenGlaive(ctx, e.x + bodyX, e.y + bodyY + 3, a.visualA, a.mode === 'break' ? 0.45 : 1);
+    if (a.mode !== 'reaping')
+      drawWardenGlaive(ctx, e.x + bodyX, e.y + bodyY + 3, a.visualA, a.mode === 'break' ? 0.45 : 1);
     if (swing) drawWardenTrail(ctx, e.x, e.y, a.a, swingU);
     if (!a.second) {
       const shieldA = a.a + (brace ? 0.08 : 0.64),
@@ -2051,10 +2282,18 @@ validateCheckpoint = function (r) {
       if (
         !e.warden ||
         !b ||
-        !['wait', 'break', 'recover', 'windup', 'swing', 'lunge', 'starFlash', 'rain'].includes(
-          b.mode
-        ) ||
-        !['', 'sweep', 'double', 'stars', 'lunge'].includes(b.kind) ||
+        ![
+          'wait',
+          'break',
+          'recover',
+          'windup',
+          'swing',
+          'lunge',
+          'starFlash',
+          'rain',
+          'reaping',
+        ].includes(b.mode) ||
+        !['', 'sweep', 'double', 'stars', 'lunge', 'returningGlaive'].includes(b.kind) ||
         !num(b.t) ||
         !num(b.a) ||
         !num(b.step, 0) ||
@@ -2063,6 +2302,26 @@ validateCheckpoint = function (r) {
       )
         fail();
       for (const p of b.marks) if (!num(p.x, 0, w.W * TILE) || !num(p.y, 0, w.H * TILE)) fail();
+      if (
+        (b.walkTravel !== undefined && !num(b.walkTravel, 0, 104)) ||
+        (b.walking !== undefined && typeof b.walking !== 'boolean') ||
+        (b.recoverDuration !== undefined && !num(b.recoverDuration, 0.01, 3)) ||
+        (b.kind === 'returningGlaive' && !b.second)
+      )
+        fail();
+      if (
+        b.mode === 'reaping' &&
+        (!b.second ||
+          b.kind !== 'returningGlaive' ||
+          !num(b.castAge, 0, 2) ||
+          !num(b.castX, 0, w.W * TILE) ||
+          !num(b.castY, 0, w.H * TILE) ||
+          !num(b.castEndX, 0, w.W * TILE) ||
+          !num(b.castEndY, 0, w.H * TILE) ||
+          typeof b.castHitOut !== 'boolean' ||
+          typeof b.castHitBack !== 'boolean')
+      )
+        fail();
       if (
         b.mode === 'rain' &&
         (!num(b.rainAge, 0, 10) ||

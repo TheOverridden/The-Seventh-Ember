@@ -675,7 +675,10 @@ function updateEnemies(dt) {
     e.kby *= Math.pow(0.001, dt);
     if (
       e.dmg > 0 &&
-      !(e.lateBoss && (e.bs.mode === 'submerge' || e.bs.airborne)) &&
+      !(
+        e.lateBoss &&
+        (e.bs.mode === 'submerge' || e.bs.airborne || e.bs.mid?.bellWater?.submerged)
+      ) &&
       e.atkT <= 0 &&
       d < e.r + p.r + 2
     ) {

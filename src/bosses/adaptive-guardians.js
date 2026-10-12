@@ -457,7 +457,6 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
   if (threshold && !e.dead && e.hp <= e.max * threshold + 0.5) {
     a.gate++;
     a.shieldUntil = G.run.t + 0.85;
-    addText(e.x, e.y - e.r - 18, 'WARD RENEWED', '#f3d6ff', 13);
     burst(e.x, e.y, 22, '#d7b4ff', 175, 0.6, 2.8, true);
   }
 };
