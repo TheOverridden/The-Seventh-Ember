@@ -412,7 +412,7 @@ function update(dt) {
       return;
     }
   }
-  if (keys.KeyJ || touchInput.fire) {
+  if (keyboardActionDown('bolt') || touchInput.fire) {
     aimTarget = nearestTarget();
   } else {
     aimTarget = null;
@@ -423,10 +423,10 @@ function update(dt) {
   }
   let mx = 0,
     my = 0;
-  if (keys.KeyW || keys.ArrowUp) my -= 1;
-  if (keys.KeyS || keys.ArrowDown) my += 1;
-  if (keys.KeyA || keys.ArrowLeft) mx -= 1;
-  if (keys.KeyD || keys.ArrowRight) mx += 1;
+  if (keyboardActionDown('up')) my -= 1;
+  if (keyboardActionDown('down')) my += 1;
+  if (keyboardActionDown('left')) mx -= 1;
+  if (keyboardActionDown('right')) mx += 1;
   mx += touchInput.moveX + controllerInput.moveX;
   my += touchInput.moveY + controllerInput.moveY;
   if (mx || my) {
@@ -493,7 +493,10 @@ function update(dt) {
   }
   if (p.regen > 0 && p.hp < p.maxHp) p.hp = Math.min(p.maxHp, p.hp + p.regen * dt);
   p.face = aimAngle();
-  if ((mouse.down || keys.KeyJ || touchInput.fire || controllerInput.fire) && p.shotT <= 0)
+  if (
+    (mouse.down || keyboardActionDown('bolt') || touchInput.fire || controllerInput.fire) &&
+    p.shotT <= 0
+  )
     fireVolley();
   if (p.orbN > 0) {
     p.orbA += dt * 2.7 * (p.orbitRate || 1);

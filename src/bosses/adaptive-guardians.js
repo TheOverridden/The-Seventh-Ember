@@ -157,7 +157,7 @@ function adaptiveModel(tier, mastery, build, mode = 'campaign') {
     1,
     1.5
   );
-  return {
+  const model = {
     need,
     deficit,
     hp,
@@ -166,6 +166,9 @@ function adaptiveModel(tier, mastery, build, mode = 'campaign') {
     budget: ADAPTIVE_BUDGET[i],
     hitCap: ADAPTIVE_HIT_CAP[i],
   };
+  return mode === 'rush' && typeof bossRushAdaptiveModel === 'function'
+    ? bossRushAdaptiveModel(model, build)
+    : model;
 }
 function adaptiveBossKey(b) {
   return b?.bossKey || (b?.warden ? 'warden' : b?.matriarch ? 'matriarch' : 'guardian');

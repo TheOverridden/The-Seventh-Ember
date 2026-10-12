@@ -127,6 +127,84 @@ const ARCHIVE_BOONS = [
     desc: 'Gain 7% critical chance and strengthen every Flare by 12%.',
   },
 ];
+const BOSS_RUSH_HEALTH = {
+  warden: 8200,
+  matriarch: 9500,
+  bellkeeper: 8500,
+  colossus: 10800,
+  astronomer: 12300,
+  scribe: 14500,
+  regents: 10000,
+  seraph: 20500,
+  tyrant: 24500,
+  keeper: 29500,
+  uncounted: 33000,
+};
+const BOSS_RUSH_BALANCE = {
+  standard: {
+    health: 1,
+    damage: 0.72,
+    recovery: 0.3,
+    playerDamage: 1.52,
+    adaptiveHealth: 0.38,
+    adaptiveDamage: 0.44,
+    adaptiveTempo: 0.42,
+    budget: 1.5,
+    hitCap: 1.35,
+  },
+  nightfall: {
+    health: 1.24,
+    damage: 0.86,
+    recovery: 0.18,
+    playerDamage: 1.38,
+    adaptiveHealth: 0.48,
+    adaptiveDamage: 0.58,
+    adaptiveTempo: 0.58,
+    budget: 1.2,
+    hitCap: 1.16,
+  },
+};
+function bossRushBalance(difficulty = G.run?.guardianMode?.difficulty) {
+  return BOSS_RUSH_BALANCE[difficulty] || BOSS_RUSH_BALANCE.standard;
+}
+function bossRushGuardianHealth(b) {
+  const key = b.bossKey || (b.warden ? 'warden' : b.matriarch ? 'matriarch' : ''),
+    health = BOSS_RUSH_HEALTH[key] || b.max;
+  return Math.round(health * bossRushBalance().health);
+}
+function bossRushAdaptiveModel(model, build) {
+  const balance = bossRushBalance();
+  return {
+    ...model,
+    need: 0,
+    deficit: 0,
+    hp: 1 + (Math.pow(build.power, 0.46) - 1) * balance.adaptiveHealth,
+    damage: 1 + (build.defense - 1) * 0.17 * balance.adaptiveDamage,
+    tempo: 1 + Math.min(0.24, (build.power - 1) * 0.026) * balance.adaptiveTempo,
+    budget: model.budget * balance.budget,
+    hitCap: Math.min(0.15, model.hitCap * balance.hitCap),
+  };
+}
+function bossRushBlessingBuild() {
+  return {
+    ...modeBlessingBuild(14),
+    dmg: 8,
+    rate: 7,
+    proj: 1,
+    hp: 6,
+    speed: 3,
+    quickload: 3,
+    regen: 2,
+    ironAsh: 1,
+    bossWard: 1,
+  };
+}
+function applyBossRushReload() {
+  if (G.run?.mode !== 'rush' || !G.player) return;
+  G.player.reloadDuration =
+    (1.65 * Math.pow(0.82, G.run.up.quickload || 0) * (META.reload || 1)) /
+    (1 + 0.18 * (G.run.guardianMode?.boons?.focus || 0));
+}
 let guardianPracticeDifficulty = 'standard',
   guardianModeToken = 0;
 const isGuardianMode = () => G.run && (G.run.mode === 'practice' || G.run.mode === 'rush');
@@ -186,7 +264,7 @@ function installGuardianModes() {
   const rush = document.createElement('div');
   rush.id = 'bossRushPanel';
   rush.className = 'ov guardian-overlay';
-  rush.innerHTML = `<div class="guardian-shell rush-shell"><header><div><span class="guardian-kicker">TEN BELLS · ONE FLAME</span><h2>BOSS RUSH</h2><p>Face every guardian without returning to the surface. Your Skill Tree and Ember Forms carry into the Archive, alongside a fixed set of Blessings.</p></div><button class="guardian-x" id="bossRushClose" aria-label="Close Boss Rush">×</button></header><div id="bossRushLock" class="rush-lock"></div><button class="btn primary rush-continue" id="continueBossRush" hidden>CONTINUE SAVED BOSS RUSH</button><div class="rush-rules"><span><b>10</b> GUARDIANS</span><span><b>3</b> BOONS PER REST</span><span><b>1</b> CONTINUOUS RUN</span></div><div class="rush-choices"><article><i>Ⅰ</i><h3>THE FIRST BELL</h3><p>Guardian strength rises through the sequence. Restores 18% health between victories.</p><div id="rushStandardRecord"></div><button class="btn primary" id="startBossRushStandard">BEGIN BOSS RUSH</button></article><article class="nightfall"><i>Ⅱ</i><h3>NIGHTFALL</h3><p>More health, more damage, and only 9% recovery between victories. Unlocks after clearing the First Bell.</p><div id="rushNightfallRecord"></div><button class="btn" id="startBossRushNightfall">LOCKED</button></article></div><footer>Boss Rush checkpoints at every bell. Your campaign checkpoint remains untouched.</footer></div>`;
+  rush.innerHTML = `<div class="guardian-shell rush-shell"><header><div><span class="guardian-kicker">TEN BELLS · ONE FLAME</span><h2>BOSS RUSH</h2><p>Face every guardian without returning to the surface. A fixed set of Blessings equips every Rush. Your Skill Tree and chosen Ember Forms strengthen it further.</p></div><button class="guardian-x" id="bossRushClose" aria-label="Close Boss Rush">×</button></header><div id="bossRushLock" class="rush-lock"></div><button class="btn primary rush-continue" id="continueBossRush" hidden>CONTINUE SAVED BOSS RUSH</button><div class="rush-rules"><span><b>10</b> GUARDIANS</span><span><b>3</b> BOONS PER REST</span><span><b>1</b> CONTINUOUS RUN</span></div><div class="rush-choices"><article><i>Ⅰ</i><h3>THE FIRST BELL</h3><p>A ready flame against the ten guardians. Restores 30% health between victories.</p><div id="rushStandardRecord"></div><button class="btn primary" id="startBossRushStandard">BEGIN BOSS RUSH</button></article><article class="nightfall"><i>Ⅱ</i><h3>NIGHTFALL</h3><p>Stronger guardians and 18% recovery between victories. Unlocks after clearing the First Bell.</p><div id="rushNightfallRecord"></div><button class="btn" id="startBossRushNightfall">LOCKED</button></article></div><footer>Boss Rush checkpoints at every bell. Your campaign checkpoint remains untouched.</footer></div>`;
   document.body.appendChild(rush);
   const rest = document.createElement('div');
   rest.id = 'guardianSanctuary';
@@ -507,7 +585,7 @@ function restoreGuardianProgress(session) {
   gm.secret = session.secret;
   G.run.t = session.elapsed;
   recalc();
-  G.player.hp = clamp(session.hp, 0.01, G.player.maxHp);
+  G.player.hp = clamp((session.hp / session.maxHp) * G.player.maxHp, 0.01, G.player.maxHp);
   G.player.ammo = G.player.magSize;
 }
 function resumeBossRush() {
@@ -528,7 +606,7 @@ function resumeBossRush() {
     startGuardianModeFight(session.lastFloor, true);
     if (session.secret) revealUncountedGuardian();
     G.run.guardianMode.fightStart = G.run.t - session.fightElapsed;
-    G.player.hp = clamp(session.hp, 0.01, G.player.maxHp);
+    G.player.hp = clamp((session.hp / session.maxHp) * G.player.maxHp, 0.01, G.player.maxHp);
     G.player.hitCd = Math.max(G.player.hitCd, 1.2);
     pauseGame(true);
   }
@@ -539,7 +617,7 @@ function createGuardianModeRun(mode, floor, difficulty) {
   clearInput();
   META = computeMeta();
   const tier = mode === 'rush' ? 14 : Math.ceil(floor / 5) + 2,
-    up = modeBlessingBuild(tier);
+    up = mode === 'rush' ? bossRushBlessingBuild() : modeBlessingBuild(tier);
   G.run = {
     level: Math.max(4, tier * 3),
     xp: 0,
@@ -653,7 +731,10 @@ function applyGuardianModeBoons() {
   p.maxHp = Math.round(p.maxHp * (1 + 0.12 * (q.heart || 0)));
   p.dmg *= 1 + 0.16 * (q.fury || 0) + 0.12 * (q.crown || 0);
   p.shotInt /= 1 + 0.13 * (q.focus || 0);
-  p.reloadMul = (p.reloadMul || 1) * (1 + 0.18 * (q.focus || 0));
+  if (G.run.mode === 'rush') {
+    p.dmg *= bossRushBalance().playerDamage;
+    applyBossRushReload();
+  }
   p.speed *= 1 + 0.09 * (q.step || 0);
   p.dashCd *= Math.pow(0.86, q.step || 0);
   p.pierce += q.wells || 0;
@@ -699,29 +780,17 @@ function startGuardianModeFight(floor, resuming = false) {
   const mode = G.run.mode,
     diff = gm.difficulty,
     idx = gm.index,
-    hpMul =
-      mode === 'practice'
-        ? diff === 'ascendant'
-          ? 1.22
-          : 0.88
-        : (1.16 + idx * 0.065) * (diff === 'nightfall' ? 1.18 : 1),
+    hpMul = mode === 'practice' ? (diff === 'ascendant' ? 1.22 : 0.88) : 1,
     dmgMul =
       mode === 'practice'
         ? diff === 'ascendant'
           ? 1.15
           : 1
-        : (1 + idx * 0.04) * (diff === 'nightfall' ? 1.2 : 1),
-    playerDmgMul =
-      mode === 'practice'
-        ? diff === 'ascendant'
-          ? 1.22
-          : 1.32
-        : diff === 'nightfall'
-          ? 1.38
-          : 1.52;
+        : (1 + idx * 0.04) * (diff === 'nightfall' ? 1.2 : 1) * bossRushBalance(diff).damage,
+    playerDmgMul = mode === 'practice' ? (diff === 'ascendant' ? 1.22 : 1.32) : 1;
   G.player.dmg *= playerDmgMul;
   for (const b of bosses) {
-    b.max = Math.round(b.max * hpMul);
+    b.max = mode === 'rush' ? bossRushGuardianHealth(b) : Math.round(b.max * hpMul);
     b.hp = b.max;
     b.dmg = Math.max(1, Math.round(b.dmg * dmgMul));
     if (diff === 'nightfall') b.spd *= 1.07;
@@ -803,7 +872,7 @@ function guardianModeGuardianDefeated(b) {
     finishBossRush();
     return;
   }
-  const recovery = gm.difficulty === 'nightfall' ? 0.09 : 0.18;
+  const recovery = bossRushBalance(gm.difficulty).recovery;
   G.player.hp = Math.min(G.player.maxHp, G.player.hp + Math.ceil(G.player.maxHp * recovery));
   showGuardianSanctuary(g);
 }
@@ -1051,6 +1120,12 @@ const guardianRecalc = recalc;
 recalc = function () {
   guardianRecalc();
   applyGuardianModeBoons();
+};
+const guardianInitCombat = initCombat;
+initCombat = function () {
+  const out = guardianInitCombat();
+  applyBossRushReload();
+  return out;
 };
 const guardianHurtPlayer = hurtPlayer;
 hurtPlayer = function (dmg, sx, sy) {

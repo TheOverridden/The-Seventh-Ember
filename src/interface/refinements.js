@@ -68,6 +68,7 @@ function resetTouchInput() {
   }
 }
 function clearInput() {
+  keyboardRelease();
   for (const k in keys) keys[k] = false;
   mouse.down = false;
   interactQueued = false;
@@ -101,9 +102,9 @@ function aimAngle() {
   if (touchInput.aimActive && Math.hypot(touchInput.aimX, touchInput.aimY) > 0.12)
     return Math.atan2(touchInput.aimY, touchInput.aimX);
   if (controllerInput.active) return Math.atan2(controllerInput.aimY, controllerInput.aimX);
-  if (keys.KeyJ && aimTarget && !aimTarget.dead)
+  if (keyboardActionDown('bolt') && aimTarget && !aimTarget.dead)
     return Math.atan2(aimTarget.y - p.y, aimTarget.x - p.x);
-  if (keys.KeyJ) return p.face || 0;
+  if (keyboardActionDown('bolt')) return p.face || 0;
   return Math.atan2(mouse.y + G.cam.y - p.y, mouse.x + G.cam.x - p.x);
 }
 function safePosition(w, x, y, r) {

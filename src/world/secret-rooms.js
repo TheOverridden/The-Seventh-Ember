@@ -1677,7 +1677,8 @@ const secretUpdateHUDBase = updateHUD;
 updateHUD = function (dt) {
   const key = T('prompt').querySelector('kbd'),
     touch = document.body.classList.contains('touch');
-  key.textContent = touch ? 'USE' : 'E';
+  key.dataset.keyboardAction = 'interact';
+  key.textContent = touch ? 'USE' : keyLabel('interact');
   key.style.display = '';
   secretUpdateHUDBase(dt);
   const s = G.player && G.state === 'playing' ? secretNear() : null,
@@ -1688,8 +1689,10 @@ updateHUD = function (dt) {
   const wall = secretWallPosition(s),
     inReach = d2(G.player.x, G.player.y, wall.x, wall.y) <= (MELEE.reach + 4) ** 2;
   if (s.inspected && !s.discovered && (s.seals || 0) < 3) {
-    if (s.sealReady) key.textContent = touch ? 'FLARE' : 'K';
-    else key.style.display = 'none';
+    if (s.sealReady) {
+      key.dataset.keyboardAction = 'flare';
+      key.textContent = touch ? 'FLARE' : keyLabel('flare');
+    } else key.style.display = 'none';
   }
   T('promptTxt').textContent = s.discovered
     ? 'ENTER THE HIDDEN PASSAGE'

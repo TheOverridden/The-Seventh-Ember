@@ -22,6 +22,66 @@ let saveStorageUnavailable = false;
 let saveManifestUnavailable = false;
 let progressionMigration = { status: 'unknown', applied: false, removed: 0 };
 
+function withoutRetiredRunData(raw) {
+  if (!raw || typeof raw !== 'object') return raw;
+  const clean = { ...raw };
+  delete clean.lastRunRecap;
+  if (raw.resume?.run) {
+    clean.resume = { ...raw.resume, run: { ...raw.resume.run } };
+    delete clean.resume.run.recapGuardians;
+  }
+  return clean;
+}
+const retiredRunValidateSave = validateSave;
+validateSave = function (raw) {
+  return retiredRunValidateSave(withoutRetiredRunData(raw));
+};
+const retiredRunValidateCheckpoint = validateCheckpoint;
+validateCheckpoint = function (raw) {
+  const clean = retiredRunValidateCheckpoint(raw);
+  delete clean.run.recapGuardians;
+  return clean;
+};
+function migrateRetiredRunData() {
+  let changed = 0;
+  for (const [key, source] of [
+    [SAVE_KEY, 'primary'],
+    [SAVE_EMERGENCY_KEY, 'emergency'],
+    ...SAVE_SLOT_KEYS.map((key, i) => [key, 'slot-' + i]),
+  ]) {
+    try {
+      const text = readSaveValue(key);
+      if (!text) continue;
+      const raw = JSON.parse(text),
+        envelope = raw?.schema === SAVE_SCHEMA && raw.payload,
+        payload = envelope ? raw.payload : raw;
+      if (
+        !payload ||
+        (!Object.hasOwn(payload, 'lastRunRecap') &&
+          !Object.hasOwn(payload.resume?.run || {}, 'recapGuardians')) ||
+        !parseSaveEnvelope(text, source)
+      )
+        continue;
+      const clean = withoutRetiredRunData(payload),
+        body = JSON.stringify(clean),
+        packed = envelope
+          ? JSON.stringify({ ...raw, payload: clean, checksum: saveHash(body) })
+          : body;
+      if (readSaveValue(key) !== text || !verifiedSet(key, packed)) continue;
+      if (source === 'primary' && !envelope) {
+        const metadata = JSON.parse(readSaveValue(SAVE_PRIMARY_META_KEY) || 'null');
+        if (metadata?.checksum === saveHash(JSON.stringify(payload)))
+          verifiedSet(
+            SAVE_PRIMARY_META_KEY,
+            JSON.stringify({ ...metadata, checksum: saveHash(body) })
+          );
+      }
+      changed++;
+    } catch (_) {}
+  }
+  return changed;
+}
+
 function readSaveValue(key) {
   try {
     return localStorage.getItem(key);
@@ -255,6 +315,7 @@ function loadSave() {
   saveLastTime = 0;
   saveRecovered = saveConflicted = saveStorageUnavailable = false;
   applyProgressionMigration();
+  migrateRetiredRunData();
   const manifest = currentManifest();
   saveObservedManifest = manifestIdentity(manifest);
   const candidates = readSaveCandidates();

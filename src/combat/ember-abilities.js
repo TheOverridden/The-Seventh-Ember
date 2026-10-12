@@ -384,24 +384,25 @@ function wireCombat() {
     if (G.state === 'playing') reloadQueued = true;
   });
   addEventListener('keydown', (e) => {
-    if (
-      e.repeat ||
-      G.state !== 'playing' ||
-      anyBlockingOverlay() ||
-      ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)
-    )
+    if (e.repeat || G.state !== 'playing' || anyBlockingOverlay() || keyboardInputBlocked(e))
       return;
-    if (e.code === 'KeyK') {
+    if (keyboardActionPressed(e, 'flare')) {
       e.preventDefault();
       queueMelee();
     }
-    if (e.code === 'KeyR') {
+    if (keyboardActionPressed(e, 'reload')) {
       e.preventDefault();
       reloadQueued = true;
     }
   });
   addEventListener('mousedown', (e) => {
-    if (e.button === 2 && e.target.id === 'cv' && G.state === 'playing') {
+    if (
+      e.button === 2 &&
+      e.target.id === 'cv' &&
+      G.state === 'playing' &&
+      !keyboardInputBlocked(e) &&
+      !anyBlockingOverlay()
+    ) {
       e.preventDefault();
       queueMelee();
       initAudio();

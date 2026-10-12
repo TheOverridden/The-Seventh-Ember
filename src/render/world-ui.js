@@ -540,7 +540,7 @@ function lightingPass(sx, sy) {
 }
 function drawCrosshair(ctx) {
   const p = G.player;
-  const m = keys.KeyJ
+  const m = keyboardActionDown('bolt')
     ? aimTarget
       ? { x: aimTarget.x - G.cam.x, y: aimTarget.y - G.cam.y }
       : { x: p.x - G.cam.x + Math.cos(p.face) * 75, y: p.y - G.cam.y + Math.sin(p.face) * 75 }

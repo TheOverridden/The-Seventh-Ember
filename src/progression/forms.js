@@ -567,7 +567,7 @@ function renderForms() {
   for (const [slot, label] of FORM_SLOTS) {
     const section = document.createElement('section');
     section.className = 'form-section';
-    section.innerHTML = `<div class="form-section-title"><h3>${label} FORMS</h3><span>${slot === 'primary' ? 'hold to cast' : slot === 'flare' ? 'press K or use the Flare button' : 'press Space or use the Dash button'}</span></div><div class="form-grid"></div>`;
+    section.innerHTML = `<div class="form-section-title"><h3>${label} FORMS</h3><span>${slot === 'primary' ? 'hold to cast' : slot === 'flare' ? 'press ' + keyLabel('flare') + ' or use the Flare button' : 'press ' + keyLabel('dash') + ' or use the Dash button'}</span></div><div class="form-grid"></div>`;
     const grid = section.querySelector('.form-grid');
     for (const f of EMBER_FORMS.filter((q) => q.slot === slot)) {
       const owned = formOwned(f.id),

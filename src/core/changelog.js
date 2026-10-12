@@ -2,6 +2,19 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101203,
+    date: 'OCTOBER 12, 2026',
+    title: 'BOSS RUSH & CONTROLS',
+    intro: 'A more manageable Boss Rush, custom keyboard controls, and a simpler defeat screen.',
+    changes: [
+      'Boss Rush now has its own guardian health values and a stronger starting build. Standard offers more room to recover; Nightfall keeps stronger guardians and tougher fights. Both modes restore more health between victories.',
+      'Rush difficulty no longer adds extra penalties for an incomplete Skill Tree. Purchased skills, Ember Forms, and earned boons still help.',
+      'Keyboard controls can be changed in Settings, with two bindings for each action. Movement, Bolt, Flare, Rekindling, Dash, interactions, portal return, pause, and music controls remember your choices. Controls shown in the game follow your bindings.',
+      'Removed Run Recap and its stored records. Defeat screens include a Main Menu option alongside the existing retry options.',
+      'Existing permanent progress, saved descents, Rush checkpoints, and controller settings carry over.',
+    ],
+  },
+  {
     version: 2026101202,
     date: 'OCTOBER 12, 2026',
     title: 'BOSS RUSH REPAIRS',
@@ -603,21 +616,8 @@ const THE_SEVENTH_EMBER_CHANGELOG = [
       'First-run guidance appears when an action becomes useful and disappears as soon as it is learned.',
       'The first rooms introduce enemies one at a time before sealed encounters and mixed groups begin.',
       'Movement, Ember Bolt, Flare, Dash, Rekindling, Resting Flames, blessings, and the Warden each receive a focused introduction.',
-      'Early deaths now connect the Run Recap to a suggested Skill Tree upgrade.',
       'The Warden’s opening and the passage into the Rootbound Gardens have clearer guidance and presentation.',
       'Existing progress is preserved. Experienced players will not see first-descent guidance.',
-    ],
-  },
-  {
-    version: 2026091501,
-    date: 'SEPTEMBER 15, 2026',
-    title: 'EVERY DESCENT LEAVES A RECORD',
-    intro: 'See what happened, choose your next goal, and preserve the record.',
-    changes: [
-      'Run recaps show your last encounter, blessings, forms, defeated guardians, and earned essence.',
-      'View an affordable sigil or the next step toward your chosen form directly in the Skill Tree.',
-      'Copy a run record for your own notes. Records remain on your device until you copy them.',
-      'Your last recap survives a reload without affecting permanent progress.',
     ],
   },
   {

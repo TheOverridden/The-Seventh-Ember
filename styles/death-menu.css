@@ -1,0 +1,13 @@
+#dead .btnrow {
+  flex-wrap: wrap;
+}
+#trialMainMenu[hidden] {
+  display: none !important;
+}
+@media (max-width: 600px) {
+  #dead .btnrow .btn,
+  .trial-result-actions .btn {
+    flex: 1 1 170px;
+    justify-content: center;
+  }
+}

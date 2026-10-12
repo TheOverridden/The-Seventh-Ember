@@ -343,8 +343,8 @@ tickRememberedRoom = function (dt) {
   livingTickRememberedRoom(dt);
   const m = activeMemoryEcho;
   if (!m || m.phase === 'leaving' || !m.observer) return;
-  let mx = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0),
-    my = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
+  let mx = (keyboardActionDown('right') ? 1 : 0) - (keyboardActionDown('left') ? 1 : 0),
+    my = (keyboardActionDown('down') ? 1 : 0) - (keyboardActionDown('up') ? 1 : 0);
   mx += (touchInput.moveX || 0) + (controllerInput.moveX || 0);
   my += (touchInput.moveY || 0) + (controllerInput.moveY || 0);
   const len = Math.hypot(mx, my);
@@ -381,8 +381,8 @@ T('cv').addEventListener(
 addEventListener(
   'keydown',
   (e) => {
-    if (!activeMemoryEcho || e.repeat) return;
-    if (['KeyJ', 'KeyK', 'KeyR'].includes(e.code)) {
+    if (!activeMemoryEcho || e.repeat || keyboardInputBlocked(e)) return;
+    if (['bolt', 'flare', 'reload'].some((action) => keyboardActionPressed(e, action))) {
       e.preventDefault();
       disturbEcho();
     }

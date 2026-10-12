@@ -26,23 +26,30 @@ function saveOnExit() {
 }
 addEventListener('keydown', (e) => {
   if (!gameInputReady()) return;
-  if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
-  if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
-    if (G.state === 'playing' && !anyBlockingOverlay()) e.preventDefault();
-  }
+  if (keyboardInputBlocked(e)) return;
+  if (
+    G.state === 'playing' &&
+    !anyBlockingOverlay() &&
+    Object.values(keyboardPreferences().bindings).some((pair) => pair.includes(e.code))
+  )
+    e.preventDefault();
   if (e.repeat || keys[e.code]) return;
   keys[e.code] = true;
   initAudio();
-  if (e.code === 'Escape') {
+  const blocking = anyBlockingOverlay();
+  if (e.code === 'Escape' && (G.state !== 'playing' || blocking)) {
     onEscKey();
     return;
   }
-  if (anyBlockingOverlay()) return;
-  if (e.code === 'KeyM') toggleMusic();
-  if (e.code === 'KeyP') onEscKey();
+  if (blocking) return;
+  if (keyboardActionPressed(e, 'mute')) toggleMusic();
+  if (keyboardActionPressed(e, 'pause') && ['playing', 'paused'].includes(G.state)) {
+    onEscKey();
+    return;
+  }
   if (G.state === 'playing') {
-    if (e.code === 'Space') queueDash();
-    if (e.code === 'KeyE') interactQueued = true;
+    if (keyboardActionPressed(e, 'dash')) queueDash();
+    if (keyboardActionPressed(e, 'interact')) interactQueued = true;
   }
   if (G.state === 'levelup') {
     if (e.code === 'Digit1' || e.code === 'Numpad1') chooseCard(0);
@@ -66,7 +73,13 @@ addEventListener('mousemove', (e) => {
 });
 addEventListener('mousedown', (e) => {
   if (!gameInputReady()) return;
-  if (e.button === 0 && e.target.id === 'cv' && G.state === 'playing') {
+  if (
+    e.button === 0 &&
+    e.target.id === 'cv' &&
+    G.state === 'playing' &&
+    !keyboardInputBlocked(e) &&
+    !anyBlockingOverlay()
+  ) {
     mouse.down = true;
     initAudio();
   }

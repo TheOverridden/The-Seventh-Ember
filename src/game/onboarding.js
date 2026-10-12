@@ -48,28 +48,34 @@ const ONBOARDING_COPY = {
     () =>
       onboardingTouch()
         ? 'Drag the left ember-ring to move.'
-        : 'Use WASD or the arrow keys to move.',
+        : 'Move with ' +
+          ['up', 'left', 'down', 'right'].map((action) => keyLabel(action, 0)).join(' / ') +
+          '.',
   ],
   bolt: [
     'EMBER BOLT',
     () =>
       onboardingTouch()
         ? 'Hold the right ember-ring toward the creature.'
-        : 'Aim with the mouse and hold click, or hold J.',
+        : 'Aim with the mouse and hold click, or hold ' + keyLabel('bolt') + '.',
   ],
   flare: [
     'FLARE',
     () =>
       onboardingTouch()
         ? 'Tap FLARE when a creature gets close. It hits much harder.'
-        : 'Press K or right-click when a creature gets close. Flare hits much harder.',
+        : 'Press ' +
+          keyLabel('flare') +
+          ' or right-click when a creature gets close. Flare hits much harder.',
   ],
   dash: [
     'DASH THROUGH DANGER',
     () =>
       onboardingTouch()
         ? 'Tap DASH as an attack reaches you. You cannot be hurt during the burst.'
-        : 'Press Space as an attack reaches you. You cannot be hurt during the burst.',
+        : 'Press ' +
+          keyLabel('dash') +
+          ' as an attack reaches you. You cannot be hurt during the burst.',
   ],
   kindled: [
     'DASH COUNTER',
@@ -81,14 +87,16 @@ const ONBOARDING_COPY = {
     () =>
       onboardingTouch()
         ? 'Your six bolts are nearly spent. Tap REKINDLE now, or it will begin automatically at empty.'
-        : 'Your six bolts are nearly spent. Press R now, or Rekindle begins automatically at empty.',
+        : 'Your six bolts are nearly spent. Press ' +
+          keyLabel('reload') +
+          ' now, or Rekindle begins automatically at empty.',
   ],
   interact: [
     'THE RESTING FLAME',
     () =>
       onboardingTouch()
         ? 'Stand near the flame and tap USE to recover health.'
-        : 'Stand near the flame and press E to recover health.',
+        : 'Stand near the flame and press ' + keyLabel('interact') + ' to recover health.',
   ],
   blessing: [
     'CHOOSE WHAT CHANGES',
@@ -251,19 +259,8 @@ deathGuide.id = 'firstDeathGuide';
 deathGuide.innerHTML = '<strong>LEARN FROM THE FALL</strong><p id="firstDeathGuideText"></p>';
 T('dead').querySelector('.btnrow').before(deathGuide);
 function refreshFirstDeathGuide() {
-  const recap = save.lastRunRecap,
-    goal = typeof recapNextGoal === 'function' ? recapNextGoal() : null;
-  const cause =
-    recap?.death?.source && recap.death.source !== 'Cause not recorded'
-      ? recap.death.source
-      : 'the last encounter';
   T('firstDeathGuideText').textContent =
-    'The Run Recap shows how ' +
-    cause +
-    ' ended this descent. ' +
-    (goal?.node
-      ? 'Your next suggested sigil is ' + goal.node.name + '.'
-      : 'Spend your essence before rising again.');
+    'Your gathered essence is kept. Spend it on permanent sigils before rising again, or return to the Main Menu.';
   deathGuide.hidden = G.floor > 5;
 }
 const onboardingDie = die;

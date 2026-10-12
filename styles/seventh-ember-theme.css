@@ -88,7 +88,6 @@ body.ui-reborn .panel,
 body.ui-reborn #luWrap,
 body.ui-reborn .tree-panel,
 body.ui-reborn .changelog-shell,
-body.ui-reborn .recap-shell,
 body.ui-reborn .finale-shell {
   color: var(--tse-ivory);
   border: 1px solid rgba(var(--region-rgb), 0.42);
@@ -137,7 +136,6 @@ body.ui-reborn .bigword,
 body.ui-reborn .panel h2,
 body.ui-reborn .tree-head h2,
 body.ui-reborn #luTitle,
-body.ui-reborn .recap-shell h2,
 body.ui-reborn .changelog-shell > h2 {
   color: var(--tse-gold-hot);
   text-shadow:
@@ -428,8 +426,7 @@ body.ui-reborn .memory-entry strong,
 body.ui-reborn .armory-entry.unlocked strong {
   color: #e6d4b1;
 }
-body.ui-reborn .trace-fragment,
-body.ui-reborn .recap-goal {
+body.ui-reborn .trace-fragment {
   border-color: var(--region);
   background: rgba(var(--region-rgb), 0.08);
   color: #ded3bf;
@@ -452,11 +449,6 @@ body.ui-reborn #changelogClose {
   box-shadow:
     0 0 0 9px #0b0a08f0,
     0 0 28px #d7a64d24;
-}
-body.ui-reborn #recapReport {
-  border-color: rgba(var(--region-rgb), 0.42);
-  background: #090908;
-  color: #d8d0c1;
 }
 body.ui-reborn .finale-shell {
   background:
@@ -542,7 +534,6 @@ body.ui-reborn ::-webkit-scrollbar-thumb {
   body.ui-reborn #luWrap,
   body.ui-reborn .tree-panel,
   body.ui-reborn .changelog-shell,
-  body.ui-reborn .recap-shell,
   body.ui-reborn .finale-shell {
     border-radius: 0 11px 0 11px;
     clip-path: polygon(
@@ -560,7 +551,6 @@ body.ui-reborn ::-webkit-scrollbar-thumb {
   body.ui-reborn #luWrap,
   body.ui-reborn .tree-panel,
   body.ui-reborn .changelog-shell,
-  body.ui-reborn .recap-shell,
   body.ui-reborn .finale-shell {
     animation: none !important;
     transition: none !important;

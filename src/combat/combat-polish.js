@@ -286,7 +286,7 @@ update = function (dt) {
   if (beforeDash <= 0 && p.dashT > 0) combatPolishDashStart(p);
   combatPolishNearMisses(p);
   const active = G.state === 'playing' && !combatPolishReduced(),
-    aiming = active && (mouse.down || keys.KeyJ || touchInput.aimActive),
+    aiming = active && (mouse.down || keyboardActionDown('bolt') || touchInput.aimActive),
     moveMag = Math.hypot(touchInput.moveX || 0, touchInput.moveY || 0);
   let targetX = 0,
     targetY = 0;

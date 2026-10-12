@@ -672,13 +672,13 @@ function updateHearthTrial(dt) {
     beginReload();
   }
   let mx =
-      (keys.KeyD || keys.ArrowRight ? 1 : 0) -
-      (keys.KeyA || keys.ArrowLeft ? 1 : 0) +
+      (keyboardActionDown('right') ? 1 : 0) -
+      (keyboardActionDown('left') ? 1 : 0) +
       touchInput.moveX +
       controllerInput.moveX,
     my =
-      (keys.KeyS || keys.ArrowDown ? 1 : 0) -
-      (keys.KeyW || keys.ArrowUp ? 1 : 0) +
+      (keyboardActionDown('down') ? 1 : 0) -
+      (keyboardActionDown('up') ? 1 : 0) +
       touchInput.moveY +
       controllerInput.moveY,
     magnitude = Math.hypot(mx, my);
@@ -714,9 +714,12 @@ function updateHearthTrial(dt) {
   p.kby *= Math.pow(0.0005, dt);
   p.lean = lerp(p.lean, mx * 0.23, 1 - Math.exp(-dt * 9));
   p.ghosts = p.ghosts.filter((ghost) => (ghost.life -= dt * 3.4) > 0);
-  aimTarget = keys.KeyJ || touchInput.fire ? nearestTarget() : null;
+  aimTarget = keyboardActionDown('bolt') || touchInput.fire ? nearestTarget() : null;
   p.face = aimAngle();
-  if ((mouse.down || keys.KeyJ || touchInput.fire || controllerInput.fire) && p.shotT <= 0)
+  if (
+    (mouse.down || keyboardActionDown('bolt') || touchInput.fire || controllerInput.fire) &&
+    p.shotT <= 0
+  )
     fireVolley();
   if (meleeQueued) {
     meleeQueued = false;
@@ -1287,7 +1290,7 @@ fireVolley = function () {
   if (q.id === 'stitch' || q.id === 'constellation') {
     let x = p.x + Math.cos(aimAngle()) * 190,
       y = p.y + Math.sin(aimAngle()) * 190;
-    if (!touchInput.aimActive && !controllerInput.active && !keys.KeyJ) {
+    if (!touchInput.aimActive && !controllerInput.active && !keyboardActionDown('bolt')) {
       const dx = mouse.x + G.cam.x - p.x,
         dy = mouse.y + G.cam.y - p.y,
         distance = Math.hypot(dx, dy) || 1,

@@ -143,7 +143,14 @@ function finishDialogue() {
     fieldNote(
       document.body.classList.contains('touch')
         ? 'Left stick moves · Hold the right stick to aim and fire · Ability buttons sit between them'
-        : 'J for Ember Bolt · K for Flare · R to Rekindle · Space to dash',
+        : keyLabel('bolt') +
+            ' for Ember Bolt · ' +
+            keyLabel('flare') +
+            ' for Flare · ' +
+            keyLabel('reload') +
+            ' to Rekindle · ' +
+            keyLabel('dash') +
+            ' to dash',
       7
     );
   }

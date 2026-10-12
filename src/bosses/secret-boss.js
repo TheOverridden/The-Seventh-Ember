@@ -44,18 +44,21 @@ function revealUncountedGuardian() {
   b.bs.duration = 1.15;
   b.bs.secretPhase = 0;
   b.bs.echoA = 0;
-  const mul = gm.difficulty === 'nightfall' ? 1.7 : 1.45;
-  b.max = Math.round(b.max * mul);
+  const balance = bossRushBalance(gm.difficulty);
+  b.max = bossRushGuardianHealth(b);
   b.hp = b.max;
-  b.dmg = Math.round(b.dmg * (gm.difficulty === 'nightfall' ? 1.32 : 1.12));
+  b.dmg = Math.round(b.dmg * (gm.difficulty === 'nightfall' ? 1.32 : 1.12) * balance.damage);
   if (gm.difficulty === 'nightfall') b.spd *= 1.08;
   G.enemies = [b];
   G.boss = b;
   G.bossActive = true;
   G.player.hp = Math.min(
     G.player.maxHp,
-    G.player.hp + Math.ceil(G.player.maxHp * (gm.difficulty === 'nightfall' ? 0.22 : 0.35))
+    G.player.hp + Math.ceil(G.player.maxHp * (gm.difficulty === 'nightfall' ? 0.35 : 0.5))
   );
+  G.player.dashCdT = 0;
+  G.player.reloadT = 0;
+  G.player.ammo = G.player.magSize;
   G.player.hitCd = 2;
   G.player.x = a.cx;
   G.player.y = a.bottom - 72;

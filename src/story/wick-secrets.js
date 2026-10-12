@@ -379,8 +379,7 @@
       }
       if (
         e.repeat ||
-        e.code !== 'KeyQ' ||
-        ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName) ||
+        !keyboardActionPressed(e, 'portal') ||
         G.state !== 'playing' ||
         anyBlockingOverlay()
       )

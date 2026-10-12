@@ -306,8 +306,7 @@ function controllerBack(scope) {
       guardianModeResult: 'guardianResultMenu',
       blessingCombos: 'comboClose',
       achievements: 'achievementClose',
-      runRecap: 'recapClose',
-      dead: 'btnDeadMenu',
+      dead: 'btnDeadMainMenu',
       win: 'btnWinEnd',
       memories: 'memoriesClose',
       chapterClear: 'chapterExplore',
@@ -386,16 +385,17 @@ function controllerRefreshPrompts() {
   if (active && prompt && prompt.style.display !== 'none') {
     const text = T('promptTxt')?.textContent || '',
       flare =
+        prompt.dataset.keyboardAction === 'flare' ||
         /FLARE THE CATCHES/.test(text) ||
         prompt.textContent === 'K' ||
         prompt.textContent === 'FLARE';
     prompt.textContent = controllerButtonName(bindings[flare ? 'flare' : 'use']);
   }
   for (const [selector, action, fallback] of [
-    ['#btnReload kbd', 'rekindle', 'R'],
-    ['#btnMelee kbd', 'flare', 'K'],
-    ['#portalRecall .portal-key', 'portal', 'Q'],
-    ['#btnPause kbd', null, 'Esc'],
+    ['#btnReload kbd', 'rekindle', keyLabel('reload')],
+    ['#btnMelee kbd', 'flare', keyLabel('flare')],
+    ['#portalRecall .portal-key', 'portal', keyLabel('portal')],
+    ['#btnPause kbd', null, keyLabel('pause')],
     ['#achievementClose kbd', null, 'Esc'],
   ]) {
     const el = document.querySelector(selector),
@@ -592,6 +592,10 @@ function controllerPoll(now) {
     controller.uiDirty = false;
     controllerUpdateSettings();
   }
+  if (keyboard.binding) {
+    controllerRelease();
+    return;
+  }
   if (controller.binding && !T('settings').classList.contains('open')) controller.binding = null;
   if (controller.binding) {
     controllerRelease();
@@ -618,6 +622,10 @@ function controllerPoll(now) {
     return;
   }
   if (G.state === 'echo' && activeMemoryEcho) {
+    if (keyboardTextEntry(document.activeElement)) {
+      controllerRelease();
+      return;
+    }
     controllerInput.fire = false;
     controllerInput.moveX = controllerInput.active && !controller.stickBlocked ? move.x : 0;
     controllerInput.moveY = controllerInput.active && !controller.stickBlocked ? move.y : 0;
@@ -701,7 +709,13 @@ function controllerPoll(now) {
     }
     return;
   }
-  if (G.state !== 'playing' || G.descending || anyBlockingOverlay()) {
+  if (
+    G.state !== 'playing' ||
+    G.descending ||
+    anyBlockingOverlay() ||
+    keyboard.binding ||
+    keyboardTextEntry(document.activeElement)
+  ) {
     controllerRelease();
     return;
   }
@@ -810,6 +824,7 @@ document.addEventListener('focusin', (event) => {
   T('settingsSave').before(section);
   for (const action of Object.keys(CONTROLLER_ACTIONS))
     T('bind-' + action).addEventListener('click', () => {
+      if (typeof keyboardCancelBinding === 'function') keyboardCancelBinding(false);
       if (!controller.pad) {
         toast('CONNECT A CONTROLLER', 'Press a button on your controller first.');
         return;

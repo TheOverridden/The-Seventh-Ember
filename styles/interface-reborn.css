@@ -57,8 +57,7 @@ body.ui-reborn .ov {
 body.ui-reborn .panel,
 body.ui-reborn #luWrap,
 body.ui-reborn .tree-panel,
-body.ui-reborn .changelog-shell,
-body.ui-reborn .recap-shell {
+body.ui-reborn .changelog-shell {
   position: relative;
   border: 1px solid var(--line);
   border-radius: 0 18px 0 18px;
