@@ -151,7 +151,8 @@ function colossusBodyPose(b) {
   const s = b.bs || {},
     m = s.mid || {},
     wind = s.mode === 'windup' ? clamp(1 - s.t / Math.max(0.01, s.duration), 0, 1) : 0,
-    walking = s.mode === 'wait' && Math.hypot(G.player.x - b.x, G.player.y - b.y) > 155,
+    walking =
+      !!G.player && s.mode === 'wait' && Math.hypot(G.player.x - b.x, G.player.y - b.y) > 155,
     gait = COLOSSUS_GAIT[walking && !save.motion ? Math.floor((m.clock || 0) * 5) % 6 : 0],
     pose = {
       left: gait.left.slice(),

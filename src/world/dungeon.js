@@ -544,17 +544,23 @@ function damageEnemy(e, dmg, ang, isCrit, kbMul) {
       }
     } else {
       if (e.bs.mode === 'shift') return;
-      const phase = e.bs.phase || 0,
+      const phase = (e.bossKey === 'uncounted' ? e.bs.secretPhase : e.bs.phase) || 0,
         cut =
-          e.bossKey === 'keeper'
+          e.bossKey === 'uncounted'
             ? phase === 0
-              ? 0.68
+              ? 0.66
               : phase === 1
-                ? 0.3
+                ? 0.33
                 : 0
-            : phase === 0
-              ? 0.5
-              : 0;
+            : e.bossKey === 'keeper'
+              ? phase === 0
+                ? 0.68
+                : phase === 1
+                  ? 0.3
+                  : 0
+              : phase === 0
+                ? 0.5
+                : 0;
       if (cut && e.hp >= e.max * cut) dmg = Math.min(dmg, e.hp - e.max * cut);
       if (dmg <= 0) return;
     }

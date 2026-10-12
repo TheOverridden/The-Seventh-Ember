@@ -2,6 +2,17 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101202,
+    date: 'OCTOBER 12, 2026',
+    title: 'BOSS RUSH REPAIRS',
+    intro: 'Repaired a damage lock in Boss Rush and a guardian portrait error in the Hearth.',
+    changes: [
+      'Fixed a Boss Rush encounter that could stop taking damage at half health. Normal protection during phase changes still ends when the transition finishes.',
+      'Fixed the Colossus portrait when opening the Hearth before starting a run.',
+      'Existing progress and saved encounters carry over. Affected fights can continue after loading the update.',
+    ],
+  },
+  {
     version: 2026101201,
     date: 'OCTOBER 12, 2026',
     title: 'GUARDIANS IN MOTION',
