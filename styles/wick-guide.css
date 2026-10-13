@@ -1,0 +1,289 @@
+#wickGuide {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  isolation: isolate;
+  color: #f5e9cf;
+}
+#wickGuide[hidden],
+#wickGuide [hidden] {
+  display: none !important;
+}
+body.wick-start-only #menu button[hidden],
+body.wick-start-only #menu a[hidden],
+body.wick-start-only #menu .audiorow,
+body.wick-start-only #menu .guardian-mode-row,
+#wickStartHint[hidden] {
+  display: none !important;
+}
+#wickStartHint {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 8px 0 12px;
+  padding: 12px 14px;
+  border-left: 2px solid #b38b4f;
+  background: #20180e99;
+  color: #ded1b7;
+  text-align: left;
+}
+#wickStartHint canvas {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  image-rendering: pixelated;
+}
+#wickStartHint p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+#wickStartHint b {
+  display: block;
+  margin-bottom: 3px;
+  color: #e6bd77;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+body.motion-low .wick-guide-card,
+body.motion-low #wickGuideSpotlight {
+  animation: none;
+}
+#wickGuideShade {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.wick-guide-backdrop {
+  position: absolute;
+  background: #020201b8;
+  pointer-events: auto;
+  touch-action: none;
+}
+#wickGuideShade.wick-guide-fullshade {
+  background: #020201b8;
+  pointer-events: auto;
+}
+#wickGuideSpotlight {
+  position: absolute;
+  z-index: 1;
+  border: 2px solid #f2cd78;
+  background:
+    linear-gradient(#fff0ba, #fff0ba) top left / 12px 2px no-repeat,
+    linear-gradient(#fff0ba, #fff0ba) top left / 2px 12px no-repeat,
+    linear-gradient(#fff0ba, #fff0ba) bottom right / 12px 2px no-repeat,
+    linear-gradient(#fff0ba, #fff0ba) bottom right / 2px 12px no-repeat;
+  box-shadow:
+    0 0 0 2px #261a0d,
+    0 0 0 4px #b87d343b,
+    inset 0 0 0 1px #fff2bd29;
+  pointer-events: none;
+  animation: wickGuideEmber 2.6s ease-in-out infinite;
+}
+.wick-guide-card {
+  position: absolute;
+  left: var(--guide-card-x, 24px);
+  top: var(--guide-card-y, 24px);
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: start;
+  gap: 16px 20px;
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 22px;
+  border: 2px solid #bd9152;
+  border-radius: 0;
+  background:
+    radial-gradient(ellipse at 10% 0%, #5d371526, transparent 66%),
+    linear-gradient(155deg, #211a11, #0d0b08 78%);
+  box-shadow:
+    0 0 0 2px #0b0805,
+    0 0 0 3px #664824,
+    0 18px 70px #000c,
+    inset 0 0 0 2px #fff0ae0a;
+  pointer-events: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #80613a #100c08;
+  animation: wickGuideArrive 180ms steps(6, end) both;
+}
+.wick-guide-card::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid #d5b87624;
+  pointer-events: none;
+}
+.wick-guide-card::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 22px;
+  width: 66px;
+  height: 3px;
+  background: #ffe5a1;
+  box-shadow: 0 0 12px #f0ad4d66;
+  pointer-events: none;
+}
+#wickGuidePortrait {
+  grid-column: 1;
+  grid-row: 1;
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin-top: 3px;
+  border: 1px solid #88633b;
+  background: #0a0806;
+  box-shadow:
+    0 0 0 3px #18120b,
+    0 0 0 4px #604320,
+    inset 0 0 20px #ffb85608;
+  image-rendering: pixelated;
+}
+.wick-guide-copy {
+  grid-column: 2;
+  min-width: 0;
+}
+.wick-guide-name,
+.wick-guide-copy > label,
+.wick-guide-copy > .eyebrow {
+  display: block;
+  margin: 0 0 6px;
+  color: #cbb082;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.2em;
+}
+#wickGuideTitle {
+  margin: 0 0 10px;
+  color: #ffe8ae;
+  font-size: 23px;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
+}
+#wickGuideText {
+  margin: 0;
+  color: #ece1cb;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+#wickGuideText strong {
+  color: #ffe6a7;
+  font-weight: 650;
+}
+.wick-guide-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #a47c3f35;
+}
+#wickGuideProgress {
+  margin: 0;
+  color: #bca788;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+#wickGuideNext {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 10px 18px;
+  border: 1px solid #e0b971;
+  border-radius: 0;
+  background: #4b351b;
+  color: #fff0c8;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px #fff0bf26,
+    0 3px 0 #120d07;
+  transition:
+    background 120ms,
+    border-color 120ms;
+}
+#wickGuideNext:hover {
+  border-color: #ffebb0;
+  background: #634721;
+}
+#wickGuideNext:focus-visible {
+  outline: 2px solid #fff2c6;
+  outline-offset: 4px;
+}
+#wickGuideNext:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 1px #fff0bf26,
+    0 2px 0 #120d07;
+}
+#wickGuideNext:disabled {
+  border-color: #6b5232;
+  background: #251e14;
+  color: #a5967a;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+@keyframes wickGuideArrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes wickGuideEmber {
+  0%,
+  100% {
+    border-color: #e4b968;
+  }
+  50% {
+    border-color: #ffe3a0;
+  }
+}
+@media (max-height: 760px) {
+  .wick-guide-card {
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 12px 16px;
+    width: min(460px, calc(100vw - 32px));
+    padding: 18px;
+  }
+  #wickGuidePortrait {
+    width: 80px;
+    height: 80px;
+  }
+  #wickGuideTitle {
+    font-size: 21px;
+  }
+  #wickGuideText {
+    line-height: 1.55;
+  }
+  .wick-guide-actions {
+    padding-top: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wick-guide-card,
+  #wickGuideSpotlight {
+    animation: none;
+  }
+  #wickGuideNext {
+    transition: none;
+  }
+}

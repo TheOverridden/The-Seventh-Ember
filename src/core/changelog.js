@@ -2,6 +2,19 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101301,
+    date: 'OCTOBER 13, 2026',
+    title: 'WICK SHOWS YOU AROUND',
+    intro: 'Wick introduces permanent upgrades and the places between descents.',
+    changes: [
+      'New saves begin with Begin Descent as the only title-screen action. After the first campaign death, Wick opens a required tour of the Skill Tree, Guardian Archive, and Hearth.',
+      'Select a sigil to learn about its cost and prerequisites. Buying it is optional, so an empty Essence balance cannot stop the tour.',
+      'The tour includes the Trial Board and uses Wick’s animated portrait. It saves each step and resumes after a reload. Later deaths use the normal defeat screen.',
+      'Wick points out Boss Rush once it unlocks, after returning to the Main Menu.',
+      'Returning players keep their progress and normal title screen. Their first campaign death after this update introduces the new tour once.',
+    ],
+  },
+  {
     version: 2026101203,
     date: 'OCTOBER 12, 2026',
     title: 'BOSS RUSH & CONTROLS',
