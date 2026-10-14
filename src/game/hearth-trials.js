@@ -453,9 +453,9 @@ function hearthTrialRoster(wave) {
       ['guard', 'ranged', 'support', 'orbit', 'guard', 'rush', 'ranged', 'orbit'],
     ];
   let roles = all[Math.min(wave, all.length - 1)].slice();
-  if (tier === 0) roles = roles.slice(0, 5 + Math.min(2, wave));
-  if (tier > 0) roles.push('rush', wave % 2 ? 'guard' : 'ranged');
-  if (tier === 2) roles.push('orbit', 'support');
+  if (tier < 2) roles = roles.slice(0, 5 + Math.min(2, wave));
+  if (tier === 1 && wave % 2) roles.push('rush');
+  if (tier === 2) roles.push('rush', wave % 2 ? 'guard' : 'ranged');
   const added = HEARTH_TRIAL_RULES[hearthTrial.id],
     roleOrder = ['rush', 'orbit', 'ranged', 'guard', 'support'];
   if (added) roles.push(wave % 2 ? 'ranged' : 'guard');
@@ -478,7 +478,6 @@ function hearthTrialGate(index) {
 function spawnHearthTrialEnemy(type, point, serial) {
   const t = ETYPES[type],
     role = point.role || LATE_ENEMIES[type]?.role || 'guard',
-    tier = hearthTrial.tier,
     settings = hearthTrial.settings,
     wave = hearthTrial.wave,
     hp = Math.round(
@@ -512,7 +511,7 @@ function spawnHearthTrialEnemy(type, point, serial) {
   });
   if (e.trialFlame && hearthTrial.id === 'twinFlames')
     e.flameIndex = hearthTrial.flameSpawned++ % 2;
-  if (e.ai === 'late') e.specialCd = (1.3 + (serial % 4) * 0.3) / (1 + tier * 0.18);
+  if (e.ai === 'late') e.specialCd = (1.3 + (serial % 4) * 0.3) / (1 + settings.pressure * 0.18);
   CREATURE_MOTION.set(e, { x: e.x, y: e.y, travel: 0, phase: 0, moving: false });
   return e;
 }
@@ -585,7 +584,7 @@ function tickHearthTrialEnemies(dt) {
       else {
         if (e.ai === 'garden') gardenEnemyAI(e, dt, distance, dx, dy, target);
         else if (e.ai === 'late') {
-          e.specialCd = Math.max(0, e.specialCd - dt * q.tier * 0.18);
+          e.specialCd = Math.max(0, e.specialCd - dt * q.settings.pressure * 0.18);
           lateEnemyAI(e, dt, distance, dx, dy);
         }
         moveEnt(G.world, e, e.kbx * dt, e.kby * dt);
@@ -604,7 +603,7 @@ function tickHearthTrialEnemies(dt) {
       d2(e.x, e.y, target.x, target.y) < (e.r + 28) ** 2
     ) {
       e.atkT = 1;
-      hurtHearthTrialFlame(6 + q.tier * 3, target);
+      hurtHearthTrialFlame(q.settings.flameDamage, target);
     }
     const motion = CREATURE_MOTION.get(e),
       profile = creatureProfile(e),
@@ -768,7 +767,7 @@ function tickHearthTrialSweeps(dt) {
   if (!q.tier || !['oneHeart', 'constellation'].includes(q.id)) return;
   q.sweepClock -= dt;
   if (q.sweepClock <= 0) {
-    q.sweepClock = q.tier === 2 ? 5.5 : 8.5;
+    q.sweepClock = q.tier === 2 ? 8 : 12;
     q.sweeps.push({ vertical: q.sweepSerial++ % 2 === 0, t: 0, life: 6.2, warning: 1.2 });
   }
   for (const sweep of q.sweeps) {
@@ -780,7 +779,7 @@ function tickHearthTrialSweeps(dt) {
       distance = Math.abs((sweep.vertical ? G.player.x : G.player.y) - coordinate);
     if (distance < G.player.r + 6)
       hurtPlayer(
-        8 + q.tier * 2,
+        q.tier === 2 ? 11 : 9,
         sweep.vertical ? coordinate : G.player.x - 20,
         sweep.vertical ? G.player.y - 20 : coordinate
       );
@@ -824,7 +823,7 @@ function updateHearthTrialShots(dt) {
     b.life -= dt;
     const steps = Math.max(1, Math.ceil((Math.hypot(b.vx, b.vy) * dt) / 12));
     if (hearthTrial.id === 'glasshouse' && b.trialBounces === undefined)
-      b.trialBounces = hearthTrial.tier + 1;
+      b.trialBounces = hearthTrial.tier === 2 ? 2 : 1;
     for (let step = 0; step < steps && b.life > 0; step++) {
       moveHearthTrialShot(b, dt / steps);
       if (
@@ -838,7 +837,7 @@ function updateHearthTrialShots(dt) {
       if (b.life > 0 && hearthTrialProtectsFlames())
         for (const flame of hearthTrial.flames) {
           if (d2(b.x, b.y, flame.x, flame.y) < 28 ** 2) {
-            hurtHearthTrialFlame(6 + hearthTrial.tier * 3, flame);
+            hurtHearthTrialFlame(hearthTrial.settings.flameDamage, flame);
             b.life = 0;
             break;
           }

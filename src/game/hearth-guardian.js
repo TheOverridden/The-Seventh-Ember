@@ -16,7 +16,7 @@ function spawnHearthTrialGuardian() {
       x: TILE * 14.5,
       y: TILE * 5.5,
     },
-    hp = [4000, 6500, 9500][tier],
+    hp = q.settings.guardianHp,
     e = {
       type: 'trialGuardian',
       ai: 'trialGuardian',
@@ -26,8 +26,8 @@ function spawnHearthTrialGuardian() {
       r: 38,
       hp,
       max: hp,
-      spd: [94, 108, 124][tier],
-      dmg: [16, 23, 30][tier],
+      spd: [90, 98, 111][tier],
+      dmg: [15, 17, 24][tier],
       xp: 0,
       kb: 0.035,
       kbx: 0,
@@ -153,7 +153,7 @@ function hearthGuardianFan(e, warning = 0.62, count = 3, spread = 0.16, aim = nu
     life: 0.12,
     count,
     spread,
-    speed: [255, 290, 325][tier] + e.phase * 14,
+    speed: [245, 265, 300][tier] + e.phase * 14,
     damage: Math.round(e.dmg * 0.86),
   });
 }
@@ -164,8 +164,8 @@ function hearthGuardianRing(e, warning = 0.95, offset = 0) {
     a: Math.atan2(p.y - e.y, p.x - e.x) + offset,
     warning,
     life: 3.1,
-    speed: [155, 180, 210][tier] + e.phase * 10,
-    gap: tier === 2 ? 0.38 : 0.47,
+    speed: [150, 160, 185][tier] + e.phase * 10,
+    gap: [0.5, 0.47, 0.44][tier],
     width: 8,
     radius: 46,
     damage: Math.round(e.dmg * 0.9),
@@ -193,7 +193,7 @@ function hearthGuardianRecover(e, duration = null) {
   const c = e.crucible;
   c.mode = 'recover';
   c.t = 0;
-  c.duration = duration === null ? [1.12, 0.95, 0.82][hearthTrial.tier] - e.phase * 0.07 : duration;
+  c.duration = duration === null ? [1.2, 1.13, 1][hearthTrial.tier] - e.phase * 0.07 : duration;
   c.kind = '';
   e.trialMode = 'rest';
   burst(e.x, e.y - 25, 7, HEARTH_CRUCIBLE_PALETTE.hot, 90, 0.35, 2, true);
@@ -230,10 +230,10 @@ function hearthGuardianBeginAttack(e) {
   e.trialAngle = c.a;
   e.trialMode = 'attack';
   if (c.kind === 'charge') {
-    c.warning = [0.86, 0.78, 0.72][q.tier];
-    c.lockAt = c.warning - [0.38, 0.34, 0.31][q.tier];
+    c.warning = [0.9, 0.85, 0.79][q.tier];
+    c.lockAt = c.warning - [0.4, 0.38, 0.35][q.tier];
     c.dashDuration = 0.5;
-    c.dashSpeed = [660, 740, 820][q.tier] + e.phase * 25;
+    c.dashSpeed = [630, 680, 760][q.tier] + e.phase * 25;
     c.returnStroke = q.tier === 2 && e.phase > 0;
     c.returnWarning = 0.66;
     c.duration = c.warning + c.dashDuration + (c.returnStroke ? c.returnWarning + 0.5 : 0.16);
@@ -242,21 +242,21 @@ function hearthGuardianBeginAttack(e) {
     c.dashBlocked = false;
     e.trialMode = 'chargeWind';
   } else if (c.kind === 'cleave') {
-    c.warning = [0.84, 0.76, 0.7][q.tier];
+    c.warning = [0.88, 0.83, 0.77][q.tier];
     c.duration = e.phase > 0 ? 1.98 : 1.25;
     hearthGuardianHazard(e, 'sector', {
       a: c.a,
       warning: c.warning,
       life: 0.19,
-      radius: [165, 185, 205][q.tier],
+      radius: [158, 170, 190][q.tier],
       halfArc: 1.34,
     });
   } else if (c.kind === 'rivets') {
-    c.duration = [1.95, 2.65, 3.35][q.tier];
+    c.duration = [1.95, 1.95, 2.65][q.tier];
   } else if (c.kind === 'sweep') {
     c.warning = 0.9;
     c.beamLife = 2.6;
-    c.beamTurn = c.turn * [e.phase ? 5.4 : 3.3, 6.1, 7][q.tier];
+    c.beamTurn = c.turn * [e.phase ? 5.1 : 3.1, 5.5, 6.3][q.tier];
     c.beamStart = c.a - c.turn * 0.7;
     c.duration = q.tier === 2 && e.phase > 0 ? 5.48 : 3.65;
     hearthGuardianHazard(e, 'beam', {
@@ -264,7 +264,7 @@ function hearthGuardianBeginAttack(e) {
       turn: c.beamTurn,
       warning: c.warning,
       life: c.beamLife,
-      width: q.tier === 2 ? 11 : 9,
+      width: q.tier === 2 ? 10 : 9,
       damage: Math.round(e.dmg * 0.88),
     });
   } else if (c.kind === 'quench') {
@@ -462,15 +462,15 @@ function tickHearthTrialGuardian(e, dt) {
           a: c.backA,
           warning: 0.59,
           life: 0.18,
-          radius: [150, 172, 194][tier],
+          radius: [145, 155, 178][tier],
           halfArc: 1.23,
         });
       });
   } else if (c.kind === 'rivets') {
-    const salvos = [2, 3, 4][tier];
+    const salvos = [2, 2, 3][tier];
     for (let i = 0; i < salvos; i++)
       hearthGuardianOnce(c, 'rivet' + i, i * 0.7, () => {
-        const fan = hearthGuardianFan(e, 0.6, [3, 5, 7][tier], i % 2 ? 0.2 : 0.13);
+        const fan = hearthGuardianFan(e, 0.6, [3, 3, 5][tier], i % 2 ? 0.2 : 0.13);
         if (fan) e.trialAngle = fan.a;
       });
   } else if (c.kind === 'sweep') {
@@ -509,7 +509,7 @@ function tickHearthTrialGuardian(e, dt) {
         const lead = 0.2 + i * 0.13;
         hearthGuardianPillar(e, p.x + c.vx * lead, p.y + c.vy * lead);
       });
-    hearthGuardianOnce(c, 'forgeFan', 1.35, () => hearthGuardianFan(e, 0.62, 7, 0.15));
+    hearthGuardianOnce(c, 'forgeFan', 1.35, () => hearthGuardianFan(e, 0.62, 5, 0.15));
     if (e.phase === 2) hearthGuardianOnce(c, 'forgeRing', 1.55, () => hearthGuardianRing(e, 0.82));
   } else if (c.kind === 'judgment') {
     hearthGuardianOnce(c, 'judgmentSweep', 0.98, () => {

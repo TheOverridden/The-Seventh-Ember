@@ -1,30 +1,12 @@
 #secretRoom.moth-shop .secret-shell {
-  width: min(1340px, 98vw);
-  grid-template-columns: minmax(0, 1.05fr) minmax(350px, 0.95fr);
   border-color: #a18655;
-  background: #172021;
+  background: #1d2017;
 }
 #secretRoom.moth-shop .secret-view {
-  background: #152124;
-  display: flex;
-  align-items: center;
-  min-height: 560px;
-  overflow: hidden;
-}
-#secretRoom.moth-shop #secretCanvas {
-  height: auto;
-  min-height: 0;
-  width: 100%;
-  aspect-ratio: 8/7;
-  object-fit: contain;
-  border-top: 1px solid #716849;
-  border-bottom: 1px solid #716849;
+  background: #141811;
 }
 #secretRoom.moth-shop .secret-copy {
-  padding: 28px 24px;
-  overflow: auto;
-  max-height: 90dvh;
-  background: linear-gradient(160deg, #2d2b20, #152125 70%);
+  background: linear-gradient(160deg, #302b1e, #171f17 70%);
 }
 #secretRoom.moth-shop #secretChoices {
   display: grid;
@@ -116,19 +98,6 @@
   outline-offset: 3px;
 }
 @media (max-width: 900px) {
-  #secretRoom.moth-shop .secret-shell {
-    grid-template-columns: 1fr;
-    overflow: auto;
-  }
-  #secretRoom.moth-shop .secret-view {
-    min-height: 0;
-    padding: 0;
-    background: #152124;
-  }
-  #secretRoom.moth-shop .secret-copy {
-    overflow: visible;
-    max-height: none;
-  }
   #secretRoom.moth-shop #secretChoices {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -174,21 +143,5 @@
     left: 12px;
     bottom: 12px;
     font-size: 7px;
-  }
-}
-@media (max-height: 560px) and (min-width: 800px) {
-  #secretRoom.moth-shop .secret-shell {
-    grid-template-columns: 1fr 1fr;
-    max-height: 96dvh;
-  }
-  #secretRoom.moth-shop .secret-view {
-    min-height: 0;
-  }
-  #secretRoom.moth-shop .secret-copy {
-    max-height: 96dvh;
-    overflow: auto;
-  }
-  #secretRoom.moth-shop #secretChoices {
-    grid-template-columns: 1fr;
   }
 }

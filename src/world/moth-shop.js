@@ -387,8 +387,6 @@ const mothRenderRoom = renderSecretRoom;
 renderSecretRoom = function () {
   const out = mothRenderRoom(),
     s = currentSecret();
-  const height = s?.type === 'shop' ? 840 : 480;
-  if (secretCanvas.height !== height) secretCanvas.height = height;
   secretOverlay.classList.toggle('moth-shop', s?.type === 'shop');
   if (s?.type === 'shop') {
     s.claimed = secretShopStock(s).every((o) => secretItemOwned(s, o.id));

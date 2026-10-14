@@ -2,6 +2,20 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101401,
+    date: 'OCTOBER 14, 2026',
+    title: 'HIDDEN ROOMS & TRIALS',
+    intro: 'New secret-room interiors and a gentler trial difficulty curve.',
+    changes: [
+      'Rebuilt all twelve secret-room interiors with detailed pixel art, distinct furnishings, and subtle animation. The cache, workshop, sanctuary, shop, and other chambers each have their own layout.',
+      'Secret-room artwork keeps its proportions on laptop and desktop screens. Room actions and Moth’s stock scroll separately from the scene.',
+      'Keyboard focus stays inside secret rooms and remains on a usable control after purchases and workshop choices.',
+      'Kindling trials are a little more forgiving. Blaze now sits slightly above the previous Kindling difficulty; Inferno sits slightly above the previous Blaze difficulty.',
+      'Adjusted waves, enemy strength, spawning, hazards, and the Crucible together. Higher difficulties keep their additional moves and trial rules.',
+      'Existing saves, trial records, rewards, and secret-room discoveries carry over.',
+    ],
+  },
+  {
     version: 2026101301,
     date: 'OCTOBER 13, 2026',
     title: 'WICK SHOWS YOU AROUND',

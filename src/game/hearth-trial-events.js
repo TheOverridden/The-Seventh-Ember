@@ -66,20 +66,26 @@ function hearthTrialSettings(id, tier) {
     threat = advanced ? 1.12 + index * 0.035 : 1,
     health = {
       oneHeart: [30, 30, 30],
-      lastLight: [90, 75, 60],
-      glasshouse: [110, 95, 80],
-      pursuit: [120, 105, 90],
-      blackout: [110, 95, 80],
+      lastLight: [95, 90, 75],
+      glasshouse: [115, 110, 95],
+      pursuit: [125, 120, 105],
+      blackout: [115, 110, 95],
     };
   return {
-    waves: id === 'guardian' ? 1 : (advanced ? 5 : 4) + tier * 2,
-    cap: id === 'guardian' ? 1 : [4, 7, 10][tier] + (advanced ? (tier === 2 ? 2 : 1) : 0),
-    hpMul: [1, 1.65, 2.4][tier] * threat,
-    speedMul: [1.06, 1.24, 1.42][tier] * Math.sqrt(threat),
-    damage: Math.round([13, 19, 25][tier] * Math.sqrt(threat)),
-    playerHp: (health[id] || [140, 120, 100])[tier],
-    spawnGap: [0.9, 0.68, 0.5][tier],
-    telegraph: [1.05, 0.95, 0.85][tier],
+    waves: id === 'guardian' ? 1 : (advanced ? 5 : 4) + (tier === 2 ? 2 : 0),
+    cap: id === 'guardian' ? 1 : [4, 5, 7][tier] + (advanced ? 1 : 0),
+    hpMul: [0.94, 1.1, 1.72][tier] * threat,
+    speedMul: [1.02, 1.1, 1.27][tier] * Math.sqrt(threat),
+    damage: Math.round([12, 14, 20][tier] * Math.sqrt(threat)),
+    playerHp: (health[id] || [145, 140, 125])[tier],
+    spawnGap: [1, 0.86, 0.65][tier],
+    telegraph: [1.1, 1.03, 0.92][tier],
+    pressure: [0, 0.25, 1.1][tier],
+    flameDamage: [5, 7, 10][tier],
+    beaconHold: [1, 1.15, 1.4][tier],
+    lightTurn: [0.18, 0.2, 0.26][tier],
+    lightHalf: [0.6, 0.56, 0.48][tier],
+    guardianHp: id === 'guardian' ? [3750, 4250, 6850][tier] : null,
   };
 }
 function hearthTrialProtectsFlames() {
@@ -120,7 +126,7 @@ function initHearthTrialEvents() {
   q.flameSpawned = 0;
   q.flames = [q.flame];
   if (q.id === 'twinFlames') {
-    const hp = [100, 90, 80][q.tier];
+    const hp = [105, 98, 88][q.tier];
     q.flames = [-175, 175].map((dx) => ({ x: cx + dx, y: cy, hp, max: hp, hitT: 0 }));
     q.flame = q.flames[0];
   }
@@ -140,7 +146,7 @@ function hearthTrialMark(type, x, y, extra = {}) {
     x,
     y,
     age: 0,
-    warning: [0.95, 0.85, 0.75][q.tier],
+    warning: [1, 0.93, 0.82][q.tier],
     life: 1.6,
     fired: false,
     ...extra,
@@ -156,8 +162,8 @@ function tickHearthTrialEvents(dt) {
     const beacon = q.recovered < Math.min(4, q.wave) ? q.runes[q.recovered] : null;
     if (beacon && G.enemies.some((e) => !e.dead)) {
       const near = d2(p.x, p.y, beacon.x, beacon.y) < 38 ** 2;
-      beacon.held = clamp(beacon.held + dt * (near ? 1 : -0.5), 0, 1.1 + q.tier * 0.25);
-      if (beacon.held >= 1.1 + q.tier * 0.25) {
+      beacon.held = clamp(beacon.held + dt * (near ? 1 : -0.5), 0, q.settings.beaconHold);
+      if (beacon.held >= q.settings.beaconHold) {
         beacon.recovered = true;
         q.recovered++;
         burst(beacon.x, beacon.y, 18, '#f8e7b0', 160, 0.6, 3, true);
@@ -168,7 +174,7 @@ function tickHearthTrialEvents(dt) {
   if (q.id === 'lastLight') {
     ev.light.x = TILE * 14.5 + Math.sin(q.elapsed * 0.24) * 165;
     ev.light.y = TILE * 10.5 + Math.sin(q.elapsed * 0.37) * 112;
-    ev.light.r = Math.max(125, [220, 195, 175][q.tier] - Math.max(0, q.wave - 1) * 7);
+    ev.light.r = Math.max(125, [230, 215, 190][q.tier] - Math.max(0, q.wave - 1) * 7);
   }
   if (['lastLight', 'blackout'].includes(q.id)) {
     const cx = TILE * 14.5,
@@ -176,17 +182,17 @@ function tickHearthTrialEvents(dt) {
       dx = p.x - cx,
       dy = p.y - cy,
       angle = Math.atan2(dy, dx),
-      turn = q.elapsed * [0.19, 0.25, 0.31][q.tier],
+      turn = q.elapsed * q.settings.lightTurn,
       safe =
         q.id === 'lastLight'
           ? d2(p.x, p.y, ev.light.x, ev.light.y) < (ev.light.r - p.r * 0.5) ** 2
           : Math.hypot(dx, dy) < 92 ||
             Math.min(Math.abs(angleDiff(angle, turn)), Math.abs(angleDiff(angle, turn + Math.PI))) <
-              [0.58, 0.5, 0.44][q.tier];
+              q.settings.lightHalf;
     ev.exposure = safe || q.elapsed < 5 ? Math.max(0, ev.exposure - dt * 2) : ev.exposure + dt;
     if (ev.exposure >= 0.8) {
       hurtPlayer(
-        [7, 10, 13][q.tier],
+        [6, 8, 11][q.tier],
         q.id === 'lastLight' ? ev.light.x : cx,
         q.id === 'lastLight' ? ev.light.y : cy
       );
@@ -204,20 +210,21 @@ function tickHearthTrialEvents(dt) {
           life: 1.15,
         });
       }
-      ev.clock = [4.4, 3.5, 2.7][q.tier];
+      ev.clock = [4.6, 4.2, 3.4][q.tier];
     } else if (q.id === 'cinderRain') {
-      for (let i = 0; i <= q.tier; i++) {
+      for (let i = 0; i < [1, 1, 2][q.tier]; i++) {
         const a = cycle * 1.7 + i * 2.4,
-          offset = i ? 75 + q.tier * 15 : 0,
+          offset = i ? 75 + q.settings.pressure * 15 : 0,
           point = safePosition(G.world, p.x + Math.cos(a) * offset, p.y + Math.sin(a) * offset, 12);
-        if (point) hearthTrialMark('cinder', point.x, point.y, { radius: 40 + q.tier * 4 });
+        if (point)
+          hearthTrialMark('cinder', point.x, point.y, { radius: 39 + q.settings.pressure * 4 });
       }
-      ev.clock = [3.8, 2.9, 2.2][q.tier];
+      ev.clock = [4, 3.6, 2.8][q.tier];
     } else if (q.id === 'relay' && q.tier > 0) {
       const beacon = q.recovered < Math.min(4, q.wave) ? q.runes[q.recovered] : null;
       if (beacon)
         hearthTrialMark('cinder', beacon.x, beacon.y, { radius: 46, warning: 1.5, life: 1.95 });
-      ev.clock = q.tier === 2 ? 5 : 7;
+      ev.clock = q.tier === 2 ? 6.5 : 9;
     } else ev.clock = 5;
   }
   for (const mark of ev.marks) {
@@ -226,8 +233,9 @@ function tickHearthTrialEvents(dt) {
     if (!mark.fired) {
       mark.fired = true;
       if (mark.type === 'volley') {
-        for (let i = -q.tier - 1; i <= q.tier + 1; i++) {
-          enemyShoot(mark, mark.a + i * 0.1, 230 + q.tier * 30, q.settings.damage);
+        const spread = q.tier === 2 ? 2 : 1;
+        for (let i = -spread; i <= spread; i++) {
+          enemyShoot(mark, mark.a + i * 0.1, [220, 242, 275][q.tier], q.settings.damage);
           G.ebul[G.ebul.length - 1].lateColor = '#f4c57d';
         }
       } else {
@@ -280,8 +288,8 @@ function drawHearthTrialEvents(ctx) {
   if (q.id === 'blackout') {
     const cx = TILE * 14.5,
       cy = TILE * 10.5,
-      turn = q.elapsed * [0.19, 0.25, 0.31][q.tier],
-      half = [0.58, 0.5, 0.44][q.tier];
+      turn = q.elapsed * q.settings.lightTurn,
+      half = q.settings.lightHalf;
     ctx.fillStyle = '#bcc9e9';
     ctx.globalAlpha = 0.08;
     for (let y = TILE * 2; y < TILE * 19; y += 12)
@@ -330,7 +338,7 @@ function drawHearthTrialEvents(ctx) {
       ctx.fillRect(r.x - 24, r.y - 21, 4, 42);
       ctx.fillRect(r.x + 20, r.y - 21, 4, 42);
       if (active) {
-        ctx.fillRect(r.x - 24, r.y + 29, (48 * r.held) / (1.1 + q.tier * 0.25), 4);
+        ctx.fillRect(r.x - 24, r.y + 29, (48 * r.held) / q.settings.beaconHold, 4);
         glowImg('ember', r.x, r.y, 70, 0.22);
       }
     }

@@ -145,7 +145,7 @@ const HEARTH_TRIALS = [
       'Bolt, Flare, and Dash. Track reflected enemy projectiles as you move between firing lanes.',
     tierDetails: [
       'Reflected Observatory shots cross the room a second time. Watch the walls as well as the enemies.',
-      'More ricochets keep volleys alive longer, filling the spaces behind the firing line.',
+      'Quicker enemies and returning volleys tighten the firing lanes. Keep track of missed shots.',
       'Repeated ricochets and overlapping volleys turn every wall into another threat.',
     ],
   },
@@ -215,8 +215,8 @@ const HEARTH_TRIALS = [
           ][tier]
         : [
             'Stronger enemies press every wave. Watch their attack warnings and keep an escape route.',
-            'More waves, larger packs, and faster, harder-hitting enemies leave less room to recover.',
-            'The longest fight brings the toughest, fastest waves. Shorter attack warnings punish every missed opening.',
+            'A few extra attackers and quicker enemies put more pressure on the same room.',
+            'Two additional waves bring larger packs, tougher enemies, and shorter attack warnings.',
           ][tier] +
           (tier > 0 && ['oneHeart', 'constellation'].includes(trial.id)
             ? tier === 1

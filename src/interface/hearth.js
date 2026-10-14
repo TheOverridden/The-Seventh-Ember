@@ -444,7 +444,7 @@ function hearthRenderTrialDetail() {
   demand.className = 'hearth-trial-demand';
   demand.textContent =
     trial.id === 'guardian'
-      ? [4000, 6500, 9500][tier].toLocaleString() + ' GUARDIAN HEALTH'
+      ? difficulty.guardianHp.toLocaleString() + ' GUARDIAN HEALTH'
       : difficulty
         ? difficulty.waves + ' WAVES · UP TO ' + difficulty.cap + ' ENEMIES AT ONCE'
         : '';
