@@ -1708,6 +1708,14 @@ const ENDING_SCENES = [];
 let endingClock = 0;
 function beginEnding() {
   if (!G.run || G.dead || G.run.infinite) return;
+  collectGuardianRewards();
+  if (G.pendingLevels > 0) {
+    G.run.guardianEndingPending = true;
+    if (G.state === 'playing') triggerLevelup();
+    saveNow();
+    return;
+  }
+  delete G.run.guardianEndingPending;
   clearInput();
   meleeQueued = reloadQueued = false;
   G.descending = false;

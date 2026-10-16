@@ -203,7 +203,7 @@ function echoDisposition(m, interrupted = false) {
   const a = archiveData(),
     old = a.echoes[m.id];
   if (old?.completed) return;
-  const dwell = clamp(m.t || 0, 0, 120),
+  const dwell = clamp(m.playhead ?? m.t ?? 0, 0, 120),
     focus = m.focus || 'distance';
   a.echoes[m.id] = {
     seen: true,
@@ -293,35 +293,14 @@ startRememberedTrace = function (id, replay = false) {
 };
 
 function livingMemoryView(m) {
-  const rect = memoryRoomRect(m),
-    form = clamp(m.t / 1.8, 0, 1),
-    leave = m.phase === 'leaving' ? clamp(1 - m.leaveT / 1.15, 0, 1) : 1,
-    p = form * leave,
-    ease = p * p * (3 - 2 * p),
-    safeTop = G.h < 650 ? 46 : 66,
-    safeBottom = G.h - 102,
-    safeH = Math.max(140, safeBottom - safeTop),
-    safeW = G.w * 0.9,
-    targetCx = G.w * 0.5,
-    cx = rect.x + rect.w * 0.5,
-    cy = rect.y + rect.h * 0.5,
-    zoom = lerp(
-      1,
-      clamp(Math.min(safeW / Math.max(1, rect.w), safeH / Math.max(1, rect.h)), 0.35, 2.08),
-      ease
-    ),
-    displayCx = lerp(cx, targetCx, ease),
-    displayCy = lerp(cy, (safeTop + safeBottom) * 0.5, ease);
-  return { rect, cx, cy, zoom, displayCx, displayCy, ease };
+  return memorySceneView(m);
 }
 
 function echoPointFromScreen(m, x, y) {
-  const v = livingMemoryView(m),
-    wx = v.cx + (x - v.displayCx) / v.zoom,
-    wy = v.cy + (y - v.displayCy) / v.zoom;
+  const { frame } = livingMemoryView(m);
   return {
-    x: clamp((wx - v.rect.x) / v.rect.w, 0.08, 0.92),
-    y: clamp((wy - v.rect.y) / v.rect.h, 0.3, 0.86),
+    x: clamp((x - frame.x) / Math.max(1, frame.w), 0.08, 0.92),
+    y: clamp((y - frame.y) / Math.max(1, frame.h), 0.3, 0.86),
   };
 }
 function revealEchoFocus(m, kind) {
@@ -382,6 +361,7 @@ addEventListener(
   'keydown',
   (e) => {
     if (!activeMemoryEcho || e.repeat || keyboardInputBlocked(e)) return;
+    if (['Space', 'KeyR'].includes(e.code)) return;
     if (['bolt', 'flare', 'reload'].some((action) => keyboardActionPressed(e, action))) {
       e.preventDefault();
       disturbEcho();

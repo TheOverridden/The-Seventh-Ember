@@ -220,6 +220,11 @@ function hearthBuildRoom() {
         px(x + 12 + shade, y + 6, 12, 1, '#474037');
         px(x + 21 + shade, y + 7, 7, 1, '#2a2824');
       }
+      if (shade === 3) {
+        px(x + 32, y + 2, 1, 4, '#22241f');
+        px(x + 29, y + 6, 4, 1, '#22241f');
+        px(x + 33, y + 3, 1, 3, '#62503b');
+      }
     }
   }
   poly(
@@ -426,6 +431,17 @@ function hearthBuildRoom() {
   px(45, 150, 139, 5, '#ba9563');
   px(48, 151, 132, 1, '#e7c794');
   px(48, 156, 132, 4, '#4a4030');
+  for (const x of [63, 120, 164]) {
+    px(x, 151, 7, 1, '#f4d6a1');
+    px(x + 1, 153, 3, 1, '#8b6f4c');
+  }
+  for (const y of [77, 127]) {
+    px(110, y, 8, 3, '#403e2e');
+    px(111, y, 6, 1, '#b9a476');
+    px(113, y + 1, 2, 1, '#f0d5a0');
+  }
+  px(105, 94, 3, 8, '#b29862');
+  px(106, 95, 1, 5, '#f1d79e');
   for (const x of [48, 170]) {
     px(x, 59, 10, 90, '#6c6650');
     px(x + 2, 61, 3, 85, '#8f8360');
@@ -733,6 +749,16 @@ function hearthBuildRoom() {
   );
   px(233, 253, 183, 5, '#242821');
   px(241, 245, 162, 1, '#cbaa72');
+  for (let i = 0; i < 13; i++) {
+    const x = 253 + i * 11;
+    px(x, 234, 5, 1, '#f1cd90');
+    px(x + 1, 236, 3, 1, '#6c5434');
+  }
+  for (const x of [264, 379]) {
+    px(x, 179, 2, 6, '#e4be80');
+    px(x + 2, 184, 3, 1, '#55472f');
+    px(x + 2, 203, 2, 4, '#a38b59');
+  }
   poly(
     [
       [290, 211],
@@ -847,6 +873,12 @@ function hearthBuildRoom() {
       px(x + 2, 115 - height, 1, height - 2, '#c9b181');
       px(x + 2, 109, 5, 1, '#c9b181');
       px(x + 2, 118 - height, 5, 1, '#c9b181');
+      px(x + 3, 121 - height, 4, 3, '#cfb78a');
+      px(x + 4, 122 - height, 2, 1, '#71603e');
+      if (i % 3 === 0) {
+        px(x + 2, 107, 5, 1, '#e4c88f');
+        px(x + 4, 101, 2, 2, '#d9c18b');
+      }
     }
   }
   px(447, 116, 156, 6, '#b99862');
@@ -901,6 +933,16 @@ function hearthBuildRoom() {
   }
   px(452, 247, 150, 6, '#4b3e2b');
   px(456, 249, 141, 1, '#b1905b');
+  for (const x of [455, 595]) {
+    for (const y of [147, 236]) {
+      px(x, y, 2, 2, '#ecd39a');
+      px(x + 1, y + 1, 1, 1, '#655036');
+    }
+  }
+  for (let i = 0; i < 9; i++) {
+    px(466 + i * 14, 244, 7, 1, '#a08051');
+    px(467 + i * 14, 245, 4, 1, '#54452f');
+  }
   px(460, 255, 10, 5, '#8b6d42');
   px(584, 255, 10, 5, '#8b6d42');
   const rug = h.layout.rug,
@@ -1045,6 +1087,15 @@ function hearthBuildRoom() {
   px(69, 258, 39, 26, '#7e865c');
   px(70, 258, 36, 2, '#a0a479');
   px(69, 284, 38, 2, '#4f5b3b');
+  for (let i = 0; i < 7; i++) {
+    px(73 + i * 5, 262, 2, 1, '#b0ad7f');
+    px(73 + i * 5, 281, 2, 1, '#444f35');
+  }
+  for (const x of [73, 101]) {
+    for (let y = 265; y < 280; y += 4) px(x, y, 1, 2, '#a4a276');
+    px(x + 4, 270, 2, 2, '#4b5738');
+    px(x + 4, 269, 2, 1, '#b6b38a');
+  }
   px(55, 280, 10, 34, '#a17c4d');
   px(111, 280, 10, 34, '#a17c4d');
   px(55, 280, 10, 3, '#d3ad70');
@@ -1052,10 +1103,17 @@ function hearthBuildRoom() {
   px(63, 294, 48, 15, '#677249');
   px(65, 294, 43, 2, '#aab484');
   px(64, 308, 47, 3, '#494b31');
+  px(68, 297, 35, 1, '#859466');
+  px(68, 304, 35, 1, '#515c3d');
+  for (let x = 70; x < 105; x += 6) px(x, 307, 2, 1, '#8f9b6e');
   px(58, 312, 9, 18, '#88623d');
   px(108, 312, 9, 18, '#88623d');
   px(58, 328, 10, 2, '#bb935f');
   px(108, 328, 10, 2, '#bb935f');
+  px(61, 316, 2, 10, '#b68c57');
+  px(111, 316, 2, 10, '#b68c57');
+  px(58, 330, 12, 2, '#131b1655');
+  px(108, 330, 12, 2, '#131b1655');
   poly(
     [
       [131, 281],
@@ -1068,8 +1126,16 @@ function hearthBuildRoom() {
   px(128, 290, 50, 4, '#554430');
   px(134, 295, 5, 27, '#8f6f46');
   px(168, 295, 5, 27, '#8f6f46');
+  px(136, 296, 1, 24, '#c19b64');
+  px(170, 296, 1, 24, '#ba945c');
+  px(134, 322, 7, 2, '#22251d66');
+  px(168, 322, 7, 2, '#22251d66');
   px(138, 269, 20, 12, '#e1cca0');
   px(140, 269, 16, 2, '#fff0c5');
+  px(141, 271, 14, 2, '#715a3a');
+  px(143, 272, 10, 1, '#aa8959');
+  px(140, 278, 14, 2, '#c8af80');
+  px(138, 281, 20, 1, '#4a3d2a88');
   px(157, 271, 5, 7, '#b4a07a');
   px(158, 273, 2, 3, '#514333');
   poly(
@@ -1089,6 +1155,16 @@ function hearthBuildRoom() {
   px(551, 302, 36, 11, '#8b6c45');
   px(529, 306, 5, 2, '#d5b675');
   px(566, 306, 5, 2, '#d5b675');
+  px(516, 303, 29, 1, '#b18d56');
+  px(554, 303, 30, 1, '#b18d56');
+  px(516, 311, 29, 1, '#58452d');
+  px(554, 311, 30, 1, '#58452d');
+  px(530, 308, 4, 1, '#3d3827');
+  px(567, 308, 4, 1, '#3d3827');
+  px(502, 299, 2, 31, '#c39d64');
+  px(598, 299, 2, 31, '#c39d64');
+  px(501, 333, 9, 2, '#151c1555');
+  px(597, 333, 9, 2, '#151c1555');
   poly(
     [
       [519, 273],
@@ -1114,6 +1190,12 @@ function hearthBuildRoom() {
     '#ddcca6'
   );
   px(557, 274, 1, 8, '#9c8d6a');
+  px(520, 282, 30, 1, '#eee1bd');
+  px(522, 284, 27, 1, '#8c7b59');
+  px(563, 283, 22, 1, '#eee1bd');
+  px(562, 285, 25, 1, '#9a8560');
+  px(554, 277, 2, 6, '#746448');
+  px(557, 280, 2, 5, '#f4e9c8');
   for (let i = 0; i < 4; i++) {
     px(525, 273 + i * 2, 19, 1, '#ae9d7b');
     px(562, 274 + i * 2, 13, 1, '#ae9d7b');
@@ -1618,6 +1700,71 @@ function hearthShardFrames(p) {
     rows = maps[id],
     [rim, shadow, facet, accent] = shades[id],
     colors = [rim, shadow, p.color, facet, p.light],
+    etching = {
+      ember: [
+        [3, 4],
+        [3, 5],
+        [4, 7],
+      ],
+      rime: [
+        [4, 4],
+        [4, 5],
+        [5, 7],
+      ],
+      rose: [
+        [3, 3],
+        [4, 4],
+        [3, 5],
+      ],
+      moss: [
+        [3, 4],
+        [4, 3],
+        [2, 5],
+      ],
+      copper: [
+        [3, 2],
+        [5, 2],
+        [2, 7],
+        [6, 7],
+      ],
+      moon: [
+        [2, 3],
+        [2, 7],
+        [4, 9],
+      ],
+      amethyst: [
+        [3, 5],
+        [3, 6],
+        [5, 8],
+      ],
+      pearl: [
+        [3, 4],
+        [3, 5],
+        [5, 8],
+      ],
+      crimson: [
+        [5, 3],
+        [4, 4],
+        [3, 6],
+      ],
+      opal: [
+        [2, 4],
+        [2, 6],
+        [6, 4],
+        [6, 6],
+      ],
+      silver: [
+        [3, 3],
+        [4, 4],
+        [4, 6],
+      ],
+      dawn: [
+        [3, 3],
+        [5, 3],
+        [3, 7],
+        [5, 7],
+      ],
+    },
     frames = [];
   for (let f = 0; f < 12; f++) {
     const cv = document.createElement('canvas');
@@ -1635,9 +1782,10 @@ function hearthShardFrames(p) {
       for (let i = 0; i < rows[j].length; i++) {
         const code = rows[j][i];
         if (code === '.') continue;
+        const sweep = (0.5 - Math.cos((f / 12) * TAU) * 0.5) * 10;
         let color = colors[Number(code)],
-          band = Math.abs(i * 0.65 + j * 0.55 - (f - 1));
-        if (id === 'rime' || id === 'silver') band = Math.abs(j - f);
+          band = Math.abs(i * 0.65 + j * 0.55 - sweep);
+        if (id === 'rime' || id === 'silver') band = Math.abs(j - sweep);
         if (id === 'copper' || id === 'moon') {
           const angle = (Math.atan2(j - 5, i - 4) + TAU) % TAU,
             sweep = (f / 12) * TAU,
@@ -1655,6 +1803,8 @@ function hearthShardFrames(p) {
           color = hearthShardMix(shadow, p.color, 0.35 + pulse * 0.45);
         if (id === 'moss' && i + j === 7 && code === '3')
           color = hearthShardMix(facet, accent, pulse * 0.45);
+        if (code !== '0' && code !== '4' && etching[id].some(([x, y]) => x === i && y === j))
+          color = hearthShardMix(color, (i + j) % 2 ? shadow : p.light, 0.28);
         cell(i, j, color);
       }
     if (id === 'copper') {

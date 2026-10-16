@@ -12,6 +12,12 @@ function bakePerfectEmber() {
       const chipped = (f === 1 && i === 1 && j === 5) || (f === 3 && i === 7 && j === 6);
       if (diamond > 4.7 || chipped) return null;
       if (diamond > 3.55) return '#3a2418';
+      if (i === 3 && j === 2) return '#ffebb0';
+      if (i === 2 && j === 4) return '#ffd484';
+      if (i === 5 && j === 7) return '#ad652a';
+      if (i === 4 && j === 8) return '#e6a347';
+      if (i === 5 && j === 4) return f === 2 ? '#fffef0' : '#fff7cf';
+      if (i === 3 && j === 6) return '#ffda7a';
       if (dx < -1.6 || dy > 2.8) return '#9a5d29';
       if (diamond > 2.4) return f % 2 ? '#e7a344' : '#c98032';
       if (dx > 0 && dy < 1) return '#fff1b1';
@@ -52,6 +58,12 @@ function drawHealingLantern(ctx, o, t) {
   ctx.fillRect(-17, 10, 29, 3);
   ctx.fillStyle = '#111a20';
   ctx.fillRect(-14, -2, 28, 14);
+  ctx.fillStyle = '#62777a';
+  ctx.fillRect(-18, 12, 7, 1);
+  ctx.fillRect(-19, 16, 34, 1);
+  ctx.fillStyle = '#23353e';
+  ctx.fillRect(-16, 18, 31, 2);
+  ctx.fillRect(-21, 22, 42, 2);
   ctx.fillStyle = gold;
   ctx.fillRect(-10, 2, 20, 3);
   ctx.fillRect(-2, 6, 4, 4);
@@ -60,6 +72,8 @@ function drawHealingLantern(ctx, o, t) {
   ctx.fillRect(17, -45, 6, 57);
   ctx.fillRect(-20, -51, 40, 6);
   ctx.fillRect(-14, -57, 28, 6);
+  ctx.fillStyle = '#263940';
+  for (const x of [-9, -3, 3, 9]) ctx.fillRect(x, -55, 2, 3);
   ctx.fillStyle = metal;
   ctx.fillRect(-20, -43, 3, 52);
   ctx.fillRect(17, -43, 3, 52);
@@ -70,6 +84,10 @@ function drawHealingLantern(ctx, o, t) {
   ctx.fillStyle = gold;
   ctx.fillRect(-3, -63, 6, 7);
   ctx.fillRect(-7, -65, 14, 3);
+  ctx.fillStyle = '#e6c789';
+  ctx.fillRect(-5, -65, 7, 1);
+  ctx.fillStyle = '#66523b';
+  ctx.fillRect(4, -64, 2, 2);
   ctx.fillStyle = '#0a1014';
   ctx.fillRect(-14, -43, 28, 35);
   ctx.fillStyle = glass + (lit ? '82' : '3d');
@@ -84,18 +102,37 @@ function drawHealingLantern(ctx, o, t) {
   ctx.fillRect(-15, -42, 4, 33);
   ctx.fillRect(11, -42, 4, 33);
   ctx.fillRect(-2, -43, 4, 34);
-  const flameH = lit ? 22 : 13,
-    fy = -12 - flameH;
+  ctx.fillStyle = '#d9c38c';
+  for (const x of [-14, 12]) {
+    ctx.fillRect(x, -42, 2, 2);
+    ctx.fillRect(x, -11, 2, 2);
+  }
+  ctx.fillStyle = '#1b2a2f';
+  ctx.fillRect(-11, -39, 21, 2);
+  ctx.fillStyle = '#edf3d066';
+  ctx.fillRect(-8, -34, 1, 8);
+  ctx.fillRect(7, -25, 1, 4);
+  ctx.fillStyle = '#6c8c8666';
+  ctx.fillRect(-8, -17, 4, 1);
+  const flameH = Math.round((lit ? 22 : 13) * flick),
+    fy = -12 - flameH,
+    tip = save.motion ? 0 : Math.round(Math.sin(t * 4.3 + o.x * 0.01) * 1.3);
   ctx.fillStyle = lit ? '#d94e27' : '#70432d';
   ctx.fillRect(-7, fy + 8, 14, flameH - 5);
   ctx.fillStyle = lit ? '#ff913f' : '#a2764f';
   ctx.fillRect(-5, fy + 4, 10, flameH - 6);
   ctx.fillStyle = lit ? '#ffd477' : '#c2a66e';
-  ctx.fillRect(-3, fy, 6, flameH - 5);
+  ctx.fillRect(-3 + tip, fy, 6, Math.max(3, flameH - 5));
   ctx.fillStyle = lit ? '#fff5c7' : '#dbc991';
-  ctx.fillRect(-1, fy + 5, 3, flameH - 10);
+  ctx.fillRect(-1 + tip, fy + 5, 3, Math.max(2, flameH - 10));
   ctx.fillStyle = '#321c18';
   ctx.fillRect(-8, -14, 16, 4);
+  ctx.fillStyle = '#b7864d';
+  ctx.fillRect(-7, -14, 14, 1);
+  ctx.fillStyle = '#f1c679';
+  ctx.fillRect(-3, -15, 5, 1);
+  ctx.fillStyle = '#22292b';
+  ctx.fillRect(-1, -16, 2, 3);
   ctx.fillStyle = lit ? '#e9d88e' : '#88794f';
   ctx.fillRect(-2, 13, 4, 8);
   ctx.fillRect(-5, 15, 10, 4);

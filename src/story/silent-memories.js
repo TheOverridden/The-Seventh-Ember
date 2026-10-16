@@ -79,18 +79,18 @@ const SILENT_ECHO_ACTIONS = {};
   ]);
   scene(
     'echo6',
-    [A('gardener', 0.41, 0.69, 'kneel'), A('gardener', 0.62, 0.69, 'hold', -1)],
-    [P('sapling', 0.51, 0.62, 28, 68), P('root', 0.5, 0.77, 120)]
+    [A('gardener', 0.45, 0.73, 'kneel'), A('gardener', 0.57, 0.73, 'hold', -1)],
+    [P('sapling', 0.51, 0.76, 28, 68), P('root', 0.5, 0.77, 120)]
   );
   track('echo6', 0, [
     [0, 0.35, 0.69, 'walk'],
-    [2, 0.41, 0.69, 'kneel'],
-    [6, 0.41, 0.69, 'repair'],
+    [2, 0.45, 0.73, 'kneel'],
+    [6, 0.45, 0.73, 'repair'],
     [9, 0.24, 0.69, 'walk'],
   ]);
   track('echo6', 1, [
-    [0, 0.62, 0.69, 'hold'],
-    [7, 0.62, 0.69, 'hold'],
+    [0, 0.57, 0.73, 'hold'],
+    [7, 0.57, 0.73, 'hold'],
     [9, 0.77, 0.69, 'walk'],
   ]);
   track('echo7', 0, [
@@ -757,26 +757,75 @@ const SILENT_ECHO_ACTIONS = {};
 
 function sampleMemoryTrack(keys, t) {
   let a = keys[0],
-    b = a;
+    b = a,
+    travelled = 0;
   for (let i = 1; i < keys.length; i++) {
     b = keys[i];
     if (t <= b[0]) break;
+    travelled += Math.hypot(b[1] - a[1], b[2] - a[2]);
     a = b;
   }
   const q = b[0] === a[0] ? 1 : clamp((t - a[0]) / (b[0] - a[0]), 0, 1),
-    ease = q * q * (3 - 2 * q);
+    ease = q * q * (3 - 2 * q),
+    distance = Math.hypot(b[1] - a[1], b[2] - a[2]),
+    walking = distance > 0.018 && q > 0.025 && q < 0.975,
+    carried = ['carry', 'carryflame', 'hold'].includes(a[3]),
+    pose = walking ? (carried ? a[3] : a[3] === 'flee' ? 'flee' : 'walk') : q < 0.5 ? a[3] : b[3];
   return {
     x: lerp(a[1], b[1], ease),
     y: lerp(a[2], b[2], ease),
-    pose: q < 0.5 ? a[3] : b[3],
-    fromPose: a[3],
-    toPose: b[3],
-    poseMix: ease,
+    pose,
+    fromPose: walking ? pose : a[3],
+    toPose: walking ? pose : b[3],
+    poseMix: walking ? 1 : ease,
+    walking,
+    stride: walking ? Math.min(1, q * 8, (1 - q) * 8) : 0,
+    gait: (travelled + distance * ease) * 90,
     dir: b[1] === a[1] ? 0 : b[1] > a[1] ? 1 : -1,
   };
 }
 function silentMemoryTime() {
-  return Math.max(0, (activeMemoryEcho?.t || 0) - 1.8);
+  return activeMemoryEcho?.playhead ?? Math.max(0, (activeMemoryEcho?.t || 0) - 1.8);
+}
+function toggleMemoryPlayback() {
+  const m = activeMemoryEcho;
+  if (!m || m.t < 1.8 || m.phase === 'leaving' || m.completed) return;
+  m.paused = !m.paused;
+  updateMemoryPlaybackUI();
+}
+function replayMemoryPlayback() {
+  const m = activeMemoryEcho;
+  if (!m || m.t < 1.8 || m.phase === 'leaving') return;
+  m.playhead = 0;
+  m.paused = false;
+  m.completed = false;
+  clearInput();
+  updateMemoryPlaybackUI();
+}
+function updateMemoryPlaybackUI() {
+  const m = activeMemoryEcho;
+  if (!m) return;
+  const duration = SILENT_ECHO_ACTIONS[m.id]?.duration || 11,
+    time = Math.min(duration, silentMemoryTime()),
+    percent = Math.round((time / duration) * 100),
+    ready = m.t >= 1.8 && m.phase !== 'leaving',
+    pad = typeof controllerInput !== 'undefined' && controllerInput.active;
+  T('memoryPause').textContent = m.completed ? 'FINISHED' : m.paused ? 'RESUME' : 'PAUSE';
+  T('memoryPause').disabled = !ready || m.completed;
+  T('memoryPause').setAttribute('aria-pressed', String(m.paused));
+  T('memoryReplay').disabled = !ready;
+  T('memoryAdvance').disabled = !ready;
+  T('memoryAdvance').textContent = m.completed ? 'RETURN' : 'LEAVE MEMORY';
+  T('memoryTimelineFill').style.width = percent + '%';
+  T('memoryTimelineFill').parentElement.setAttribute('aria-valuenow', String(percent));
+  T('memoryTime').textContent = Math.floor(time) + ' / ' + duration + 's';
+  T('memoryGuidance').textContent = m.completed
+    ? pad
+      ? 'X TO REPLAY · A TO RETURN'
+      : 'R TO REPLAY · ENTER TO RETURN'
+    : pad
+      ? 'MOVE TO LOOK CLOSER · Y TO PAUSE · X TO REPLAY · A TO LEAVE'
+      : 'MOVE TO LOOK CLOSER · SPACE TO PAUSE · R TO REPLAY';
 }
 function memoryActionProgress(t, start, end) {
   const q = clamp((t - start) / (end - start), 0, 1);
@@ -785,6 +834,18 @@ function memoryActionProgress(t, start, end) {
 function silentMemoryProps(source, id, t) {
   const props = source.props.map((o) => ({ ...o }));
   for (const o of props) {
+    if (o.kind === 'bell') {
+      const ringing =
+        id === 'echo3'
+          ? t > 2 && t < 9
+          : id === 'trace38'
+            ? t < 4
+            : id === 'trace39'
+              ? t > 2 && t < 9
+              : false;
+      o.swing = ringing && !save.motion ? Math.sin(t * 4.6) * 0.18 : 0;
+    }
+    if (o.kind === 'valve') o.turn = memoryActionProgress(t, 3, 8) * Math.PI * 1.5;
     if (o.kind === 'door')
       o.open =
         id === 'echo5'
@@ -889,11 +950,20 @@ closeRememberedTrace = function () {
 };
 const silentTickRememberedRoom = tickRememberedRoom;
 tickRememberedRoom = function (dt) {
-  silentTickRememberedRoom(dt);
+  const before = activeMemoryEcho,
+    previousT = before?.t || 0,
+    step = Math.min(dt, 0.1);
+  silentTickRememberedRoom(step);
   const m = activeMemoryEcho;
   if (!m || m.phase === 'leaving') return;
-  T('memoryAdvance').disabled = m.t < 1.8;
-  if (silentMemoryTime() >= (SILENT_ECHO_ACTIONS[m.id]?.duration || 11)) leaveSilentMemory(false);
+  if (!m.paused && !m.completed)
+    m.playhead = (m.playhead || 0) + Math.max(0, m.t - 1.8) - Math.max(0, previousT - 1.8);
+  if (!m.completed && silentMemoryTime() >= (SILENT_ECHO_ACTIONS[m.id]?.duration || 11)) {
+    m.completed = true;
+    m.paused = false;
+    echoDisposition(m, false);
+  }
+  updateMemoryPlaybackUI();
 };
 const silentBeginDialogue = beginDialogue;
 beginDialogue = function (id, replay = false, index = 0, returnState) {
@@ -920,24 +990,15 @@ function drawSilentMemoryAction(ctx, rect, id, t, alpha) {
     ctx.fillRect(p.x - 9 * q, p.y + 1, 18 * q, 1);
   }
   if (id === 'echo6') {
-    const p = at(0.48, 0.7),
-      grow = clamp(t / 4, 0, 1);
-    ctx.fillStyle = '#c2d7d5';
-    ctx.fillRect(p.x - 1, p.y - 42, 3, 42);
-    ctx.fillStyle = '#9abcb5';
-    ctx.fillRect(p.x - 11, p.y - 25, 3, 27);
-    ctx.fillRect(p.x - 19, p.y - 20, 9, 3);
-    ctx.fillRect(p.x - 8, p.y - 15, 9, 3);
+    const p = at(0.51, 0.76);
     if (t > 3) {
       ctx.strokeStyle = '#e1ebe3';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(p.x - 9, p.y - 20);
-      ctx.lineTo(p.x + 1, p.y - 20);
+      ctx.moveTo(p.x - 5, p.y - 37);
+      ctx.lineTo(p.x + 5, p.y - 37);
       ctx.stroke();
     }
-    ctx.fillStyle = '#d8eae7';
-    ctx.fillRect(p.x - 1, p.y - 44, 3, 2 * grow);
   }
   if (id === 'trace13') {
     const q = sampleMemoryTrack(SILENT_ECHO_ACTIONS[id].tracks[0].keys, t),
@@ -1338,6 +1399,9 @@ function drawMemoryPeople(ctx, rect, key, t, alpha) {
     actor.fromPose = q.fromPose;
     actor.toPose = q.toPose;
     actor.poseMix = q.poseMix;
+    actor.walking = q.walking;
+    actor.stride = q.stride;
+    actor.gait = q.gait;
     if (q.dir) actor.dir = q.dir;
   }
   ctx.save();
@@ -1353,8 +1417,9 @@ function drawMemoryPeople(ctx, rect, key, t, alpha) {
       z: MEMORY_BACK_KINDS.has(o.kind)
         ? -50 + o.y * 10
         : ['machine', 'belt', 'mold'].includes(o.kind)
-          ? 45
-          : o.y * 100 + (MEMORY_FRONT_KINDS.has(o.kind) ? 18 : 0),
+          ? o.y * 100
+          : o.y * 100 +
+            (['table', 'desk'].includes(o.kind) ? 8 : MEMORY_FRONT_KINDS.has(o.kind) ? 3 : 0),
     })),
     ...scene.actors.map((a, i) => ({ type: 'actor', a, i, z: a.y * 100 })),
   ];

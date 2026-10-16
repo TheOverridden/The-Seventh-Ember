@@ -25,6 +25,15 @@ function comboBlade(ctx, x, y, r, a, ice = false) {
     points.push([Math.cos(angle) * rr, Math.sin(angle) * rr]);
   }
   comboPolygon(ctx, points, ice ? '#648ca9' : '#9c6a3f', '#1d1723');
+  for (let i = 0; i < 6; i++) {
+    ctx.save();
+    ctx.rotate((i * TAU) / 6);
+    ctx.fillStyle = ice ? '#cceaf6' : '#e3b779';
+    ctx.fillRect(-1, -r * 0.77, 2, Math.max(2, r * 0.2));
+    ctx.fillStyle = ice ? '#355d7a' : '#62412d';
+    ctx.fillRect(2, -r * 0.72, 1, Math.max(2, r * 0.17));
+    ctx.restore();
+  }
   ctx.strokeStyle = ice ? '#e6faff' : '#ffe1a0';
   ctx.lineWidth = 3;
   for (let i = 0; i < 6; i++) {
@@ -84,6 +93,15 @@ function comboMoth(ctx, x, y, a, t, fire = false) {
   ctx.fillRect(-1, -3, 2, 8);
   ctx.fillRect(-4, -9, 2, 4);
   ctx.fillRect(2, -9, 2, 4);
+  for (const side of [-1, 1]) {
+    ctx.fillStyle = fire ? '#b85a36' : '#8f8c75';
+    ctx.fillRect(Math.round(side * (wing + 2)) - 1, -3, 2, 3);
+    ctx.fillStyle = fire ? '#ffe9ac' : '#fff7d5';
+    ctx.fillRect(Math.round(side * (wing + 4)), -5, 2, 1);
+    ctx.fillRect(Math.round(side * (wing + 1)), 1, 1, 1);
+    ctx.fillStyle = fire ? '#f7bb72' : '#bbb898';
+    ctx.fillRect(side * 4, -3, 1, 3);
+  }
   ctx.restore();
 }
 function comboCrescentArt(ctx, r, eclipsed = false, blood = false) {
@@ -113,14 +131,20 @@ function comboCrescentArt(ctx, r, eclipsed = false, blood = false) {
   ctx.beginPath();
   ctx.arc(0, 0, r - 2, -1.25, 1.25);
   ctx.stroke();
+  ctx.fillStyle = eclipsed ? '#78668f' : blood ? '#c17872' : '#bea175';
+  for (const a of [-0.83, 0.28, 0.85]) {
+    const x = Math.round(Math.cos(a) * (r - 4)),
+      y = Math.round(Math.sin(a) * (r - 4));
+    ctx.fillRect(x, y, 2, 2);
+    ctx.fillStyle = eclipsed ? '#d9cfea' : blood ? '#ffd1b4' : '#fff0c5';
+    ctx.fillRect(x, y - 1, 1, 1);
+  }
 }
 function drawComboEmblem(ctx, family, x, y, size = 38) {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(size / 38, size / 38);
   if (family === 'frost') {
-    ctx.strokeStyle = '#cff1ff';
-    ctx.lineWidth = 2;
     for (let i = 0; i < 6; i++) {
       ctx.save();
       ctx.rotate((i * TAU) / 6);
@@ -131,10 +155,17 @@ function drawComboEmblem(ctx, family, x, y, size = 38) {
       ctx.lineTo(-5, -13);
       ctx.moveTo(0, -9);
       ctx.lineTo(5, -13);
+      ctx.strokeStyle = '#23374a';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+      ctx.strokeStyle = '#cff1ff';
+      ctx.lineWidth = 2;
       ctx.stroke();
       ctx.restore();
     }
-  } else if (family === 'storm')
+    ctx.fillStyle = '#f4fbef';
+    ctx.fillRect(-2, -2, 4, 4);
+  } else if (family === 'storm') {
     comboPolygon(
       ctx,
       [
@@ -148,7 +179,25 @@ function drawComboEmblem(ctx, family, x, y, size = 38) {
       '#fff1c5',
       '#8c91bb'
     );
-  else if (family === 'stone') {
+    comboPolygon(
+      ctx,
+      [
+        [3, -13],
+        [-5, 0],
+        [1, -1],
+      ],
+      '#fff9df'
+    );
+    comboPolygon(
+      ctx,
+      [
+        [1, 4],
+        [-3, 13],
+        [8, -1],
+      ],
+      '#cfaa73'
+    );
+  } else if (family === 'stone') {
     comboPolygon(
       ctx,
       [
@@ -161,6 +210,19 @@ function drawComboEmblem(ctx, family, x, y, size = 38) {
       '#a18663',
       '#d7be90'
     );
+    comboPolygon(
+      ctx,
+      [
+        [4, -12],
+        [4, 1],
+        [14, 11],
+        [8, -2],
+      ],
+      '#705747'
+    );
+    ctx.fillStyle = '#d9bc86';
+    ctx.fillRect(-9, 1, 2, 4);
+    ctx.fillRect(-13, 9, 5, 1);
     ctx.strokeStyle = '#ffba58';
     ctx.beginPath();
     ctx.moveTo(4, -12);
@@ -170,11 +232,14 @@ function drawComboEmblem(ctx, family, x, y, size = 38) {
     ctx.stroke();
   } else if (family === 'tide') {
     for (let i = 0; i < 3; i++) {
-      ctx.strokeStyle = i === 1 ? '#fff2c3' : '#8bd6d9';
-      ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(-16, -10 + i * 10);
       ctx.bezierCurveTo(-8, -20 + i * 10, 5, i * 10, 16, -10 + i * 10);
+      ctx.strokeStyle = '#263943';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.strokeStyle = i === 1 ? '#fff2c3' : '#8bd6d9';
+      ctx.lineWidth = 3;
       ctx.stroke();
     }
   } else if (family === 'moon') comboCrescentArt(ctx, 17);
@@ -197,13 +262,16 @@ function drawComboEmblem(ctx, family, x, y, size = 38) {
     ctx.fillRect(-12, 4, 7, 7);
   } else if (family === 'moth') comboMoth(ctx, 0, 2, 0, 0);
   else if (family === 'stitch') {
-    ctx.strokeStyle = '#b7d9ec';
-    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, -15);
     ctx.lineTo(14, 12);
     ctx.lineTo(-14, 12);
     ctx.closePath();
+    ctx.strokeStyle = '#24333f';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.strokeStyle = '#b7d9ec';
+    ctx.lineWidth = 2;
     ctx.stroke();
     for (const [x, y] of [
       [0, -15],

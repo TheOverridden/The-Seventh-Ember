@@ -108,7 +108,8 @@ function drawProps(ctx) {
     if (o.x < cam.x - 40 || o.x > cam.x + G.w + 40 || o.y < cam.y - 40 || o.y > cam.y + G.h + 40)
       continue;
     if (o.t === 'pr_shroom') glowImg('violet', o.x, o.y, 16, 0.2);
-    drawSpr(o.t, o.x, o.y, 1, 0, 1, o.x * 0.01);
+    const sprite = typeof roomPropSpriteName === 'function' ? roomPropSpriteName(o) : o.t;
+    drawSpr(sprite, o.x, o.y, 1, 0, 1, o.x * 0.01);
   }
 }
 function drawTorches(ctx) {
@@ -602,15 +603,43 @@ function drawMenuBg() {
       ctx.fillRect(x * unit, y * unit, unit - 2, 2);
       ctx.fillStyle = '#110e0d';
       ctx.fillRect(x * unit + unit - 3, y * unit, 2, unit - 2);
+      const tx = x * unit,
+        ty = y * unit;
+      ctx.fillStyle = '#65503a';
+      ctx.fillRect(tx + 3, ty + 3, Math.max(2, unit * 0.13), 1);
+      ctx.fillStyle = '#382c24';
+      ctx.fillRect(tx + unit * 0.2, ty + unit - 5, unit * 0.58, 1);
+      if ((x * 3 + y * 7) % 5 === 0 && !outer) {
+        ctx.fillStyle = '#110e0d';
+        ctx.fillRect(tx + unit * 0.63, ty + 2, 1, unit * 0.16);
+        ctx.fillRect(tx + unit * 0.63 - 3, ty + unit * 0.16 + 1, 4, 1);
+        ctx.fillStyle = '#574230';
+        ctx.fillRect(tx + unit * 0.63 + 1, ty + 3, 1, unit * 0.13);
+      }
       if ((x * 11 + y * 7) % 9 === 0 && !outer) {
         ctx.fillStyle = '#a2785124';
         ctx.fillRect(x * unit + unit * 0.22, y * unit + unit * 0.68, unit * 0.34, 2);
+      }
+      if (!outer && (x * 13 + y * 5) % 11 === 0) {
+        ctx.fillStyle = '#13100e';
+        ctx.fillRect(tx + unit * 0.24, ty + unit * 0.36, unit * 0.2, 1);
+        ctx.fillRect(tx + unit * 0.43, ty + unit * 0.36, 1, unit * 0.16);
+        ctx.fillStyle = '#514032';
+        ctx.fillRect(tx + unit * 0.24, ty + unit * 0.36 + 1, unit * 0.14, 1);
       }
       if (outer) {
         ctx.fillStyle = '#3c3029';
         ctx.fillRect(x * unit, y * unit, unit - 2, Math.max(6, unit * 0.3));
         ctx.fillStyle = '#776047';
         ctx.fillRect(x * unit + 3, y * unit + 3, unit - 8, 2);
+        ctx.fillStyle = '#231c19';
+        ctx.fillRect(tx + unit * 0.2, ty + 7, unit * 0.6, 4);
+        ctx.fillStyle = '#987444';
+        ctx.fillRect(tx + unit * 0.22, ty + 7, unit * 0.56, 1);
+        for (const sx of [0.2, 0.76]) {
+          ctx.fillStyle = '#cfaa68';
+          ctx.fillRect(tx + unit * sx, ty + 4, 1, 1);
+        }
       }
     }
   ctx.globalAlpha = 1;
@@ -628,6 +657,17 @@ function drawMenuBg() {
   ctx.closePath();
   ctx.stroke();
   const ring = unit * 2.52;
+  for (let i = 0; i < 8; i++) {
+    ctx.save();
+    ctx.rotate(Math.PI / 8 + (i * TAU) / 8);
+    ctx.fillStyle = '#8a69443a';
+    ctx.fillRect(chamber - unit * 0.45, -3, unit * 0.14, 6);
+    ctx.fillStyle = '#d4b06b58';
+    ctx.fillRect(chamber - unit * 0.43, -2, 1, 3);
+    ctx.fillStyle = '#130f0d';
+    ctx.fillRect(chamber - unit * 0.26, -1, unit * 0.11, 2);
+    ctx.restore();
+  }
   ctx.strokeStyle = '#d5b66d5c';
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -643,6 +683,16 @@ function drawMenuBg() {
     ctx.rotate(a);
     ctx.fillStyle = i % 4 === 0 ? '#e1c47f99' : '#b49a765c';
     ctx.fillRect(ring + unit * 0.18, -1, i % 4 === 0 ? unit * 0.28 : unit * 0.15, 2);
+    if (i % 4 === 0) {
+      ctx.fillStyle = '#17110f';
+      ctx.fillRect(ring + unit * 0.48, -5, unit * 0.35, 10);
+      ctx.fillStyle = '#796044';
+      ctx.fillRect(ring + unit * 0.48, -5, unit * 0.35, 1);
+      ctx.fillStyle = '#c4a16b';
+      ctx.fillRect(ring + unit * 0.56, -2, 2, 4);
+      ctx.fillStyle = '#51402d';
+      ctx.fillRect(ring + unit * 0.7, -2, 1, 4);
+    }
     ctx.restore();
   }
   for (const [x, y] of [
@@ -652,7 +702,37 @@ function drawMenuBg() {
     [4.8, 4.25],
   ]) {
     glowImg('ember', x * unit, y * unit, unit * 2.35, 0.48);
-    drawSpr('flame', x * unit, y * unit, portrait ? 1.05 : 1.35, 0, 0.95);
+    ctx.save();
+    ctx.translate(Math.round(x * unit), Math.round(y * unit));
+    const scale = unit / 48;
+    ctx.scale(scale, scale);
+    ctx.fillStyle = '#060505a8';
+    ctx.fillRect(-20, 15, 40, 7);
+    ctx.fillRect(-14, 22, 28, 2);
+    ctx.fillStyle = '#211a16';
+    ctx.fillRect(-15, 8, 30, 12);
+    ctx.fillStyle = '#65503a';
+    ctx.fillRect(-13, 8, 26, 3);
+    ctx.fillStyle = '#98764a';
+    ctx.fillRect(-11, 8, 20, 1);
+    ctx.fillStyle = '#3c2d21';
+    ctx.fillRect(-5, -1, 10, 11);
+    ctx.fillStyle = '#a4814f';
+    ctx.fillRect(-4, 0, 2, 8);
+    ctx.fillStyle = '#261b14';
+    ctx.fillRect(-13, -8, 26, 5);
+    ctx.fillRect(-10, -3, 20, 5);
+    ctx.fillStyle = '#ae8651';
+    ctx.fillRect(-13, -9, 26, 2);
+    ctx.fillStyle = '#e3bc7d';
+    ctx.fillRect(-10, -9, 13, 1);
+    ctx.fillStyle = '#3d281b';
+    ctx.fillRect(-9, -6, 18, 2);
+    ctx.fillStyle = '#c79a5c';
+    ctx.fillRect(-10, -5, 2, 2);
+    ctx.fillRect(8, -5, 2, 2);
+    drawSpr('flame', 0, -17, 1.35, 0, 0.95);
+    ctx.restore();
   }
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
@@ -735,6 +815,10 @@ function setTxt(id, v) {
 function updateHUD(dt) {
   const p = G.player,
     run = G.run;
+  if (!p || !run || G.state === 'menu') {
+    clearCombatOverlays();
+    return;
+  }
   T('hpfill').style.width = clamp((p.hp / p.maxHp) * 100, 0, 100) + '%';
   setTxt('hptext', Math.max(0, Math.ceil(p.hp)) + ' / ' + p.maxHp);
   const need = needXP(run.level);
@@ -756,7 +840,8 @@ function updateHUD(dt) {
   const vig = T('vig');
   const o = parseFloat(vig.style.opacity || 0);
   if (o > 0) vig.style.opacity = Math.max(0, o - dt * 1.8).toFixed(2);
-  T('lowvig').style.opacity = p.hp < p.maxHp * 0.3 ? 1 : 0;
+  T('lowvig').style.opacity =
+    (G.state === 'playing' || G.state === 'dying') && p.hp < p.maxHp * 0.3 ? 1 : 0;
   if (G.boss && !G.boss.dead) {
     T('bossfill').style.width = clamp((G.boss.hp / G.boss.max) * 100, 0, 100) + '%';
   }

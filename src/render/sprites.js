@@ -231,7 +231,16 @@ function iconImg(name, col) {
   ICON_CACHE[k] = c;
   return c;
 }
-const NODE_ICON = { m: 'sw', v: 'hp', f: 'fr', s: 'bt', c: 'ey', g: 'mg', d: 'ft', a: 'gm' };
+const NODE_ICON = {
+  m: 'sw',
+  v: 'hp',
+  f: 'fr',
+  s: 'bt',
+  c: 'ey',
+  g: 'mg',
+  d: 'ft',
+  a: 'gm',
+};
 const TP = 18;
 const TILE_PAL = [
   {
@@ -489,68 +498,319 @@ function bakeTiles() {
     AOT[k] = c;
   }
   bakeProps();
+  refineDungeonTileSurfaces();
 }
 function bakeProps() {
   SPR.pr_skull = px(
-    [['.bbbb..', 'bwwwwb.', 'bwdwdwb', 'bwwwwwb', '.bwddwb', '..bwwb.', '...bb..']],
-    { b: '#0a0c11', w: '#c6cbb8', d: '#171a20' },
-    { fps: 1, sc: 2 }
+    [
+      [
+        '....oooooo....',
+        '..ooabbbbaoo..',
+        '.oabccccccbao.',
+        '.obcccccccbbo.',
+        'obccbcacacbbbo',
+        'obcooobcooobbo',
+        'obboeobboeobbo',
+        '.obooabbboobo.',
+        '.obbbboobbbbo.',
+        '..oabbocbbao..',
+        '..oabboobbao..',
+        '...obobobbo...',
+        '...oabbbaoo...',
+        '....oooooo....',
+      ],
+    ],
+    { o: '#0c1014', a: '#a2aa99', b: '#c5cbbb', c: '#dce0ca', e: '#3d4945' },
+    { fps: 1, sc: 1 }
   );
   SPR.pr_bones = px(
-    [['..b......b..', '.bwb....bwb.', 'bwwwbbbbwwwb', '.bwb....bwb.', '..b......b..']],
-    { b: '#0a0c11', w: '#b9bfae' },
-    { fps: 1, sc: 2 }
+    [
+      [
+        '..oo................oo..',
+        '.obbo..............obbo.',
+        'obcbbooo........ooobbcbo',
+        '.oabbbccooooobbccbbbao..',
+        '..ooaabbbccbbbaabaooo...',
+        '...ooabbbbbbccbbbbboo...',
+        '..oabbcaooooaabccbbbo...',
+        '.obbcbo......ooobccbbo..',
+        '..obbo..........obbo....',
+        '...oo............oo.....',
+      ],
+    ],
+    { o: '#10151a', a: '#7f897c', b: '#b9c0ad', c: '#d9dfc9' },
+    { fps: 1, sc: 1 }
   );
   SPR.pr_pot = px(
-    [['..ooo..', '.ocddo.', 'occcddo', 'occcddo', 'occcddo', '.occdo.', '..ooo..']],
-    { o: '#160d07', c: '#8a5230', d: '#5e3520' },
-    { fps: 1, sc: 2 }
+    [
+      [
+        '....oooooo....',
+        '...oahhhabo...',
+        '...obdddebo...',
+        '...oabbbabo...',
+        '..oacbbbbbdo..',
+        '.oacccbbbbddo.',
+        '.oacccbbbbddo.',
+        '.oaccbbbbdddo.',
+        '.oacbbbbedddo.',
+        '.oabbbbebdddo.',
+        '..oabbbebddo..',
+        '..oabbbbdddo..',
+        '...oaabbddo...',
+        '....oooooo....',
+      ],
+    ],
+    {
+      o: '#21150f',
+      a: '#bb8456',
+      b: '#8b5638',
+      c: '#a76c45',
+      d: '#5b3628',
+      e: '#35271e',
+      h: '#d5a977',
+    },
+    { fps: 1, sc: 1 }
   );
   SPR.pr_crate = px(
-    [['ooooooo', 'owwwwwo', 'owdwdwo', 'owwwwwo', 'owdwdwo', 'owwwwwo', 'ooooooo']],
-    { o: '#170f06', w: '#6b4a24', d: '#4a3218' },
-    { fps: 1, sc: 2 }
+    [
+      [
+        '..oooooooooo..',
+        '.oahhhhhhhabo.',
+        'oabbbdbbdbbbdo',
+        'oahhhhhhhhbddo',
+        'oabaabbdbbbddo',
+        'oaebabbdbbeddo',
+        'oabdbabdbbbddo',
+        'oabddbabdbbddo',
+        'oabbddbabbdddo',
+        'oaebddbabbeddo',
+        'oabbbbbbabdddo',
+        'oahhhhhhhhaddo',
+        '.obbbbbbbdddo.',
+        '..oooooooooo..',
+      ],
+    ],
+    { o: '#1c160e', a: '#9c7d4b', b: '#755432', d: '#48321f', e: '#c0ae7d', h: '#b79559' },
+    { fps: 1, sc: 1 }
   );
   SPR.pr_rubble = px(
-    [['...oo....', '.oogtoo..', 'ogttttgo.', '.oooooo..']],
-    { o: '#0c0e14', g: '#4c5468', t: '#39415a' },
-    { fps: 1, sc: 2 }
+    [
+      [
+        '......oooo........',
+        '.....oahhbo.......',
+        '..oooaabbbo..ooo..',
+        '.oahobaabbdoohhbo.',
+        'oabbbobbbddobbbbo.',
+        '.obbddobbddbbdddo.',
+        '..oodddooooodddo..',
+        '...oooooooooooo...',
+      ],
+    ],
+    { o: '#11151d', a: '#657182', h: '#84909b', b: '#465367', d: '#2e384a' },
+    { fps: 1, sc: 1 }
   );
   SPR.pr_shroom = px(
     [
-      ['..rrr..', '.rrrrr.', 'rrmrrmr', '.ooooo.', '..oso..', '..oso..', '.ooooo.'],
-      ['..rrr..', '.rmrrr.', 'rrrrmrr', '.ooooo.', '..oso..', '..oso..', '.ooooo.'],
+      [
+        '.....oooo.....',
+        '....orhhro....',
+        '...ormhrrro...',
+        '..orrrrrmrro..',
+        '.orrmrrrrddro.',
+        '.orrdddrdddro.',
+        '..oddddddddo..',
+        '...oooaeooo...',
+        '.....oaao.....',
+        '..oo.oaao.....',
+        '.orhooaao.oo..',
+        'ormrrroaeorho.',
+        '.odddooaeoddo.',
+        '..ooooooeooo..',
+      ],
     ],
-    { r: '#b0417a', m: '#f2d0e6', o: '#0d0a12', s: '#d8d2c4' },
-    { fps: 2, sc: 2 }
+    {
+      o: '#10121a',
+      r: '#9e3f70',
+      h: '#bf638d',
+      d: '#592740',
+      m: '#ead6d1',
+      a: '#c8c7ad',
+      e: '#777f71',
+    },
+    { fps: 1, sc: 1 }
   );
   SPR.pr_banner = px(
     [
       [
-        'cccccccc',
-        'cvvvvvvc',
-        'cvvggvvc',
-        'cvvggvvc',
-        'cvvvvvvc',
-        'cvvvvvvc',
-        '.cvvvvc.',
-        '..cvvc..',
-        '...cc...',
+        'oooooooooooooooo',
+        'oahhhhhhhhhhhdbo',
+        'oobboooooooobboo',
+        '.oarrbrrbrrddo..',
+        '.oarrbrrbrrddo..',
+        '.oarrbrggrrddo..',
+        '.oarrbghhgrddo..',
+        '.oarrghhhhgrdo..',
+        '.oarrbghhgrddo..',
+        '.oarrbrggrrddo..',
+        '.oarrbrrbrrddo..',
+        '.oarrbrrbrrddo..',
+        '.oarrbrrbrrddo..',
+        '..orrbrrbrrdo...',
+        '..oarbrbrrdo....',
+        '...oarbrrrdo....',
+        '....oarrrdo.....',
+        '.....ooooo......',
       ],
     ],
-    { c: '#1a1208', v: '#6b2740', g: '#e8c476' },
-    { fps: 1, sc: 2 }
+    {
+      o: '#1c171b',
+      a: '#a5747e',
+      b: '#4e253e',
+      r: '#73354f',
+      d: '#3c2238',
+      g: '#9f7b4e',
+      h: '#d6b874',
+    },
+    { fps: 1, sc: 1 }
   );
   SPR.pr_chain = px(
-    [['..oo..', '.o..o.', '..oo..', '.o..o.', '..oo..', '.o..o.', '..oo..']],
-    { o: '#4a5265' },
-    { fps: 1, sc: 2 }
+    [
+      [
+        '....oooo....',
+        '...oahbdo...',
+        '...ob..do...',
+        '...ob..do...',
+        '....obdo....',
+        '.....ah.....',
+        '....oadbo...',
+        '...oa..do...',
+        '...ob..do...',
+        '....obdo....',
+        '.....ah.....',
+        '....oadbo...',
+        '...oa..do...',
+        '....obdo....',
+      ],
+    ],
+    { o: '#161e29', a: '#8a99a5', h: '#b4bfc1', b: '#596b7b', d: '#354251' },
+    { fps: 1, sc: 1 }
   );
   SPR.pr_sconce = px(
-    [['oo...oo', 'oiiiiio', 'oiiiiio', '.oiiio.', '..ooo..', '..o.o..']],
-    { o: '#120d06', i: '#4a3a1c' },
-    { fps: 1, sc: 2 }
+    [
+      [
+        'oo..........oo',
+        'oabooooooooabo',
+        'oabbbbbbbbbddo',
+        'oahhhhhhhhaddo',
+        '.oabdbdbdbddo.',
+        '..oabdbdbddo..',
+        '...oabdbddo...',
+        '....oabddo....',
+        '....oahbdo....',
+        '....obdddo....',
+        '....oboobo....',
+        '....oo..oo....',
+      ],
+    ],
+    { o: '#1c1815', a: '#b69b62', b: '#76603e', d: '#453b2b', h: '#ddbf7d' },
+    { fps: 1, sc: 1 }
   );
+  bakePropVariants();
+}
+function bakePropVariants() {
+  const clone = (name, base, edit) => {
+    const sprite = SPR[base],
+      frame = document.createElement('canvas');
+    frame.width = sprite.W;
+    frame.height = sprite.H;
+    const ctx = frame.getContext('2d');
+    ctx.drawImage(sprite.frames[0], 0, 0);
+    edit(ctx);
+    SPR[name] = { ...sprite, frames: [frame] };
+  };
+  const mark = (ctx, x, y, w, h, colour) => {
+    ctx.fillStyle = colour;
+    ctx.fillRect(x, y, w, h);
+  };
+  clone('pr_pot_ringed', 'pr_pot', (ctx) => {
+    mark(ctx, 2, 7, 9, 1, '#c48b5a');
+    mark(ctx, 3, 8, 7, 1, '#6c4030');
+    mark(ctx, 3, 10, 2, 1, '#bc8355');
+    mark(ctx, 5, 4, 4, 1, '#a9734a');
+  });
+  clone('pr_pot_broken', 'pr_pot', (ctx) => {
+    ctx.clearRect(7, 0, 4, 2);
+    mark(ctx, 7, 2, 2, 1, '#c89b6c');
+    mark(ctx, 9, 3, 1, 2, '#e0b181');
+    mark(ctx, 8, 4, 1, 3, '#30251d');
+    mark(ctx, 7, 6, 1, 3, '#30251d');
+    mark(ctx, 7, 9, 2, 1, '#30251d');
+    mark(ctx, 11, 11, 2, 1, '#b78053');
+    mark(ctx, 10, 12, 3, 1, '#5b3628');
+  });
+  clone('pr_crate_rope', 'pr_crate', (ctx) => {
+    for (const x of [4, 9]) {
+      mark(ctx, x, 1, 1, 12, '#5a4930');
+      mark(ctx, x - 1, 1, 1, 12, '#c5ae73');
+    }
+    mark(ctx, 4, 6, 5, 2, '#b59c62');
+    mark(ctx, 5, 6, 2, 1, '#e0c78b');
+    mark(ctx, 6, 8, 1, 2, '#7c653f');
+  });
+  clone('pr_crate_split', 'pr_crate', (ctx) => {
+    mark(ctx, 5, 4, 1, 6, '#241d14');
+    mark(ctx, 6, 7, 1, 4, '#241d14');
+    mark(ctx, 7, 10, 2, 1, '#241d14');
+    mark(ctx, 4, 4, 1, 3, '#ba915b');
+    mark(ctx, 6, 9, 1, 2, '#b18a52');
+    mark(ctx, 8, 3, 3, 1, '#755432');
+  });
+  clone('pr_rubble_slab', 'pr_rubble', (ctx) => {
+    mark(ctx, 7, 1, 5, 1, '#7a8592');
+    mark(ctx, 6, 2, 7, 2, '#647282');
+    mark(ctx, 7, 4, 7, 1, '#354255');
+    mark(ctx, 11, 3, 1, 2, '#1d2837');
+    mark(ctx, 8, 2, 3, 1, '#a0a9aa');
+  });
+  clone('pr_rubble_chips', 'pr_rubble', (ctx) => {
+    ctx.clearRect(5, 0, 7, 3);
+    mark(ctx, 7, 3, 3, 1, '#7b8998');
+    mark(ctx, 8, 4, 3, 1, '#3c4a5c');
+    mark(ctx, 1, 5, 2, 1, '#85919c');
+    mark(ctx, 13, 1, 2, 1, '#657182');
+    mark(ctx, 12, 2, 3, 1, '#39485b');
+  });
+  clone('pr_shroom_cluster', 'pr_shroom', (ctx) => {
+    for (const [x, y] of [
+      [0, 7],
+      [9, 8],
+    ]) {
+      mark(ctx, x + 1, y, 3, 1, '#c17596');
+      mark(ctx, x, y + 1, 5, 2, '#9e3f70');
+      mark(ctx, x, y + 3, 5, 1, '#592740');
+      mark(ctx, x + 2, y + 4, 1, 2, '#d1cfb6');
+      mark(ctx, x + 1, y + 1, 1, 1, '#ead6d1');
+    }
+  });
+  clone('pr_shroom_old', 'pr_shroom', (ctx) => {
+    mark(ctx, 4, 2, 2, 1, '#d49baf');
+    mark(ctx, 3, 5, 2, 1, '#502a40');
+    mark(ctx, 8, 4, 1, 2, '#502a40');
+    mark(ctx, 6, 7, 1, 2, '#aaa98d');
+    ctx.clearRect(11, 3, 2, 2);
+    mark(ctx, 10, 4, 1, 2, '#d99bb1');
+  });
+}
+const ROOM_PROP_VARIANTS = {
+  pr_pot: ['pr_pot', 'pr_pot_ringed', 'pr_pot_broken'],
+  pr_crate: ['pr_crate', 'pr_crate_rope', 'pr_crate_split'],
+  pr_rubble: ['pr_rubble', 'pr_rubble_slab', 'pr_rubble_chips'],
+  pr_shroom: ['pr_shroom', 'pr_shroom_cluster', 'pr_shroom_old'],
+};
+function roomPropSpriteName(o) {
+  const variants = ROOM_PROP_VARIANTS[o.t],
+    seed = (Math.imul(Math.round(o.x), 73856093) ^ Math.imul(Math.round(o.y), 19349663)) >>> 0;
+  return variants ? variants[seed % variants.length] : o.t;
 }
 function bakeAll() {
   const mkP = (nf, cfg) =>
@@ -737,7 +997,14 @@ function bakeAll() {
         '.....ooooooo.....',
       ],
     ],
-    { o: '#06281f', b: '#1f8f78', l: '#37c2a4', w: '#d9fff4', k: '#07332a', m: '#ff5d8a' },
+    {
+      o: '#06281f',
+      b: '#1f8f78',
+      l: '#37c2a4',
+      w: '#d9fff4',
+      k: '#07332a',
+      m: '#ff5d8a',
+    },
     { fps: 3, sc: 2 }
   );
   SPR.brute = px(
@@ -775,7 +1042,14 @@ function bakeAll() {
         '.....ooo....ooo.....',
       ],
     ],
-    { o: '#120a26', b: '#3b2e63', l: '#5a4894', h: '#b9a4ff', y: '#ffcf6b', k: '#1a1030' },
+    {
+      o: '#120a26',
+      b: '#3b2e63',
+      l: '#5a4894',
+      h: '#b9a4ff',
+      y: '#ffcf6b',
+      k: '#1a1030',
+    },
     { fps: 2, sc: 2 }
   );
   SPR.splitter = px(
@@ -860,7 +1134,14 @@ function bakeAll() {
         '..oooooooooooo..',
       ],
     ],
-    { o: '#241505', b: '#5a3d1e', l: '#8a6530', y: '#ffd88a', k: '#1a0f04', w: '#fff3c8' },
+    {
+      o: '#241505',
+      b: '#5a3d1e',
+      l: '#8a6530',
+      y: '#ffd88a',
+      k: '#1a0f04',
+      w: '#fff3c8',
+    },
     { fps: 1, sc: 2 }
   );
   SPR.chestOpen = px(
@@ -877,7 +1158,14 @@ function bakeAll() {
         '..oooooooooooo..',
       ],
     ],
-    { o: '#241505', b: '#5a3d1e', l: '#8a6530', y: '#ffd88a', k: '#1a0f04', w: '#fff3c8' },
+    {
+      o: '#241505',
+      b: '#5a3d1e',
+      l: '#8a6530',
+      y: '#ffd88a',
+      k: '#1a0f04',
+      w: '#fff3c8',
+    },
     { fps: 1, sc: 2 }
   );
   SPR.portal = pxGen(
@@ -996,4 +1284,145 @@ function bakeAll() {
     },
     { fps: 9, sc: 1.8 }
   );
+  refineTreasureSurfaces();
+}
+function spriteMaterialPixels(sprite, marks) {
+  if (!sprite) return;
+  for (const frame of sprite.frames) {
+    const ctx = frame.getContext('2d'),
+      image = ctx.getImageData(0, 0, frame.width, frame.height),
+      original = new Uint8ClampedArray(image.data);
+    for (const [x, y, w, h, amount] of marks)
+      for (let dy = 0; dy < h; dy++)
+        for (let dx = 0; dx < w; dx++) {
+          const px = x + dx,
+            py = y + dy;
+          if (px < 0 || py < 0 || px >= frame.width || py >= frame.height) continue;
+          const i = (py * frame.width + px) * 4;
+          if (!original[i + 3]) continue;
+          for (let channel = 0; channel < 3; channel++) {
+            const current = original[i + channel];
+            image.data[i + channel] = Math.round(
+              amount > 0 ? current + (255 - current) * amount : current * (1 + amount)
+            );
+          }
+        }
+    ctx.putImageData(image, 0, 0);
+  }
+}
+
+function refineTreasureSurfaces() {
+  spriteMaterialPixels(SPR.chest, [
+    [3, 1, 3, 1, 0.16],
+    [8, 1, 2, 1, -0.18],
+    [3, 3, 2, 1, 0.15],
+    [10, 3, 2, 1, 0.16],
+    [3, 4, 1, 3, -0.24],
+    [10, 4, 1, 3, -0.24],
+    [2, 7, 3, 1, 0.13],
+    [10, 7, 2, 1, 0.14],
+    [6, 4, 1, 1, 0.2],
+    [9, 6, 1, 1, -0.23],
+  ]);
+  spriteMaterialPixels(SPR.chestOpen, [
+    [3, 2, 3, 1, 0.19],
+    [9, 2, 2, 1, -0.2],
+    [2, 6, 1, 2, 0.2],
+    [5, 6, 1, 2, -0.24],
+    [10, 6, 1, 2, -0.24],
+    [3, 7, 2, 1, 0.14],
+    [8, 7, 2, 1, 0.13],
+  ]);
+}
+function refineDungeonTileSurfaces() {
+  for (let palette = 0; palette < FLOORT.length; palette++) {
+    const colours = TILE_PAL[palette],
+      mark = (ctx, x, y, w, h, colour, alpha) => {
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = colour;
+        ctx.fillRect(x, y, w, h);
+      };
+    for (let variant = 0; variant < FLOORT[palette].length; variant++) {
+      const ctx = FLOORT[palette][variant].getContext('2d');
+      const veins = [
+        [
+          [4, 5, 3],
+          [10, 11, 3],
+          [5, 14, 2],
+        ],
+        [
+          [5, 4, 4],
+          [11, 13, 2],
+          [3, 15, 2],
+        ],
+        [
+          [3, 4, 2],
+          [12, 5, 2],
+          [4, 13, 2],
+          [12, 14, 2],
+        ],
+        [
+          [4, 4, 3],
+          [14, 4, 1],
+          [3, 13, 1],
+          [9, 14, 3],
+        ],
+      ][variant];
+      for (const [x, y, length] of veins) {
+        mark(ctx, x, y, length, 1, colours.fl, 0.4);
+        mark(ctx, x, y - 1, Math.max(1, length - 1), 1, colours.fh, 0.3);
+        mark(ctx, x + length, y + 1, 1, 1, colours.fl, 0.25);
+      }
+      for (const [x, y] of [
+        [2, 2],
+        [15, 6],
+        [6, 16],
+        [15, 15],
+      ]) {
+        mark(ctx, x, y, 1, 1, colours.mo, 0.34);
+        mark(ctx, x + 1, y, 1, 1, colours.fh, 0.32);
+      }
+      if (palette === 1) {
+        mark(ctx, 2, 13, 2, 1, colours.mos, 0.22);
+        mark(ctx, 3, 14, 1, 2, colours.mos, 0.2);
+      }
+      ctx.globalAlpha = 1;
+    }
+    const top = WALLTOP[palette].getContext('2d');
+    for (const [x, y, length] of [
+      [3, 4, 4],
+      [10, 11, 3],
+      [4, 14, 2],
+    ]) {
+      mark(top, x, y, length, 1, colours.kc, 0.62);
+      mark(top, x, y - 1, Math.max(1, length - 1), 1, colours.lip, 0.24);
+    }
+    mark(top, 13, 4, 1, 3, colours.kc, 0.28);
+    mark(top, 14, 4, 1, 2, colours.lip, 0.16);
+    top.globalAlpha = 1;
+    const face = WALLFACE[palette].getContext('2d');
+    for (const [x, y, length] of [
+      [2, 2, 3],
+      [12, 3, 2],
+      [6, 8, 3],
+      [1, 14, 2],
+      [10, 14, 4],
+    ]) {
+      mark(face, x, y, length, 1, colours.wc, 0.46);
+      mark(face, x, y - 1, Math.max(1, length - 1), 1, colours.lip, 0.22);
+    }
+    for (const [x, y] of [
+      [7, 4],
+      [4, 10],
+      [13, 15],
+    ]) {
+      mark(face, x, y, 1, 1, colours.mo, 0.5);
+      mark(face, x - 1, y, 1, 1, colours.lip, 0.18);
+    }
+    if (palette === 1) {
+      mark(face, 2, 13, 1, 3, colours.mos, 0.2);
+      mark(face, 3, 14, 1, 2, colours.mos, 0.2);
+    }
+    face.globalAlpha = 1;
+  }
 }

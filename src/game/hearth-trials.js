@@ -82,9 +82,12 @@ function createHearthTrialRoom(id) {
     region: 'hearthTrial',
     lateKey:
       HEARTH_TRIAL_RULES[id]?.region ||
-      { stitch: 'observatory', flare: 'foundry', oneHeart: 'reservoir', constellation: 'choir' }[
-        id
-      ] ||
+      {
+        stitch: 'observatory',
+        flare: 'foundry',
+        oneHeart: 'reservoir',
+        constellation: 'choir',
+      }[id] ||
       '',
     props: [],
     torches: [],
@@ -218,7 +221,13 @@ function startHearthTrial(id, tier = 0) {
   };
   const up =
     id === 'stitch' || id === 'constellation'
-      ? { brightNeedle: 1, longThread: 2, heldPattern: 2, hotWire: 3, unfinishedPattern: 1 }
+      ? {
+          brightNeedle: 1,
+          longThread: 2,
+          heldPattern: 2,
+          hotWire: 3,
+          unfinishedPattern: 1,
+        }
       : {};
   G.run = {
     mode: 'trial',
@@ -287,7 +296,14 @@ function startHearthTrial(id, tier = 0) {
     critNova: false,
     steady: false,
   };
-  Object.assign(COMBAT_FEEL, { casts: [], impacts: [], deaths: [], hurtT: 0, hurtA: 0, serial: 0 });
+  Object.assign(COMBAT_FEEL, {
+    casts: [],
+    impacts: [],
+    deaths: [],
+    hurtT: 0,
+    hurtA: 0,
+    serial: 0,
+  });
   Object.assign(COMBAT_POLISH, {
     freeze: 0,
     spawns: [],
@@ -356,7 +372,14 @@ function startHearthTrial(id, tier = 0) {
 function leaveHearthTrial(openBoard = false) {
   if (!isHearthTrial()) return;
   const old = hearthTrialSession;
-  const display = { w: G.w, h: G.h, dpr: G.dpr, cv: G.cv, ctx: G.ctx, tAll: G.tAll };
+  const display = {
+    w: G.w,
+    h: G.h,
+    dpr: G.dpr,
+    cv: G.cv,
+    ctx: G.ctx,
+    tAll: G.tAll,
+  };
   clearInput();
   hide('hearthTrialResult');
   T('hearthTrialHud').hidden = true;
@@ -512,7 +535,13 @@ function spawnHearthTrialEnemy(type, point, serial) {
   if (e.trialFlame && hearthTrial.id === 'twinFlames')
     e.flameIndex = hearthTrial.flameSpawned++ % 2;
   if (e.ai === 'late') e.specialCd = (1.3 + (serial % 4) * 0.3) / (1 + settings.pressure * 0.18);
-  CREATURE_MOTION.set(e, { x: e.x, y: e.y, travel: 0, phase: 0, moving: false });
+  CREATURE_MOTION.set(e, {
+    x: e.x,
+    y: e.y,
+    travel: 0,
+    phase: 0,
+    moving: false,
+  });
   return e;
 }
 function tickHearthTrialWaves(dt) {
@@ -1072,12 +1101,24 @@ function drawHearthTrialFlame(ctx, x, y, color, scale = 1) {
   ctx.fillRect(-2, -14, 4, 8);
   ctx.restore();
 }
-function drawHearthTrialArena(ctx) {
-  if (!isHearthTrial()) return;
-  const q = hearthTrial,
-    world = G.world,
-    [light, stone, shade] = HEARTH_TRIAL_COLORS[q.id],
-    t = save.motion ? 0 : G.tAll;
+const hearthTrialArenaSurfaces = new WeakMap();
+function hearthTrialArenaSurface(world, id) {
+  let surface = hearthTrialArenaSurfaces.get(world);
+  if (surface && surface.id === id && !surface.ctx.isContextLost?.()) return surface.canvas;
+  const canvas = document.createElement('canvas');
+  canvas.width = world.W * TILE;
+  canvas.height = world.H * TILE;
+  const ctx = canvas.getContext('2d'),
+    [, stone, shade] = HEARTH_TRIAL_COLORS[id];
+  if (!ctx || ctx.isContextLost?.()) return null;
+  drawHearthTrialStonework(ctx, world, stone, shade);
+  surface = { id, canvas, ctx };
+  hearthTrialArenaSurfaces.set(world, surface);
+  canvas.addEventListener('contextlost', () => hearthTrialArenaSurfaces.delete(world));
+  canvas.addEventListener('contextrestored', () => hearthTrialArenaSurfaces.delete(world));
+  return canvas;
+}
+function drawHearthTrialStonework(ctx, world, stone, shade) {
   ctx.imageSmoothingEnabled = false;
   for (let y = 1; y < world.H - 1; y++)
     for (let x = 1; x < world.W - 1; x++) {
@@ -1135,6 +1176,19 @@ function drawHearthTrialArena(ctx) {
         ctx.fillRect(cx + dx - 3, cy + dy - 3, 6, 6);
     }
   ctx.globalAlpha = 1;
+}
+function drawHearthTrialArena(ctx) {
+  if (!isHearthTrial()) return;
+  const q = hearthTrial,
+    world = G.world,
+    [light, stone, shade] = HEARTH_TRIAL_COLORS[q.id],
+    t = save.motion ? 0 : G.tAll,
+    cx = TILE * 14.5,
+    cy = TILE * 10.5;
+  ctx.imageSmoothingEnabled = false;
+  const surface = hearthTrialArenaSurface(world, q.id);
+  if (surface) ctx.drawImage(surface, 0, 0);
+  else drawHearthTrialStonework(ctx, world, stone, shade);
   ctx.fillStyle = light;
   ctx.globalAlpha = 0.16 + Math.sin(t * 1.6) * 0.035;
   ctx.fillRect(cx - 190, cy - 1, 380, 2);

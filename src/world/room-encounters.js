@@ -1,5 +1,6 @@
-const ROOM_ENCOUNTER_VERSION = 2;
-document.documentElement.dataset.roomEncounters = 'v2';
+const ROOM_ENCOUNTER_VERSION = 3;
+const SPECIAL_ROOMS_PER_FLOOR = 2;
+document.documentElement.dataset.roomEncounters = 'v3';
 const ROOM_ENCOUNTER_INFO = {
   ambush: { name: 'THE ROOM WAKES', hint: 'Watch the walls. Clear each side as it opens.' },
   holdout: { name: 'THE SLOW SEAL', hint: 'Stand in the seal to close it faster.' },
@@ -190,23 +191,68 @@ function specialEncounterTypes(f) {
 }
 function installSpecialEncounters() {
   const w = G.world;
-  if (!w || !G.run) return;
-  if (Array.isArray(w.specialEncounters)) {
-    for (const sc of w.specialEncounters) {
-      if (!sc.complete) configureSpecialEncounter(sc);
-      if (sc.active && !sc.complete) sealSpecialEncounter(sc, true);
-    }
-    w.specialEncounterVersion = ROOM_ENCOUNTER_VERSION;
+  if (
+    !w ||
+    !G.run ||
+    G.run.guardianMode ||
+    (typeof isHearthTrial === 'function' && isHearthTrial())
+  )
     return;
-  }
-  if (typeof planSecretRoom === 'function') planSecretRoom(w, G.floor);
-  const exitIndex = w.rooms.indexOf(w.exit),
-    blocked = new Set([
+  const exitIndex = w.rooms.findIndex(
+    (room) =>
+      room === w.exit ||
+      (room.x === w.exit?.x && room.y === w.exit?.y && room.w === w.exit?.w && room.h === w.exit?.h)
+  );
+  if (exitIndex >= 0) w.exit = w.rooms[exitIndex];
+  const restored = Array.isArray(w.specialEncounters);
+  if (restored && w.secretRoom === undefined) w.secretRoom = null;
+  if (!restored && typeof planSecretRoom === 'function') planSecretRoom(w, G.floor);
+  const target = SPECIAL_ROOMS_PER_FLOOR - (w.secretRoom ? 1 : 0),
+    existing = restored ? w.specialEncounters : [],
+    unique = new Set(),
+    protectedRooms = new Set([
       0,
       exitIndex,
       w.storyRoom,
       w.secretRoom?.roomIndex,
       ...(w.echoSanctuaries || []),
+    ]);
+  const kept = [...existing]
+    .sort(
+      (a, b) =>
+        Number(!!b.active) - Number(!!a.active) || Number(!!b.complete) - Number(!!a.complete)
+    )
+    .filter((sc) => {
+      if (
+        !w.rooms[sc.roomIndex] ||
+        protectedRooms.has(sc.roomIndex) ||
+        unique.has(sc.roomIndex) ||
+        unique.size >= target
+      )
+        return false;
+      unique.add(sc.roomIndex);
+      return true;
+    });
+  const retained = new Set(kept.map((sc) => sc.id));
+  for (const sc of existing) {
+    if (retained.has(sc.id)) continue;
+    sealSpecialEncounter(sc, false);
+    for (const e of G.enemies) {
+      if (e.specialEncounterId !== sc.id) continue;
+      delete e.specialEncounterId;
+      delete e.specialQuarry;
+      delete e.specialSummoner;
+      delete e.summonerShield;
+    }
+  }
+  w.specialEncounters = kept;
+  const blocked = new Set([
+      0,
+      exitIndex,
+      w.storyRoom,
+      w.secretRoom?.roomIndex,
+      ...(w.echoSanctuaries || []),
+      ...kept.map((sc) => sc.roomIndex),
     ]),
     allCandidates = w.rooms
       .map((r, i) => ({
@@ -220,19 +266,18 @@ function installSpecialEncounters() {
       G.floor <= 5 && typeof planEarlyEncounters === 'function'
         ? planEarlyEncounters(w, G.floor)
         : null,
-    deepCandidates = earlyPlan
-      ? allCandidates.filter((o) => (earlyPlan[o.i]?.rank ?? 99) >= 2)
-      : allCandidates;
-  const candidates = (deepCandidates.length ? deepCandidates : allCandidates).sort(
-    (a, b) => b.has - a.has || a.roll - b.roll
+    preferred = (o) => !earlyPlan || (earlyPlan[o.i]?.rank ?? 99) >= 2;
+  const candidates = allCandidates.sort(
+    (a, b) => Number(preferred(b)) - Number(preferred(a)) || b.has - a.has || a.roll - b.roll
   );
-  const roomBudget =
-      G.floor === 1 ? 0 : G.floor <= 5 || bossFloorAt(G.floor) || G.floor % 3 === 0 ? 1 : 2,
-    count = Math.min(candidates.length, Math.max(0, roomBudget - (w.secretRoom ? 1 : 0))),
+  const count = Math.min(candidates.length, Math.max(0, target - kept.length)),
     types = specialEncounterTypes(G.floor),
-    used = new Set();
-  w.specialEncounters = [];
+    used = new Set(kept.map((sc) => sc.type));
   w.specialEncounterVersion = ROOM_ENCOUNTER_VERSION;
+  for (const sc of kept) {
+    if (!sc.complete) configureSpecialEncounter(sc);
+    if (sc.active && !sc.complete) sealSpecialEncounter(sc, true);
+  }
   for (let i = 0; i < count; i++) {
     let type =
       types[(G.floor + i * 3 + Math.floor(candidates[i].roll * types.length)) % types.length];
@@ -253,6 +298,7 @@ function installSpecialEncounters() {
     w.specialEncounters.push(sc);
     configureSpecialEncounter(sc);
   }
+  if (typeof refreshEnvironmentalTraps === 'function') refreshEnvironmentalTraps(w);
 }
 function sealSpecialEncounter(sc, on) {
   const w = G.world,

@@ -97,6 +97,29 @@ function drawRestingFlame(ctx, o) {
   ctx.fillRect(-13, 2, 26, 8);
   ctx.fillStyle = '#9b7b54';
   ctx.fillRect(-10, 0, 20, 3);
+  ctx.fillStyle = '#100f12';
+  ctx.fillRect(-20, 12, 40, 4);
+  ctx.fillStyle = '#78654b';
+  ctx.fillRect(-16, 9, 32, 2);
+  ctx.fillStyle = '#baa57b';
+  ctx.fillRect(-13, 3, 24, 1);
+  ctx.fillStyle = '#352e26';
+  ctx.fillRect(-9, 5, 18, 4);
+  ctx.fillStyle = '#a68a60';
+  for (const x of [-12, -6, 4, 10]) {
+    ctx.fillRect(x, 5, 2, 3);
+    ctx.fillStyle = '#d8bb80';
+    ctx.fillRect(x, 5, 1, 1);
+    ctx.fillStyle = '#a68a60';
+  }
+  ctx.fillStyle = '#39322c';
+  ctx.fillRect(-12, -5, 24, 4);
+  ctx.fillStyle = '#d3b57c';
+  ctx.fillRect(-13, -5, 25, 1);
+  ctx.fillStyle = '#100f13';
+  ctx.fillRect(-9, -5, 18, 2);
+  ctx.fillStyle = '#6f4735';
+  for (let i = 0; i < 6; i++) ctx.fillRect(-9 + i * 3, -4 + (i % 2), 2, 2);
   ctx.strokeStyle = '#c7a36f';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -105,18 +128,41 @@ function drawRestingFlame(ctx, o) {
   ctx.moveTo(13, 1);
   ctx.lineTo(18, -10);
   ctx.stroke();
+  ctx.fillStyle = '#eed097';
+  ctx.fillRect(-18, -10, 2, 3);
+  ctx.fillRect(16, -10, 2, 3);
+  ctx.fillStyle = '#7d6349';
+  ctx.fillRect(-20, -12, 4, 2);
+  ctx.fillRect(16, -12, 4, 2);
   for (let i = 0; i < 5; i++) {
     const a = t * (i % 2 ? 1.1 : -0.8) + (i * TAU) / 5,
       r = lit ? 18 : 11;
     ctx.fillStyle = lit ? (i % 2 ? '#ffd98d' : '#ff8c4d') : '#51483f';
-    ctx.fillRect(Math.cos(a) * r - 2, -13 + Math.sin(a) * r * 0.45 - 2, 4, 4);
+    const x = Math.round(Math.cos(a) * r),
+      y = Math.round(-13 + Math.sin(a) * r * 0.45);
+    ctx.fillRect(x - 1, y - 3, 2, 6);
+    ctx.fillRect(x - 2, y - 1, 4, 2);
+    ctx.fillStyle = lit ? '#fff0bc' : '#7f735c';
+    ctx.fillRect(x - 1, y - 2, 1, 2);
   }
   if (lit) {
     glowImg('ember', 0, -12, 58, 0.42);
-    ctx.fillStyle = '#fff0bb';
-    ctx.fillRect(-3, -22 + Math.sin(t * 6) * 2, 6, 16);
+    const flick = Math.round(Math.sin(t * 6) * 2);
+    ctx.fillStyle = '#bd5934';
+    ctx.fillRect(-7, -13, 14, 8);
     ctx.fillStyle = '#ff9b4d';
-    ctx.fillRect(-7, -15, 14, 13);
+    ctx.fillRect(-5, -18, 10, 12);
+    ctx.fillRect(-6, -21 + flick, 3, 10 - flick);
+    ctx.fillRect(4, -16 - flick, 3, 8 + flick);
+    ctx.fillStyle = '#ffcf75';
+    ctx.fillRect(-3, -20 + flick, 6, 13 - flick);
+    ctx.fillRect(0, -24 + flick, 3, 10 - flick);
+    ctx.fillStyle = '#fff0bb';
+    ctx.fillRect(-1, -17 + flick, 3, 10 - flick);
+    ctx.fillRect(-2, -10, 5, 4);
+    ctx.fillStyle = '#f4d899';
+    ctx.fillRect(-9, -3, 3, 1);
+    ctx.fillRect(5, -3, 3, 1);
   }
   ctx.restore();
 }

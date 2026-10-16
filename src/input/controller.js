@@ -636,6 +636,12 @@ function controllerPoll(now) {
     } else if (pressed[1] || pressed[9]) {
       closeRememberedTrace();
       controllerRelease();
+    } else if (pressed[2]) {
+      replayMemoryPlayback();
+      controllerRelease();
+    } else if (pressed[3]) {
+      toggleMemoryPlayback();
+      controllerRelease();
     }
     return;
   }

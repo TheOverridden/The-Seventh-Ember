@@ -677,6 +677,7 @@ function killBoss(b) {
     addEss(60 + G.floor * 4);
     sfx('victory');
   }
+  collectGuardianRewards();
 }
 function openChest(c) {
   c.opened = true;

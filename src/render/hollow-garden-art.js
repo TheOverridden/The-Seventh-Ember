@@ -95,7 +95,751 @@ function envDiamond(ctx, x, y, r, col) {
   ctx.closePath();
   ctx.fill();
 }
+function envFurnishingDetail(ctx, o) {
+  const px = (x, y, w, h, c) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(x, y, w, h);
+  };
+  const nail = (x, y) => {
+    px(x - 1, y - 1, 3, 3, '#101a20');
+    px(x, y - 1, 1, 1, '#b9ae87');
+    px(x, y, 1, 1, '#69736c');
+  };
+  const stone = (x, y, w, h) => {
+    px(x, y, w, h, '#344741');
+    px(x + 1, y, w - 2, 1, '#a4ad93');
+    px(x + 2, y + 2, Math.max(2, w - 5), 1, '#647668');
+  };
+  const leaf = (x, y, direction = 1) => {
+    px(x, y, 5, 3, '#3d623f');
+    px(x + direction, y - 2, 4, 3, '#8ba666');
+    px(x + 2, y - 2, 1, 4, '#b7c18a');
+  };
+  if (o.type === 'gateColumn') {
+    for (const y of [-31, -20, -8, 4]) {
+      px(-6, y, 12, 1, '#17232c');
+      px(-6, y + 1, 8, 1, '#6e7d7d');
+    }
+    px(-13, 13, 25, 1, '#84918a');
+    px(-11, 17, 7, 1, '#2b373e');
+    px(3, -40, 5, 1, '#a4a992');
+    px(-9, -15, 3, 7, '#1b2932');
+    px(-8, -15, 2, 1, '#8a977f');
+  } else if (o.type === 'oilCache' || o.type === 'footlocker') {
+    for (const x of [-16, 15]) for (const y of [-6, 8]) nail(x, y);
+    px(-9, 2, 5, 1, '#64716a');
+    px(6, 6, 7, 1, '#64716a');
+    if (o.type === 'oilCache') {
+      for (let i = 0; i < 3; i++) {
+        const x = -14 + i * 13,
+          y = -22 - (i % 2) * 3;
+        px(x + 1, y, 5, 2, '#a69971');
+        px(x + 1, y + 4, 1, 8, '#a1b5a2');
+        px(x + 2, y + 10, 3, 3, '#49534b');
+        px(x + 2, y - 2, 3, 2, '#2a322c');
+      }
+    } else {
+      px(-2, 0, 4, 3, '#d5bf83');
+      px(-1, 2, 2, 3, '#2b2a26');
+      px(-10, -7, 10, 1, '#b0ada0');
+    }
+  } else if (o.type === 'lampPost') {
+    for (const y of [-40, -15, 8]) {
+      px(-4, y, 8, 2, '#33464c');
+      px(-3, y, 5, 1, '#b6ac82');
+    }
+    nail(-8, -23);
+    nail(8, -23);
+    px(-7, -5, 13, 1, '#eddd9f');
+    px(-5, -19, 1, 8, '#edf0cc');
+    px(6, -17, 1, 6, '#e4ca86');
+  } else if (o.type === 'watchBench' || o.type === 'gardenBench') {
+    for (const y of [-8, 1]) {
+      px(-18, y, 32, 1, '#423c2c');
+      px(-16, y + 1, 11, 1, '#af9a66');
+      px(2, y + 1, 10, 1, '#af9a66');
+    }
+    for (const x of [-20, 19]) {
+      nail(x, -8);
+      nail(x, 2);
+    }
+    px(-16, -4, 4, 1, '#34392c');
+    px(7, -8, 6, 1, '#3a3d2c');
+    if (o.type === 'gardenBench') {
+      leaf(-27, 4);
+      leaf(22, -12, -1);
+    }
+  } else if (o.type === 'bellShrine') {
+    for (const x of [-13, 0, 13]) {
+      px(x - 6, -22, 11, 1, '#efce8b');
+      px(x - 4, -17, 8, 1, '#806438');
+      px(x - 4, -15, 7, 1, '#dfbd75');
+      px(x + 2, -21, 2, 7, '#796033');
+      px(x - 7, -10, 13, 1, '#e6c588');
+    }
+    nail(-23, -40);
+    nail(23, -40);
+    px(-19, -43, 37, 1, '#c2b894');
+  } else if (o.type === 'wallRelief' || o.type === 'starAltar') {
+    if (o.type === 'wallRelief') {
+      for (const x of [-18, 18]) for (const y of [-26, 7]) nail(x, y);
+      px(-12, -19, 5, 1, '#506260');
+      px(7, -3, 5, 1, '#506260');
+      px(-3, -12, 2, 2, '#b4b99a');
+      px(3, -8, 2, 2, '#b4b99a');
+    } else {
+      for (const x of [-25, -12, 12, 25]) {
+        px(x, 7, 1, 7, '#293b45');
+        px(x - 1, 7, 1, 5, '#a5b1a1');
+      }
+      px(-29, 15, 57, 1, '#708078');
+      px(-14, 4, 27, 1, '#c7ba88');
+    }
+  } else if (o.type === 'bunkStack') {
+    for (const y of [-32, -3]) {
+      for (const x of [-11, -3, 5, 13]) {
+        px(x, y, 1, 12, '#182c3d');
+        px(x + 1, y + 2, 1, 8, '#506b75');
+      }
+      px(-15, y - 5, 9, 1, '#e4debd');
+      px(-14, y - 2, 5, 1, '#8a927e');
+    }
+    for (const x of [-22, 21]) for (const y of [-40, -11, 13]) nail(x, y);
+  } else if (o.type === 'watchBanner') {
+    for (const x of [-12, -7, 7, 12]) {
+      px(x, -36, 1, 35, x < 0 ? '#965774' : '#402d43');
+    }
+    for (let y = -36; y < 0; y += 6) {
+      px(-15, y, 2, 2, '#c1a172');
+      px(13, y + 2, 2, 2, '#9c7b62');
+    }
+    px(-21, -47, 41, 1, '#d0b986');
+    px(-13, 2, 4, 3, '#302636');
+    px(8, -1, 3, 5, '#302636');
+  } else if (o.type === 'rootCluster' || o.type === 'fernPatch') {
+    for (let i = 0; i < 6; i++) {
+      const x = -25 + i * 10,
+        y = 11 - Math.abs(i - 2) * 5;
+      leaf(x, y, i % 2 ? -1 : 1);
+      if (o.type === 'rootCluster') px(x + 2, y + 5, 3, 1, '#a7ad7a');
+    }
+    px(-8, 14, 8, 2, '#1c3021');
+    px(4, 15, 11, 1, '#4d633c');
+  } else if (o.type === 'gardenStone' || o.type === 'dryFountain') {
+    const w = o.type === 'dryFountain' ? 30 : 20;
+    for (let i = 0; i < 4; i++) {
+      const x = -w + i * w * 0.5;
+      px(Math.round(x), 5, 1, 7, '#33493e');
+      px(Math.round(x + 2), 5, 6, 1, '#b8bf9f');
+    }
+    px(-12, -11, 8, 1, '#bec5aa');
+    px(7, -8, 7, 1, '#33493e');
+    if (o.type === 'dryFountain') {
+      for (let i = 0; i < 5; i++) px(-19 + i * 9, i % 2 ? 2 : 0, 5, 1, '#8ead9380');
+      px(-14, -28, 27, 1, '#bcc6a9');
+      px(3, -22, 1, 15, '#354b3f');
+      leaf(-28, -9);
+      leaf(24, -12, -1);
+    } else {
+      leaf(-22, -17);
+      leaf(17, -9);
+    }
+  } else if (o.type === 'glassFrame') {
+    for (const x of [-25, 24]) for (const y of [-43, -15, 14]) nail(x, y);
+    px(-19, -33, 1, 7, '#d5eadb80');
+    px(8, -34, 1, 5, '#e7eee180');
+    px(-22, 9, 15, 2, '#577362');
+    px(3, 9, 18, 1, '#657c67');
+    leaf(-29, 9);
+    leaf(-23, 3);
+    leaf(23, 13, -1);
+  } else if (o.type === 'pottingBench' || o.type === 'seedTable') {
+    for (let i = 0; i < 4; i++) {
+      const x = -21 + i * 14,
+        y = -23 - (i % 2) * 3;
+      px(x - 1, y + 2, 12, 2, '#bb9267');
+      px(x + 2, y + 5, 1, 5, '#ac7f56');
+      px(x + 6, y + 5, 3, 5, '#513d2a');
+      px(x + 2, y - 3, 3, 1, '#cad391');
+    }
+    px(-22, 9, 43, 1, '#9b8556');
+    for (const x of [-21, 21]) nail(x, 2);
+    px(-18, -8, 13, 1, '#51442c');
+    px(6, -8, 12, 1, '#51442c');
+  } else if (o.type === 'fungalBloom') {
+    for (let i = 0; i < 7; i++) {
+      const x = -24 + i * 8,
+        h = 9 + ((i * 7) % 18);
+      px(x - 3, -h + 8, 9, 1, '#66513f');
+      px(x, -h + 10, 1, h - 4, '#9b9d7b');
+      px(x - 3, -h + 4, 2, 1, '#fff1c3');
+      px(x + 4, -h + 5, 1, 1, '#eadbb2');
+    }
+  } else if (o.type === 'flowerTotem') {
+    for (const y of [-27, -17, -6]) stone(-7, y, 11, 4);
+    for (const x of [-12, 10]) px(x, 1, 2, 11, '#60754c');
+    px(-15, 13, 29, 1, '#9fac7d');
+    leaf(-17, 3);
+    leaf(13, 5, -1);
+  }
+}
+const earlyFurnishingSprites = new Map();
 function drawEarlyEnvironmentPiece(ctx, o, t) {
+  const living = ['rootCluster', 'fernPatch', 'fungalBloom', 'flowerTotem'].includes(o.type);
+  if (o.type === 'starAltar' || o.type === 'wardSeal') {
+    paintEarlyEnvironmentPiece(ctx, o, t);
+    return;
+  }
+  const phase =
+      (o.type === 'fernPatch' || o.type === 'flowerTotem') && !save.motion
+        ? Math.floor(t * 1.7 + ((o.seed || 0) % 7)) % 4
+        : 0,
+    key = o.type + ':' + phase;
+  let sprite = earlyFurnishingSprites.get(key);
+  if (!sprite || sprite.getContext('2d').isContextLost?.()) {
+    sprite = document.createElement('canvas');
+    sprite.width = 144;
+    sprite.height = 128;
+    const c = sprite.getContext('2d');
+    c.translate(72, 86);
+    if (living) paintGardenBotanical(c, o.type, phase);
+    else paintEarlyEnvironmentPiece(c, { ...o, x: 0, y: 0, flip: 1 }, 0);
+    earlyFurnishingSprites.set(key, sprite);
+  }
+  ctx.save();
+  ctx.translate(Math.round(o.x), Math.round(o.y));
+  ctx.scale(o.flip || 1, 1);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(sprite, -72, -86);
+  ctx.restore();
+  if (o.type === 'fungalBloom')
+    glowImg(
+      'violet',
+      o.x,
+      o.y - 10,
+      28,
+      0.12 + (save.motion ? 0 : 0.04 * Math.sin(t * 2 + o.seed))
+    );
+}
+function paintGardenBotanical(c, type, phase) {
+  const sway = [0, 1, 0, -1][phase],
+    px = (x, y, w, h, colour) => {
+      c.fillStyle = colour;
+      c.fillRect(Math.round(x), Math.round(y), w, h);
+    },
+    shoot = (points, width, shadow, colour, highlight) => {
+      for (let i = 1; i < points.length; i++) {
+        const a = points[i - 1],
+          b = points[i],
+          length = Math.max(Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1]));
+        for (let j = 0; j <= length; j++) {
+          const x = Math.round(a[0] + ((b[0] - a[0]) * j) / Math.max(1, length)),
+            y = Math.round(a[1] + ((b[1] - a[1]) * j) / Math.max(1, length));
+          px(x - width / 2, y - width / 2, width, width, shadow);
+          px(
+            x - width / 2 + 1,
+            y - width / 2,
+            Math.max(1, width - 2),
+            Math.max(1, width - 1),
+            colour
+          );
+          if (highlight) px(x - width / 2 + 1, y - width / 2, 1, Math.max(1, width - 2), highlight);
+        }
+      }
+    },
+    leaf = (x, y, dx, dy, size, tone = '#6c8f57') => {
+      for (let i = 0; i < size; i++) {
+        const xx = x + Math.round(dx * i),
+          yy = y + Math.round(dy * i),
+          width = i < size * 0.45 ? 3 : i < size - 1 ? 2 : 1;
+        px(xx, yy, width, 2, '#314c33');
+        px(xx, yy, Math.max(1, width - 1), 1, tone);
+      }
+    };
+  envShadow(c, type === 'rootCluster' ? 70 : 57, 4, 16, 0.25);
+  if (type === 'rootCluster') {
+    const roots = [
+      [
+        [-34, 16],
+        [-25, 12],
+        [-18, 1],
+        [-14, -12],
+        [-8, -28],
+      ],
+      [
+        [-16, 17],
+        [-7, 12],
+        [-5, 2],
+        [1, -9],
+        [3, -29],
+      ],
+      [
+        [10, 18],
+        [8, 10],
+        [16, 2],
+        [18, -14],
+        [22, -31],
+      ],
+      [
+        [33, 16],
+        [25, 10],
+        [28, 0],
+        [27, -9],
+        [31, -19],
+      ],
+    ];
+    for (let i = 0; i < roots.length; i++) {
+      shoot(roots[i], i % 2 ? 6 : 8, '#1f2c21', i % 2 ? '#6c7250' : '#7d8057', '#9a9b70');
+      for (let k = 1; k < roots[i].length - 1; k++) {
+        const [x, y] = roots[i][k];
+        px(x - 2, y + 2, 4, 1, '#3c4930');
+        px(x - 2, y + 1, 2, 1, '#a09e72');
+      }
+      const tip = roots[i][4];
+      leaf(tip[0] - 1, tip[1] + 5, -1, -0.5, 7, '#91a36d');
+      leaf(tip[0] + 1, tip[1] + 8, 1, -0.65, 8, '#78935b');
+      leaf(tip[0], tip[1] + 1, 0.2, -1, 5, '#b0bb82');
+    }
+    shoot(
+      [
+        [-10, 14],
+        [-18, 7],
+        [-26, 5],
+      ],
+      3,
+      '#263b27',
+      '#6e8652'
+    );
+    shoot(
+      [
+        [22, 12],
+        [30, 8],
+        [37, 7],
+      ],
+      3,
+      '#263b27',
+      '#6e8652'
+    );
+    leaf(-24, 9, -1, -0.3, 8);
+    leaf(25, 7, 1, -0.3, 8, '#8ca569');
+    px(-5, -25, 3, 5, '#c7b38b');
+    px(-6, -25, 5, 1, '#9c8566');
+    px(-6, -20, 5, 1, '#4c4732');
+  } else if (type === 'fernPatch') {
+    const fronds = [
+      [-31, -8],
+      [-26, -23],
+      [-13, -32],
+      [2, -36],
+      [17, -29],
+      [30, -17],
+      [34, -1],
+    ];
+    for (let i = 0; i < fronds.length; i++) {
+      const tx = fronds[i][0] + (i % 2 ? sway : 0),
+        ty = fronds[i][1],
+        bx = (i - 3) * 2;
+      const stem = [];
+      for (let k = 0; k <= 8; k++) {
+        const u = k / 8;
+        stem.push([bx + tx * u * 0.82, 16 + (ty - 16) * u + 5 * Math.sin(u * Math.PI)]);
+      }
+      shoot(stem, 2, '#304f35', i % 2 ? '#8aa764' : '#73945b');
+      for (let k = 2; k < 8; k++) {
+        const [x, y] = stem[k],
+          size = Math.max(2, 8 - Math.abs(k - 4));
+        leaf(x, y, -1, -0.45, size, i % 2 ? '#a0b97b' : '#6e945b');
+        leaf(x + 1, y + 2, 1, -0.35, size - 1, '#678d55');
+      }
+    }
+    for (const [x, y] of [
+      [-14, 14],
+      [3, 15],
+      [15, 14],
+    ]) {
+      px(x, y, 5, 2, '#34452e');
+      px(x, y, 3, 1, '#87915f');
+    }
+  } else if (type === 'fungalBloom') {
+    const mushrooms = [
+        [-23, 7, 13, 10],
+        [-9, 9, 20, 14],
+        [9, 8, 16, 12],
+        [23, 10, 25, 15],
+        [0, 15, 10, 10],
+        [-19, 16, 7, 8],
+        [22, 17, 8, 9],
+      ],
+      tones = [
+        ['#b37b93', '#d3a8b6', '#714b63'],
+        ['#7c956c', '#afba8b', '#485b45'],
+        ['#b89472', '#ddbd95', '#765c48'],
+      ];
+    for (let i = 0; i < mushrooms.length; i++) {
+      const [x, base, height, width] = mushrooms[i],
+        top = base - height,
+        tone = tones[i % 3];
+      px(x - 1, top + 5, 4, height - 4, '#858b70');
+      px(x - 1, top + 5, 2, height - 5, '#d0cbb0');
+      px(x, top + 7, 1, Math.max(1, height - 9), '#e6ddc0');
+      for (let row = 0; row < 5; row++) {
+        const half = Math.round(width / 2 - Math.max(0, 3 - row) * 1.3);
+        px(x - half, top + row, half * 2 + 1, 1, row < 2 ? tone[1] : tone[0]);
+      }
+      px(x - Math.floor(width / 2), top + 5, width + 1, 2, tone[2]);
+      px(x - Math.floor(width / 2) + 2, top + 5, Math.max(2, width - 4), 1, '#c0ab87');
+      px(x - 2, top + 1, 2, 1, '#ede2c6');
+      px(x + 3, top + 3, 1, 1, '#eadbc1');
+    }
+  } else {
+    px(-17, 0, 34, 18, '#24352a');
+    px(-15, 1, 29, 13, '#4e6647');
+    px(-13, 1, 4, 11, '#8c9b6a');
+    px(-14, 13, 28, 2, '#9ca77c');
+    px(-11, -31, 21, 33, '#657b52');
+    px(-9, -30, 4, 29, '#a3ae77');
+    px(5, -29, 5, 29, '#3a533a');
+    for (let y = -26; y < -1; y += 8) {
+      px(-7, y, 12, 2, '#3a5438');
+      px(-6, y, 9, 1, '#bbc18b');
+    }
+    const cx = sway,
+      cy = -38;
+    for (let i = 0; i < 8; i++) {
+      const a = (i * TAU) / 8,
+        tone = i % 2 ? '#bd879e' : '#d5a5b3';
+      for (let d = 5; d < 18; d++) {
+        const w = d < 8 ? 3 : d < 14 ? 5 : d < 17 ? 4 : 2,
+          x = cx + Math.round(Math.cos(a) * d),
+          y = cy + Math.round(Math.sin(a) * d * 0.66);
+        px(x - w / 2, y - 2, w, 4, '#744e64');
+        px(x - w / 2, y - 2, Math.max(1, w - 1), 2, tone);
+      }
+    }
+    envDiamond(c, cx, cy, 7, '#ead6a8');
+    envDiamond(c, cx + 1, cy + 1, 4, '#8a7350');
+    px(cx - 2, cy - 3, 3, 2, '#fff0c2');
+    leaf(-14, 1, -1, -0.4, 9, '#839b62');
+    leaf(11, 5, 1, -0.5, 9, '#9cb477');
+  }
+}
+function envCraftFinish(c, type) {
+  const px = (x, y, w, h, colour) => {
+      c.fillStyle = colour;
+      c.fillRect(x, y, w, h);
+    },
+    pin = (x, y) => {
+      px(x - 1, y - 1, 3, 3, '#1d282a');
+      px(x, y - 1, 1, 1, '#c2b78f');
+      px(x, y, 1, 1, '#6e756b');
+    },
+    grain = (x, y, w) => {
+      px(x, y, w, 1, '#493d2d');
+      px(x + 2, y + 1, Math.max(2, w - 6), 1, '#9a8559');
+    },
+    leaf = (x, y, dx, dy, colour = '#86a568') => {
+      for (let i = 0; i < 5; i++) {
+        px(x + dx * i, y + dy * i, i < 3 ? 3 : 2, 2, '#314c35');
+        px(x + dx * i, y + dy * i, i < 3 ? 2 : 1, 1, colour);
+      }
+    };
+  if (type === 'gateColumn') {
+    px(-4, -34, 8, 33, '#1d2d38');
+    px(-4, -34, 1, 32, '#7b8987');
+    px(2, -32, 2, 29, '#344752');
+    for (const y of [-29, -17, -5]) {
+      px(-3, y, 6, 2, '#526662');
+      px(-3, y, 5, 1, '#8d988a');
+    }
+    px(-12, 7, 24, 2, '#7a8982');
+    px(-13, 10, 26, 1, '#263a42');
+    px(-9, 16, 8, 1, '#8d998b');
+    px(7, 12, 6, 3, '#24353c');
+    px(5, -41, 5, 2, '#94a18f');
+    px(-11, -43, 7, 2, '#71857c');
+  } else if (type === 'oilCache') {
+    for (const y of [-2, 5, 11]) grain(-19, y, 36);
+    for (const x of [-20, 17]) {
+      px(x, -5, 3, 17, '#34291e');
+      px(x, -5, 1, 15, '#b49561');
+      pin(x + 1, -3);
+      pin(x + 1, 9);
+    }
+    for (let i = 0; i < 3; i++) {
+      const x = -14 + i * 13,
+        top = -23 - (i % 2) * 3;
+      px(x, top + 4, 7, 12, '#293b36');
+      px(x + 1, top + 5, 5, 8, '#5e7162');
+      px(x + 1, top + 9, 5, 5, '#8a8759');
+      px(x + 2, top + 5, 1, 9, '#b9c7a7');
+      px(x + 1, top - 2, 5, 3, '#b39b66');
+      px(x + 2, top - 2, 2, 1, '#dfca91');
+      px(x + 2, top + 8, 3, 3, '#d0bd8c');
+      px(x + 3, top + 9, 1, 1, '#6e674b');
+    }
+  } else if (type === 'lampPost') {
+    px(-16, -60, 32, 3, '#1b252b');
+    px(-12, -63, 24, 3, '#5c706d');
+    px(-8, -65, 16, 2, '#8c997f');
+    px(-3, -67, 6, 2, '#b6ab7a');
+    px(-15, -47, 30, 3, '#8e825c');
+    px(-12, -46, 24, 1, '#d4bc80');
+    for (const x of [-9, 8]) {
+      px(x, -56, 1, 11, '#667768');
+      px(x + 1, -56, 1, 10, '#b4bc94');
+    }
+    px(-2, -55, 3, 9, '#ffc16a');
+    px(-1, -53, 2, 6, '#fff0bd');
+    px(-1, -48, 3, 2, '#a37c45');
+    for (const y of [-31, -14, 8]) {
+      px(-5, y, 10, 3, '#293b40');
+      px(-4, y, 8, 1, '#ac9b6d');
+    }
+    px(-10, 13, 20, 2, '#c7ac75');
+    pin(-7, 15);
+    pin(6, 15);
+  } else if (type === 'watchBench' || type === 'gardenBench') {
+    for (const y of [-9, 0]) {
+      grain(-21, y, 41);
+      px(-7, y, 1, 3, '#3e382d');
+      px(12, y + 1, 1, 2, '#473c2d');
+    }
+    for (const x of [-25, 22]) {
+      px(x, -9, 3, 12, '#283333');
+      px(x, -12, 6, 3, '#80714d');
+      px(x, -12, 5, 1, '#b7a073');
+      pin(x + 1, -8);
+    }
+    px(-20, 8, 39, 2, '#303a30');
+    px(-18, 8, 2, 9, '#77806a');
+    px(16, 8, 2, 9, '#77806a');
+    if (type === 'gardenBench') {
+      leaf(-25, -7, -1, -1);
+      leaf(-27, 1, 1, -1, '#a3b97b');
+      leaf(24, -11, 1, -1);
+      leaf(25, -4, -1, -1);
+    }
+  } else if (type === 'bellShrine') {
+    for (const x of [-13, 0, 13]) {
+      c.clearRect(x - 9, -24, 18, 16);
+      px(x - 2, -26, 4, 3, '#5b4a2e');
+      for (let row = 0; row < 14; row++) {
+        const half = row < 4 ? 3 : row < 10 ? 4 : row < 12 ? 6 : 8;
+        px(x - half, -23 + row, half * 2, 1, '#90713f');
+        px(x - half + 1, -23 + row, 2, 1, '#dbc185');
+        px(x + half - 2, -23 + row, 2, 1, '#54472d');
+      }
+      px(x - 9, -10, 18, 2, '#443a29');
+      px(x - 8, -10, 16, 1, '#ead297');
+      px(x - 5, -8, 10, 1, '#8b7244');
+      px(x - 1, -7, 2, 4, '#b99c61');
+      px(x - 2, -4, 4, 2, '#dcc58b');
+    }
+    for (const x of [-24, 22]) for (const y of [-38, -14, 12]) pin(x, y);
+    px(-19, -35, 37, 1, '#9e8858');
+    px(-21, 14, 42, 2, '#26383e');
+  } else if (type === 'wallRelief') {
+    px(-18, -26, 36, 1, '#a7b2a0');
+    px(-19, -25, 1, 31, '#71847b');
+    px(18, -25, 1, 31, '#1c3039');
+    px(-17, 6, 34, 1, '#192e39');
+    for (const [x, y] of [
+      [-13, -21],
+      [11, -21],
+      [-13, -1],
+      [11, -1],
+    ]) {
+      px(x, y, 2, 2, '#809086');
+      px(x, y, 1, 1, '#c2c8ad');
+    }
+    for (let i = 0; i < 8; i++) {
+      const a = (i * TAU) / 8;
+      px(Math.round(Math.cos(a) * 12), -10 + Math.round(Math.sin(a) * 10), 2, 2, '#7e8f7c');
+    }
+    px(-4, -20, 2, 3, '#b1b38d');
+    px(3, -4, 2, 3, '#475b55');
+  } else if (type === 'bunkStack') {
+    for (const y of [-38, -9]) {
+      px(-16, y, 11, 5, '#dedbc0');
+      px(-15, y + 1, 8, 1, '#f2e9c9');
+      px(-15, y + 4, 9, 1, '#9da18a');
+      px(-3, y + 5, 17, 14, '#2c455a');
+      px(-2, y + 6, 2, 11, '#68848b');
+      px(4, y + 7, 1, 10, '#1b3247');
+      px(9, y + 8, 2, 10, '#506d78');
+      px(0, y + 17, 14, 1, '#7a8b89');
+      for (let x = -1; x < 14; x += 3) px(x, y + 17, 1, 1, '#b4bda3');
+    }
+    px(18, -38, 3, 52, '#9a8258');
+    px(26, -33, 3, 48, '#6c6147');
+    for (let y = -29; y < 14; y += 11) {
+      px(20, y, 8, 2, '#bda773');
+      px(21, y + 2, 6, 1, '#3e443a');
+    }
+    pin(20, -37);
+    pin(27, 13);
+  } else if (type === 'footlocker') {
+    px(-18, -11, 35, 2, '#8d9b96');
+    px(-17, -9, 33, 1, '#334951');
+    for (const x of [-16, 13]) {
+      px(x, -10, 3, 20, '#839085');
+      px(x + 1, -9, 1, 18, '#b9b99b');
+      pin(x + 1, -7);
+      pin(x + 1, 7);
+    }
+    px(-10, 0, 6, 1, '#89998b');
+    px(7, 4, 6, 1, '#71857b');
+    px(-3, -1, 6, 5, '#d2b57b');
+    px(-1, 0, 2, 3, '#3a3d33');
+    px(-17, 11, 5, 3, '#15252b');
+    px(12, 11, 5, 3, '#15252b');
+  } else if (type === 'starAltar') {
+    px(-29, 3, 57, 2, '#718580');
+    px(-27, 5, 53, 1, '#303f49');
+    for (const x of [-21, -8, 8, 21]) {
+      px(x, 8, 1, 6, '#233541');
+      px(x + 1, 8, 1, 5, '#82988d');
+    }
+    for (let x = -14; x < 15; x += 7) {
+      px(x, 6, 3, 1, '#b4a57a');
+      px(x + 1, 7, 1, 2, '#687f76');
+    }
+    px(-21, -3, 42, 1, '#d1c08e');
+    px(-30, 16, 60, 2, '#293b43');
+  } else if (type === 'watchBanner') {
+    for (const x of [-15, 13]) {
+      px(x, -37, 2, 36, '#9b765e');
+      for (let y = -36; y < -1; y += 4) px(x, y, 1, 1, '#e5c48d');
+    }
+    px(-10, -35, 1, 28, '#946178');
+    px(7, -34, 2, 30, '#42283c');
+    px(-8, -2, 15, 2, '#ae8968');
+    for (const [x, y, h] of [
+      [-12, 3, 5],
+      [-5, 4, 3],
+      [5, 1, 5],
+      [12, -1, 6],
+    ]) {
+      px(x, y, 1, h, '#c39979');
+    }
+    pin(-21, -47);
+    pin(20, -47);
+  } else if (type === 'gardenStone') {
+    c.clearRect(-23, -14, 4, 3);
+    c.clearRect(20, -14, 3, 5);
+    px(-20, -12, 3, 1, '#b5bca0');
+    px(17, -9, 4, 2, '#a3b29a');
+    px(-19, -5, 36, 1, '#7f9381');
+    px(-16, 1, 28, 1, '#9da78f');
+    px(-7, -16, 1, 6, '#4c6351');
+    px(-6, -11, 3, 1, '#4c6351');
+    px(-3, -10, 1, 5, '#4c6351');
+    px(10, -13, 5, 2, '#c0c7ad');
+    for (const [x, y] of [
+      [-23, -11],
+      [18, -4],
+      [15, -12],
+    ]) {
+      leaf(x, y, x < 0 ? -1 : 1, -1);
+      leaf(x + 1, y + 3, x < 0 ? 1 : -1, -1, '#a9b97e');
+    }
+    px(-17, 9, 12, 1, '#243b2d');
+    px(8, 11, 10, 1, '#2e4634');
+  } else if (type === 'glassFrame') {
+    for (const x of [-26, 25])
+      for (const y of [-39, -18, 10]) {
+        px(x, y, 3, 5, '#6b7256');
+        pin(x + 1, y + 1);
+      }
+    px(-20, -39, 1, 17, '#c8e2cf');
+    px(-19, -39, 2, 1, '#f1f0d7');
+    px(19, -36, 1, 12, '#a1bfb0');
+    px(-2, -11, 4, 14, '#415d53');
+    px(-1, -8, 5, 7, '#b0a67a');
+    px(1, -6, 1, 3, '#4d5e4b');
+    px(-28, 8, 9, 4, '#445d3f');
+    leaf(-25, 6, -1, -1);
+    leaf(-24, -1, 1, -1, '#9bb576');
+    leaf(23, 12, 1, -1);
+    leaf(25, 5, -1, -1, '#a4b878');
+    px(-21, 13, 16, 2, '#a5bba0');
+    px(8, 15, 12, 1, '#7c9480');
+  } else if (type === 'pottingBench' || type === 'seedTable') {
+    grain(-25, -9, 49);
+    grain(-20, 8, 40);
+    px(-24, -1, 3, 17, '#967f51');
+    px(21, -1, 2, 17, '#b09b64');
+    for (const x of [-21, 20]) {
+      pin(x, 0);
+      pin(x, 12);
+    }
+    for (let i = 0; i < 4; i++) {
+      const x = -21 + i * 14,
+        top = -24 - (i % 2) * 3;
+      c.clearRect(x - 1, top - 11, 13, 13);
+      px(x, top, 11, 2, '#453528');
+      px(x + 1, top, 9, 1, '#cfab7d');
+      px(x + 1, top + 2, 9, 8 + (i % 2) * 2, '#9b7150');
+      px(x + 2, top + 3, 2, 6 + (i % 2) * 2, '#bf9163');
+      px(x + 8, top + 2, 2, 7 + (i % 2) * 2, '#594332');
+      px(x + 2, top + 9 + (i % 2) * 2, 7, 1, '#584432');
+      px(x + 4, top - 8, 2, 8, '#54734b');
+      leaf(x + 4, top - 5, -1, -1, '#99b77b');
+      leaf(x + 5, top - 7, 1, -1, '#75985e');
+      if (i === 1 || type === 'seedTable') leaf(x + 3, top - 1, -1, -1, '#b0bd80');
+    }
+    if (type === 'pottingBench') {
+      px(-11, 4, 19, 4, '#3b3526');
+      px(-10, 4, 17, 1, '#b3a275');
+      px(9, -12, 10, 1, '#353a29');
+      px(17, -14, 4, 4, '#a1aaa0');
+    } else {
+      px(-15, 3, 12, 4, '#b7a370');
+      px(-14, 4, 9, 2, '#dbca8e');
+      px(2, 2, 14, 5, '#988357');
+      px(3, 2, 11, 1, '#d4bf87');
+    }
+  } else if (type === 'dryFountain') {
+    c.clearRect(-40, -33, 80, 52);
+    px(-35, 8, 70, 11, '#2b3d36');
+    px(-31, 15, 62, 4, '#526e5c');
+    px(-38, 1, 76, 10, '#526b5b');
+    px(-35, -3, 70, 8, '#879783');
+    px(-28, -6, 56, 3, '#b2bca3');
+    px(-32, -3, 64, 2, '#a1b095');
+    px(-29, -1, 58, 8, '#233e36');
+    px(-24, 1, 48, 4, '#354f42');
+    px(-28, 5, 56, 3, '#83967e');
+    px(-32, 4, 4, 3, '#a4b395');
+    px(28, 2, 5, 5, '#526e57');
+    px(-28, 8, 56, 1, '#bec3a4');
+    for (const x of [-25, -11, 6, 23]) {
+      px(x, 9, 1, 8, '#334d3d');
+      px(x + 1, 10, 1, 6, '#92a185');
+    }
+    px(-8, -24, 16, 27, '#526c59');
+    px(-6, -23, 4, 24, '#98a58b');
+    px(4, -21, 3, 22, '#304c3b');
+    px(-4, -15, 8, 1, '#3a5642');
+    px(-19, -28, 38, 4, '#526957');
+    px(-16, -31, 32, 3, '#9da991');
+    px(-12, -29, 24, 2, '#324c3e');
+    px(-17, -25, 34, 1, '#bdc4a6');
+    px(-14, -24, 28, 2, '#738d74');
+    px(-22, 2, 1, 7, '#344b3a');
+    px(-21, 7, 4, 1, '#344b3a');
+    px(-18, 8, 1, 5, '#344b3a');
+    for (const [x, y, side] of [
+      [-31, 1, -1],
+      [29, -1, 1],
+      [-26, -6, -1],
+    ]) {
+      leaf(x, y, side, -1);
+      leaf(x + side * 3, y + 4, -side, -1, '#a2b17a');
+    }
+  }
+}
+function paintEarlyEnvironmentPiece(ctx, o, t) {
   const bob = save.motion ? 0 : Math.sin(t * 1.3 + o.seed) * 1.2,
     flip = o.flip || 1;
   ctx.save();
@@ -314,55 +1058,6 @@ function drawEarlyEnvironmentPiece(ctx, o, t) {
     ctx.fillStyle = '#171d26';
     ctx.fillRect(-18, 8, 12, 5);
     ctx.fillRect(6, 8, 12, 5);
-  } else if (o.type === 'rootCluster') {
-    ctx.strokeStyle = '#17281d';
-    ctx.lineWidth = 10;
-    for (let i = 0; i < 4; i++) {
-      ctx.beginPath();
-      ctx.moveTo(-34 + i * 19, 18);
-      ctx.quadraticCurveTo(-20 + i * 13, -8 - i * 4, -12 + i * 10, -25 - i * 2);
-      ctx.stroke();
-    }
-    ctx.strokeStyle = '#6f8757';
-    ctx.lineWidth = 4;
-    for (let i = 0; i < 4; i++) {
-      ctx.beginPath();
-      ctx.moveTo(-34 + i * 19, 18);
-      ctx.quadraticCurveTo(-20 + i * 13, -8 - i * 4, -12 + i * 10, -25 - i * 2);
-      ctx.stroke();
-    }
-    ctx.fillStyle = '#94a66c';
-    for (let i = 0; i < 7; i++) {
-      const x = -29 + i * 10,
-        y = 7 - Math.abs(i - 3) * 4;
-      ctx.fillRect(x, y, 7, 3);
-      ctx.fillRect(x + 2, y - 3, 3, 8);
-    }
-    ctx.fillStyle = '#b09a7f';
-    ctx.fillRect(-3, -26, 6, 8);
-  } else if (o.type === 'fernPatch') {
-    envShadow(ctx, 60, 5, 13, 0.22);
-    for (let i = 0; i < 7; i++) {
-      const a = -2.7 + i * 0.34 + Math.sin(t * 0.6 + o.seed + i) * 0.025,
-        len = 24 + (i % 3) * 8;
-      ctx.strokeStyle = i % 2 ? '#6f955f' : '#8aaa6c';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(0, 13);
-      ctx.quadraticCurveTo(
-        Math.cos(a) * len * 0.45,
-        Math.sin(a) * len * 0.2,
-        Math.cos(a) * len,
-        Math.sin(a) * len
-      );
-      ctx.stroke();
-      for (let j = 1; j < 4; j++) {
-        const x = (Math.cos(a) * len * j) / 4,
-          y = 13 + (Math.sin(a) * len * j) / 4;
-        ctx.fillStyle = j % 2 ? '#9bb979' : '#587e55';
-        ctx.fillRect(Math.round(x) - 5, Math.round(y) - 2, 10, 4);
-      }
-    }
   } else if (o.type === 'gardenStone') {
     envShadow(ctx, 54, 7, 13);
     ctx.fillStyle = '#27342d';
@@ -455,38 +1150,9 @@ function drawEarlyEnvironmentPiece(ctx, o, t) {
     ctx.fillStyle = '#89a46d';
     ctx.fillRect(-31, -13, 10, 5);
     ctx.fillRect(21, -15, 11, 5);
-  } else if (o.type === 'fungalBloom') {
-    envShadow(ctx, 56, 5, 12, 0.22);
-    for (let i = 0; i < 7; i++) {
-      const x = -24 + i * 8,
-        h = 9 + ((i * 7) % 18);
-      ctx.fillStyle = '#d5cab0';
-      ctx.fillRect(x, -h + 9, 4, h);
-      ctx.fillStyle = i % 3 === 0 ? '#b36f91' : i % 3 === 1 ? '#879f6b' : '#d09c72';
-      ctx.fillRect(x - 5, -h + 4, 14, 6);
-      ctx.fillRect(x - 3, -h + 1, 10, 3);
-      ctx.fillStyle = '#eee1ca';
-      ctx.fillRect(x - 1, -h + 2, 3, 2);
-    }
-    glowImg('violet', o.x, o.y - 10, 28, 0.12 + 0.04 * Math.sin(t * 2 + o.seed));
-  } else if (o.type === 'flowerTotem') {
-    envShadow(ctx, 52, 6, 14);
-    ctx.fillStyle = '#24382b';
-    ctx.fillRect(-17, -1, 34, 18);
-    ctx.fillStyle = '#72875b';
-    ctx.fillRect(-12, -34, 24, 35);
-    ctx.fillStyle = '#314b35';
-    ctx.fillRect(5, -31, 7, 31);
-    ctx.fillStyle = '#a48b78';
-    ctx.fillRect(-8, -29, 10, 24);
-    for (let i = 0; i < 8; i++) {
-      const a = (i * TAU) / 8 + t * 0.04;
-      ctx.fillStyle = i % 2 ? '#c58da6' : '#e0b4bd';
-      ctx.fillRect(Math.round(Math.cos(a) * 17) - 4, -38 + Math.round(Math.sin(a) * 10) - 3, 8, 6);
-    }
-    envDiamond(ctx, 0, -38, 7, '#ead6a8');
-    envDiamond(ctx, 0, -38, 3, '#263329');
   }
+  envFurnishingDetail(ctx, o);
+  envCraftFinish(ctx, o.type);
   ctx.restore();
 }
 function drawEarlyEnvironmentArt(ctx) {
@@ -567,6 +1233,18 @@ drawTorches = function (ctx) {
       ctx.fillRect(13, -5, 10, 4);
       ctx.fillRect(-19, 2, 8, 4);
     }
+    ctx.fillStyle = '#17232a';
+    for (let i = 0; i < 5; i++) ctx.fillRect(-9 + i * 4, -29, 2, 2);
+    ctx.fillStyle = '#d0c8a5';
+    for (const x of [-13, 12]) for (const y of [-22, 5]) ctx.fillRect(x, y, 1, 1);
+    ctx.fillStyle = '#eef0d48c';
+    ctx.fillRect(-7, -18, 1, 7);
+    ctx.fillRect(6, -16, 1, 4);
+    ctx.fillStyle = '#7c694b';
+    ctx.fillRect(-10, 9, 20, 1);
+    ctx.fillStyle = '#c9b77c';
+    ctx.fillRect(-9, 12, 5, 1);
+    ctx.fillRect(4, 12, 5, 1);
     if (!save.motion)
       for (let i = 0; i < 2; i++) {
         const u = (t * (0.38 + i * 0.09) + o.s + i * 0.47) % 1,
@@ -669,6 +1347,26 @@ drawGardenDecor = function (ctx, o, t) {
     ctx.fillStyle = '#9eb677';
     ctx.fillRect(-27, -4, 8, 5);
     ctx.fillRect(19, -16, 8, 5);
+  }
+  if (o.type === 'planter') {
+    ctx.fillStyle = '#7b8871';
+    for (let x = -22; x < 23; x += 10) {
+      ctx.fillRect(x, 14, 6, 1);
+      ctx.fillStyle = '#2d4030';
+      ctx.fillRect(x + 3, 5, 1, 8);
+      ctx.fillStyle = '#7b8871';
+    }
+    ctx.fillStyle = '#a9b59b';
+    ctx.fillRect(-22, -16, 8, 1);
+    ctx.fillRect(6, -16, 12, 1);
+  } else if (o.type === 'trellis') {
+    ctx.fillStyle = '#b9c3a3';
+    for (const x of [-19, 17]) for (const y of [-44, -18, 13]) ctx.fillRect(x, y, 1, 1);
+    ctx.fillStyle = '#334c3a';
+    ctx.fillRect(-23, 15, 46, 3);
+    ctx.fillStyle = '#8aa782';
+    ctx.fillRect(-20, 15, 13, 1);
+    ctx.fillRect(5, 15, 14, 1);
   }
 };
 

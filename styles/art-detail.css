@@ -1,0 +1,65 @@
+body.ui-reborn .panel::before,
+body.ui-reborn #luWrap::before,
+body.ui-reborn .tree-panel::before {
+  background:
+    linear-gradient(#d6b77c80, #d6b77c80) 13px 13px / 13px 1px no-repeat,
+    linear-gradient(#d6b77c80, #d6b77c80) 13px 13px / 1px 13px no-repeat,
+    linear-gradient(#9b784a70, #9b784a70) calc(100% - 13px) calc(100% - 13px) / 13px 1px no-repeat,
+    linear-gradient(#9b784a70, #9b784a70) calc(100% - 13px) calc(100% - 13px) / 1px 13px no-repeat,
+    linear-gradient(90deg, transparent, #e1bf7928, transparent) 50% 3px / 45% 1px no-repeat,
+    linear-gradient(90deg, transparent, #9e774f22, transparent) 50% calc(100% - 3px) / 45% 1px
+      no-repeat;
+  pointer-events: none;
+}
+body.ui-reborn .card .ic,
+.hearth-reward-icon,
+.hearth-trial-icon {
+  box-shadow:
+    inset 0 1px #f9df9a44,
+    inset 1px 0 #f9df9a1c,
+    inset 0 -2px #03030380,
+    0 0 0 1px #070605,
+    0 0 0 2px #bb975338;
+}
+body.ui-reborn .card .ic {
+  background:
+    linear-gradient(var(--relic), var(--relic)) 5px 5px / 9px 1px no-repeat,
+    linear-gradient(var(--relic), var(--relic)) 5px 5px / 1px 9px no-repeat,
+    linear-gradient(var(--relic), var(--relic)) calc(100% - 5px) calc(100% - 5px) / 9px 1px
+      no-repeat,
+    linear-gradient(var(--relic), var(--relic)) calc(100% - 5px) calc(100% - 5px) / 1px 9px
+      no-repeat,
+    linear-gradient(145deg, rgba(var(--relic-rgb), 0.18), #090807c9);
+}
+body.ui-reborn .card[data-r='3'] .ic {
+  box-shadow:
+    inset 0 1px #ffe9afaa,
+    inset 0 -2px #624017,
+    inset 0 0 0 3px #080603,
+    inset 0 0 0 4px #d2a04d80,
+    0 0 0 1px #100a04,
+    0 0 0 2px #d2a04d80;
+}
+.hearth-choice.selected,
+.hearth-trial-card.selected,
+.guardian-card {
+  background-origin: border-box;
+  box-shadow:
+    inset 0 1px #f8deb62b,
+    inset 0 -2px #04050480;
+}
+body.ui-reborn .btn:focus-visible {
+  outline: 2px solid #f5d998;
+  outline-offset: 3px;
+}
+.hearth-scene-frame,
+.achievement-shell,
+.secret-view {
+  outline: 1px solid #d5b1741f;
+  outline-offset: -6px;
+}
+body.ui-reborn .tree-head,
+.hearth-heading,
+.achievement-shell header {
+  box-shadow: inset 0 -1px #c9a66a1a;
+}

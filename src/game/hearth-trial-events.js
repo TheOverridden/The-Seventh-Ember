@@ -121,13 +121,25 @@ function initHearthTrialEvents() {
   const q = hearthTrial,
     cx = TILE * 14.5,
     cy = TILE * 10.5;
-  q.events = { marks: [], clock: 3.5, cycle: 0, exposure: 0, light: { x: cx, y: cy, r: 220 } };
+  q.events = {
+    marks: [],
+    clock: 3.5,
+    cycle: 0,
+    exposure: 0,
+    light: { x: cx, y: cy, r: 220 },
+  };
   q.guardianHazards = [];
   q.flameSpawned = 0;
   q.flames = [q.flame];
   if (q.id === 'twinFlames') {
     const hp = [105, 98, 88][q.tier];
-    q.flames = [-175, 175].map((dx) => ({ x: cx + dx, y: cy, hp, max: hp, hitT: 0 }));
+    q.flames = [-175, 175].map((dx) => ({
+      x: cx + dx,
+      y: cy,
+      hp,
+      max: hp,
+      hitT: 0,
+    }));
     q.flame = q.flames[0];
   }
   if (q.id === 'relay')
@@ -248,23 +260,54 @@ function tickHearthTrialEvents(dt) {
   }
   ev.marks = ev.marks.filter((mark) => mark.age < mark.life);
 }
-function drawHearthTrialLight(ctx, x, y, r, color) {
-  ctx.fillStyle = color;
-  ctx.globalAlpha = 0.075;
+const hearthTrialFloorClips = new WeakMap();
+let hearthTrialLightShape = null;
+function hearthTrialFloorClip(world) {
+  let path = hearthTrialFloorClips.get(world);
+  if (path) return path;
+  path = new Path2D();
+  for (let y = 0; y < world.H; y++) {
+    let start = -1;
+    for (let x = 0; x <= world.W; x++) {
+      const floor = x < world.W && world.grid[y * world.W + x];
+      if (floor && start < 0) start = x;
+      if (!floor && start >= 0) {
+        path.rect(start * TILE, y * TILE, (x - start) * TILE, TILE);
+        start = -1;
+      }
+    }
+  }
+  hearthTrialFloorClips.set(world, path);
+  return path;
+}
+function hearthTrialLightGeometry(r) {
+  if (hearthTrialLightShape?.radius === r) return hearthTrialLightShape;
+  const fill = new Path2D(),
+    edge = [];
   for (let dy = -r; dy <= r; dy += 6) {
     const width = Math.floor(Math.sqrt(Math.max(0, r * r - dy * dy)) / 6) * 6;
-    ctx.fillRect(Math.round(x - width), Math.round(y + dy), width * 2, 6);
+    fill.rect(-width, dy, width * 2, 6);
   }
-  ctx.globalAlpha = 0.7;
   for (let i = 0; i < 80; i++) {
     const a = (i * TAU) / 80;
-    ctx.fillRect(
-      Math.round((x + Math.cos(a) * r) / 3) * 3,
-      Math.round((y + Math.sin(a) * r) / 3) * 3,
-      3,
-      3
-    );
+    edge.push([Math.cos(a) * r, Math.sin(a) * r]);
   }
+  hearthTrialLightShape = { radius: r, fill, edge };
+  return hearthTrialLightShape;
+}
+function drawHearthTrialLight(ctx, x, y, r, color) {
+  const shape = hearthTrialLightGeometry(r);
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.075;
+  ctx.save();
+  ctx.translate(Math.round(x), Math.round(y));
+  ctx.fill(shape.fill);
+  ctx.restore();
+  ctx.globalAlpha = 0.7;
+  ctx.beginPath();
+  for (const [dx, dy] of shape.edge)
+    ctx.rect(Math.round((x + dx) / 3) * 3, Math.round((y + dy) / 3) * 3, 3, 3);
+  ctx.fill();
   ctx.globalAlpha = 1;
 }
 function drawHearthTrialEvents(ctx) {
@@ -273,14 +316,7 @@ function drawHearthTrialEvents(ctx) {
     ev = q.events;
   if (!ev) return;
   ctx.save();
-  if (['lastLight', 'blackout'].includes(q.id)) {
-    ctx.beginPath();
-    for (let y = 0; y < G.world.H; y++)
-      for (let x = 0; x < G.world.W; x++) {
-        if (G.world.grid[y * G.world.W + x]) ctx.rect(x * TILE, y * TILE, TILE, TILE);
-      }
-    ctx.clip();
-  }
+  if (q.id === 'lastLight' || q.id === 'blackout') ctx.clip(hearthTrialFloorClip(G.world));
   if (q.id === 'lastLight') {
     drawHearthTrialLight(ctx, ev.light.x, ev.light.y, ev.light.r, '#f6da9b');
     drawHearthTrialFlame(ctx, ev.light.x, ev.light.y, '#ffe4a1', 0.75);
@@ -292,16 +328,15 @@ function drawHearthTrialEvents(ctx) {
       half = q.settings.lightHalf;
     ctx.fillStyle = '#bcc9e9';
     ctx.globalAlpha = 0.08;
-    for (let y = TILE * 2; y < TILE * 19; y += 12)
-      for (let x = TILE * 2; x < TILE * 26; x += 12) {
-        const d = Math.hypot(x - cx, y - cy),
-          a = Math.atan2(y - cy, x - cx);
-        if (
-          d < 92 ||
-          Math.min(Math.abs(angleDiff(a, turn)), Math.abs(angleDiff(a, turn + Math.PI))) < half
-        )
-          ctx.fillRect(x, y, 12, 12);
-      }
+    ctx.beginPath();
+    ctx.arc(cx, cy, 92, 0, TAU);
+    for (let side = 0; side < 2; side++) {
+      const a = turn + side * Math.PI;
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, 1100, a - half, a + half);
+      ctx.closePath();
+    }
+    ctx.fill();
     ctx.globalAlpha = 0.55;
     ctx.strokeStyle = '#cbd5f2';
     ctx.lineWidth = 2;

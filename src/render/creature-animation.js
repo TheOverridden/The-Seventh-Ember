@@ -1,5 +1,399 @@
 const CREATURE_MOTION = new WeakMap(),
   CREATURE_FRAME_CACHE = new WeakMap();
+const CREATURE_SURFACE_CACHE = new WeakMap();
+const CREATURE_SURFACES = {
+  slime: [
+    [4, 3, 3, 1, 0.18],
+    [3, 8, 2, 1, 0.14],
+    [8, 9, 3, 1, -0.22],
+    [5, 10, 2, 1, 0.12],
+  ],
+  mite: [
+    [4, 2, 2, 1, 0.17],
+    [5, 4, 2, 1, -0.16],
+  ],
+  bat: [
+    [2, 3, 1, 2, -0.17],
+    [4, 4, 1, 2, 0.2],
+    [12, 3, 1, 2, -0.19],
+    [10, 4, 1, 2, 0.14],
+    [6, 7, 2, 1, 0.17],
+  ],
+  spitter: [
+    [5, 2, 2, 1, 0.14],
+    [9, 3, 2, 1, -0.18],
+    [4, 7, 1, 2, -0.22],
+    [6, 8, 2, 1, 0.14],
+    [9, 9, 2, 1, -0.2],
+  ],
+  brute: [
+    [6, 2, 4, 1, 0.16],
+    [4, 7, 2, 1, 0.18],
+    [11, 7, 2, 1, -0.23],
+    [5, 8, 1, 2, -0.21],
+    [9, 9, 3, 1, 0.13],
+    [6, 11, 1, 1, 0.2],
+  ],
+  splitter: [
+    [4, 2, 3, 1, 0.16],
+    [8, 6, 1, 3, -0.25],
+    [9, 7, 1, 1, 0.18],
+    [4, 10, 3, 1, 0.16],
+    [11, 9, 2, 1, -0.2],
+  ],
+  wisp: [
+    [5, 2, 2, 1, 0.16],
+    [4, 6, 2, 1, -0.14],
+    [7, 7, 1, 2, -0.18],
+    [5, 8, 1, 1, 0.15],
+  ],
+  gateSentry: [
+    [4, 3, 3, 1, 0.18],
+    [3, 8, 2, 1, 0.14],
+    [8, 9, 3, 1, -0.22],
+    [5, 10, 2, 1, 0.12],
+  ],
+  gateHound: [
+    [2, 3, 1, 2, -0.17],
+    [4, 4, 1, 2, 0.2],
+    [12, 3, 1, 2, -0.19],
+    [10, 4, 1, 2, 0.14],
+    [6, 7, 2, 1, 0.17],
+  ],
+  gateLantern: [
+    [5, 2, 2, 1, 0.14],
+    [9, 3, 2, 1, -0.18],
+    [4, 7, 1, 2, -0.22],
+    [6, 8, 2, 1, 0.14],
+    [9, 9, 2, 1, -0.2],
+  ],
+  gateShield: [
+    [6, 2, 4, 1, 0.16],
+    [4, 7, 2, 1, 0.18],
+    [11, 7, 2, 1, -0.23],
+    [5, 8, 1, 2, -0.21],
+    [9, 9, 3, 1, 0.13],
+    [6, 11, 1, 1, 0.2],
+  ],
+  mossSlime: [
+    [4, 3, 2, 1, 0.22],
+    [8, 3, 2, 1, -0.22],
+    [4, 8, 1, 2, -0.2],
+    [7, 8, 2, 1, 0.15],
+    [9, 10, 2, 1, -0.18],
+  ],
+  petalBat: [
+    [2, 3, 1, 2, 0.2],
+    [4, 4, 1, 2, -0.24],
+    [12, 3, 1, 2, 0.18],
+    [10, 4, 1, 2, -0.2],
+    [6, 7, 2, 1, 0.16],
+  ],
+  thornSpitter: [
+    [5, 2, 2, 1, 0.23],
+    [4, 6, 1, 3, -0.25],
+    [5, 8, 1, 1, 0.22],
+    [8, 7, 1, 3, -0.2],
+    [9, 10, 2, 1, 0.14],
+  ],
+  barkback: [
+    [5, 2, 2, 1, 0.2],
+    [7, 7, 1, 3, -0.26],
+    [6, 7, 1, 2, 0.17],
+    [10, 7, 1, 3, -0.23],
+    [11, 8, 1, 1, 0.17],
+    [5, 10, 2, 1, -0.16],
+  ],
+  gardenMite: [
+    [4, 2, 1, 1, 0.24],
+    [6, 4, 1, 1, -0.23],
+    [4, 5, 2, 1, 0.16],
+  ],
+  rippleLeech: [
+    [3, 3, 1, 2, -0.22],
+    [5, 3, 1, 2, -0.2],
+    [7, 4, 1, 2, -0.18],
+    [9, 4, 2, 1, 0.2],
+    [11, 6, 2, 1, -0.2],
+  ],
+  pumpCrawler: [
+    [3, 2, 2, 1, 0.22],
+    [7, 2, 2, 1, 0.17],
+    [3, 4, 1, 2, -0.24],
+    [9, 4, 1, 2, -0.2],
+    [5, 6, 3, 1, -0.18],
+  ],
+  lampEel: [
+    [2, 4, 1, 2, -0.2],
+    [4, 4, 1, 2, -0.2],
+    [6, 4, 1, 2, -0.2],
+    [9, 3, 1, 2, 0.22],
+    [11, 5, 1, 2, -0.22],
+  ],
+  sluiceGuard: [
+    [3, 2, 2, 1, 0.18],
+    [8, 2, 2, 1, 0.18],
+    [3, 4, 1, 3, -0.22],
+    [9, 5, 1, 2, -0.2],
+    [4, 7, 5, 1, -0.2],
+    [4, 8, 2, 1, 0.17],
+  ],
+  coalMite: [
+    [3, 2, 2, 1, 0.22],
+    [6, 2, 1, 1, -0.24],
+    [4, 4, 1, 2, -0.24],
+    [8, 4, 2, 1, 0.2],
+  ],
+  slagRunner: [
+    [4, 2, 2, 1, 0.24],
+    [3, 4, 2, 1, -0.25],
+    [7, 3, 1, 2, -0.22],
+    [9, 4, 2, 1, 0.17],
+  ],
+  cinderValve: [
+    [4, 2, 1, 2, 0.22],
+    [8, 2, 1, 2, -0.22],
+    [4, 6, 5, 1, -0.24],
+    [5, 7, 1, 1, 0.26],
+    [8, 7, 1, 1, 0.16],
+  ],
+  hammerFrame: [
+    [3, 2, 1, 2, 0.23],
+    [6, 2, 2, 1, -0.23],
+    [2, 5, 2, 1, 0.18],
+    [7, 5, 1, 2, -0.2],
+    [4, 7, 3, 1, -0.24],
+  ],
+  glassShard: [
+    [7, 2, 1, 3, 0.24],
+    [6, 5, 1, 2, -0.18],
+    [8, 6, 1, 2, 0.16],
+  ],
+  lensMote: [
+    [5, 2, 2, 1, 0.24],
+    [3, 4, 1, 2, 0.15],
+    [9, 5, 1, 2, -0.2],
+    [5, 7, 3, 1, -0.18],
+  ],
+  orbitHound: [
+    [3, 3, 2, 1, 0.22],
+    [8, 3, 1, 2, -0.2],
+    [5, 5, 1, 2, -0.23],
+    [9, 6, 2, 1, 0.18],
+  ],
+  mirrorShell: [
+    [4, 3, 1, 2, 0.22],
+    [9, 3, 1, 2, -0.23],
+    [3, 6, 2, 1, -0.16],
+    [8, 7, 2, 1, 0.21],
+    [5, 8, 2, 1, -0.19],
+  ],
+  inkMite: [
+    [3, 3, 1, 2, 0.19],
+    [5, 2, 2, 1, 0.18],
+    [8, 4, 2, 1, -0.25],
+    [6, 5, 1, 2, -0.2],
+  ],
+  pageWraith: [
+    [3, 4, 1, 2, -0.22],
+    [8, 3, 2, 1, -0.18],
+    [6, 5, 1, 2, 0.16],
+    [4, 7, 1, 2, -0.24],
+    [9, 7, 1, 1, -0.18],
+  ],
+  quillSentinel: [
+    [8, 2, 1, 2, -0.2],
+    [6, 3, 2, 1, 0.17],
+    [5, 5, 1, 1, -0.21],
+    [5, 8, 1, 1, 0.2],
+  ],
+  indexer: [
+    [4, 1, 1, 1, 0.19],
+    [7, 1, 1, 1, -0.22],
+    [10, 1, 1, 1, 0.21],
+    [4, 3, 1, 1, -0.23],
+    [8, 3, 1, 1, 0.2],
+    [4, 5, 1, 1, 0.19],
+    [7, 5, 1, 1, -0.24],
+    [10, 6, 1, 1, 0.18],
+  ],
+  courtMask: [
+    [5, 3, 1, 1, 0.2],
+    [9, 3, 1, 1, -0.2],
+    [4, 5, 1, 1, -0.2],
+    [8, 6, 1, 1, 0.18],
+    [6, 7, 1, 1, -0.22],
+  ],
+  ribbonDuelist: [
+    [5, 1, 1, 1, 0.2],
+    [4, 4, 1, 2, 0.2],
+    [6, 4, 1, 2, -0.23],
+    [5, 6, 1, 1, 0.15],
+    [7, 7, 1, 1, -0.19],
+  ],
+  hushBell: [
+    [5, 3, 1, 2, 0.22],
+    [8, 3, 1, 2, -0.22],
+    [3, 6, 2, 1, 0.2],
+    [8, 6, 2, 1, -0.2],
+  ],
+  mourningGuard: [
+    [4, 1, 2, 1, 0.18],
+    [5, 4, 1, 3, 0.19],
+    [7, 4, 1, 3, -0.24],
+    [4, 8, 2, 1, 0.16],
+    [8, 8, 2, 1, -0.2],
+  ],
+  choirWisp: [
+    [6, 1, 1, 1, 0.2],
+    [5, 5, 1, 1, 0.17],
+    [8, 6, 1, 2, -0.2],
+    [4, 7, 1, 1, 0.16],
+    [7, 8, 2, 1, -0.19],
+  ],
+  pinion: [
+    [2, 2, 1, 2, -0.2],
+    [4, 3, 1, 2, 0.19],
+    [10, 2, 1, 2, -0.2],
+    [9, 4, 1, 2, 0.17],
+    [6, 6, 1, 1, -0.18],
+  ],
+  cantor: [
+    [5, 1, 1, 1, -0.16],
+    [4, 5, 1, 3, -0.22],
+    [7, 5, 1, 3, -0.2],
+    [5, 7, 1, 1, 0.16],
+    [8, 7, 1, 1, 0.17],
+  ],
+  bellAngel: [
+    [3, 2, 1, 1, -0.19],
+    [9, 2, 1, 1, -0.2],
+    [5, 5, 1, 2, 0.22],
+    [7, 5, 1, 2, -0.23],
+    [4, 7, 1, 1, 0.18],
+    [8, 7, 1, 1, -0.2],
+  ],
+  obsidianPawn: [
+    [5, 1, 1, 1, 0.22],
+    [4, 4, 2, 1, 0.19],
+    [7, 5, 1, 2, -0.26],
+    [4, 8, 2, 1, 0.2],
+    [7, 8, 2, 1, -0.2],
+  ],
+  chainHound: [
+    [3, 2, 1, 1, 0.18],
+    [8, 2, 1, 1, -0.2],
+    [4, 5, 1, 2, 0.21],
+    [7, 5, 1, 2, -0.23],
+    [5, 7, 1, 1, 0.17],
+  ],
+  siegeEye: [
+    [4, 1, 2, 1, 0.21],
+    [3, 2, 1, 2, 0.18],
+    [9, 3, 1, 2, -0.23],
+    [3, 8, 1, 1, 0.2],
+    [9, 8, 1, 1, -0.22],
+  ],
+  barrierKnight: [
+    [5, 1, 1, 1, 0.2],
+    [2, 4, 1, 3, 0.22],
+    [3, 4, 1, 2, -0.22],
+    [6, 4, 1, 3, 0.18],
+    [8, 6, 1, 2, -0.26],
+    [6, 7, 2, 1, -0.19],
+  ],
+  memoryAsh: [
+    [5, 3, 1, 1, -0.17],
+    [4, 5, 1, 2, 0.19],
+    [7, 5, 1, 2, -0.19],
+    [5, 7, 2, 1, -0.17],
+  ],
+  starRemnant: [
+    [7, 2, 1, 2, 0.2],
+    [5, 4, 1, 1, -0.19],
+    [9, 4, 1, 1, 0.19],
+    [3, 5, 1, 1, 0.2],
+    [9, 6, 1, 1, -0.19],
+    [6, 7, 1, 1, 0.18],
+  ],
+  keeperHand: [
+    [3, 2, 1, 1, 0.19],
+    [6, 2, 1, 1, -0.2],
+    [9, 2, 1, 1, 0.2],
+    [4, 5, 3, 1, -0.22],
+    [8, 5, 1, 2, 0.17],
+    [4, 8, 1, 1, -0.2],
+    [7, 9, 1, 1, -0.2],
+  ],
+  oathbound: [
+    [4, 2, 1, 1, 0.2],
+    [7, 2, 1, 1, -0.2],
+    [3, 5, 1, 2, 0.2],
+    [9, 5, 1, 2, -0.25],
+    [6, 7, 1, 2, -0.23],
+    [7, 8, 1, 1, 0.2],
+  ],
+};
+function creatureSurfaceImage(source, type) {
+  const plan = CREATURE_SURFACES[type];
+  if (!plan || !source) return source;
+  let entries = CREATURE_SURFACE_CACHE.get(source);
+  if (!entries) CREATURE_SURFACE_CACHE.set(source, (entries = new Map()));
+  if (entries.has(type)) return entries.get(type);
+  const width = source.width,
+    height = source.height,
+    canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d'),
+    image = source.getContext('2d').getImageData(0, 0, width, height),
+    original = new Uint8ClampedArray(image.data),
+    late = Object.hasOwn(LATE_ENEMIES, type),
+    ox = late ? 2 : 0,
+    oy = late ? 1 : 0,
+    opaque = (x, y) =>
+      x >= 0 && x < width && y >= 0 && y < height && original[(y * width + x) * 4 + 3] > 230;
+  const shade = (x, y, amount) => {
+    if (!opaque(x, y)) return;
+    const i = (y * width + x) * 4,
+      red = original[i],
+      green = original[i + 1],
+      blue = original[i + 2],
+      light = red * 0.2126 + green * 0.7152 + blue * 0.0722,
+      neighbours =
+        Number(opaque(x - 1, y)) +
+        Number(opaque(x + 1, y)) +
+        Number(opaque(x, y - 1)) +
+        Number(opaque(x, y + 1));
+    if (light < 42 || light > 224 || neighbours < 3) return;
+    for (let channel = 0; channel < 3; channel++) {
+      const current = original[i + channel];
+      image.data[i + channel] = Math.round(
+        amount > 0 ? current + (255 - current) * amount : current * (1 + amount)
+      );
+    }
+  };
+  for (let y = 1; y < height - 1; y++)
+    for (let x = 1; x < width - 1; x++) {
+      if (!opaque(x - 1, y) || !opaque(x + 1, y) || !opaque(x, y - 1) || !opaque(x, y + 1))
+        continue;
+      const i = (y * width + x) * 4,
+        sameAbove =
+          original[i] === original[i - width * 4] &&
+          original[i + 1] === original[i - width * 4 + 1],
+        sameBelow =
+          original[i] === original[i + width * 4] &&
+          original[i + 1] === original[i + width * 4 + 1];
+      if (sameAbove && !sameBelow) shade(x, y, -0.07);
+      else if (!sameAbove && sameBelow) shade(x, y, 0.065);
+    }
+  for (const [x, y, w, h, amount] of plan)
+    for (let dy = 0; dy < h; dy++)
+      for (let dx = 0; dx < w; dx++) shade(x + ox + dx, y + oy + dy, amount);
+  ctx.putImageData(image, 0, 0);
+  entries.set(type, canvas);
+  return canvas;
+}
 const CREATURE_PROFILES = {
   slime: { kind: 'ooze', hem: 8, rate: 0.85, stride: 46 },
   splitter: { kind: 'ooze', hem: 9, rate: 0.7, stride: 58 },
@@ -16,7 +410,14 @@ const CREATURE_PROFILES = {
   },
   bat: { kind: 'wing', rate: 3.1, wing: [6, 10, 5, 7], stroke: 3 },
   wisp: { kind: 'ghost', hem: 8, rate: 0.6 },
-  rippleLeech: { kind: 'swim', origin: [2, 1], neck: 10, tailY: 2, rate: 1.2, stride: 42 },
+  rippleLeech: {
+    kind: 'swim',
+    origin: [2, 1],
+    neck: 10,
+    tailY: 2,
+    rate: 1.2,
+    stride: 42,
+  },
   pumpCrawler: {
     kind: 'crawl',
     origin: [2, 1],
@@ -27,7 +428,14 @@ const CREATURE_PROFILES = {
       [10, 7, 4, 2, 4],
     ],
   },
-  lampEel: { kind: 'swim', origin: [2, 1], neck: 10, tailY: 4, rate: 1.1, stride: 48 },
+  lampEel: {
+    kind: 'swim',
+    origin: [2, 1],
+    neck: 10,
+    tailY: 4,
+    rate: 1.1,
+    stride: 48,
+  },
   sluiceGuard: {
     kind: 'walk',
     origin: [2, 1],
@@ -148,7 +556,13 @@ const CREATURE_PROFILES = {
   hushBell: { kind: 'bell', origin: [2, 1], clapper: [5, 8, 3, 2], rate: 0.55 },
   mourningGuard: { kind: 'cloth', origin: [2, 1], hem: 7, rate: 0.5 },
   choirWisp: { kind: 'ghost', origin: [2, 1], hem: 7, rate: 0.65 },
-  pinion: { kind: 'wing', origin: [2, 1], wing: [5, 8, 4, 9], stroke: 2, rate: 2 },
+  pinion: {
+    kind: 'wing',
+    origin: [2, 1],
+    wing: [5, 8, 4, 9],
+    stroke: 2,
+    rate: 2,
+  },
   cantor: {
     kind: 'walk',
     origin: [2, 1],
@@ -159,7 +573,13 @@ const CREATURE_PROFILES = {
       [8, 8, 2, 2, 4],
     ],
   },
-  bellAngel: { kind: 'wing', origin: [2, 1], wing: [5, 9, 3, 4], stroke: 2, rate: 1.3 },
+  bellAngel: {
+    kind: 'wing',
+    origin: [2, 1],
+    wing: [5, 9, 3, 4],
+    stroke: 2,
+    rate: 1.3,
+  },
   obsidianPawn: { kind: 'slide', rate: 0.5, rock: 0.014 },
   chainHound: {
     kind: 'crawl',
@@ -285,13 +705,25 @@ const creatureMotionUpdate = updateEnemies;
 updateEnemies = function (dt) {
   for (const e of G.enemies)
     if (!CREATURE_MOTION.has(e))
-      CREATURE_MOTION.set(e, { x: e.x, y: e.y, travel: 0, phase: 0, moving: false });
+      CREATURE_MOTION.set(e, {
+        x: e.x,
+        y: e.y,
+        travel: 0,
+        phase: 0,
+        moving: false,
+      });
   creatureMotionUpdate(dt);
   for (const e of G.enemies) {
     if (e.dead) continue;
     let motion = CREATURE_MOTION.get(e);
     if (!motion) {
-      CREATURE_MOTION.set(e, { x: e.x, y: e.y, travel: 0, phase: 0, moving: false });
+      CREATURE_MOTION.set(e, {
+        x: e.x,
+        y: e.y,
+        travel: 0,
+        phase: 0,
+        moving: false,
+      });
       continue;
     }
     const distance = Math.hypot(e.x - motion.x, e.y - motion.y),
@@ -460,9 +892,10 @@ function creatureFrames(source, type) {
               sx -= dx * t;
               sy -= dy * t;
             } else {
-              const height = Math.max(1, p.h + dy),
+              const height = Math.max(Math.min(2, p.h), p.h + dy),
                 t = clamp((sy - p.y) / height, 0, 1);
-              sy = p.y + ((sy - p.y) * p.h) / height;
+              if (sy < p.y || sy >= p.y + height) continue;
+              sy = p.y + ((sy - p.y - 0.5) * (p.h - 1)) / Math.max(1, height - 1) + 0.5;
               sx -= dx * t;
             }
           }
@@ -477,6 +910,7 @@ function creatureFrames(source, type) {
 function creatureImage(e, source, spr) {
   const frame = creatureMotionFrame(e);
   if (creatureProfile(e).kind === 'authored' && spr) source = spr.frames[frame % spr.frames.length];
+  if (!e.warden && !e.matriarch && !e.bossKey) source = creatureSurfaceImage(source, e.type);
   return creatureFrames(source, e)[creatureProfile(e).kind === 'authored' ? 0 : frame];
 }
 function drawCreatureSprite(ctx, e, name, x, y, scale = 1, rot = 0, alpha = 1) {
@@ -493,7 +927,7 @@ function drawCreatureSprite(ctx, e, name, x, y, scale = 1, rot = 0, alpha = 1) {
   ctx.translate(x, y + pose.y * unit);
   if (rot || pose.rot) ctx.rotate(rot + pose.rot);
   ctx.imageSmoothingEnabled = false;
-  ctx.globalAlpha = alpha;
+  ctx.globalAlpha *= alpha;
   ctx.drawImage(
     image,
     (-spr.W / 2 - 3) * unit,
@@ -530,7 +964,7 @@ drawLateBody = function (ctx, e) {
   }
   if (tell) {
     ctx.fillStyle = '#ffe5a6';
-    ctx.globalAlpha = tell;
+    ctx.globalAlpha *= tell;
     ctx.fillRect(-3, -4, 2, 2);
     ctx.fillRect(2, -4, 2, 2);
   }

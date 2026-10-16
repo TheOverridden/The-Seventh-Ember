@@ -2,9 +2,16 @@ const needXP = (l) =>
   Math.floor(14 + 11 * l + 3.2 * Math.pow(l, 1.48) + 0.65 * Math.pow(Math.max(0, l - 12), 2));
 function setState(s) {
   G.state = s;
+  if (s !== 'playing' && s !== 'dying') clearCombatOverlays();
   if (s !== 'playing') clearInput();
   document.body.classList.toggle('play', s === 'playing' || s === 'dying');
   T('hud').classList.toggle('on', s !== 'menu');
+}
+function clearCombatOverlays() {
+  for (const id of ['vig', 'lowvig']) {
+    const overlay = T(id);
+    if (overlay) overlay.style.opacity = 0;
+  }
 }
 function recalc() {
   const p = G.player,
@@ -177,6 +184,8 @@ function setupFloor(f) {
 }
 function descend() {
   if (G.descending || G.state !== 'playing' || G.dead || (G.run.won && !G.run.wonShown)) return;
+  collectGuardianRewards();
+  if (G.state !== 'playing' || G.pendingLevels > 0) return;
   G.descending = true;
   const f = G.floor,
     token = G.run;
@@ -225,7 +234,8 @@ function gainXP(v) {
     save.bestLevel = Math.max(save.bestLevel, run.level);
     G.pendingLevels++;
   }
-  if (G.pendingLevels > 0 && G.state === 'playing') triggerLevelup();
+  if (G.pendingLevels > 0 && G.state === 'playing' && !G.collectingGuardianRewards)
+    triggerLevelup();
 }
 function triggerLevelup() {
   G.opts.freeChoice = false;
@@ -362,6 +372,7 @@ function abandonRun() {
   backToMenu();
 }
 function backToMenu() {
+  clearCombatOverlays();
   hide('dead');
   hide('win');
   hide('pause');
@@ -915,7 +926,7 @@ function updatePicks(dt) {
         burst(o.x, o.y, 5, '#ff5d76', 100, 0.35, 2, true);
       }
       ps.splice(i, 1);
-      if (G.state !== 'playing') return;
+      if (G.state !== 'playing' && !G.collectingGuardianRewards) return;
     }
   }
 }

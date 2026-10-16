@@ -195,6 +195,11 @@ function secretRun() {
     : -99;
   G.run.secretForge =
     G.run.secretForge && typeof G.run.secretForge === 'object' ? G.run.secretForge : {};
+  G.run.secretTypeHistory = Array.isArray(G.run.secretTypeHistory)
+    ? G.run.secretTypeHistory
+        .filter((o) => Number.isInteger(o?.floor) && o.floor > 0 && SECRET_ROOM_TYPES[o.type])
+        .slice(-24)
+    : [];
   return G.run;
 }
 function secretMarkList() {
@@ -206,7 +211,11 @@ function secretMarkList() {
   return save.seventhMarks;
 }
 function secretEligibleRooms(w) {
-  const exit = w.rooms.indexOf(w.exit),
+  const exit = w.rooms.findIndex(
+      (r) =>
+        r === w.exit ||
+        (r.x === w.exit?.x && r.y === w.exit?.y && r.w === w.exit?.w && r.h === w.exit?.h)
+    ),
     blocked = new Set([
       0,
       exit,
@@ -227,15 +236,32 @@ function secretShouldAppear(f, run) {
   if ((!run.secretRoomsFound && f === 4) || run.secretFloorGap >= 3) return true;
   return chance(f <= 10 ? 0.18 : f <= 50 ? 0.22 : 0.26);
 }
+function secretTypeRoll(seed, floor, salt = 0) {
+  let n = (seed ^ Math.imul(floor + 1, 0x9e3779b9) ^ Math.imul(salt + 1, 0x85ebca6b)) >>> 0;
+  n = Math.imul(n ^ (n >>> 16), 0x21f0aaad);
+  n = Math.imul(n ^ (n >>> 15), 0x735a2d97);
+  return ((n ^ (n >>> 15)) >>> 0) / 0x100000000;
+}
+function rememberSecretType(run, floor, type) {
+  const history = run.secretTypeHistory || (run.secretTypeHistory = []),
+    last = history[history.length - 1];
+  if (last?.floor === floor && last.type === type) return;
+  history.push({ floor, type });
+  if (history.length > 24) history.splice(0, history.length - 24);
+}
 function secretTypeFor(f, run, seed) {
-  if (!run.secretRoomsFound) return 'cache';
+  const history = run.secretTypeHistory || [],
+    lastShopFloor = history.reduce(
+      (last, o) => (o.type === 'shop' ? Math.max(last, o.floor) : last),
+      run.secretLastShopFloor ?? -99
+    );
   const shopDue =
     run.secretShopsSeen === 0 ? run.secretRoomsFound >= 2 : f - run.secretLastShopFloor >= 16;
   if (
     f >= 8 &&
     run.secretMarks >= 3 &&
-    f - run.secretLastShopFloor >= 8 &&
-    (shopDue || (seed + f) % 4 === 0)
+    f - lastShopFloor >= 8 &&
+    (shopDue || secretTypeRoll(seed, f, 1) < 0.25)
   )
     return 'shop';
   const early = ['cache', 'workshop', 'quiet', 'cartographer', 'false'],
@@ -251,8 +277,14 @@ function secretTypeFor(f, run, seed) {
       'false',
     ],
     late = ['workshop', 'shrine', 'trial', 'wager', 'echo', 'armory', 'deep', 'false'];
-  const pool = f <= 10 ? early : f <= 30 ? middle : late;
-  return pool[(seed + f * 3 + run.secretRoomsFound) % pool.length];
+  const pool = f <= 10 ? early : f <= 30 ? middle : late,
+    recent = history.slice(-3).map((o) => o.type),
+    available = pool.filter((type) => !recent.includes(type)),
+    candidates = available.length ? available : pool.filter((type) => type !== recent.at(-1)),
+    visits = (type) => history.filter((o) => o.type === type).length,
+    fewestVisits = Math.min(...candidates.map(visits)),
+    choices = candidates.filter((type) => visits(type) === fewestVisits);
+  return choices[Math.floor(secretTypeRoll(seed, f, 2) * choices.length)];
 }
 function secretWallSites(w, r, keepClear = true) {
   const sites = [],
@@ -406,6 +438,7 @@ function planSecretRoom(w = G.world, f = G.floor) {
     seals: 0,
     sealReady: false,
   };
+  rememberSecretType(run, f, type);
   run.secretFloorGap = 0;
   return w.secretRoom;
 }
@@ -1367,6 +1400,7 @@ resumeRun = function () {
   secretRun();
   secretMarkList();
   anchorSecretRoom(G.world.secretRoom);
+  if (G.world.secretRoom) rememberSecretType(G.run, G.floor, G.world.secretRoom.type);
   if (G.world.secretRoom === undefined && !(G.world.specialEncounters?.length >= 2))
     planSecretRoom();
 };
@@ -1443,6 +1477,20 @@ validateCheckpoint = function (r) {
       r.run.secretLastShopFloor > 1000000)
   )
     throw Error('Invalid hidden shop record');
+  if (
+    r.run.secretTypeHistory !== undefined &&
+    (!Array.isArray(r.run.secretTypeHistory) ||
+      r.run.secretTypeHistory.length > 24 ||
+      r.run.secretTypeHistory.some(
+        (o) =>
+          !o ||
+          !Number.isInteger(o.floor) ||
+          o.floor < 1 ||
+          o.floor > 1000000 ||
+          !SECRET_ROOM_TYPES[o.type]
+      ))
+  )
+    throw Error('Invalid hidden room history');
   const forge = r.run.secretForge;
   if (forge !== undefined) {
     if (!forge || typeof forge !== 'object' || Array.isArray(forge))

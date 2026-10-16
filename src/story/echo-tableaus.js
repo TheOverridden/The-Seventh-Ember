@@ -548,14 +548,16 @@ function memoryStyle(a, key, index) {
 }
 
 function drawMemoryActor(ctx, a, rect, key, t, index, alpha) {
+  t = save.motion ? 0 : t;
+  alpha *= ctx.globalAlpha;
   const px = rect.x + rect.w * a.x,
     py = rect.y + rect.h * a.y,
     small = a.role === 'child',
     sc =
       (a.scale || 1) * (small ? 0.72 : 1) * clamp(Math.min(rect.w / 360, rect.h / 260), 0.78, 1.28),
     seed = idHash((activeMemoryEcho?.id || 'echo') + a.role + (a.appearance ?? index) + a.tone),
-    phase = t * 3 + index * 1.71,
-    step = save.motion ? 0 : Math.sin(phase),
+    phase = (a.gait ?? t * 3) + index * 1.71,
+    step = save.motion ? 0 : Math.sin(phase) * (a.walking ? (a.stride ?? 1) : 0.14),
     style = memoryStyle(a, key, index),
     dir = a.dir || 1,
     pal = MEMORY_PALETTES[key] || MEMORY_PALETTES.hollow;
@@ -576,6 +578,7 @@ function drawMemoryActor(ctx, a, rect, key, t, index, alpha) {
           : Math.sin(t * (pose === 'startle' ? 5 : 2) + index) * (pose === 'hush' ? 1 : 4))
     );
     ctx.scale(scale, scale);
+    ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'lighter';
     const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 27 * burst);
     g.addColorStop(0, 'rgba(255,239,181,' + alpha * 0.55 * dim + ')');
@@ -641,6 +644,18 @@ function drawMemoryActor(ctx, a, rect, key, t, index, alpha) {
         ? spec[k].map((value, i) => lerp(previous[k][i], value, a.poseMix))
         : lerp(previous[k], spec[k], a.poseMix);
   }
+  if (a.walking) {
+    const stride = memoryPoseSpec('walk', step);
+    spec.lf = stride.lf;
+    spec.rf = stride.rf;
+    spec.bob += stride.bob * 0.65;
+    if (['walk', 'leaving', 'flee', 'follow'].includes(a.pose)) {
+      spec.le = [-11 - step * 2, -26];
+      spec.re = [11 + step * 2, -26];
+      spec.lh = [-14 - step * 4, -18];
+      spec.rh = [14 + step * 4, -18];
+    }
+  }
   const bob = spec.bob,
     hy = -14 + bob,
     sy = -36 + bob,
@@ -674,6 +689,8 @@ function drawMemoryActor(ctx, a, rect, key, t, index, alpha) {
   x.fillStyle = style.shade;
   x.fillRect(spec.lf[0] - 5, spec.lf[1] - 3, 9, 4);
   x.fillRect(spec.rf[0] - 4, spec.rf[1] - 3, 9, 4);
+  x.save();
+  x.transform(1, 0, -spec.lean / 44, 1, (hy * spec.lean) / 44, 0);
   memoryJointedLimb(x, [[-shoulder + 1, sy + 4], spec.le, spec.lh], style.coat, 4);
   memoryJointedLimb(x, [[shoulder - 1, sy + 4], spec.re, spec.rh], style.coat, 4);
   memoryGhostTorso(x, a.role, style, shoulder, sy, hy, seed);
@@ -737,6 +754,7 @@ function drawMemoryActor(ctx, a, rect, key, t, index, alpha) {
     }
   }
   memoryHeldDetail(x, a, spec, style, bob);
+  x.restore();
   x.save();
   x.globalCompositeOperation = 'source-atop';
   const spectralWash = x.createLinearGradient(0, -72, 0, 4);
@@ -748,14 +766,14 @@ function drawMemoryActor(ctx, a, rect, key, t, index, alpha) {
   x.restore();
   x.globalCompositeOperation = 'destination-out';
   x.globalAlpha = 1;
-  for (let hole = 0; hole < 13; hole++) {
+  for (let hole = 0; hole < 7; hole++) {
     const hx = -16 + ((seed + hole * 17) % 33),
-      hy2 = -62 + ((seed * 3 + hole * 13) % 64),
-      ww = hole % 3 === 0 ? 7 : 3 + (hole % 2) * 2,
-      hh = hole % 4 === 0 ? 4 : 2;
+      hy2 = -29 + ((seed * 3 + hole * 13) % 31),
+      ww = hole % 3 === 0 ? 5 : 2 + (hole % 2) * 2,
+      hh = 1 + (hole % 3 === 0);
     x.fillRect(hx, hy2, ww, hh);
   }
-  x.fillRect(seed % 2 ? -12 : 5, -34, 8, 3);
+  x.fillRect(seed % 2 ? -12 : 7, -31, 4, 1);
   for (let cut = 0; cut < 4; cut++)
     x.fillRect(-12 + ((seed + cut * 11) % 25), -8 + cut * 4, 4 + (cut % 2) * 3, 3);
   x.globalCompositeOperation = 'source-over';
@@ -768,7 +786,8 @@ function drawMemoryActor(ctx, a, rect, key, t, index, alpha) {
   }
   x.restore();
   ctx.save();
-  const floatY = save.motion ? 0 : Math.sin(t * 1.35 + seed) * 1.4;
+  ctx.globalAlpha = 1;
+  const floatY = save.motion || a.walking ? 0 : Math.sin(t * 1.35 + seed) * 0.6;
   ctx.translate(Math.round(px), Math.round(py + floatY));
   ctx.scale(dir * sc, sc);
   ctx.imageSmoothingEnabled = false;
@@ -777,32 +796,25 @@ function drawMemoryActor(ctx, a, rect, key, t, index, alpha) {
   aura.addColorStop(1, 'rgba(110,194,221,0)');
   ctx.fillStyle = aura;
   ctx.fillRect(-45, -83, 90, 90);
-  ctx.filter = 'brightness(1.22)';
   ctx.globalCompositeOperation = 'screen';
-  ctx.globalAlpha = alpha * 0.12;
-  ctx.drawImage(surface, -40 + (save.motion ? 0 : Math.sin(t * 1.7 + index) * 4), -84);
-  ctx.globalAlpha = alpha * 0.09;
-  ctx.drawImage(surface, -40 - (save.motion ? 0 : Math.sin(t * 1.2 + index) * 3), -82);
+  ctx.globalAlpha = alpha * 0.08;
+  ctx.drawImage(surface, -40 + (save.motion ? 0 : Math.sin(t * 1.7 + index) * 1.5), -84);
   ctx.globalCompositeOperation = 'source-over';
-  ctx.globalAlpha = alpha * 0.72;
+  ctx.globalAlpha = alpha * 0.76;
   ctx.shadowColor = '#bceef7';
-  ctx.shadowBlur = 12;
+  ctx.shadowBlur = 4;
   ctx.drawImage(surface, -40, -84);
   ctx.shadowBlur = 0;
   ctx.filter = 'none';
   ctx.globalCompositeOperation = 'lighter';
-  const scanY = -76 + ((save.motion ? 31 : t * 18 + seed) % 68);
-  ctx.globalAlpha = alpha * 0.2;
-  ctx.fillStyle = '#efffff';
-  ctx.fillRect(-19, scanY, 38, 2);
-  for (let shard = 0; shard < 12; shard++) {
-    const drift = save.motion ? 0 : Math.sin(t * 1.25 + seed + shard) * 5;
+  for (let shard = 0; shard < 6; shard++) {
+    const drift = save.motion ? 0 : Math.sin(t * 1.25 + seed + shard) * 3;
     ctx.fillStyle = shard % 3 ? style.ghost : style.core;
     ctx.globalAlpha = alpha * (0.09 + (shard % 3) * 0.04);
     ctx.fillRect(
       (shard % 2 ? 18 : -21) + drift,
-      -64 + shard * 6,
-      shard % 3 === 0 ? 4 : 2,
+      -48 + shard * 8,
+      shard % 3 === 0 ? 3 : 2,
       1 + (shard % 2)
     );
   }
@@ -1220,8 +1232,8 @@ function memoryPoseSpec(pose, step) {
   if (walk) {
     spec.bob = -Math.abs(s);
     spec.lean = pose === 'flee' ? 3 : 0;
-    spec.lf = [-8 + s * 5, 0];
-    spec.rf = [8 - s * 5, 0];
+    spec.lf = [-7 + s * 5, -Math.max(0, s) * 3];
+    spec.rf = [7 - s * 5, -Math.max(0, -s) * 3];
     spec.lh = [-14 - s * 4, -18];
     spec.rh = [14 + s * 4, -18];
   }
@@ -1373,10 +1385,11 @@ function memoryGhostTorso(x, role, style, shoulder, sy, hy, seed) {
 }
 function memoryGhostFace(x, role, style, headY, seed) {
   x.fillStyle = style.shade;
-  x.fillRect(-8, headY - 2, 16, 16);
+  x.fillRect(-6, headY - 2, 12, 16);
+  x.fillRect(-8, headY + 2, 16, 9);
   x.fillStyle = style.ghost;
-  x.fillRect(-6, headY, 12, 12);
-  x.fillRect(-7, headY + 3, 14, 6);
+  x.fillRect(-5, headY, 10, 12);
+  x.fillRect(-7, headY + 3, 14, 5);
   x.fillStyle = style.core;
   x.fillRect(-3, headY + 1, 6, 8);
   x.fillStyle = style.coat;

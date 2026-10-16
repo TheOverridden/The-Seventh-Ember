@@ -65,18 +65,51 @@ function combatClarityGateHazard(ctx, h) {
   }
 }
 function combatClarityHostileShots(ctx) {
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
   for (const b of G.ebul) {
     if (!combatVisualVisible(b.x, b.y, (b.r || 5) + 12)) continue;
     const x = Math.round(b.x),
-      y = Math.round(b.y);
+      y = Math.round(b.y),
+      radius = clamp(Math.round(b.r || 5), 3, 18),
+      rim = radius + 1,
+      bevel = Math.max(2, Math.round(rim * 0.32));
     ctx.fillStyle = '#100c18';
-    ctx.fillRect(x - 5, y - 5, 10, 10);
-    if (b.garden) drawSeedShot(ctx, b);
-    else if (b.lateColor) {
+    if (b.garden) {
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(Math.atan2(b.vy, b.vx));
+      ctx.fillRect(-6, -5, 12, 10);
+      ctx.fillRect(-11, -2, 20, 4);
+      ctx.restore();
+      drawSeedShot(ctx, b);
+      continue;
+    }
+    ctx.fillRect(x - rim + bevel, y - rim, (rim - bevel) * 2, rim * 2);
+    ctx.fillRect(x - rim, y - rim + bevel, rim * 2, (rim - bevel) * 2);
+    if (b.lateColor) {
       ctx.fillStyle = b.lateColor;
-      ctx.fillRect(x - 3, y - 3, 6, 6);
-    } else drawSpr('bEnemy', b.x, b.y, 1, 0, 1, b.x * 0.01);
+      ctx.fillRect(x - radius + bevel, y - radius + 1, (radius - bevel) * 2, radius * 2 - 2);
+      ctx.fillRect(x - radius + 1, y - radius + bevel, radius * 2 - 2, (radius - bevel) * 2);
+      ctx.fillStyle = '#fff4d8';
+      ctx.fillRect(x - 1, y - 1, 2, 2);
+      ctx.fillStyle = '#ffffff75';
+      ctx.fillRect(x - radius + 3, y - radius + 2, Math.max(1, radius - 2), 1);
+    } else drawSpr('bEnemy', b.x, b.y, radius / 5, 0, 1, b.x * 0.01);
   }
+  ctx.restore();
+}
+function combatClarityTerrainSignals(ctx) {
+  const alpha = clamp((COMBAT_CLARITY.pressure - 0.15) * 1.1, 0, 0.7);
+  if (!alpha || typeof drawEnvironmentalTrap !== 'function') return;
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  for (const h of G.world.terrainTraps || []) {
+    if (h.phase !== 'active' && !(h.phase === 'warn' && h.t < 0.3)) continue;
+    if (combatVisualVisible(h.x, h.y, Math.max(h.radius || 0, h.len || 0)))
+      drawEnvironmentalTrap(ctx, h);
+  }
+  ctx.restore();
 }
 function combatClarityDrawWarnings(ctx) {
   if (!G.world || !G.player || G.state !== 'playing' || activeMemoryEcho) return;
@@ -111,6 +144,7 @@ function combatClarityDrawWarnings(ctx) {
       drawHearthTrialMarks(ctx);
       drawHearthGuardianHazards(ctx);
     } else endlessWheelDrawHazards(ctx);
+    combatClarityTerrainSignals(ctx);
     combatClarityHostileShots(ctx);
   } finally {
     ctx.restore();

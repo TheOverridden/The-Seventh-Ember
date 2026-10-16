@@ -44,6 +44,11 @@ function drawMothItem(ctx, x, y, icon, scale = 1) {
     px(-10, -3, 19, 1, '#95764c');
     px(-8, 3, 13, 1, '#95764c');
     px(6, -3, 4, 4, '#ac6141');
+    px(-12, -9, 2, 15, '#eee1b3');
+    px(-4, -6, 1, 15, '#e1d4a7');
+    px(5, -8, 1, 13, '#eadbb0');
+    px(-10, 6, 5, 1, '#8c7854');
+    px(7, 5, 4, 1, '#8c7854');
   } else if (icon === 'vessel' || icon === 'omen' || icon === 'cup') {
     px(-5, -14, 10, 5, '#c7ac73');
     px(-3, -9, 6, 5, '#879e9e');
@@ -62,6 +67,10 @@ function drawMothItem(ctx, x, y, icon, scale = 1) {
     );
     px(-7, 1, 3, 8, '#dce3ba');
     px(-7, 10, 14, 1, '#415853');
+    px(-2, -12, 4, 1, '#f2dc9c');
+    px(-5, -1, 10, 1, '#c6d9b47a');
+    px(7, 2, 1, 5, '#d4dec088');
+    px(-4, 11, 8, 1, '#a8c6aa');
     if (icon === 'omen') {
       px(-3, 0, 6, 7, '#d5d0a2');
       px(-1, -2, 2, 11, '#f3e8b4');
@@ -92,6 +101,10 @@ function drawMothItem(ctx, x, y, icon, scale = 1) {
     px(-6, -5, 3, 11, '#ffe0a0');
     px(-9, 7, 18, 2, '#e7c286');
     px(-2, 11, 4, 3, '#e9ca91');
+    px(6, -2, 2, 6, '#856b45');
+    px(-4, 3, 11, 1, '#d3b370');
+    px(-9, 9, 19, 1, '#826541');
+    px(-1, -11, 2, 2, '#f1d89c');
   } else if (icon === 'cloak') {
     poly(
       [
@@ -114,6 +127,10 @@ function drawMothItem(ctx, x, y, icon, scale = 1) {
     px(2, -3, 2, 2, '#e9d7a0');
     px(-2, 2, 2, 8, '#b2c7b4');
     px(3, 4, 2, 6, '#425e64');
+    px(-6, 1, 2, 7, '#c0d0b4');
+    px(-8, 9, 3, 1, '#c8c6a0');
+    px(6, 9, 3, 1, '#c8c6a0');
+    px(0, 10, 2, 1, '#c8c6a0');
   } else if (icon === 'glass' || icon === 'thread') {
     px(-9, -9, 18, 3, '#b5a57d');
     px(-9, 9, 18, 3, '#b5a57d');
@@ -128,6 +145,9 @@ function drawMothItem(ctx, x, y, icon, scale = 1) {
     px(-2, -6, 4, 13, '#ead9a3');
     px(-4, -2, 8, 4, '#ead9a3');
     px(6, 5, 3, 5, '#514433');
+    px(-7, -11, 3, 2, '#dec38a');
+    px(-8, 3, 2, 7, '#ae9361');
+    px(-5, 11, 11, 1, '#bda16d');
   } else if (icon === 'temper') {
     px(-13, 2, 26, 7, '#918f81');
     px(-9, 9, 18, 4, '#565b56');
@@ -136,6 +156,9 @@ function drawMothItem(ctx, x, y, icon, scale = 1) {
     px(-1, -15, 2, 3, '#fff1c8');
     px(8, -9, 3, 7, '#b3c7c2');
     px(7, -9, 6, 2, '#e6dbb3');
+    px(-11, 3, 23, 1, '#c8c2a1');
+    px(-7, 10, 13, 1, '#8d8c77');
+    px(-2, -8, 2, 3, '#fff2c6');
   } else if (icon === 'cabinet') {
     px(-12, -13, 24, 26, '#705d41');
     px(-10, -11, 20, 21, '#243338');
@@ -279,6 +302,16 @@ function drawMothMerchant(ctx, x, y, t) {
     px(68, -60, 3, 8, '#c5c2a1');
     px(74, -47, 3, 7, '#46565c');
     px(62, 11, 3, 6, '#c5c2a1');
+    for (const [a, b, width] of [
+      [35, -48, 8],
+      [48, -59, 9],
+      [61, -57, 7],
+      [69, -17, 6],
+      [60, 3, 7],
+    ]) {
+      px(a, b, width, 1, '#aab5a4');
+      px(a + width - 2, b + 1, 2, 3, '#556b70');
+    }
     ctx.restore();
   }
   poly(
@@ -337,6 +370,9 @@ function drawMothMerchant(ctx, x, y, t) {
     '#a7976f'
   );
   px(-16, -12, 20, 2, '#e0c99b');
+  px(-19, -15, 4, 1, '#f0dcaf');
+  px(-13, -13, 5, 1, '#c3b486');
+  px(11, -13, 5, 1, '#6c705d');
   px(1, -6, 4, 10, '#c5b582');
   px(6, -5, 3, 19, '#6d725c');
   for (let i = 0; i < 5; i++) {
@@ -362,6 +398,9 @@ function drawMothMerchant(ctx, x, y, t) {
   }
   px(20, 27, 13, 12, '#86734d');
   px(22, 29, 9, 2, '#d5b97f');
+  px(22, 34, 9, 1, '#483e2d');
+  px(23, 31, 1, 7, '#d5b97f');
+  px(27, 31, 2, 2, '#e6cd94');
   ctx.restore();
 }
 const mothDrawCombatFX = drawCombatFX;

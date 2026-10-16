@@ -2,6 +2,36 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101601,
+    date: 'OCTOBER 16, 2026',
+    title: 'CRAFT AND MOTION',
+    intro: 'More detailed furnishings, better room depth, and smoother movement.',
+    changes: [
+      'Reworked small dungeon props with clearer silhouettes, deeper pottery rims, crate joinery, shaped stones, bones, mushrooms, and regional details. Several props now have stable visual variants.',
+      'Refined regional furnishings, garden growth, healing flames, and their shadows. The rooms keep their familiar layouts and colors.',
+      'Echo floors recede in perspective. Shelves, books, glass, furniture, machines, and regional fittings have more depth. Walking follows distance traveled, and ghost gestures move together more naturally.',
+      'Added construction details and contact shadows to secret-room furnishings, Moth’s shop, and the Hearth. Fixed wooden surfaces extending beyond their intended edges.',
+      'Refined short-legged enemy movement, cosmetic shard shimmer, prism reflections, and several blessing emblems. Guardian designs and combat timing carry over.',
+      'Title-screen flames now sit in detailed braziers. Added smaller loading-scene and menu details, clearer keyboard focus, and better separation for hostile shots and active traps during crowded fights.',
+      'Existing saves and permanent progress carry over.',
+    ],
+  },
+  {
+    version: 2026101502,
+    date: 'OCTOBER 15, 2026',
+    title: 'ROOMS THAT REMEMBER',
+    intro: 'Restored memories, more varied hidden rooms, and traps that can turn a fight.',
+    changes: [
+      'Echoes restore detailed rooms with furnishings from each region. Their fifty silent scenes use clearer movement and animated objects. Pause, replay, or leave a memory when you are ready; completed scenes wait for you to return.',
+      'Each descent and Endless floor contains exactly two event or secret rooms in total. Starting rooms, guardian arenas, and echo sanctuaries remain separate.',
+      'Secret rooms vary from the first one you find. Recently generated types are held back, and your room history survives saving and loading. Reworked the Wager Room’s table, cards, dice, coins, and shadows.',
+      'Added twenty environmental trap types across the ten regions. Pressure mechanisms, branching brambles, ripples, vents, prisms, ink presses, ribbons, chimes, chains, and other hazards can hurt enemies as well as the Ember. Enemies try to steer around danger, but committed attacks and knockback can carry them into it.',
+      'Guardian victories collect remaining XP, Essence, and health through the usual pickup effects. Blessings earned by the final guardian are chosen before the ending begins.',
+      'Added material details throughout the regions, enemies, guardians, Hearth, Ember cosmetics, menus, and loading scene. Secret-room architecture uses separate image backdrops beneath animated effects.',
+      'Fixed damage and low-health red effects remaining on the title screen. Existing saves and permanent progress carry over.',
+    ],
+  },
+  {
     version: 2026101401,
     date: 'OCTOBER 14, 2026',
     title: 'HIDDEN ROOMS & TRIALS',

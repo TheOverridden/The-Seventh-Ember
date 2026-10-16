@@ -65,7 +65,9 @@ body.remembering #hud,body.remembering #touchControls{opacity:0!important;pointe
   el.id = 'memoryStage';
   el.setAttribute('role', 'dialog');
   el.setAttribute('aria-modal', 'true');
-  el.innerHTML = `<div class="memory-corners"></div><div class="memory-head"><small>THE ARCHIVE REMEMBERS</small><span id="memoryPlace"></span></div><div class="memory-caption"><div class="memory-speaker" id="memorySpeaker"></div><h2 class="memory-object" id="memoryObject"></h2><p class="memory-line" id="memoryLine"></p><div class="memory-bottom"><div class="memory-progress" id="memoryProgress"></div><button class="primary" id="memoryAdvance">CONTINUE</button></div></div>`;
+  el.setAttribute('aria-hidden', 'true');
+  el.tabIndex = -1;
+  el.innerHTML = `<div class="memory-corners"></div><div class="memory-head"><small>MEMORY</small><span id="memoryPlace"></span></div><div class="memory-caption"><div class="memory-speaker" id="memorySpeaker"></div><h2 class="memory-object" id="memoryObject"></h2><p class="memory-line" id="memoryLine"></p><div class="memory-bottom"><div class="memory-progress" id="memoryProgress"></div><div class="memory-playback"><button id="memoryPause" aria-label="Pause memory">PAUSE</button><button id="memoryReplay" aria-label="Replay memory">REPLAY</button><div class="memory-timeline" role="progressbar" aria-label="Memory playback" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="memoryTimelineFill"></i></div><span id="memoryTime" aria-live="off"></span></div><button class="primary" id="memoryAdvance">RETURN</button></div></div>`;
   document.body.appendChild(el);
 }
 rememberedUI();
@@ -130,11 +132,13 @@ function updateMemoryCaption() {
     const el = T(id);
     if (el) el.textContent = '';
   }
-  T('memoryPlace').textContent = m.record.place.toUpperCase();
+  T('memoryPlace').textContent = m.record.title + ' · ' + m.record.place;
   T('memoryProgress').replaceChildren();
   T('memoryAdvance').textContent = 'RETURN';
   T('memoryAdvance').disabled = m.t < 1.8;
-  T('memoryAdvance').focus({ preventScroll: true });
+  T('memoryPause').disabled = m.t < 1.8;
+  T('memoryReplay').disabled = m.t < 1.8;
+  T('memoryPause').focus({ preventScroll: true });
 }
 function startRememberedTrace(id, replay = false) {
   const record = TRACE_RECORDS[id];
@@ -147,6 +151,15 @@ function startRememberedTrace(id, replay = false) {
       : world
         ? containingMemoryRoom(G.player?.x || 0, G.player?.y || 0)
         : null;
+  if (room && !replay) {
+    const inside = (o) =>
+      o.x >= room.x * TILE &&
+      o.x < (room.x + room.w) * TILE &&
+      o.y >= room.y * TILE &&
+      o.y < (room.y + room.h) * TILE;
+    G.enemies = (G.enemies || []).filter((e) => e.isBoss || !inside(e));
+    G.ebul = (G.ebul || []).filter((b) => !inside(b));
+  }
   traceReturn = G.state === 'menu' ? 'menu' : G.state === 'paused' ? 'paused' : 'playing';
   activeMemoryEcho = {
     id,
@@ -160,6 +173,9 @@ function startRememberedTrace(id, replay = false) {
     phase: 'forming',
     t: 0,
     leaveT: 0,
+    paused: false,
+    completed: false,
+    playhead: 0,
     returnState: traceReturn,
     startCam: G.cam ? { x: G.cam.x, y: G.cam.y } : null,
   };
@@ -182,10 +198,13 @@ function startRememberedTrace(id, replay = false) {
   clearInput();
   document.body.classList.add('remembering');
   const stage = T('memoryStage');
-  stage.style.setProperty('--memory-color', record.color || '#c8a7e8');
+  stage.style.setProperty('--memory-color', '#c5e9ee');
   stage.classList.remove('leaving', 'ready');
   stage.classList.add('open');
+  stage.setAttribute('aria-hidden', 'false');
   updateMemoryCaption();
+  updateMemoryPlaybackUI();
+  stage.focus({ preventScroll: true });
   requestAnimationFrame(() => stage.classList.add('ready'));
   memorySound(0);
   return true;
@@ -212,6 +231,7 @@ function finishRememberedTrace() {
   const m = activeMemoryEcho;
   if (!m) return;
   T('memoryStage').classList.remove('open', 'ready', 'leaving');
+  T('memoryStage').setAttribute('aria-hidden', 'true');
   document.body.classList.remove('remembering');
   activeMemoryEcho = null;
   if (m.startCam && G.cam) Object.assign(G.cam, m.startCam);
@@ -612,271 +632,71 @@ function memoryRoomRect(m) {
     h = Math.min(G.h * 0.68, 470);
   return { x: (G.w - w) / 2, y: (G.h - h) / 2 - 10, w, h };
 }
-function drawRestoredProps(ctx, rect, key, t, alpha) {
-  const { x, y, w, h } = rect,
-    p = MEMORY_PALETTES[key] || MEMORY_PALETTES.hollow;
-  ctx.save();
-  ctx.globalAlpha = alpha;
-  const post = (px, py, ww, hh, c = p.trim) => {
-    ctx.fillStyle = '#181b22';
-    ctx.fillRect(px + 3, py + 4, ww, hh);
-    ctx.fillStyle = c;
-    ctx.fillRect(px, py, ww, hh);
-    ctx.fillStyle = '#f6e1a055';
-    ctx.fillRect(px + 2, py + 2, Math.max(2, ww - 4), 2);
-  };
-  if (key === 'hollow') {
-    post(x + 34, y + 46, 12, h - 82);
-    post(x + w - 46, y + 46, 12, h - 82);
-    ctx.fillStyle = '#6d3340';
-    ctx.fillRect(x + w * 0.32, y + 28, w * 0.36, h - 55);
-    ctx.fillStyle = '#bd9a6b';
-    for (let yy = y + 42; yy < y + h - 35; yy += 24) ctx.fillRect(x + w * 0.32, yy, w * 0.36, 2);
-  } else if (key === 'garden') {
-    for (let i = 0; i < 3; i++) {
-      const bx = x + 38 + (i * (w - 76)) / 3,
-        by = y + h - 70;
-      post(bx, by, Math.max(45, (w - 100) / 4), 24, '#78644c');
-      ctx.fillStyle = '#58704d';
-      for (let j = 0; j < 5; j++) {
-        const sway = Math.sin(t * 1.3 + i + j) * 3;
-        ctx.fillRect(bx + 8 + j * 10 + sway, by - 22 - (j % 2) * 8, 4, 24 + (j % 2) * 8);
-        ctx.fillStyle = '#8da66e';
-        ctx.fillRect(bx + 4 + j * 10 + sway, by - 20 - (j % 2) * 8, 8, 5);
-        ctx.fillStyle = '#58704d';
-      }
-    }
-  } else if (key === 'reservoir') {
-    ctx.strokeStyle = '#8ba4a7';
-    ctx.lineWidth = 8;
-    for (const yy of [y + 42, y + h - 48]) {
-      ctx.beginPath();
-      ctx.moveTo(x + 22, yy);
-      ctx.lineTo(x + w - 22, yy);
-      ctx.stroke();
-    }
-    ctx.fillStyle = '#bfd2cc';
-    for (let i = 0; i < 5; i++) {
-      ctx.fillRect(x + 38 + (i * (w - 76)) / 5, y + 34, 5, 16);
-      ctx.fillRect(x + 38 + (i * (w - 76)) / 5, y + h - 54, 5, 16);
-    }
-    ctx.strokeStyle = '#79b3bc';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x + w * 0.18, y + h * 0.58);
-    ctx.lineTo(x + w * 0.82, y + h * 0.58);
-    ctx.stroke();
-  } else if (key === 'foundry') {
-    for (let i = 0; i < 3; i++) {
-      const bx = x + 40 + (i * (w - 80)) / 3;
-      post(bx, y + h - 76, 46, 30, '#76533c');
-      ctx.fillStyle = '#ffb35c';
-      ctx.fillRect(bx + 9, y + h - 68, 28, 12);
-      ctx.fillStyle = '#fff0aa';
-      ctx.fillRect(bx + 14, y + h - 66, 6, 7);
-    }
-    ctx.fillStyle = '#7b6654';
-    ctx.fillRect(x + 30, y + 52, w - 60, 12);
-    for (let i = 0; i < 12; i++) {
-      ctx.fillStyle = i % 2 ? '#322c2a' : '#b1855b';
-      ctx.fillRect(x + 34 + (i * (w - 68)) / 12, y + 55, 8, 6);
-    }
-  } else if (key === 'observatory') {
-    const cx = x + w * 0.5,
-      cy = y + h * 0.5;
-    ctx.strokeStyle = '#bba368';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 4; i++) {
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, 45 + i * 28, (45 + i * 28) * 0.42, t * 0.05 + i * 0.3, 0, TAU);
-      ctx.stroke();
-      const a = t * (0.2 + i * 0.04) + i,
-        rr = 45 + i * 28;
-      ctx.fillStyle = i % 2 ? p.light : '#8cb4c2';
-      ctx.fillRect(cx + Math.cos(a) * rr - 4, cy + Math.sin(a) * rr * 0.42 - 4, 8, 8);
-    }
-    post(cx - 5, y + 34, 10, h - 68);
-  } else if (key === 'archive') {
-    for (const side of [x + 24, x + w - 70])
-      for (let yy = y + 34; yy < y + h - 55; yy += 42) {
-        post(side, yy, 46, 34, '#6f5b45');
-        ctx.fillStyle = '#c8b68e';
-        for (let i = 0; i < 5; i++) ctx.fillRect(side + 5 + i * 8, yy + 6, 4, 22 - (i % 2) * 4);
-      }
-    post(x + w * 0.36, y + h - 76, w * 0.28, 28, '#7a6248');
-    ctx.fillStyle = '#ddcfad';
-    ctx.fillRect(x + w * 0.4, y + h - 82, w * 0.15, 8);
-  } else if (key === 'court') {
-    ctx.fillStyle = '#6c4d4e';
-    ctx.fillRect(x + w * 0.18, y + 26, w * 0.18, h - 52);
-    ctx.fillRect(x + w * 0.64, y + 26, w * 0.18, h - 52);
-    ctx.fillStyle = '#c19b70';
-    ctx.fillRect(x + w * 0.2, y + 28, 5, h - 56);
-    ctx.fillRect(x + w * 0.77, y + 28, 5, h - 56);
-    post(x + w * 0.25, y + h * 0.48, w * 0.5, 30, '#856a56');
-    for (let i = 0; i < 7; i++) post(x + w * 0.29 + i * w * 0.06, y + h * 0.42, 14, 18, '#544651');
-  } else if (key === 'choir') {
-    for (let i = 0; i < 5; i++) {
-      const bx = x + 55 + (i * (w - 110)) / 5,
-        top = y + 30 + (i % 2) * 18;
-      ctx.strokeStyle = '#a59e88';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(bx, y + 18);
-      ctx.lineTo(bx, top);
-      ctx.stroke();
-      ctx.fillStyle = i % 2 ? '#8792aa' : '#b79d6e';
-      ctx.beginPath();
-      ctx.moveTo(bx - 9, top);
-      ctx.lineTo(bx + 9, top);
-      ctx.lineTo(bx + 13, top + 22);
-      ctx.lineTo(bx - 13, top + 22);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = p.light;
-      ctx.fillRect(bx - 2, top + 20, 4, 6);
-    }
-    ctx.fillStyle = '#717b91';
-    for (let i = 0; i < 5; i++) ctx.fillRect(x + 35 + (i * (w - 70)) / 5, y + h - 70, 15, 46);
-  } else if (key === 'citadel') {
-    for (const side of [x + 32, x + w - 47])
-      for (let yy = y + 45; yy < y + h - 38; yy += 40) post(side, yy, 15, 31, '#5b5050');
-    ctx.fillStyle = '#a57b59';
-    for (let i = 0; i < 8; i++) {
-      const bx = x + w * 0.25 + i * w * 0.06;
-      ctx.fillRect(bx, y + 35, 3, 42);
-      ctx.fillRect(bx - 3, y + 34, 9, 4);
-    }
-    post(x + w * 0.38, y + h - 70, w * 0.24, 34, '#4b4347');
-  } else {
-    for (let i = 0; i < 8; i++) {
-      const a = (i * TAU) / 8 + t * 0.05,
-        cx = x + w / 2 + Math.cos(a) * w * 0.27,
-        cy = y + h / 2 + Math.sin(a) * h * 0.27;
-      ctx.fillStyle = i % 2 ? '#b29368' : '#756a78';
-      ctx.fillRect(cx - 10, cy - 7, 20, 14);
-      ctx.fillStyle = p.light;
-      ctx.fillRect(cx - 5, cy - 4, 4, 6);
-    }
-    ctx.strokeStyle = p.light;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(x + w / 2, y + h / 2, Math.min(w, h) * 0.18, 0, TAU);
-    ctx.stroke();
-  }
-  ctx.restore();
+function memorySceneView(m) {
+  const source = memoryRoomRect(m),
+    form = clamp(m.t / 1.8, 0, 1),
+    leave = m.phase === 'leaving' ? clamp(1 - m.leaveT / 1.15, 0, 1) : 1,
+    q = form * leave,
+    ease = q * q * (3 - 2 * q),
+    top = G.h < 650 ? 52 : 76,
+    bottom = G.h - 110,
+    scale = Math.min((G.w * 0.9) / 640, Math.max(140, bottom - top) / 420, 1.8),
+    width = 640 * scale,
+    height = 420 * scale,
+    frame = {
+      x: lerp(source.x, (G.w - width) * 0.5, ease),
+      y: lerp(source.y, top + (bottom - top - height) * 0.5, ease),
+      w: lerp(source.w, width, ease),
+      h: lerp(source.h, height, ease),
+    };
+  return { frame, ease, scale };
 }
 
 function drawMemoryRestoration(ctx) {
   const m = activeMemoryEcho;
   if (!m) return;
-  const form = clamp(m.t / 1.8, 0, 1),
-    leave = m.phase === 'leaving' ? clamp(1 - m.leaveT / 1.15, 0, 1) : 1,
-    p = form * leave,
-    ease = p * p * (3 - 2 * p),
-    rect = memoryRoomRect(m),
+  const { frame, ease } = memorySceneView(m),
     key = memoryRegion(),
     pal = MEMORY_PALETTES[key] || MEMORY_PALETTES.hollow,
-    t = save.motion ? 2 : G.tAll;
-  const safeTop = G.h < 650 ? 46 : 66,
-    safeBottom = G.h - 102,
-    safeH = Math.max(140, safeBottom - safeTop),
-    safeW = G.w * 0.9,
-    targetCx = G.w * 0.5,
-    cx = rect.x + rect.w * 0.5,
-    cy = rect.y + rect.h * 0.5,
-    targetZoom = clamp(
-      Math.min(safeW / Math.max(1, rect.w), safeH / Math.max(1, rect.h)),
-      0.35,
-      2.08
-    ),
-    zoom = lerp(1, targetZoom, ease),
-    displayCx = lerp(cx, targetCx, ease),
-    displayCy = lerp(cy, (safeTop + safeBottom) * 0.5, ease);
+    scene = ECHO_TABLEAUS[m.id] || ECHO_TABLEAUS.echo1,
+    rect = { x: 0, y: 0, w: 640, h: 420 },
+    t = save.motion ? 2 : 1.8 + silentMemoryTime();
   ctx.save();
   ctx.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
-  ctx.fillStyle = 'rgba(2,4,9,' + ease * 0.94 + ')';
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.filter = 'none';
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = 'rgba(3,7,10,' + ease * 0.97 + ')';
   ctx.fillRect(0, 0, G.w, G.h);
   ctx.save();
-  ctx.translate(displayCx, displayCy);
-  ctx.scale(zoom, zoom);
-  ctx.translate(-cx, -cy);
+  ctx.translate(frame.x, frame.y);
+  ctx.scale(frame.w / 640, frame.h / 420);
   ctx.globalAlpha = ease;
-  ctx.shadowColor = pal.light;
-  ctx.shadowBlur = 22;
-  ctx.fillStyle = pal.wall;
-  ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = pal.floor;
-  ctx.fillRect(rect.x + 18, rect.y + 22, rect.w - 36, rect.h - 40);
-  ctx.globalAlpha = ease * 0.42;
-  ctx.strokeStyle = pal.line;
-  ctx.lineWidth = 1;
-  for (let xx = rect.x + 22; xx < rect.x + rect.w - 20; xx += TILE)
-    for (let yy = rect.y + 25; yy < rect.y + rect.h - 20; yy += TILE) {
-      ctx.strokeRect(Math.round(xx), Math.round(yy), TILE - 2, TILE - 2);
-      if (((xx + yy) / TILE) % 3 < 1) {
-        ctx.fillStyle = '#ffffff0b';
-        ctx.fillRect(xx + 5, yy + 5, 5, 2);
-      }
-    }
-  ctx.globalAlpha = ease;
-  ctx.fillStyle = pal.trim;
-  ctx.fillRect(rect.x, rect.y, rect.w, 6);
-  ctx.fillRect(rect.x, rect.y + rect.h - 7, rect.w, 7);
-  ctx.fillRect(rect.x, rect.y, 6, rect.h);
-  ctx.fillRect(rect.x + rect.w - 7, rect.y, 7, rect.h);
-  ctx.fillStyle = '#fff2c055';
-  ctx.fillRect(rect.x + 7, rect.y + 7, rect.w - 14, 2);
+  ctx.imageSmoothingEnabled = false;
+  drawEchoRoomBackground(ctx, key, m.id);
   ctx.beginPath();
-  ctx.rect(rect.x + 7, rect.y + 7, rect.w - 14, rect.h - 14);
+  ctx.rect(11, 11, 618, 398);
   ctx.clip();
-  drawRestoredProps(ctx, rect, key, t, ease * 0.48);
-  drawMemoryPeople(ctx, rect, key, t, ease, G.floor);
-  const scene = ECHO_TABLEAUS[m.id] || ECHO_TABLEAUS.echo1,
-    anchor = memoryOpenAnchor(scene, 'artifact'),
-    worldFx = m.fixture && G.cam ? m.fixture.x - G.cam.x : rect.x + rect.w * 0.5,
-    worldFy = m.fixture && G.cam ? m.fixture.y - G.cam.y : rect.y + rect.h * 0.62,
-    fx = lerp(worldFx, rect.x + rect.w * anchor.x, ease),
-    fy = lerp(worldFy, rect.y + rect.h * anchor.y, ease);
-  drawTableauArtifact(ctx, m.id, fx, fy, key, t, ease, m.wasSeen);
+  drawMemoryPeople(ctx, rect, key, t, ease);
   ctx.restore();
   if (G.player && G.cam) {
-    const rawX = G.player.x - G.cam.x,
-      rawY = G.player.y - G.cam.y,
-      observer = memoryOpenAnchor(scene, 'observer'),
-      worldPx = displayCx + (rawX - cx) * zoom,
-      worldPy = displayCy + (rawY - cy) * zoom,
-      targetPx = displayCx + (rect.x + rect.w * observer.x - cx) * zoom,
-      targetPy = displayCy + (rect.y + rect.h * observer.y - cy) * zoom,
-      px = lerp(worldPx, targetPx, ease),
-      py = lerp(worldPy, targetPy, ease);
+    const observer = memoryOpenAnchor(scene, 'observer'),
+      px = lerp(G.player.x - G.cam.x, frame.x + frame.w * observer.x, ease),
+      py = lerp(G.player.y - G.cam.y, frame.y + frame.h * observer.y, ease);
     ctx.save();
-    ctx.translate(px, py);
-    ctx.translate(-G.player.x, -G.player.y);
+    ctx.translate(px - G.player.x, py - G.player.y);
     drawPlayer(ctx);
     ctx.restore();
-    glowImg('gold', px, py, 44, 0.15 * ease);
   }
-  const view = {
-    x: displayCx + (rect.x - cx) * zoom,
-    y: displayCy + (rect.y - cy) * zoom,
-    w: rect.w * zoom,
-    h: rect.h * zoom,
-  };
-  ctx.strokeStyle = pal.light;
-  ctx.globalAlpha = 0.2 + 0.5 * ease;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(view.x - 1, view.y - 1, view.w + 2, view.h + 2);
-  for (let i = 0; i < 22; i++) {
-    const a = i * 2.399 + t * 0.08,
-      rr = (35 + (i % 7) * 18) * zoom,
-      px = displayCx + Math.cos(a) * rr,
-      py = displayCy + Math.sin(a) * rr * 0.55;
-    ctx.fillStyle = i % 2 ? pal.light : m.record.color;
-    ctx.globalAlpha = 0.12 + 0.3 * ease;
-    ctx.fillRect(px, py, i % 4 === 0 ? 3 : 2, 2);
-  }
+  ctx.globalAlpha = ease * 0.45;
+  ctx.strokeStyle = pal.trim;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(
+    Math.round(frame.x - 2),
+    Math.round(frame.y - 2),
+    Math.round(frame.w + 4),
+    Math.round(frame.h + 4)
+  );
   ctx.restore();
 }
 function tickRememberedRoom(dt) {
@@ -1156,15 +976,29 @@ validateSave = function (raw) {
 
 function wireRemembered() {
   on(T('memoryAdvance'), 'click', advanceMemory);
+  on(T('memoryPause'), 'click', toggleMemoryPlayback);
+  on(T('memoryReplay'), 'click', replayMemoryPlayback);
   addEventListener(
     'keydown',
     (e) => {
       if (!activeMemoryEcho) return;
-      if (['Escape', 'Enter', 'Space'].includes(e.code)) {
+      if (['Escape', 'Enter', 'Space', 'KeyR', 'Tab'].includes(e.code)) {
         e.preventDefault();
         e.stopImmediatePropagation();
         if (e.repeat) return;
-        e.code === 'Escape' ? closeRememberedTrace() : advanceMemory();
+        if (e.code === 'Tab') {
+          const controls = ['memoryPause', 'memoryReplay', 'memoryAdvance']
+              .map(T)
+              .filter((b) => !b.disabled),
+            i = controls.indexOf(document.activeElement),
+            next = (i + (e.shiftKey ? -1 : 1) + controls.length) % controls.length;
+          controls[next]?.focus({ preventScroll: true });
+        } else if (e.code === 'Space') toggleMemoryPlayback();
+        else if (e.code === 'KeyR') replayMemoryPlayback();
+        else if (e.code === 'Escape') closeRememberedTrace();
+        else if (['memoryPause', 'memoryReplay'].includes(document.activeElement?.id))
+          document.activeElement.click();
+        else advanceMemory();
       }
     },
     true

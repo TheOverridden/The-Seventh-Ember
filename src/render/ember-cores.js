@@ -20,13 +20,16 @@ function hearthCorePixel(i, j, frame, frames, id, state) {
     if (id === 'molten') return tail < 0.3 ? '#fff3b3' : tail < 0.65 ? '#ffac4c' : '#c95436';
     if (id === 'starlit') return Math.abs(dx - sway) < 0.65 ? '#dbe8ff' : '#7386c4';
     if (id === 'ghost') return tail < 0.5 ? '#c3f2e3' : 'rgba(139,214,203,.65)';
-    if (id === 'prism') return spectrum[(Math.floor(tail * 4) + frame) % spectrum.length];
+    if (id === 'prism') return spectrum[Math.min(3, Math.floor(tail * 4))];
     return tail < 0.4 ? '#ffeab0' : tail < 0.75 ? '#e2a651' : '#926244';
   }
   if (id === 'molten') {
     const shell = ax / (dash ? 5.4 : 6.8) + ay / (dash ? 9.2 : 8.4);
     if (shell > 1.12) return null;
     if (shell > 0.97) return '#251b20';
+    if (i === 6 && dy > -3 && dy < 0) return '#d4a277';
+    if (i === 12 && dy > 2 && dy < 5) return '#4d3030';
+    if (dy === -4 && dx > -2 && dx < 2) return '#db8751';
     if (shell > 0.79) return dx < 0 && dy < 1 ? '#c29163' : '#6f463a';
     const seam = ax < 0.85 + pulse * 0.2 || Math.abs(dy + dx * 0.65 - pulse) < 0.8;
     if (seam) return ax < 1 && ay < 3 ? '#fff5cf' : '#ffc367';
@@ -38,6 +41,9 @@ function hearthCorePixel(i, j, frame, frames, id, state) {
     const shell = ax / 6.2 + ay / (dash ? 9 : 8.6);
     if (shell > 1.12) return null;
     if (shell > 0.98) return '#111429';
+    if (i === 6 && dy > -3 && dy < 0) return '#a9b9dc';
+    if (i === 12 && dy > 3 && dy < 5) return '#333e66';
+    if (i === 8 && dy === -4) return '#c9d4ee';
     if (shell > 0.8) return dx < 0 ? '#7182b4' : '#3b466d';
     if ((ax < 0.65 && ay < 3.5) || (ay < 0.7 && ax < 3)) return '#f2f1de';
     if ((i === 7 && j === 7 + (frame % 2)) || (i === 12 && j === 13 - (frame % 2)))
@@ -51,6 +57,8 @@ function hearthCorePixel(i, j, frame, frames, id, state) {
       shell = Math.hypot(dx / radius, dy / (dash ? 9.1 : 8.1));
     if (shell > 1.04) return null;
     if (shell > 0.85) return dx < 0 ? '#d8f4e4' : '#76aaa4';
+    if (i === 7 && dy > -4 && dy < -1) return '#e4fff1';
+    if (i === 13 && dy > 1 && dy < 4) return '#52948f';
     const hollow = Math.hypot(dx * 1.1, (dy + 0.5) * 0.75);
     if (hollow < 2.2) return '#264c54';
     if (hollow < 3) return '#f0ffdf';
@@ -61,11 +69,15 @@ function hearthCorePixel(i, j, frame, frames, id, state) {
     const shell = ax / (dash ? 5.1 : 6.2) + ay / (dash ? 9.7 : 9);
     if (shell > 1.08) return null;
     if (shell > 0.94) return '#2a2845';
+    if (dx < -1 && dy === -3) return '#ddf1e4';
+    if (dx > 1 && dy === 4) return '#9c7978';
+    if (dx === -2.5 && dy === 1) return '#efe8f6';
     if (ax < 0.65 && ay < 7) return '#f4f1dd';
     const facet = dx < 0 ? (dy < 0 ? 0 : 1) : dy < 0 ? 3 : 2;
     if (shell > 0.76) return ['#88bfbf', '#876cba', '#bc8869', '#717ba8'][facet];
     if (Math.abs(dy + dx) < 0.8 || Math.abs(dy - dx) < 0.8) return '#dce7dd';
-    return spectrum[(facet + frame) % spectrum.length];
+    if (Math.abs(dy + dx * 0.6 - pulse * 2) < 0.5 && shell < 0.72) return '#f4f1dd';
+    return spectrum[facet];
   }
   const ring = Math.hypot(dx / 6.2, dy / (dash ? 8.8 : 7.8)),
     angle = Math.atan2(dy, dx),
@@ -76,6 +88,8 @@ function hearthCorePixel(i, j, frame, frames, id, state) {
     return '#d5a763';
   }
   if (ring > 0.86) return '#574030';
+  if (i === 6 && dy > -4 && dy < -1) return '#f9d99b';
+  if (i === 13 && dy > 1 && dy < 4) return '#8c623e';
   if (ring < 0.44) return '#151823';
   if (ring < 0.57) return '#715341';
   if ((sector + frame) % 4 === 0 && ring > 0.7) return '#8b6042';
@@ -125,7 +139,7 @@ function drawHearthCore(
   ctx.translate(x, y);
   ctx.rotate(rotation);
   ctx.imageSmoothingEnabled = false;
-  ctx.globalAlpha = alpha;
+  ctx.globalAlpha *= alpha;
   ctx.drawImage(sprite.frames[frame], -width / 2, -height / 2, width, height);
   ctx.restore();
   return true;

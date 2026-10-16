@@ -95,6 +95,20 @@ function bossRushStone(ctx, x, y, w, h, seed, edge = false) {
   ctx.fillRect(x + tx, y + ty, 5 + Math.abs(seed % 7), 1);
   ctx.fillStyle = '#171a1a55';
   ctx.fillRect(x + w - tx - 5, y + h - ty, 4, 2);
+  if (w > 16 && h > 12) {
+    ctx.fillStyle = edge ? '#9f815535' : '#bcac8b20';
+    ctx.fillRect(x + 5, y + 5, Math.min(w - 10, 4 + (Math.abs(seed * 3) % 9)), 1);
+    ctx.fillRect(x + 8, y + h - 7, Math.min(w - 14, 3 + (Math.abs(seed * 7) % 7)), 1);
+    if (Math.abs(seed) % 5 === 0) {
+      const crackX = x + 7 + (Math.abs(seed * 11) % (w - 13));
+      ctx.fillStyle = '#11171970';
+      ctx.fillRect(crackX, y + 3, 1, 5);
+      ctx.fillRect(crackX - 2, y + 7, 3, 1);
+      ctx.fillRect(crackX - 2, y + 8, 1, 3);
+      ctx.fillStyle = '#8f79562d';
+      ctx.fillRect(crackX + 1, y + 4, 1, 3);
+    }
+  }
 }
 
 function bossRushOctagon(ctx, x, y, rx, ry, color, width) {
@@ -264,6 +278,79 @@ function buildBossRushArenaCanvas(w) {
     ctx.fillRect(x - 5, y + 15, 10, 4);
     ctx.fillStyle = '#c29753';
     ctx.fillRect(x - 10, y + 5, 20, 2);
+  }
+  for (let i = 0; i < 64; i++) {
+    const a = (i * TAU) / 64,
+      radiusX = i % 4 ? 210 : 214,
+      radiusY = i % 4 ? 179 : 183,
+      x = Math.round(cx + Math.cos(a) * radiusX),
+      y = Math.round(cy + Math.sin(a) * radiusY);
+    ctx.fillStyle = i % 4 ? '#6a573b' : '#b28c50';
+    ctx.fillRect(x - 1, y - 1, i % 4 ? 2 : 3, i % 4 ? 2 : 3);
+    if (i % 8 === 0) {
+      ctx.fillStyle = '#191e1c';
+      ctx.fillRect(x - 3, y + 3, 7, 2);
+      ctx.fillStyle = '#997b4a';
+      ctx.fillRect(x - 2, y + 3, 5, 1);
+    }
+  }
+  for (const side of [-1, 1]) {
+    const x = side < 0 ? left - 31 : left + width + 1;
+    ctx.fillStyle = '#101416';
+    ctx.fillRect(x + 5, top + 37, 22, height - 72);
+    ctx.fillStyle = '#4a3a2a';
+    ctx.fillRect(x + 7, top + 38, 2, height - 75);
+    ctx.fillStyle = '#6e5636';
+    ctx.fillRect(x + 10, top + 38, 1, height - 75);
+    for (let y = top + 56; y < top + height - 38; y += 30) {
+      ctx.fillStyle = '#342c22';
+      ctx.fillRect(x + 11, y, 11, 13);
+      ctx.fillStyle = '#80603c';
+      ctx.fillRect(x + 11, y, 10, 1);
+      ctx.fillRect(x + 13, y + 3, 2, 6);
+      ctx.fillStyle = '#b59863';
+      ctx.fillRect(x + 13, y + 3, 1, 2);
+      ctx.fillStyle = '#14191a';
+      ctx.fillRect(x + 16, y + 4, 4, 6);
+    }
+    for (const y of [top + 17, top + height - 28]) {
+      ctx.fillStyle = '#161919';
+      ctx.fillRect(x - 7, y, 46, 5);
+      ctx.fillStyle = '#ac8753';
+      for (let j = 0; j < 7; j++) ctx.fillRect(x - 3 + j * 5, y + 1, 2, 1);
+      ctx.fillStyle = '#4f402f';
+      ctx.fillRect(x - 7, y + 4, 46, 2);
+    }
+  }
+  for (let i = 0; i < 10; i++) {
+    const x = Math.round(cx + (i - 4.5) * 54),
+      y = top - 27;
+    ctx.fillStyle = '#c3a16c';
+    ctx.fillRect(x - 16, y - 21, 31, 1);
+    ctx.fillStyle = '#967548';
+    ctx.fillRect(x - 16, y - 18, 1, 32);
+    ctx.fillStyle = '#3b3026';
+    ctx.fillRect(x + 12, y - 18, 2, 32);
+    ctx.fillStyle = '#d9b679';
+    ctx.fillRect(x - 8, y - 7, 4, 1);
+    ctx.fillRect(x - 5, y - 13, 2, 1);
+    ctx.fillStyle = '#332c25';
+    ctx.fillRect(x + 2, y - 8, 2, 7);
+    ctx.fillRect(x - 4, y - 1, 9, 1);
+    ctx.fillStyle = '#a08253';
+    for (const dx of [-13, 12]) for (const dy of [-18, 15]) ctx.fillRect(x + dx, y + dy, 2, 2);
+  }
+  for (const y of [top - 39, top + height + 28]) {
+    ctx.fillStyle = '#332a22';
+    ctx.fillRect(left - 25, y, width + 50, 6);
+    ctx.fillStyle = '#8b7048';
+    ctx.fillRect(left - 25, y, width + 50, 1);
+    for (let x = left - 18; x < left + width + 23; x += 14) {
+      ctx.fillStyle = '#665137';
+      ctx.fillRect(x, y + 2, 6, 2);
+      ctx.fillStyle = '#b1966255';
+      ctx.fillRect(x, y + 2, 3, 1);
+    }
   }
   return canvas;
 }
