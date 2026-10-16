@@ -1,5 +1,5 @@
 const secretArtRooms = new Map();
-const SECRET_ROOM_ART_REVIEW = 4;
+const SECRET_ROOM_ART_REVIEW = 5;
 function secretArtPixel(c, x, y, w, h, color) {
   c.fillStyle = color;
   c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
@@ -166,40 +166,13 @@ function secretArtWood(c, x, y, w, h, light = false) {
   c.beginPath();
   c.rect(x, y, w, h);
   c.clip();
-  px(x, y, w, h, '#241f1b');
-  for (let row = 0; row < h - 2; row += 9) {
-    px(
-      x + 2,
-      y + row + 1,
-      w - 4,
-      8,
-      light
-        ? ['#8a6743', '#9b744a', '#81633f'][(row / 9) % 3]
-        : ['#624a32', '#6c5135', '#5c4531'][(row / 9) % 3]
-    );
-    px(x + 4, y + row + 2, w - 8, 1, light ? '#bd9560' : '#967045');
-    px(
-      x + 8 + ((row * 7) % Math.max(1, w - 40)),
-      y + row + 5,
-      Math.min(27, w - 16),
-      1,
-      light ? '#725436' : '#443628'
-    );
-    if (w > 25) {
-      const grain = x + 9 + ((row * 11 + Math.floor(x)) % Math.max(1, w - 26));
-      px(grain, y + row + 4, Math.min(16, x + w - grain - 5), 1, light ? '#ac8554' : '#7b5b3c');
-      px(grain + 2, y + row + 6, Math.min(10, x + w - grain - 7), 1, light ? '#8a6743' : '#4f3d2a');
-    }
-    if (w > 40 && (row / 9) % 3 === 1) {
-      const knot = x + 14 + ((row * 3 + Math.floor(x)) % Math.max(1, w - 33));
-      px(knot, y + row + 3, 7, 1, '#493b2a');
-      px(knot - 2, y + row + 4, 3, 1, '#493b2a');
-      px(knot + 5, y + row + 4, 3, 1, light ? '#c29b65' : '#947146');
-      px(knot, y + row + 5, 6, 1, light ? '#c29b65' : '#947146');
-    }
+  px(x, y, w, h, '#30271f');
+  for (let row = 0; row < h - 2; row += 12) {
+    px(x + 2, y + row + 1, w - 4, 11, light ? '#947048' : '#674e35');
+    if ((row / 12) % 2 === 0 && w > 40)
+      px(x + 7, y + row + 3, Math.min(27, w - 15), 2, light ? '#a78153' : '#795b3c');
   }
-  px(x, y, w, 2, '#c09a65');
-  px(x, y + 2, 2, h - 2, '#8e6c44');
+  px(x, y, w, 2, light ? '#c09a65' : '#a17c4e');
   px(x + w - 3, y + 3, 2, h - 3, '#352b22');
   c.restore();
 }
@@ -231,7 +204,7 @@ function secretArtRoom(c, s, material = 'stone') {
       px(x + 4, y + 15, 49, 1, '#242824');
       px(x + 54, y + 3, 1, 11, '#232825');
       const mark = (((row * 19 + Math.floor((x + 60) / 58) * 7) % 11) + 11) % 11;
-      if (mark < 4) {
+      if (mark === 0) {
         const chip = x + 12 + mark * 7;
         px(
           chip,
@@ -242,10 +215,6 @@ function secretArtRoom(c, s, material = 'stone') {
         );
         px(chip + 1, y + 4, 5, 1, palette[(tone + 1) % 4]);
         px(chip + 4, y + 8, 6, 1, material === 'deep' ? '#3f4c5b' : '#645e4c');
-      }
-      if ((row * 13 + x) % 5 === 0) {
-        px(x + 13, y + 8, 12, 1, palette[(tone + 2) % 4]);
-        px(x + 25, y + 9, 7, 1, '#242825');
       }
     }
   }
@@ -299,28 +268,8 @@ function secretArtRoom(c, s, material = 'stone') {
       px(x + 1, y, w - 2, h - 1, colors[tone]);
       px(x + 3, y + 1, w - 7, 1, material === 'deep' ? '#5a626b' : '#9a8a65');
       px(x + 5, y + h - 3, w - 12, 1, material === 'deep' ? '#1e2731' : '#353c32');
-      if (material === 'wood') {
-        for (let grain = 0; grain < 3; grain++) {
-          const xx = x + 9 + ((row * 17 + grain * 23) % Math.max(1, w - 27));
-          px(
-            xx,
-            y + 4 + grain * 3,
-            Math.min(24, x + w - xx - 5),
-            1,
-            grain % 2 ? '#957146' : '#4c402c'
-          );
-        }
-        px(x + 6, y + 3, 1, 2, '#393c2c');
-        px(x + w - 7, y + h - 5, 1, 2, '#393c2c');
-      } else if ((row + tone) % 2 === 0) {
-        const xx = x + w * 0.3;
-        px(xx, y + 4, 9, 1, material === 'deep' ? '#63707b' : '#ada07a');
-        px(xx + 2, y + 5, 5, 1, colors[(tone + 2) % 4]);
-      }
-      if ((row + tone) % 3 === 0) {
-        px(x + w * 0.42, y + 4, Math.min(22, w / 3), 1, colors[(tone + 2) % 4]);
-        px(x + w - 8, y + 4, 1, 3, '#353930');
-      }
+      if (material === 'wood' && row % 2 === 0)
+        px(x + 9, y + 4, Math.min(27, w - 18), 2, '#80603e');
     }
     y += h;
   }
@@ -393,25 +342,18 @@ function secretArtArch(c, x, y, w, h, stone = '#8d8063', inside = '#14242a') {
   );
   px(x - 5, y + h - 2, w + 10, 7, '#aa9268');
   px(x - 3, y + h - 1, w + 6, 1, '#dbc18b');
-  for (let yy = y + 36; yy < y + h - 4; yy += 22) {
+  for (let yy = y + 36; yy < y + h - 4; yy += 32) {
     px(x + 1, yy, 6, 1, '#4e4d40');
     px(x + w - 7, yy, 6, 1, '#4e4d40');
     px(x + 1, yy + 1, 5, 1, '#b3a280');
     px(x + w - 6, yy + 1, 5, 1, '#a49c7b');
-    if ((yy - y) % 3 === 0) {
-      px(x + 3, yy + 7, 2, 3, '#5e6353');
-      px(x + w - 5, yy + 12, 2, 2, '#5e6353');
-    }
   }
   px(x, y + 28, 2, h - 31, '#b7a17a');
   px(x + w - 2, y + 28, 2, h - 31, '#424b42');
   px(x + 8, y + 28, 2, h - 30, '#0f1e20');
   px(x + w - 10, y + 28, 2, h - 30, '#0f1e20');
   px(x + 40, y, w - 80, 2, '#c8b48d');
-  for (const xx of [x + w * 0.35, x + w * 0.65]) {
-    px(xx, y + 2, 1, 7, '#51574b');
-    px(xx + 1, y + 2, 1, 6, '#b9ad8a');
-  }
+
   poly(
     [
       [x + w / 2 - 7, y],
@@ -460,9 +402,9 @@ function secretArtRug(c, x, y, w, h, color = '#6b3b35', trim = '#bd9b66') {
     px(xx, y + h - 3, 2, 7, i % 2 ? '#ae8d5b' : '#d2b17b');
   }
   for (const side of [-1, 1])
-    for (let i = 0; i < 4; i++) {
-      const xx = x + w / 2 + side * (w * 0.33 + i * 2),
-        yy = y + 14 + (i * (h - 26)) / 4;
+    for (let i = 0; i < 2; i++) {
+      const xx = x + w / 2 + side * w * 0.32,
+        yy = y + 17 + (i * (h - 30)) / 2;
       poly(
         [
           [xx, yy - 3],
@@ -473,44 +415,16 @@ function secretArtRug(c, x, y, w, h, color = '#6b3b35', trim = '#bd9b66') {
         trim
       );
     }
-  for (let i = 0; i < Math.floor((w - 56) / 13); i++) {
-    const xx = x + 29 + i * 13;
-    px(xx, y + 9, 5, 1, trim);
-    px(xx - 10, y + h - 12, 5, 1, trim);
-  }
-  c.save();
-  c.globalAlpha = 0.12;
-  for (let row = 0; row < h - 32; row += 7) {
-    const inset = 27 - row * 0.11;
-    px(x + inset, y + 18 + row, w - inset * 2, 1, trim);
-  }
-  c.globalAlpha = 0.09;
-  for (let row = 1; row < h - 32; row += 3) {
-    const inset = 28 - row * 0.11;
-    for (let column = 0; column < (w - inset * 2 - 5) / 11; column++) {
-      const xx = x + inset + column * 11 + (row % 2);
-      px(xx, y + 18 + row, 5, 1, trim);
-      if (column % 3 === 1) px(xx + 3, y + 19 + row, 1, 1, trim);
-    }
-  }
-  c.restore();
 }
 function secretArtBooks(c, x, y, count, height = 27) {
-  const colors = ['#775747', '#72847a', '#9a7c4c', '#4b6970', '#8a6c69', '#918b65'];
+  const colors = ['#775747', '#72847a', '#9a7c4c', '#4b6970'];
   let xx = x;
   for (let i = 0; i < count; i++) {
     const w = 5 + ((i * 7) % 6),
       h = height - ((i * 11) % 10);
     secretArtPixel(c, xx, y - h, w, h, '#242b26');
-    secretArtPixel(c, xx + 1, y - h, w - 2, h - 1, colors[i % 6]);
-    secretArtPixel(c, xx + 2, y - h + 2, 1, h - 4, '#c0aa7c');
-    secretArtPixel(c, xx + 1, y - 5, w - 2, 1, '#c1a472');
-    secretArtPixel(c, xx + 1, y - h + 5, w - 2, 1, '#d1b586');
-    if (w >= 7) {
-      secretArtPixel(c, xx + 3, y - h + 9, 2, 4, '#d4c49b');
-      secretArtPixel(c, xx + 3, y - h + 10, 1, 2, '#5e5240');
-    }
-    secretArtPixel(c, xx + w - 2, y - 4, 1, 3, '#473c30');
+    secretArtPixel(c, xx + 1, y - h, w - 2, h - 1, colors[i % 4]);
+    secretArtPixel(c, xx + 1, y - h + 5, w - 2, 2, '#bba47a');
     xx += w + 1;
   }
 }
@@ -534,10 +448,6 @@ function secretArtShelf(c, x, y, w, h, kind = 'books') {
     px(x + 5, yy, w - 10, 5, '#92734a');
     px(x + 6, yy, w - 12, 1, '#d0a875');
     px(x + 6, yy + 5, w - 12, 2, '#101d1d');
-    for (const xx of [x + 9, x + w - 13]) {
-      px(xx, yy + 1, 3, 2, '#e2bf85');
-      px(xx + 1, yy + 3, 2, 1, '#423628');
-    }
   }
   px(x - 3, y - 4, w + 6, 6, '#aa895a');
   px(x - 1, y - 4, w + 2, 1, '#ddbb81');
@@ -570,11 +480,7 @@ function secretArtBottle(c, x, y, color = '#8faea2', kind = 0) {
   px(x - 6, y - 12, 12, 10, color);
   px(x - 5, y - 11, 2, 8, '#d7e5c8');
   px(x + 4, y - 9, 1, 7, '#42605c');
-  px(x - 4, y - 3, 8, 1, '#455a4a');
-  px(x - 1, y - 18, 2, 3, '#e4dec0');
-  px(x - 4, y - 13, 8, 1, '#d0dec080');
-  px(x + 6, y - 8, 1, 4, '#b9ceae80');
-  px(x - 4, y - 1, 8, 1, '#97b39c');
+
   if (kind === 1) {
     px(x - 3, y - 11, 7, 7, '#b6aa7a');
     px(x - 2, y - 9, 5, 1, '#6c664e');
@@ -688,8 +594,6 @@ function secretArtPlant(c, x, y, size = 1) {
   px(-14, -4, 29, 5, '#a0855c');
   px(-10, 0, 2, 11, '#c1a173');
   px(-8, 14, 17, 2, '#453e32');
-  px(-9, 4, 18, 1, '#85724e');
-  px(-7, 8, 14, 1, '#7a6849');
   px(7, 1, 2, 10, '#403f30');
   for (let i = 0; i < 7; i++) {
     const side = i % 2 ? 1 : -1,
@@ -706,7 +610,7 @@ function secretArtPlant(c, x, y, size = 1) {
       ],
       i % 2 ? '#8a9e68' : '#69855d'
     );
-    px(xx - 6, yy - 3, 6, 1, '#b2b37b');
+    if (i % 3 === 0) px(xx - 6, yy - 3, 6, 2, '#a0ac75');
   }
   c.restore();
 }
@@ -1018,11 +922,6 @@ function detailInteriorPanel(c, x, y, w, h, color = '#695035', motif = 'diamond'
   px(x + 5, y + 6, 1, h - 12, '#a27a48');
   px(x + w - 6, y + 6, 1, h - 11, '#352f25');
   px(x + 6, y + h - 6, w - 12, 1, '#352f25');
-  for (const xx of [x + 7, x + w - 9])
-    for (const yy of [y + 8, y + h - 10]) {
-      px(xx, yy, 3, 3, '#393426');
-      px(xx, yy, 2, 1, '#d5b780');
-    }
   if (motif === 'diamond') {
     const mx = x + w / 2,
       my = y + h / 2;
@@ -1098,23 +997,10 @@ function detailInteriorUrn(c, x, y, size = 1, blue = false) {
     colors[1]
   );
   px(-11, -24, 3, 15, colors[2]);
-  px(-9, -27, 3, 7, colors[3]);
   px(10, -19, 2, 10, colors[0]);
   px(-11, -14, 23, 2, colors[2]);
-  px(-7, -8, 15, 1, colors[2]);
   px(-11, -40, 22, 3, colors[2]);
   px(-9, -40, 18, 1, colors[3]);
-  for (let i = -1; i < 2; i++)
-    secretArtPoly(
-      c,
-      [
-        [i * 7, -23],
-        [i * 7 + 3, -20],
-        [i * 7, -17],
-        [i * 7 - 3, -20],
-      ],
-      colors[0]
-    );
   px(-10, -4, 21, 3, colors[2]);
   c.restore();
 }
@@ -1134,10 +1020,8 @@ function detailInteriorScroll(c, x, y, w, h, sealed = false) {
     secretArtOval(c, x + w / 2, y + h / 2, 5, 4, '#b67552');
     px(x + w / 2 - 2, y + h / 2 - 2, 3, 1, '#e5b074');
   } else
-    for (let line = 0; line < Math.floor((h - 6) / 4); line++) {
-      px(x + 8, y + 5 + line * 4, w - 18 - (line % 3) * 5, 1, '#a68f62');
-      px(x + 10 + (line % 2) * 7, y + 6 + line * 4, 2, 1, '#c5b082');
-    }
+    for (let line = 0; line < Math.min(3, Math.floor((h - 6) / 7)); line++)
+      px(x + 8, y + 5 + line * 7, w - 18 - (line % 2) * 5, 2, '#ad966a');
 }
 function detailInteriorCushion(c, x, y, w, h, green = false) {
   const px = (a, b, d, e, f) => secretArtPixel(c, a, b, d, e, f),
@@ -1171,13 +1055,6 @@ function detailInteriorCushion(c, x, y, w, h, green = false) {
   );
   secretArtLine(c, x + 6, y + 4, x + w - 7, y + 3, pale);
   secretArtLine(c, x + 3, y + 7, x + 6, y + h - 6, pale);
-  for (let i = 0; i < 3; i++) {
-    const xx = x + 9 + ((w - 20) * i) / 2;
-    px(xx, y + h / 2, 2, 2, low);
-    px(xx - 1, y + h / 2 - 1, 2, 1, pale);
-  }
-  px(x + 3, y + h - 1, 3, 3, pale);
-  px(x + w - 4, y + h - 1, 3, 3, pale);
 }
 function secretArtCache(c, s) {
   const px = (a, b, d, e, f) => secretArtPixel(c, a, b, d, e, f);
@@ -1383,7 +1260,7 @@ function secretArtWorkshop(c, s) {
   px(87, 228, 90, 9, '#4b3b29');
   secretArtWood(c, 252, 44, 263, 117);
   px(260, 52, 247, 99, '#363b32');
-  for (let x = 269; x < 502; x += 10) for (let y = 59; y < 148; y += 10) px(x, y, 1, 1, '#867a52');
+  for (const y of [67, 101, 135]) px(276, y, 218, 2, '#73694b');
   for (let i = 0; i < 7; i++) {
     const x = 277 + i * 32,
       y = 77 + (i % 2) * 12;

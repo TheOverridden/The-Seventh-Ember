@@ -11,28 +11,8 @@ function echoTimber(c, x, y, w, h, vertical = false) {
   echoPixel(c, '#ad8659', x, y, w, 2);
   echoPixel(c, '#856246', x + 2, y + 2, 2, h - 3);
   echoPixel(c, '#3e312a', x + w - 3, y + 3, 3, h - 3);
-  if (vertical) {
-    for (let i = 7; i < w - 4; i += 8) echoPixel(c, '#4a3b2d', x + i, y + 5, 1, h - 9);
-  } else {
-    for (let i = 7; i < h - 3; i += 7) {
-      echoPixel(c, '#4a3b2d', x + 6, y + i, w - 15, 1);
-      echoPixel(c, '#98774e', x + 12, y + i - 1, Math.max(2, w * 0.3), 1);
-    }
-  }
-  for (const px of [x + 4, x + w - 6]) {
-    echoPixel(c, '#c3ad7e', px, y + 4, 2, 2);
-    echoPixel(c, '#282a2a', px + 1, y + h - 6, 2, 2);
-  }
-  if (w >= 40 && h >= 12) {
-    const knotX = x + Math.round(w * 0.72),
-      knotY = y + Math.round(h * 0.55);
-    echoPixel(c, '#4f3c2b', knotX - 4, knotY - 2, 8, 1);
-    echoPixel(c, '#40342a', knotX - 6, knotY - 1, 3, 2);
-    echoPixel(c, '#be9561', knotX + 3, knotY - 1, 3, 2);
-    echoPixel(c, '#a17a4e', knotX - 3, knotY + 2, 7, 1);
-    echoPixel(c, '#332d27', x + w - 11, y + 2, 1, 4);
-    echoPixel(c, '#ceab74', x + 5, y + 2, 8, 1);
-  }
+  if (vertical && w >= 18) echoPixel(c, '#4a3b2d', x + Math.round(w / 2), y + 4, 2, h - 7);
+  else if (!vertical && h >= 14) echoPixel(c, '#4a3b2d', x + 4, y + Math.round(h / 2), w - 8, 2);
 }
 
 function echoMasonry(c, p, x, y, w, h, seed = 0) {
@@ -54,15 +34,6 @@ function echoMasonry(c, p, x, y, w, h, seed = 0) {
       );
       echoPixel(c, p.line, left + 1, yy + 1, right - left - 2, 1);
       echoPixel(c, '#10191c', left, yy + bh - 2, right - left, 2);
-      if (right - left > 25) {
-        echoPixel(c, '#ffffff10', left + 7, yy + 5, 13, 1);
-        echoPixel(c, '#10181a55', right - 17, yy + 11, 7, 2);
-        if ((row + Math.floor(xx / 61) + seed) % 5 === 0) {
-          echoPixel(c, '#10181a55', left + 21, yy + 1, 1, 4);
-          echoPixel(c, '#10181a55', left + 19, yy + 5, 3, 1);
-          echoPixel(c, '#ffffff12', left + 22, yy + 2, 1, 3);
-        }
-      }
     }
   }
 }
@@ -111,12 +82,6 @@ function echoBookcase(c, x, y, w, h, seed) {
         bh
       );
       echoPixel(c, '#c3b58c', bx + 1, by + 27 - bh, 4, 1);
-      echoPixel(c, '#302c27', bx + 5, by + 24 - bh, 1, bh);
-      echoPixel(c, '#d5c39b', bx + 1, by + 21, 4, 1);
-      if (bh > 18) {
-        echoPixel(c, '#d1bf94', bx + 2, by + 31 - bh, 2, 3);
-        echoPixel(c, '#453b30', bx + 2, by + 32 - bh, 1, 1);
-      }
     }
     echoTimber(c, x + 3, by + 26, w - 6, 4);
   }
@@ -548,8 +513,7 @@ drawMemoryProp = function (c, o, rect, key, t, alpha, index) {
     echoPixel(c, o.kind === 'pod' ? '#7f9a89' : '#aaa69a', -w / 2 + 5, -w * 0.28, w - 10, w * 0.25);
     echoPixel(c, '#e2dcc0', -w / 2 + 7, -w * 0.24, w * 0.24, w * 0.17);
     echoPixel(c, '#d1d6bc', -w / 2 + 9, -w * 0.23, w * 0.18, 2);
-    for (let i = 0; i < 3; i++)
-      echoPixel(c, '#4f675f66', -w * 0.07 + i * w * 0.18, -w * 0.24, 2, w * 0.2);
+    echoPixel(c, '#4f675f66', w * 0.12, -w * 0.24, 3, w * 0.2);
     if (o.kind === 'pod') echoPixel(c, '#d2bd7a', -2, -w * 0.31, 4, w * 0.3);
     echoPixel(c, '#161d1c', -w / 2 + 2, 3, 5, 5);
     echoPixel(c, '#161d1c', w / 2 - 7, 3, 5, 5);
@@ -568,15 +532,6 @@ drawMemoryProp = function (c, o, rect, key, t, alpha, index) {
     echoPixel(c, '#c0a273', -w / 2 + 1, -high + 2, w - 2, 2);
     for (const lx of [-w / 2 + 1, w / 2 - 5]) echoTimber(c, lx, 5, 5, 15, true);
     echoPixel(c, '#10181d66', -w / 2 - 3, 20, w + 7, 3);
-    for (let i = 0; i < 3; i++)
-      echoPixel(
-        c,
-        '#c2a47a',
-        -w / 2 + 8 + i * Math.max(3, (w - 18) / 3),
-        -high + 12,
-        1,
-        Math.max(2, high - 28)
-      );
   } else if (o.kind === 'door') {
     echoMasonry(c, p, -w / 2 - 8, -h - 8, w + 16, h + 10, index);
     echoPixel(c, '#0a1219', -w / 2, -h, w, h);
@@ -663,13 +618,6 @@ drawMemoryProp = function (c, o, rect, key, t, alpha, index) {
       echoPixel(c, '#364443', lx, -3, 8, 6);
       echoPixel(c, '#a4a285', lx, -2, 7, 1);
     }
-    for (const lx of [-w / 2 + 3, w / 2 - 5])
-      for (const ly of [-h + 4, -5]) {
-        echoPixel(c, '#c1a579', lx, ly, 2, 2);
-        echoPixel(c, '#252c2c', lx + 1, ly + 1, 2, 2);
-      }
-    echoPixel(c, '#c5ab8155', -w / 2 + 2, -h + 2, w - 4, 1);
-    echoPixel(c, '#151d2255', w / 2 - 3, -h + 3, 2, h - 3);
     if (o.kind === 'machine' || o.kind === 'belt') {
       const panel = Math.max(13, Math.min(w * 0.28, 23));
       echoPixel(c, '#25383d', -w / 2 + 8, -h + 11, panel, 19);
@@ -744,7 +692,6 @@ drawMemoryProp = function (c, o, rect, key, t, alpha, index) {
   } else if (o.kind === 'bed' || o.kind === 'pod') {
     echoPixel(c, '#0d191c66', -w / 2 - 4, 8, w + 8, 4);
     echoPixel(c, '#e4ddbd88', -w / 2 + 9, -w * 0.08, w - 19, 1);
-    for (let i = 0; i < 4; i++) echoPixel(c, '#5c786c66', w * 0.14 + i * 3, -w * 0.23, 1, w * 0.2);
   } else if (o.kind === 'lamp') {
     echoPixel(c, '#fff5c344', -4, -10, 1, 18);
     echoPixel(c, '#3a484b', -8, 10, 16, 2);

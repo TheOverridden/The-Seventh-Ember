@@ -2,6 +2,17 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101602,
+    date: 'OCTOBER 16, 2026',
+    title: 'A SIMPLER PIXEL STYLE',
+    intro: 'Cleaner shapes and fewer tiny surface details throughout the rooms.',
+    changes: [
+      'Simplified loose props, foliage, regional furnishings, and decorative floor accents. Larger pixel clusters and fewer shades bring them closer to the Ember and enemy artwork.',
+      'Reduced fine grain, scratches, rivets, stitching, and repeated edge highlights in secret rooms, restored memories, Moth’s shop, and the Hearth. Room layouts, lighting, and animated scenes carry over.',
+      'Simplified a few title-screen and card-frame accents. Existing saves and all gameplay remain unchanged.',
+    ],
+  },
+  {
     version: 2026101601,
     date: 'OCTOBER 16, 2026',
     title: 'CRAFT AND MOTION',

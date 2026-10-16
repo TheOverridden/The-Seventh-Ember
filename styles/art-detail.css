@@ -22,23 +22,13 @@ body.ui-reborn .card .ic,
     0 0 0 2px #bb975338;
 }
 body.ui-reborn .card .ic {
-  background:
-    linear-gradient(var(--relic), var(--relic)) 5px 5px / 9px 1px no-repeat,
-    linear-gradient(var(--relic), var(--relic)) 5px 5px / 1px 9px no-repeat,
-    linear-gradient(var(--relic), var(--relic)) calc(100% - 5px) calc(100% - 5px) / 9px 1px
-      no-repeat,
-    linear-gradient(var(--relic), var(--relic)) calc(100% - 5px) calc(100% - 5px) / 1px 9px
-      no-repeat,
-    linear-gradient(145deg, rgba(var(--relic-rgb), 0.18), #090807c9);
+  background: linear-gradient(145deg, rgba(var(--relic-rgb), 0.12), #090807c9);
 }
 body.ui-reborn .card[data-r='3'] .ic {
   box-shadow:
-    inset 0 1px #ffe9afaa,
-    inset 0 -2px #624017,
-    inset 0 0 0 3px #080603,
-    inset 0 0 0 4px #d2a04d80,
-    0 0 0 1px #100a04,
-    0 0 0 2px #d2a04d80;
+    inset 0 1px #ffe9af66,
+    inset 0 -2px #62401780,
+    0 0 0 1px #d2a04d66;
 }
 .hearth-choice.selected,
 .hearth-trial-card.selected,

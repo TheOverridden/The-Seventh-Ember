@@ -620,13 +620,6 @@ function drawMenuBg() {
         ctx.fillStyle = '#a2785124';
         ctx.fillRect(x * unit + unit * 0.22, y * unit + unit * 0.68, unit * 0.34, 2);
       }
-      if (!outer && (x * 13 + y * 5) % 11 === 0) {
-        ctx.fillStyle = '#13100e';
-        ctx.fillRect(tx + unit * 0.24, ty + unit * 0.36, unit * 0.2, 1);
-        ctx.fillRect(tx + unit * 0.43, ty + unit * 0.36, 1, unit * 0.16);
-        ctx.fillStyle = '#514032';
-        ctx.fillRect(tx + unit * 0.24, ty + unit * 0.36 + 1, unit * 0.14, 1);
-      }
       if (outer) {
         ctx.fillStyle = '#3c3029';
         ctx.fillRect(x * unit, y * unit, unit - 2, Math.max(6, unit * 0.3));
@@ -636,10 +629,6 @@ function drawMenuBg() {
         ctx.fillRect(tx + unit * 0.2, ty + 7, unit * 0.6, 4);
         ctx.fillStyle = '#987444';
         ctx.fillRect(tx + unit * 0.22, ty + 7, unit * 0.56, 1);
-        for (const sx of [0.2, 0.76]) {
-          ctx.fillStyle = '#cfaa68';
-          ctx.fillRect(tx + unit * sx, ty + 4, 1, 1);
-        }
       }
     }
   ctx.globalAlpha = 1;
@@ -713,8 +702,6 @@ function drawMenuBg() {
     ctx.fillRect(-15, 8, 30, 12);
     ctx.fillStyle = '#65503a';
     ctx.fillRect(-13, 8, 26, 3);
-    ctx.fillStyle = '#98764a';
-    ctx.fillRect(-11, 8, 20, 1);
     ctx.fillStyle = '#3c2d21';
     ctx.fillRect(-5, -1, 10, 11);
     ctx.fillStyle = '#a4814f';
@@ -724,13 +711,6 @@ function drawMenuBg() {
     ctx.fillRect(-10, -3, 20, 5);
     ctx.fillStyle = '#ae8651';
     ctx.fillRect(-13, -9, 26, 2);
-    ctx.fillStyle = '#e3bc7d';
-    ctx.fillRect(-10, -9, 13, 1);
-    ctx.fillStyle = '#3d281b';
-    ctx.fillRect(-9, -6, 18, 2);
-    ctx.fillStyle = '#c79a5c';
-    ctx.fillRect(-10, -5, 2, 2);
-    ctx.fillRect(8, -5, 2, 2);
     drawSpr('flame', 0, -17, 1.35, 0, 0.95);
     ctx.restore();
   }

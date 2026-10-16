@@ -76,340 +76,11 @@ function lateBox(ctx, x, y, w, h, dark, mid, edge) {
   ctx.fillStyle = mid;
   ctx.fillRect(x, y, w, h);
   ctx.fillStyle = edge;
-  ctx.fillRect(x + 2, y + 2, w - 4, 2);
-  ctx.fillRect(x + 2, y + 2, 2, h - 4);
+  ctx.fillRect(x + 2, y, w - 4, 2);
+  ctx.fillRect(x, y + 2, 2, h - 4);
   ctx.fillStyle = dark;
-  ctx.fillRect(x + w - 4, y + 4, 2, h - 6);
-  ctx.fillRect(x + 4, y + h - 4, w - 8, 2);
-  if (w >= 26 && h >= 12) {
-    ctx.fillStyle = edge;
-    ctx.fillRect(x + 4, y + 4, 1, Math.max(2, h - 10));
-    ctx.fillStyle = dark;
-    for (const bx of [x + 6, x + w - 8]) {
-      ctx.fillRect(bx, y + 5, 3, 3);
-      if (h > 25) ctx.fillRect(bx, y + h - 9, 3, 3);
-    }
-    ctx.fillStyle = edge;
-    for (const bx of [x + 6, x + w - 8]) {
-      ctx.fillRect(bx, y + 5, 2, 1);
-      if (h > 25) ctx.fillRect(bx, y + h - 9, 2, 1);
-    }
-  }
-}
-function lateBaseSurfaceDetail(ctx, key, kind, seed) {
-  const p = lateArtPalette(key);
-  const line = (x, y, w, color = p.edge) => {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, w, 1);
-  };
-  const rivet = (x, y) => {
-    ctx.fillStyle = p.dark;
-    ctx.fillRect(x - 1, y - 1, 4, 4);
-    ctx.fillStyle = p.light;
-    ctx.fillRect(x, y, 2, 1);
-    ctx.fillStyle = p.edge;
-    ctx.fillRect(x, y + 1, 2, 1);
-  };
-  const plate = (x, y, w, h) => {
-    ctx.fillStyle = p.dark;
-    ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
-    ctx.fillStyle = p.edge;
-    ctx.fillRect(x, y, w, h);
-    line(x + 1, y, w - 2, p.light);
-    line(x + 2, y + h - 2, w - 4, p.mid);
-  };
-  if (key === 'reservoir') {
-    if (kind === 0 || kind === 3) {
-      const cy = kind === 0 ? -2 : -13,
-        radius = kind === 0 ? 18 : 20;
-      for (let i = 0; i < 12; i++) {
-        const a = (i * TAU) / 12;
-        ctx.fillStyle = i % 3 ? p.edge : p.hot;
-        ctx.fillRect(Math.round(Math.cos(a) * radius), cy + Math.round(Math.sin(a) * radius), 2, 2);
-      }
-      rivet(-20, 11);
-      rivet(19, 11);
-      plate(10, 5, 7, 5);
-    } else if (kind === 1) {
-      for (const x of [-12, 12]) {
-        for (const y of [-28, -8, 4]) {
-          line(x - 4, y, 9, p.dark);
-          line(x - 3, y + 1, 7, p.light);
-        }
-        ctx.fillStyle = '#91b8aa';
-        ctx.fillRect(x - 2, -20, 2, 9);
-      }
-    } else if (kind === 2) {
-      line(-16, -8, 30, p.hot);
-      for (let i = 0; i < 4; i++) line(-11 + i * 6, -3 + (i & 1) * 3, 4, p.edge);
-      plate(-9, 7, 18, 4);
-    } else {
-      for (const x of [-22, 20]) for (const y of [-39, -14, 10]) rivet(x, y);
-      line(-12, -3, 24, p.light);
-      line(-8, 1, 16, p.mid);
-    }
-    ctx.fillStyle = '#6f978340';
-    ctx.fillRect(-22, 12, 11, 2);
-    ctx.fillRect(10, 9, 6, 2);
-  } else if (key === 'foundry') {
-    if (kind === 0) {
-      for (let i = 0; i < 5; i++) line(-17 + i * 7, 3, 4, p.dark);
-      plate(-10, -17, 20, 4);
-      rivet(-20, 8);
-      rivet(19, 8);
-      line(-9, -21, 6, p.hot);
-    } else if (kind === 1 || kind === 4) {
-      const roof = kind === 4 ? -31 : -11;
-      for (let x = -18; x <= 18; x += 9) {
-        line(x, roof, 5, p.light);
-        ctx.fillStyle = '#130e11';
-        ctx.fillRect(x, roof + 2, 2, 4);
-      }
-      for (const x of [-24, 22]) {
-        for (let y = roof + 8; y < 13; y += 12) rivet(x, y);
-      }
-      for (let i = 0; i < 4; i++) {
-        ctx.fillStyle = i % 2 ? '#ffbd69' : '#c95c34';
-        ctx.fillRect(-15 + i * 9, 4 - (i % 2) * 2, 5, 2);
-      }
-      plate(-11, 12, 22, 4);
-    } else if (kind === 2) {
-      for (let i = 0; i < 3; i++) {
-        const x = -15 + i * 15;
-        line(x, -25, 7, p.dark);
-        line(x + 1, -24, 5, p.hot);
-        line(x - 3, -5, 13, p.edge);
-      }
-      rivet(-25, -38);
-      rivet(22, -38);
-    } else {
-      for (const x of [-15, 15]) {
-        for (const y of [-19, -5, 11]) line(x - 7, y, 14, p.edge);
-        plate(x - 3, -10, 6, 9);
-        ctx.fillStyle = p.hot;
-        ctx.fillRect(x - 1, -6, 2, 4);
-      }
-    }
-  } else if (key === 'observatory') {
-    if (kind === 0 || kind === 4) {
-      for (let i = 0; i < 12; i++) {
-        const a = (i * TAU) / 12,
-          x = Math.round(Math.cos(a) * 28),
-          y = -8 + Math.round(Math.sin(a) * 17);
-        ctx.fillStyle = i % 3 ? p.mid : p.light;
-        ctx.fillRect(x, y, i % 3 ? 1 : 2, 2);
-      }
-      line(-16, 10, 32, p.light);
-      plate(-7, 11, 14, 3);
-    } else if (kind === 1) {
-      for (let i = 0; i < 7; i++) {
-        const a = Math.PI + (i * Math.PI) / 6;
-        ctx.fillStyle = p.light;
-        ctx.fillRect(Math.round(Math.cos(a) * 20), -35 + Math.round(Math.sin(a) * 20), 2, 2);
-      }
-      line(-5, -17, 10, p.light);
-      line(-5, 2, 10, p.light);
-      plate(-13, 12, 26, 4);
-    } else if (kind === 2) {
-      for (const s of [-1, 1]) {
-        ctx.save();
-        ctx.translate(s * 15, -9 + s * 5);
-        ctx.rotate(s * 0.28);
-        ctx.fillStyle = '#e7fbff80';
-        ctx.beginPath();
-        ctx.moveTo(-6, -14);
-        ctx.lineTo(6, -14);
-        ctx.lineTo(-6, 6);
-        ctx.closePath();
-        ctx.fill();
-        line(-6, 9, 12, p.edge);
-        rivet(-7, -16);
-        rivet(6, 14);
-        ctx.restore();
-      }
-    } else {
-      for (let i = 0; i < 5; i++) {
-        line(-20 + i * 9, -25, 4, p.light);
-        line(-20 + i * 9, 13, 4, p.light);
-      }
-      ctx.fillStyle = p.mid;
-      ctx.fillRect(-29, -9, 3, 12);
-      ctx.fillRect(26, -9, 3, 12);
-    }
-  } else if (key === 'archive') {
-    if (kind === 1 || kind === 3) {
-      const rows = kind === 1 ? [-30, -17, -4] : [-27];
-      for (const y of rows) {
-        const step = kind === 1 ? 8 : 10,
-          start = kind === 1 ? -20 : -23;
-        for (let i = 0; i < 5; i++) {
-          const x = start + i * step;
-          line(x + 1, y + (kind === 1 ? -5 : 4), 3, p.hot);
-          line(x + 1, y + (kind === 1 ? -2 : 21 - (i % 3) * 7), 3, p.dark);
-          ctx.fillStyle = p.dark;
-          ctx.fillRect(x + 4, y + (kind === 1 ? -6 : 2), 1, kind === 1 ? 5 : 24 - (i % 3) * 7);
-        }
-      }
-    } else if (kind === 0) {
-      for (let i = 0; i < 3; i++) {
-        const x = -19 + i * 14;
-        plate(x + 2, -6, 6, 3);
-        line(x + 2, 4, 6, p.light);
-        ctx.fillStyle = p.dark;
-        ctx.fillRect(x + 4, -4, 2, 2);
-      }
-    } else if (kind === 2) {
-      for (let i = 0; i < 4; i++) {
-        const x = -17 + i * 10,
-          y = -19 - (i % 2) * 4;
-        line(x + 1, y + 2, 5, p.edge);
-        line(x + 1, y + 4, 4, p.mid);
-        line(x + 1, y + 6, 5, p.edge);
-      }
-      line(-17, -5, 32, p.dark);
-      plate(11, -8, 10, 3);
-    } else {
-      line(-18, -16, 14, p.hot);
-      line(4, -16, 12, p.hot);
-      ctx.fillStyle = '#9e5545';
-      ctx.fillRect(10, -1, 5, 4);
-      ctx.fillStyle = '#d4af6f';
-      ctx.fillRect(11, -1, 2, 1);
-    }
-    line(-20, 14, 39, p.edge);
-  } else if (key === 'court') {
-    if (kind < 2) {
-      for (let i = 0; i < 4; i++) {
-        const x = -19 + i * 12,
-          y = -19 - (i % 2) * 3;
-        line(x + 1, y + 1, 5, '#fff0d9');
-        line(x + 2, y + 3, 3, '#927c70');
-        ctx.fillStyle = '#b8a282';
-        ctx.fillRect(x + 8, y - 2, 2, 6);
-      }
-      for (let x = -19; x < 22; x += 7) {
-        line(x, -3, 3, p.edge);
-        ctx.fillStyle = p.dark;
-        ctx.fillRect(x + 2, -2, 1, 8);
-      }
-      line(-21, 5, 41, p.light);
-    } else if (kind === 2) {
-      for (const s of [-1, 1]) {
-        line(s < 0 ? -22 : 17, -31, 5, p.light);
-        ctx.fillStyle = p.dark;
-        ctx.fillRect(s < 0 ? -22 : 20, -23, 2, 24);
-      }
-      plate(-11, 10, 22, 4);
-    } else {
-      for (const x of [-15, 15]) {
-        line(x - 6, -22, 12, p.hot);
-        line(x - 5, 4, 10, p.light);
-        for (let y = -17; y < 4; y += 6) {
-          ctx.fillStyle = p.dark;
-          ctx.fillRect(x + 3, y, 2, 4);
-        }
-        rivet(x - 8, 11);
-      }
-    }
-  } else if (key === 'choir') {
-    if (kind === 0) {
-      for (let i = 0; i < 5; i++) {
-        const x = -24 + i * 12,
-          h = 28 + (i % 3) * 8;
-        line(x + 1, -h + 1, 7, p.light);
-        ctx.fillStyle = p.dark;
-        ctx.fillRect(x + 3, -h + 9, 3, 5);
-        line(x + 1, -1, 7, p.light);
-        line(x + 1, 2, 7, p.mid);
-      }
-    } else if (kind === 1 || kind === 4) {
-      const bells =
-        kind === 1
-          ? [[0, -23, 18]]
-          : [
-              [-14, -23, 9],
-              [0, -19, 9],
-              [14, -15, 9],
-            ];
-      for (const [x, y, w] of bells) {
-        line(x - w + 3, y + 3, w * 2 - 6, p.hot);
-        line(x - w + 4, y + 5, w * 2 - 8, p.mid);
-        line(x - w + 5, y + 11, w * 2 - 10, p.light);
-        line(x - w + 5, y + 13, w * 2 - 10, p.dark);
-      }
-    } else if (kind === 2) {
-      for (let i = 0; i < 4; i++) {
-        line(-25 + i * 18, -9 - i * 9, 9, p.hot);
-        rivet(-23 + i * 18, -6 - i * 9);
-      }
-    } else {
-      for (const x of [-13, 13]) {
-        for (const y of [-25, -7, 7]) line(x - 2, y, 6, p.light);
-        ctx.fillStyle = p.dark;
-        ctx.fillRect(x - 3, -45, 6, 5);
-      }
-    }
-    line(-19, 13, 38, p.light);
-  } else if (key === 'citadel') {
-    if (kind === 0) {
-      for (let i = 0; i < 4; i++) {
-        ctx.save();
-        ctx.translate(-23 + i * 15, -7);
-        ctx.rotate(i % 2 ? 0.18 : -0.12);
-        for (const y of [-18, -4, 8]) line(-4, y, 8, p.edge);
-        rivet(-2, -20);
-        rivet(1, 4);
-        ctx.restore();
-      }
-    } else if (kind === 1) {
-      for (let i = 0; i < 8; i++) {
-        const a = (i * TAU) / 8;
-        ctx.fillStyle = p.edge;
-        ctx.fillRect(Math.round(Math.cos(a) * 8), -8 + Math.round(Math.sin(a) * 8), 2, 2);
-      }
-      plate(-6, -12, 12, 5);
-    } else if (kind === 2) {
-      for (let i = 0; i < 3; i++) {
-        const x = -27 + i * 18,
-          y = -10 - (i % 2) * 10;
-        for (let k = 0; k < 3; k++) line(x + 3, y + 11 + k * 4, 12, p.dark);
-        rivet(x + 3, y + 5);
-        rivet(x + 12, y + 21);
-      }
-    } else {
-      for (const x of [-26, 24]) for (const y of [-22, -6, 10]) rivet(x, y);
-      plate(-18, 10, 36, 4);
-      for (let x = -16; x < 19; x += 8) line(x, -17, 4, p.light);
-    }
-  } else {
-    if (kind === 0) {
-      for (let i = 0; i < 5; i++) {
-        const x = -25 + i * 13,
-          y = -8 + (i % 2) * 5;
-        ctx.fillStyle = '#f3d99b';
-        ctx.fillRect(x - 1, y - 16, 1, 16);
-        line(x - 3, y + 4, 6, p.dark);
-        line(x, y - 19, 3, p.light);
-      }
-    } else if (kind === 1) {
-      for (let i = 0; i < 5; i++) {
-        const x = -18 + i * 9;
-        line(x - 2, -36, 5, p.light);
-        ctx.fillStyle = p.dark;
-        ctx.fillRect(x, -33, 1, 9);
-      }
-    } else if (kind === 2 || kind === 3) {
-      for (const x of [-15, 13]) for (const y of [-28, -12, 7]) rivet(x, y);
-      line(-10, -21, 20, p.light);
-      line(-10, -19, 20, p.dark);
-    } else {
-      for (let i = 0; i < 9; i++) {
-        line(-20 + i * 5, 5, 3, p.edge);
-        ctx.fillStyle = p.dark;
-        ctx.fillRect(-20 + i * 5, 7, 2, 2);
-      }
-    }
-  }
+  ctx.fillRect(x + w - 3, y + 3, 3, h - 3);
+  ctx.fillRect(x + 3, y + h - 3, w - 3, 3);
 }
 const lateFurnishingDetails = new Map();
 function lateSurfaceDetail(ctx, key, kind, seed) {
@@ -421,8 +92,6 @@ function lateSurfaceDetail(ctx, key, kind, seed) {
     layer.height = 112;
     const c = layer.getContext('2d');
     c.translate(64, 76);
-    if (!(key === 'reservoir' && kind === 4) && !(key === 'choir' && (kind === 1 || kind === 4)))
-      lateBaseSurfaceDetail(c, key, kind, seed);
     paintLateFurnishingDetails(c, key, kind);
     if (lateFurnishingDetails.size >= 120) lateFurnishingDetails.clear();
     lateFurnishingDetails.set(cacheKey, layer);
@@ -431,425 +100,209 @@ function lateSurfaceDetail(ctx, key, kind, seed) {
 }
 function paintLateFurnishingDetails(c, key, kind) {
   const p = lateArtPalette(key),
-    px = (x, y, w, h, colour) => {
-      c.fillStyle = colour;
+    px = (x, y, w, h, color) => {
+      c.fillStyle = color;
       c.fillRect(x, y, w, h);
     },
-    pin = (x, y) => {
-      px(x - 1, y - 1, 3, 3, p.dark);
-      px(x, y - 1, 1, 1, p.light);
-      px(x, y, 1, 1, p.edge);
-    },
-    seam = (x, y, w) => {
-      px(x, y, w, 1, p.dark);
-      px(x + 1, y + 1, Math.max(1, w - 3), 1, p.edge);
-    },
-    plinth = (w = 43) => {
-      px(-Math.floor(w / 2), 15, w, 3, p.dark);
-      px(-Math.floor(w / 2) + 2, 14, w - 4, 1, p.edge);
-      for (const x of [-Math.floor(w / 2) + 4, Math.floor(w / 2) - 7]) {
-        px(x, 17, 4, 3, p.dark);
-        px(x, 17, 2, 1, p.mid);
-      }
-    },
-    wood = (x, y, w, h) => {
-      for (let row = 3; row < h; row += 6) {
-        px(x + 2, y + row, Math.max(2, w - 6), 1, p.dark);
-        px(x + 4, y + row + 1, Math.max(2, w - 11), 1, p.edge);
-      }
-      px(x + Math.floor(w * 0.61), y + Math.floor(h * 0.4), 3, 1, p.mid);
+    foot = (w) => {
+      px(-Math.floor(w / 2), 15, w, 4, p.dark);
+      px(-Math.floor(w / 2) + 3, 14, w - 6, 2, p.mid);
     },
     pipe = (x, y, h) => {
       px(x - 4, y, 8, h, p.dark);
       px(x - 3, y, 5, h, p.mid);
-      px(x - 2, y + 1, 1, h - 2, p.light);
-      for (const yy of [y + 3, y + h - 6]) {
-        px(x - 5, yy, 10, 3, p.dark);
-        px(x - 4, yy, 8, 1, p.edge);
-        px(x - 3, yy + 1, 2, 1, p.light);
+      px(x - 3, y + 2, 2, h - 4, p.edge);
+      for (const yy of [y + 4, y + h - 7]) {
+        px(x - 5, yy, 10, 4, p.dark);
+        px(x - 4, yy, 8, 2, p.edge);
       }
-    },
-    bowl = (x, y, w, h) => {
-      px(x - 1, y, w + 2, 2, p.dark);
-      px(x, y + 1, w, 2, p.hot);
-      px(x + 2, y + 3, w - 4, h - 3, p.edge);
-      px(x + 3, y + 3, 2, Math.max(1, h - 5), p.light);
-      px(x + w - 5, y + 3, 2, Math.max(1, h - 5), p.mid);
-      px(x + 3, y + h - 1, w - 6, 2, p.dark);
-      px(x + 4, y + h - 1, w - 8, 1, p.light);
-    },
-    book = (x, y, w, h, colour) => {
-      px(x - 1, y - 1, w + 2, h + 2, p.dark);
-      px(x, y, w, h, colour || p.edge);
-      px(x + 1, y, 1, h, p.light);
-      px(x + 2, y + 2, Math.max(1, w - 3), 1, p.hot);
-      px(x + 2, y + h - 3, Math.max(1, w - 3), 1, p.mid);
-      if (h > 11) px(x + 2, y + 5, Math.max(1, w - 4), 2, p.dark);
     },
     bell = (x, y, w, h) => {
-      px(x - 2, y - 3, 4, 3, p.dark);
-      px(x - 3, y, 6, 2, p.light);
-      for (let row = 2; row < h; row++) {
+      px(x - 2, y - 3, 4, 4, p.dark);
+      for (let row = 0; row < h; row += 2) {
         const waist = Math.max(3, Math.round(w * 0.23)),
-          half =
-            row < 4
-              ? Math.min(waist, 2 + row)
-              : Math.round(waist + (w / 2 - waist) * Math.pow((row - 4) / (h - 5), 2.2));
-        px(x - half, y + row, half * 2, 1, p.edge);
-        px(x - half + 1, y + row, Math.max(1, Math.floor(half * 0.42)), 1, p.light);
-        px(x + half - 2, y + row, 2, 1, p.mid);
+          half = Math.round(waist + (w / 2 - waist) * Math.pow(row / h, 2));
+        px(x - half, y + row, half * 2, 2, p.edge);
+        px(x - half, y + row, Math.max(2, Math.floor(half * 0.45)), 2, p.light);
+        px(x + half - 3, y + row, 3, 2, p.mid);
       }
-      px(x - w / 2 - 1, y + h - 1, w + 2, 3, p.dark);
-      px(x - w / 2, y + h - 1, w, 1, p.hot);
-      px(x - w / 2 + 3, y + h, w - 6, 1, p.mid);
-      px(x - 1, y + h + 2, 2, 3, p.light);
-    },
-    leaf = (x, y, side, colour = '#80936a') => {
-      px(x, y, 2, 2, '#3b4c37');
-      px(x + side, y - 1, 3, 2, colour);
-      px(x + side * 2, y - 2, 3, 2, colour);
-      px(x + side * 3, y - 3, 2, 1, '#a2b181');
+      px(x - w / 2 - 1, y + h - 1, w + 2, 4, p.dark);
+      px(x - w / 2 + 1, y + h - 1, w - 2, 2, p.edge);
+      px(x - 1, y + h + 2, 3, 3, p.light);
     };
   if (key === 'reservoir') {
     if (kind === 0) {
-      for (const x of [-23, 19]) for (const y of [-17, 9]) pin(x, y);
-      px(-12, -4, 24, 4, p.dark);
-      px(-2, -14, 4, 25, p.dark);
-      c.strokeStyle = p.mid;
-      c.lineWidth = 5;
-      c.beginPath();
-      c.arc(0, -2, 12, 0, TAU);
-      c.stroke();
-      c.strokeStyle = p.light;
-      c.lineWidth = 2;
-      c.beginPath();
-      c.arc(-1, -3, 12, Math.PI, TAU);
-      c.stroke();
-      px(-2, -4, 5, 5, p.edge);
-      px(-1, -4, 2, 2, p.hot);
-      for (const [x, y] of [
-        [-12, -2],
-        [0, -14],
-        [11, -2],
-        [0, 9],
-      ])
-        pin(x, y);
-      seam(-18, 12, 17);
+      px(-22, -17, 5, 6, p.edge);
+      px(17, -17, 5, 6, p.mid);
+      foot(49);
     } else if (kind === 1) {
       pipe(-12, -39, 51);
       pipe(12, -34, 46);
-      px(-17, -24, 11, 8, '#466f68');
-      px(-15, -24, 2, 5, '#9bb09a');
-      px(8, -12, 9, 7, '#3e645c');
-      px(9, -11, 2, 4, '#84a392');
-      px(-7, -43, 3, 2, p.light);
-      px(1, -44, 4, 2, p.edge);
-      plinth(45);
+      px(-16, -23, 9, 7, '#466f68');
+      px(9, -12, 7, 6, '#3e645c');
+      foot(45);
     } else if (kind === 2) {
-      bowl(-17, -12, 34, 20);
-      px(-12, -9, 24, 2, '#233f47');
-      px(-8, -8, 13, 1, '#6a9a9e');
-      seam(-8, 3, 16);
-      for (const x of [-6, 4]) px(x, 9, 2, 2, p.mid);
-      px(-2, -25, 1, 8, '#7eaaaf');
-      px(-2, -16, 1, 2, '#b9dcd3');
+      px(-17, -12, 34, 4, p.dark);
+      px(-15, -11, 30, 3, p.edge);
+      px(-13, -8, 26, 2, '#294653');
+      px(-12, -5, 4, 10, p.edge);
+      px(9, -5, 3, 9, p.dark);
     } else if (kind === 3) {
-      for (let i = 0; i < 16; i++) {
-        const a = (i * TAU) / 16,
-          x = Math.round(Math.cos(a) * 16),
-          y = Math.round(-13 + Math.sin(a) * 16);
-        px(x - 1, y - 1, 2, 2, i % 4 ? p.edge : p.hot);
-      }
-      px(-9, -10, 18, 1, p.mid);
-      px(-2, -27, 4, 11, p.dark);
-      px(-1, -27, 1, 10, p.light);
-      px(-2, -15, 4, 4, p.hot);
-      px(-23, 6, 7, 6, p.mid);
-      for (let i = 0; i < 3; i++) px(-22 + i * 2, 7, 1, 4, p.dark);
-      plinth(51);
+      px(-21, 6, 9, 6, p.mid);
+      px(-20, 6, 7, 2, p.edge);
+      foot(51);
     } else {
       bell(0, -22, 31, 22);
-      for (const x of [-22, 20]) {
-        px(x, -38, 1, 40, p.light);
-        seam(x - 1, -27, 4);
-        seam(x - 1, -3, 4);
-      }
-      px(-11, -7, 21, 1, p.hot);
-      px(-6, -5, 12, 1, p.mid);
-      leaf(-19, 12, -1, '#6e9879');
     }
-    px(-23, 16, 13, 1, '#41645d');
-    px(10, 18, 11, 1, '#37554e');
   } else if (key === 'foundry') {
     if (kind === 0) {
-      px(-16, -17, 32, 5, p.dark);
       px(-20, -23, 40, 6, p.edge);
       px(-17, -24, 34, 2, p.light);
-      px(10, -22, 8, 2, '#e3a86d');
-      px(-13, -16, 25, 4, p.mid);
-      for (const x of [-17, 13]) pin(x, -21);
-      px(-22, 4, 12, 1, '#372327');
-      px(9, 9, 11, 1, '#372327');
-      px(-4, 16, 8, 5, '#1f171a');
-      px(-2, 16, 2, 4, p.edge);
+      px(-13, -17, 26, 5, p.mid);
+      px(-4, 16, 8, 5, p.dark);
     } else if (kind === 1 || kind === 4) {
-      const top = kind === 4 ? -31 : -11,
-        height = kind === 4 ? 39 : 20;
-      for (const x of [-23, 19]) {
-        for (let y = top; y < top + height; y += 10) {
-          px(x, y, 4, 8, p.mid);
-          px(x, y, 3, 1, p.light);
-          pin(x + 1, y + 5);
-        }
+      const top = kind === 4 ? -26 : -8,
+        height = kind === 4 ? 32 : 16;
+      for (const x of [-16, -2, 12]) {
+        px(x, top, 4, height, '#201618');
+        px(x, top, 2, height - 3, '#9b5c43');
       }
-      for (let x = -17; x <= 16; x += 6) {
-        px(x, top + 2, 2, height - 3, '#201618');
-        px(x, top + 2, 1, height - 6, '#9b5c43');
-        px(x, 2, 2, 4, '#e8a966');
-      }
-      px(-14, 10, 28, 3, p.dark);
-      for (let x = -10; x < 13; x += 7) px(x, 10, 4, 1, '#ad704b');
-      px(-24, 15, 48, 3, '#342022');
-      plinth(55);
+      foot(55);
     } else if (kind === 2) {
       for (let i = 0; i < 3; i++) {
-        const x = -15 + i * 15;
-        pipe(x + 3, -32, 28);
-        px(x - 3, -12, 13, 5, '#1c171c');
-        px(x - 2, -12, 11, 1, p.light);
-        pin(x, -10);
-        pin(x + 7, -10);
+        const x = -12 + i * 15;
+        pipe(x, -32, 28);
+        px(x - 6, -12, 12, 5, p.dark);
+        px(x - 5, -12, 10, 2, p.edge);
       }
-      for (const x of [-25, 22]) pin(x, -38);
-      px(-21, 11, 9, 1, '#e7aa64');
-      px(10, 12, 8, 1, '#c27241');
     } else {
       for (const x of [-15, 15]) {
         pipe(x, -25, 40);
         px(x - 7, -10, 14, 12, p.dark);
         px(x - 5, -8, 10, 8, p.edge);
         px(x - 2, -6, 4, 4, '#382b28');
-        px(x - 1, -6, 2, 1, p.hot);
-        for (const d of [-7, 6]) pin(x + d, -5);
       }
     }
   } else if (key === 'observatory') {
-    if (kind === 0) {
-      plinth(34);
-      px(-12, 6, 24, 2, p.dark);
-      for (let i = 0; i < 7; i++) px(-9 + i * 3, 7, 1, 3, p.light);
-      px(-6, 12, 12, 2, p.mid);
-      pin(-13, 9);
-      pin(12, 9);
-    } else if (kind === 1) {
-      px(-8, -43, 16, 14, p.dark);
-      px(-6, -41, 12, 10, p.edge);
+    if (kind === 0) foot(34);
+    else if (kind === 1) {
+      px(-7, -42, 14, 12, p.edge);
       px(-4, -40, 9, 8, '#9bc6d1');
-      px(-3, -39, 4, 5, '#e7fbff');
-      px(3, -39, 1, 6, '#7096b2');
-      px(-3, -34, 5, 1, '#638ca6');
-      for (const y of [-21, -2]) {
-        px(-5, y, 10, 3, p.dark);
-        px(-4, y, 8, 1, p.light);
-      }
-      plinth(28);
+      px(-3, -39, 3, 5, '#e7fbff');
+      foot(28);
     } else if (kind === 2) {
       for (const side of [-1, 1]) {
         c.save();
         c.translate(side * 15, -9 + side * 5);
         c.rotate(side * 0.28);
-        px(-6, -14, 12, 2, '#b9dbe3');
-        px(-6, -11, 2, 21, '#a6cedb');
-        px(4, -11, 2, 21, '#4f7c94');
-        px(-5, 11, 10, 1, p.hot);
-        px(-4, 12, 8, 1, p.dark);
-        for (const y of [-12, 10]) pin(7, y);
+        px(-6, -13, 3, 22, '#b9dbe3');
+        px(4, -12, 2, 22, '#4f7c94');
         c.restore();
       }
-      plinth(46);
-    } else if (kind === 3) {
-      for (const x of [-27, 25]) for (const y of [-23, 11]) pin(x, y);
-      for (let x = -18; x < 23; x += 4) {
-        px(x, -18, 1, x % 8 ? 2 : 3, p.mid);
-        px(x, 7, 1, 2, p.mid);
-      }
-      px(-18, -13, 5, 1, p.edge);
-      px(10, 3, 7, 1, p.edge);
-      plinth(49);
-    } else {
+      foot(46);
+    } else if (kind === 3) foot(49);
+    else {
       c.save();
       c.rotate(-0.35);
-      for (const x of [-15, -5, 8]) {
-        px(x, -11, 3, 21, p.dark);
-        px(x, -10, 1, 18, p.light);
-      }
-      px(11, -9, 8, 17, p.edge);
-      px(13, -6, 5, 11, '#c8e5e5');
-      px(15, -5, 2, 8, '#f3ffff');
-      px(-22, -8, 4, 13, p.mid);
+      px(-14, -11, 4, 21, p.mid);
+      px(5, -11, 4, 21, p.mid);
+      px(11, -8, 7, 15, p.edge);
       c.restore();
-      px(-7, 3, 14, 4, p.mid);
-      pin(0, 5);
-      plinth(36);
+      foot(36);
     }
   } else if (key === 'archive') {
     if (kind === 0) {
       for (let i = 0; i < 3; i++) {
         const x = -19 + i * 14;
         px(x, -9, 10, 17, '#352c26');
-        px(x + 1, -9, 8, 1, p.light);
-        px(x + 2, -6, 6, 4, p.dark);
-        px(x + 3, -5, 4, 2, p.hot);
-        px(x + 4, -1, 3, 2, p.mid);
-        px(x + 1, 3, 8, 1, p.edge);
-        px(x + 1, 6, 8, 1, p.edge);
+        px(x + 2, -6, 6, 3, p.light);
+        px(x + 1, 3, 8, 2, p.mid);
       }
-      wood(-25, -15, 50, 30);
     } else if (kind === 1) {
-      const tones = ['#a78a5b', '#82775b', '#a09070', '#6a6452', '#b8a080'];
+      const tones = ['#a78a5b', '#82775b', '#a09070'];
       for (let row = 0; row < 3; row++) {
         const y = -34 + row * 13;
-        for (let i = 0; i < 6; i++)
-          book(-22 + i * 7, y + (i % 3), 5, 9 - (i % 3), tones[(row + i) % tones.length]);
+        for (let i = 0; i < 6; i++) {
+          const x = -22 + i * 7,
+            h = 9 - (i % 3);
+          px(x, y + (i % 3), 5, h, tones[(row + i) % 3]);
+          if (i % 3 === 0) px(x, y + (i % 3), 2, h, p.edge);
+        }
         px(-24, y + 10, 48, 2, p.dark);
-        px(-23, y + 10, 45, 1, p.edge);
       }
-      wood(-25, 6, 50, 9);
-      for (const x of [-26, 25]) for (const y of [-34, 11]) pin(x, y);
     } else if (kind === 2) {
-      px(-21, -17, 11, 5, '#806348');
-      px(-20, -16, 9, 2, '#d8c6a0');
-      px(-21, -18, 12, 1, p.dark);
+      px(-20, -17, 11, 5, '#806348');
+      px(-19, -16, 9, 2, '#d8c6a0');
       px(-7, -20, 13, 7, '#d9ccaa');
-      px(-6, -18, 10, 1, '#847256');
-      px(-5, -16, 8, 1, '#a38c68');
+      px(-5, -18, 8, 2, '#847256');
       px(10, -19, 6, 6, '#2f2a24');
-      px(11, -20, 4, 2, p.edge);
-      px(16, -24, 1, 10, p.hot);
-      px(15, -25, 3, 5, '#c0ba95');
-      wood(-21, -5, 42, 10);
-      for (const x of [-22, 20]) {
-        px(x, 7, 2, 10, p.edge);
-        pin(x, 9);
-      }
     } else if (kind === 3) {
       for (let i = 0; i < 5; i++) {
         const x = -23 + i * 10,
           h = 31 - (i % 3) * 7;
         px(x, -28, 7, 3, p.dark);
-        px(x + 1, -28, 5, 1, p.hot);
         px(x + 1, -24, 5, h - 4, '#b6a17b');
-        px(x + 2, -23, 2, Math.max(1, h - 6), '#e1d1a9');
-        for (let row = 0; row < 3; row++) px(x + 3, -20 + row * 4, 2, 1, '#75664f');
+        px(x + 1, -24, 2, h - 4, '#d6c59e');
         px(x, -27 + h, 7, 2, p.mid);
       }
-      wood(-24, 6, 48, 8);
     } else {
       px(-19, -17, 17, 22, '#dacda6');
       px(2, -17, 17, 22, '#c4b48c');
-      px(-18, -16, 2, 19, '#f1e3bb');
-      px(1, -17, 1, 22, '#7d6e52');
-      for (let row = 0; row < 4; row++) {
-        px(-14, -13 + row * 4, 9 + (row % 2) * 3, 1, '#7d6b4e');
-        px(5, -13 + row * 4, 10 - (row % 3), 1, '#7d6b4e');
+      px(-1, -17, 3, 22, '#7d6e52');
+      for (const y of [-12, -5]) {
+        px(-14, y, 9, 2, '#8b795a');
+        px(5, y, 10, 2, '#8b795a');
       }
-      px(11, 0, 3, 6, '#9d4f43');
-      plinth(47);
+      foot(47);
     }
   } else if (key === 'court') {
     if (kind < 2) {
       px(-24, -11, 48, 4, '#5e3745');
-      px(-22, -10, 44, 1, '#ad7b89');
       for (let i = 0; i < 4; i++) {
         const x = -18 + i * 12;
         px(x - 1, -14, 9, 4, '#7f655d');
         px(x, -15, 7, 3, '#e2c6b0');
-        px(x + 1, -14, 5, 1, '#a88479');
-        px(x + 1, -13, 5, 1, '#f6ddc7');
-        px(x + 9, -17, 1, 6, '#c4a47d');
         if (i % 2 === 0) {
-          px(x + 1, -21, 4, 4, '#92705b');
-          px(x + 1, -22, 4, 1, '#e3caa4');
-          px(x + 2, -18, 2, 3, '#bca17a');
-          px(x + 1, -16, 4, 1, '#e3caa4');
+          px(x + 2, -21, 4, 4, '#bca17a');
+          px(x + 3, -17, 2, 3, '#92705b');
         }
       }
-      for (const x of [-22, 20]) {
-        px(x, 8, 3, 10, p.dark);
-        px(x, 8, 1, 7, p.edge);
-      }
-      px(-12, -4, 22, 8, p.mid);
-      px(-9, -4, 2, 6, p.edge);
-      px(7, -3, 1, 5, p.dark);
-      px(-8, 4, 17, 1, p.edge);
     } else if (kind === 2) {
       px(-15, -32, 30, 38, '#311e2a');
-      px(-5, -30, 9, 2, '#6e4959');
-      px(-8, -28, 14, 3, '#8b6370');
-      px(-9, -25, 16, 9, '#a67c86');
-      px(-6, -16, 12, 3, '#956c79');
-      px(-8, -26, 3, 6, '#c1989f');
-      px(5, -24, 3, 7, '#75525f');
-      px(-6, -25, 3, 1, '#593a4e');
-      px(2, -25, 3, 1, '#593a4e');
-      px(-1, -23, 2, 4, '#bd9499');
-      px(-4, -17, 6, 1, '#664453');
-      px(-3, -14, 6, 5, '#b28a8b');
-      px(-11, -9, 23, 12, '#704853');
-      px(-8, -9, 3, 9, '#a77982');
-      px(8, -7, 3, 10, '#4b2c40');
-      for (const x of [-20, 19]) for (const y of [-36, 12]) pin(x, y);
-      seam(-10, 11, 19);
+      px(-8, -28, 16, 12, '#a67c86');
+      px(4, -27, 4, 11, '#75525f');
+      px(-5, -24, 3, 2, '#593a4e');
+      px(2, -24, 3, 2, '#593a4e');
+      px(-3, -16, 6, 5, '#b28a8b');
+      px(-11, -11, 23, 14, '#704853');
+      px(-9, -10, 4, 12, '#956674');
     } else {
       for (const x of [-15, 15]) {
         px(x - 7, -18, 14, 25, kind === 3 && x > 0 ? '#4c3658' : '#623549');
-        px(x - 6, -17, 2, 22, '#a1697b');
-        px(x + 3, -17, 2, 23, '#3d263a');
-        for (let y = -14; y < 5; y += 5) px(x - 3, y, 4, 1, '#805368');
-        px(x - 2, -10, 5, 3, '#bc8b9c');
-        px(x, -10, 1, 3, '#ead0be');
-        pin(x - 8, 11);
-        pin(x + 7, 11);
+        px(x - 6, -17, 3, 22, '#a1697b');
+        px(x + 3, -17, 3, 23, '#3d263a');
+        px(x - 2, -10, 5, 4, '#bc8b9c');
       }
-      px(-1, -29, 2, 25, '#b58c87');
     }
   } else if (key === 'choir') {
     if (kind === 0) {
       for (let i = 0; i < 5; i++) {
-        const x = -24 + i * 12,
+        const x = -20 + i * 12,
           h = 28 + (i % 3) * 8;
-        pipe(x + 4, -h, h + 14);
-        px(x + 1, -h + 6, 6, 5, p.dark);
-        px(x + 2, -h + 6, 4, 1, p.hot);
-        px(x + 2, -h + 9, 4, 1, p.edge);
+        pipe(x, -h, h + 14);
+        px(x - 2, -h + 6, 4, 4, p.dark);
       }
-      px(-23, 12, 46, 2, p.mid);
-      for (let i = 0; i < 9; i++) px(-20 + i * 5, 12, 2, 2, p.light);
-    } else if (kind === 1 || kind === 4) {
-      if (kind === 1) bell(0, -24, 34, 24);
-      else for (let i = 0; i < 3; i++) bell(-14 + i * 14, -24 + i * 4, 16, 13);
-      for (const x of [-22, 21]) for (const y of [-35, -8, 12]) pin(x, y);
-      px(-18, -41, 36, 1, p.light);
+    } else if (kind === 1) bell(0, -24, 34, 24);
+    else if (kind === 4) {
+      for (let i = 0; i < 3; i++) bell(-14 + i * 14, -24 + i * 4, 16, 13);
     } else if (kind === 2) {
       for (let i = 0; i < 4; i++) {
         const x = -28 + i * 18,
           y = -10 - i * 9;
         px(x + 1, y, 13, 4, p.dark);
-        px(x + 2, y, 10, 1, p.hot);
-        px(x + 3, y + 1, 8, 2, p.edge);
-        px(x + 3, y + 2, 7, 1, p.mid);
-        pin(x + 4, y + 4);
+        px(x + 2, y, 10, 2, p.edge);
       }
-    } else {
-      for (const x of [-13, 13]) {
-        px(x - 2, -36, 4, 46, p.mid);
-        px(x - 1, -35, 1, 44, p.light);
-        for (const y of [-24, -8, 7]) px(x - 4, y, 8, 2, p.edge);
-        px(x - 3, -43, 6, 2, p.mid);
-        pin(x, -43);
-      }
-      plinth(43);
-    }
+    } else foot(43);
   } else if (key === 'citadel') {
     if (kind === 0) {
       for (let i = 0; i < 4; i++) {
@@ -857,54 +310,27 @@ function paintLateFurnishingDetails(c, key, kind) {
         c.translate(-23 + i * 15, -7);
         c.rotate(i % 2 ? 0.18 : -0.12);
         px(-3, -23, 5, 31, '#623b35');
-        px(-2, -22, 1, 28, '#b07050');
-        px(-4, -17, 8, 3, p.dark);
-        px(-4, -17, 7, 1, p.edge);
-        px(-4, 1, 8, 3, p.dark);
-        pin(-1, -16);
-        pin(1, 2);
+        px(-3, -21, 2, 27, '#996347');
+        px(-4, -17, 8, 4, p.dark);
         c.restore();
       }
     } else if (kind === 1) {
-      for (const x of [-23, 21]) for (const y of [-25, -6, 11]) pin(x, y);
-      for (let i = 0; i < 12; i++) {
-        const a = (i * TAU) / 12,
-          x = Math.round(Math.cos(a) * 12),
-          y = Math.round(-8 + Math.sin(a) * 12);
-        px(x - 1, y - 1, 3, 3, p.mid);
-        px(x, y - 1, 1, 1, p.light);
-      }
       px(-3, -11, 7, 7, p.dark);
       px(-1, -10, 3, 4, p.edge);
-      px(-1, -10, 2, 1, p.hot);
-      px(-18, 9, 36, 2, p.dark);
-      px(-16, 9, 8, 1, p.edge);
     } else if (kind === 2) {
       for (let i = 0; i < 3; i++) {
-        const x = -27 + i * 18,
-          y = -10 - (i % 2) * 10;
-        px(x + 3, y + 2, 11, 21, '#432829');
-        px(x + 3, y + 3, 2, 17, '#a75e47');
-        px(x + 5, y + 6, 7, 1, '#7b4738');
-        px(x + 5, y + 13, 7, 1, '#7b4738');
-        px(x + 7, y + 4, 3, 2, '#e4ad75');
-        pin(x + 13, y + 20);
+        const x = -24 + i * 18,
+          y = -8 - (i % 2) * 10;
+        px(x, y, 11, 21, '#432829');
+        px(x, y + 1, 3, 17, '#a75e47');
+        px(x + 4, y + 7, 6, 3, '#251a1e');
       }
     } else {
-      for (const x of [-25, 23]) for (const y of [-22, -7, 10]) pin(x, y);
       for (let i = 0; i < 3; i++) {
         const x = -17 + i * 16;
         px(x, -14, 7, 18, '#53302e');
-        px(x, -14, 2, 15, '#a66048');
-        px(x, -7, 7, 1, p.dark);
-        pin(x + 2, -11);
-        pin(x + 4, 2);
+        px(x, -14, 3, 15, '#a66048');
       }
-      px(-6, -24, 12, 9, p.dark);
-      px(-5, -24, 10, 1, p.light);
-      px(-3, -22, 6, 5, p.edge);
-      px(-1, -21, 2, 3, p.hot);
-      seam(-17, 11, 34);
     }
   } else {
     if (kind === 0) {
@@ -912,51 +338,28 @@ function paintLateFurnishingDetails(c, key, kind) {
         c.save();
         c.translate(-25 + i * 13, -8 + (i % 2) * 5);
         c.rotate((i - 2) * 0.12);
-        px(-4, -25, 8, 36, p.dark);
         px(-3, -24, 6, 33, p.mid);
-        px(-2, -23, 2, 29, p.edge);
-        px(-1, -21, 2, 11, p.hot);
-        px(1, -18, 1, 23, '#8a6749');
-        px(-3, 6, 6, 2, p.light);
+        px(-3, -22, 3, 28, p.edge);
+        px(-1, -21, 2, 11, p.light);
         c.restore();
       }
-    } else if (kind === 1) {
-      for (let i = 0; i < 5; i++) {
-        const x = -18 + i * 9;
-        for (let y = -31; y < 14; y += 9) {
-          px(x - 2, y, 5, 2, '#3e342b');
-          px(x - 2, y + 2, 2, 1, '#b18b58');
-        }
-      }
-      px(-7, -7, 4, 3, '#cda768');
-      px(7, 3, 5, 2, '#b38c58');
     } else if (kind === 2) {
-      for (let i = 0; i < 4; i++) {
-        const y = -27 + i * 11;
-        px(-22, y + 1, 32 + i * 4, 2, '#cba769');
-        px(-20, y + 4, 28 + i * 4, 1, '#604a39');
-        for (let j = 0; j < 3; j++) px(-18 + j * 10, y + 1, 1, 2, '#fff0ae');
-      }
-      for (const x of [-27, 25]) for (const y of [-31, 11]) pin(x, y);
+      for (let i = 0; i < 4; i++) px(-22, -26 + i * 11, 32 + i * 4, 2, '#b8955d');
     } else if (kind === 3) {
-      px(-9, -24, 18, 31, '#211e21');
-      px(-6, -20, 12, 24, '#6f5c41');
-      px(-4, -18, 8, 19, '#b7935e');
-      px(-2, -16, 3, 13, '#ffedb5');
-      px(2, -15, 1, 12, '#dcb674');
-      for (const x of [-22, 20]) for (const y of [-37, -9, 13]) pin(x, y);
-      seam(-13, 11, 25);
-    } else {
-      bowl(-23, -2, 46, 17);
-      px(-18, 0, 36, 3, '#655041');
-      for (let i = 0; i < 8; i++) px(-18 + i * 5, 7, 2, 4, '#7e644a');
-      pin(-26, -4);
-      pin(24, -4);
-      px(-20, -16, 2, 5, p.light);
-      px(17, -17, 2, 4, p.edge);
+      px(-8, -23, 16, 30, '#211e21');
+      px(-5, -19, 10, 23, '#6f5c41');
+      px(-3, -17, 6, 17, '#b7935e');
+      px(-1, -15, 2, 11, '#ffedb5');
+    } else if (kind === 4) {
+      px(-23, -2, 46, 4, p.dark);
+      px(-21, -2, 42, 2, p.edge);
+      px(-19, 2, 38, 10, p.mid);
+      px(-17, 3, 4, 7, p.edge);
+      px(14, 3, 3, 7, p.dark);
     }
   }
 }
+
 function lateChain(ctx, x, y, len, p) {
   ctx.strokeStyle = p.dark;
   ctx.lineWidth = 4;
@@ -1576,7 +979,7 @@ function lateRoomInlay(ctx, o, key, v) {
     for (const y of [top + 7, bottom - 9]) {
       rect(left + 4, y, o.w - 22, 7, '#07161d');
       rect(left + 5, y + 5, o.w - 24, 1, p.light + '80');
-      for (let x = left + 8; x < right - 8; x += 10) rect(x, y + 1, 2, 4, p.edge + '85');
+      for (let x = left + 8; x < right - 8; x += 20) rect(x, y + 1, 4, 4, p.edge + '70');
     }
     for (const x of [left + 4, right - 11]) {
       for (let y = top + 27; y < bottom - 22; y += 32) {
@@ -1585,22 +988,20 @@ function lateRoomInlay(ctx, o, key, v) {
         rect(x + 3, y + 5, 3, 4, '#1c34345c');
       }
     }
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 3; i++) {
       const x = -W + 23 + ((i * 71 + o.seed * 17) % Math.max(1, o.w - 46));
       const y = -H + 30 + ((i * 43 + o.seed * 11) % Math.max(1, o.h - 60));
-      rect(x, y, 17, 1, p.light + '32');
-      rect(x + 5, y + 3, 19, 1, p.light + '27');
+      rect(x, y, 17, 2, p.light + '28');
     }
   } else if (key === 'foundry') {
     for (let x = left + 13; x < right - 10; x += 52) {
       for (const y of [top + 8, bottom - 14]) {
         rect(x, y, 12, 6, '#101014');
-        rect(x + 1, y, 10, 1, '#b773444c');
-        for (let k = 0; k < 3; k++) rect(x + 2 + k * 3, y + 2, 1, 3, '#814b3466');
+        rect(x + 1, y, 10, 2, '#b7734438');
+        for (let k = 0; k < 2; k++) rect(x + 2 + k * 5, y + 2, 2, 3, '#814b344c');
       }
       for (const y of [top + 21, bottom - 26]) {
         rect(x + 2, y, 3, 3, '#0d0c10');
-        rect(x + 2, y, 2, 1, '#c1935766');
       }
     }
     for (const x of [left + 5, right - 15]) {
@@ -1610,107 +1011,95 @@ function lateRoomInlay(ctx, o, key, v) {
       }
     }
   } else if (key === 'observatory') {
-    for (let i = 0; i < 32; i++) {
-      const a = (i * TAU) / 32,
+    for (let i = 0; i < 12; i++) {
+      const a = (i * TAU) / 12,
         r = Math.min(W, H) * 0.78;
       const x = Math.round(Math.cos(a) * r),
         y = Math.round(Math.sin(a) * r * 0.72);
-      rect(x, y, i % 4 ? 2 : 4, i % 4 ? 2 : 3, p.edge + (i % 4 ? '58' : '96'));
+      rect(x, y, 3, 3, p.edge + (i % 3 ? '48' : '70'));
     }
     for (const s of [-1, 1]) {
-      for (let i = 0; i < 5; i++) {
-        const x = s * (W - 23 - i * 8),
-          y = top + 19 + i * 4;
-        rect(x, y, 5, 2, p.light + '48');
-        rect(x + 1, y + 2, 2, 3, p.edge + '50');
+      for (let i = 0; i < 3; i++) {
+        const x = s * (W - 23 - i * 12),
+          y = top + 19 + i * 6;
+        rect(x, y, 6, 2, p.light + '38');
       }
     }
     for (let x = left + 18; x < right - 10; x += 30) {
       rect(x, bottom - 8, 7, 3, p.mid + 'a0');
-      rect(x + 1, bottom - 8, 3, 1, p.hot + '70');
     }
   } else if (key === 'archive') {
     for (const y of [top + 7, bottom - 15]) {
       rect(left + 6, y, o.w - 26, 7, '#15130f70');
-      rect(left + 6, y, o.w - 26, 1, '#bba67855');
-      for (let x = left + 10; x < right - 13; x += 18) {
-        rect(x, y + 3, 11, 2, '#78644b66');
-        rect(x + 2, y + 2, 6, 1, '#c6b48655');
+      rect(left + 6, y, o.w - 26, 2, '#bba67838');
+      for (let x = left + 10; x < right - 13; x += 36) {
+        rect(x, y + 3, 11, 2, '#78644b55');
       }
     }
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 3; i++) {
       const x = left + 18 + ((i * 67 + o.seed * 7) % Math.max(1, o.w - 50));
       const y = i & 1 ? bottom - 30 - i * 3 : top + 24 + i * 3;
       rect(x, y + 2, 12, 7, '#09090965');
       rect(x - 1, y, 11, 7, '#b9aa7b80');
-      rect(x + 1, y + 2, 6, 1, '#584e3b99');
-      rect(x + 1, y + 4, 5, 1, '#584e3b99');
+      rect(x + 1, y + 2, 6, 2, '#584e3b88');
     }
   } else if (key === 'court') {
     const rx = Math.round(W * 0.28);
     for (const x of [-rx + 2, rx - 3]) {
-      rect(x, top + 2, 1, o.h - 18, '#d3ac7c77');
-      rect(x + (x < 0 ? 2 : -2), top + 2, 1, o.h - 18, '#281925aa');
-      for (let y = top + 14; y < bottom - 9; y += 18) {
+      rect(x, top + 2, 2, o.h - 18, '#d3ac7c48');
+      for (let y = top + 14; y < bottom - 9; y += 36) {
         rect(x + (x < 0 ? 4 : -6), y, 3, 3, '#bc8a7468');
-        rect(x + (x < 0 ? 5 : -5), y + 4, 1, 3, '#83546677');
       }
     }
     for (const y of [top + 12, bottom - 14]) {
       for (let x = left + 20; x < right - 15; x += 28) {
         rect(x, y, 10, 2, p.edge + '52');
-        rect(x + 2, y + 2, 6, 1, p.light + '38');
       }
     }
   } else if (key === 'choir') {
     for (let x = left + 17; x < right - 10; x += 48) {
       for (const y of [top + 11, bottom - 15]) {
         rect(x, y, 12, 4, '#3e466c88');
-        rect(x + 2, y, 8, 1, '#afbadc60');
-        for (let k = 0; k < 3; k++) rect(x + 2 + k * 3, y + 2, 1, 3, '#101626a0');
+        rect(x + 2, y, 8, 2, '#afbadc38');
+        for (let k = 0; k < 2; k++) rect(x + 2 + k * 5, y + 2, 2, 3, '#10162688');
       }
     }
     for (const x of [left + 8, right - 14]) {
       for (let y = top + 26; y < bottom - 20; y += 34) {
         rect(x, y, 6, 12, '#14172b90');
-        rect(x, y, 6, 1, p.light + '65');
-        rect(x + 2, y + 3, 2, 5, p.edge + '68');
+        rect(x, y, 6, 2, p.edge + '58');
       }
     }
   } else if (key === 'citadel') {
     for (let x = left + 15; x < right - 9; x += 34) {
       for (const y of [top + 9, bottom - 16]) {
         rect(x, y, 10, 7, '#0b0b0f');
-        rect(x + 1, y, 8, 1, '#91634b88');
-        rect(x + 3, y + 2, 4, 2, '#60403a');
-        rect(x + 3, y + 4, 3, 1, '#c7925965');
+        rect(x + 1, y, 8, 2, '#91634b60');
+        rect(x + 3, y + 3, 4, 2, '#60403a');
       }
     }
     for (const x of [left + 8, right - 12]) {
       rect(x, top + 20, 5, o.h - 56, '#0d0d1290');
-      for (let y = top + 25; y < bottom - 24; y += 14) {
+      for (let y = top + 25; y < bottom - 24; y += 28) {
         rect(x + 1, y, 3, 3, '#93634c77');
-        rect(x + 1, y + 1, 1, 1, '#e0b17977');
       }
     }
   } else {
-    for (let i = 0; i < 14; i++) {
-      const a = (i * TAU) / 14,
+    for (let i = 0; i < 8; i++) {
+      const a = (i * TAU) / 8,
         r = Math.min(W, H) * 0.77;
       ctx.save();
       ctx.translate(Math.cos(a) * r, Math.sin(a) * r * 0.8);
       ctx.rotate(a);
       rect(-6, -2, 12, 4, '#735d484d');
-      rect(-5, -2, 9, 1, '#e5c68c70');
-      rect(0, -1, 1, 3, '#18151c');
+      rect(-5, -2, 9, 2, '#e5c68c48');
       ctx.restore();
     }
     for (const s of [-1, 1]) {
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 2; i++) {
         const x = s * (W - 24 - i * 12),
           y = top + 20 + (i % 2) * 8;
         rect(x, y, 7, 4, '#68554e77');
-        rect(x + 1, y, 4, 1, '#d6bb8655');
       }
     }
   }
@@ -2223,50 +1612,15 @@ function drawLateTorches(ctx) {
       ctx.fillStyle = p.dark;
       ctx.fillRect(-18, 13, 36, 5);
     }
-    if (key === 'reservoir' || key === 'foundry' || key === 'archive' || key === 'citadel') {
-      ctx.fillStyle = p.light;
-      for (const x of [-13, 12]) for (const y of [-21, 11]) ctx.fillRect(x, y, 2, 1);
-      ctx.fillStyle = p.dark;
-      for (let i = 0; i < 4; i++) ctx.fillRect(-9 + i * 5, -26, 2, 2);
-      ctx.fillStyle = p.light + 'b0';
-      ctx.fillRect(-8, -17, 1, 7);
-      ctx.fillStyle = p.edge;
-      ctx.fillRect(-11, 15, 22, 1);
+    if (key === 'reservoir' || key === 'archive') {
+      ctx.fillStyle = p.light + '80';
+      ctx.fillRect(-8, -18, 2, 8);
     } else if (key === 'observatory') {
-      ctx.fillStyle = '#f1ffffaa';
-      ctx.fillRect(-6, -19, 1, 5);
-      ctx.fillRect(-5, -21, 1, 2);
-      ctx.fillStyle = p.dark;
-      ctx.fillRect(5, -9, 1, 5);
-      ctx.fillStyle = p.hot;
-      ctx.fillRect(-14, 13, 2, 1);
-      ctx.fillRect(12, 13, 2, 1);
-    } else if (key === 'court') {
-      ctx.fillStyle = p.hot;
-      ctx.fillRect(-16, 3, 32, 1);
-      for (const x of [-12, 0, 12]) {
-        ctx.fillStyle = '#eee0c7';
-        ctx.fillRect(x - 3, -4 - (Math.abs(x) * 5) / 12, 2, 2);
-        ctx.fillStyle = p.dark;
-        ctx.fillRect(x + 1, 5, 2, 3);
-      }
-    } else if (key === 'choir') {
-      ctx.fillStyle = p.hot;
-      ctx.fillRect(-11, -18, 22, 1);
-      ctx.fillStyle = p.mid;
-      ctx.fillRect(-10, -15, 20, 1);
-      ctx.fillStyle = p.light;
-      ctx.fillRect(-8, 5, 16, 1);
-      ctx.fillStyle = p.dark;
-      ctx.fillRect(6, -14, 2, 17);
-    } else {
-      ctx.fillStyle = p.hot;
-      for (let i = 0; i < 5; i++) {
-        const a = (i * TAU) / 5;
-        ctx.fillRect(Math.round(Math.cos(a) * 14), -9 + Math.round(Math.sin(a) * 14), 2, 2);
-      }
+      ctx.fillStyle = '#cde8ed88';
+      ctx.fillRect(-7, -19, 2, 6);
+    } else if (key === 'court' || key === 'choir') {
       ctx.fillStyle = p.edge;
-      ctx.fillRect(-14, 14, 28, 1);
+      ctx.fillRect(-10, 4, 20, 2);
     }
     ctx.restore();
   }

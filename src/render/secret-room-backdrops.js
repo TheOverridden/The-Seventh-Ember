@@ -1,5 +1,5 @@
 function secretRoomBackdropUrl(key) {
-  return 'assets/secret-rooms/' + key + '.png?v=2026101601';
+  return 'assets/secret-rooms/' + key + '.png?v=2026101602';
 }
 function refreshSecretRoomBackdrop() {
   const room = currentSecret(),

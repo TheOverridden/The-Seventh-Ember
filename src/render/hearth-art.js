@@ -462,10 +462,7 @@ function hearthBuildRoom() {
   px(34, 170, 164, 80, '#a38350');
   px(36, 174, 159, 73, '#4b3c2c');
   px(39, 177, 153, 67, '#775d3e');
-  for (let y = 180; y < 241; y += 7) {
-    px(42, y, 145, 1, '#896846');
-    px(50 + ((y * 11) % 60), y + 1, 42, 1, '#624b34');
-  }
+  for (const y of [193, 220]) px(42, y, 145, 2, '#624b34');
   px(35, 171, 162, 2, '#e0b77a');
   px(36, 247, 161, 3, '#cba36b');
   for (const x of [39, 190]) for (const y of [175, 242]) px(x, y, 2, 2, '#292b24');
@@ -523,9 +520,7 @@ function hearthBuildRoom() {
       px(x + 17, y + 12, 9, 2, '#d6c298');
       px(x + 19, y + 18, 5, 8, '#d6c298');
     }
-    for (let row = 0; row < 3; row++) {
-      px(x + 5, y + height - 10 + row * 3, w - 11 - (row % 2) * 6, 1, '#948466');
-    }
+    px(x + 5, y + height - 10, w - 11, 2, '#a08e6c');
   }
   px(71, 234, 12, 8, '#506d62');
   px(105, 239, 12, 7, '#b5844a');
@@ -870,15 +865,7 @@ function hearthBuildRoom() {
         color = ['#8d684a', '#6f8059', '#687979', '#b28f55'][i % 4];
       px(x, 116 - height, 10, height, '#292d24');
       px(x, 114 - height, 9, height, color);
-      px(x + 2, 115 - height, 1, height - 2, '#c9b181');
-      px(x + 2, 109, 5, 1, '#c9b181');
-      px(x + 2, 118 - height, 5, 1, '#c9b181');
-      px(x + 3, 121 - height, 4, 3, '#cfb78a');
-      px(x + 4, 122 - height, 2, 1, '#71603e');
-      if (i % 3 === 0) {
-        px(x + 2, 107, 5, 1, '#e4c88f');
-        px(x + 4, 101, 2, 2, '#d9c18b');
-      }
+      px(x + 1, 118 - height, 7, 2, '#bfa77a');
     }
   }
   px(447, 116, 156, 6, '#b99862');
@@ -933,16 +920,6 @@ function hearthBuildRoom() {
   }
   px(452, 247, 150, 6, '#4b3e2b');
   px(456, 249, 141, 1, '#b1905b');
-  for (const x of [455, 595]) {
-    for (const y of [147, 236]) {
-      px(x, y, 2, 2, '#ecd39a');
-      px(x + 1, y + 1, 1, 1, '#655036');
-    }
-  }
-  for (let i = 0; i < 9; i++) {
-    px(466 + i * 14, 244, 7, 1, '#a08051');
-    px(467 + i * 14, 245, 4, 1, '#54452f');
-  }
   px(460, 255, 10, 5, '#8b6d42');
   px(584, 255, 10, 5, '#8b6d42');
   const rug = h.layout.rug,
@@ -1000,15 +977,7 @@ function hearthBuildRoom() {
     ],
     innerColor
   );
-  for (let row = 0; row < 14; row++) {
-    const y = 286 + row * 2,
-      offset = row * 1.35;
-    px(231 - offset, y, 179 + offset * 2, 1, rugColor);
-  }
-  for (let i = 0; i < 24; i++) {
-    px(175 + i * 12, 333, 4, 3 + (i % 2), '#cfb48b');
-    px(214 + i * 9, 272, 3, 2, '#9c8156');
-  }
+  for (let i = 0; i < 12; i++) px(175 + i * 24, 333, 4, 4, '#cfb48b');
   for (let i = 0; i < 8; i++) {
     const x = 229 + i * 26,
       y = 299 + (i % 2) * 10;
@@ -1087,15 +1056,6 @@ function hearthBuildRoom() {
   px(69, 258, 39, 26, '#7e865c');
   px(70, 258, 36, 2, '#a0a479');
   px(69, 284, 38, 2, '#4f5b3b');
-  for (let i = 0; i < 7; i++) {
-    px(73 + i * 5, 262, 2, 1, '#b0ad7f');
-    px(73 + i * 5, 281, 2, 1, '#444f35');
-  }
-  for (const x of [73, 101]) {
-    for (let y = 265; y < 280; y += 4) px(x, y, 1, 2, '#a4a276');
-    px(x + 4, 270, 2, 2, '#4b5738');
-    px(x + 4, 269, 2, 1, '#b6b38a');
-  }
   px(55, 280, 10, 34, '#a17c4d');
   px(111, 280, 10, 34, '#a17c4d');
   px(55, 280, 10, 3, '#d3ad70');
@@ -1105,7 +1065,6 @@ function hearthBuildRoom() {
   px(64, 308, 47, 3, '#494b31');
   px(68, 297, 35, 1, '#859466');
   px(68, 304, 35, 1, '#515c3d');
-  for (let x = 70; x < 105; x += 6) px(x, 307, 2, 1, '#8f9b6e');
   px(58, 312, 9, 18, '#88623d');
   px(108, 312, 9, 18, '#88623d');
   px(58, 328, 10, 2, '#bb935f');
