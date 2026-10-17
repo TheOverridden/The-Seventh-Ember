@@ -1753,8 +1753,7 @@ const expansionDamageEnemy = damageEnemy;
 damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
   if (!e || e.dead) return;
   const s = expansionState(),
-    p = G.player,
-    u = G.run?.up || {};
+    p = G.player;
   let amount = dmg;
   if (s?.rhythmBuff > 0) amount *= 1 + 0.12 * blessingRank('emberRhythm');
   if (s?.chainStacks) amount *= 1 + s.chainStacks * 0.04 * blessingRank('chainRooms');
@@ -1802,9 +1801,9 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
     amount *= 1 + 0.22 * blessingRank('duelistEmber');
   if (kind === 'burn' && blessingRank('crucible'))
     s.crucible = Math.min(40, (s.crucible || 0) + amount / Math.max(1, p.dmg));
-  const wasDead = e.dead;
+  const hp = e.hp;
   expansionDamageEnemy(e, amount, ang, crit, kb, kind);
-  if (wasDead || !s) return;
+  if (!(e.hp < hp) || !s) return;
   if (kind === 'shot' && starstitchActive() && !e.dead) {
     s.stitchHits = (s.stitchHits || 0) + 1;
     const form = typeof activeForm === 'function' ? activeForm('primary').id : 'emberBolt',

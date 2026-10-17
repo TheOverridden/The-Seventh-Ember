@@ -388,9 +388,6 @@ body.ui-reborn #menuStats b {
     serif;
   text-shadow: none;
 }
-body.ui-reborn .menu-orbit {
-  display: none;
-}
 body.ui-reborn #changelog button:focus-visible {
   outline-color: #e0bd70;
 }

@@ -1017,8 +1017,7 @@ function drawSilentMemoryAction(ctx, rect, id, t, alpha) {
       q = clamp((t - start) / 2, 0, 1);
     if (t > start) {
       for (let i = 0; i < 12; i++) {
-        const h = idHash(id) + i * 31,
-          x = 0.24 + (i % 6) * 0.1,
+        const x = 0.24 + (i % 6) * 0.1,
           y = 0.27 + q * (0.43 + (i % 3) * 0.04);
         pixel(x, y, 3 + (i % 3), 4, '#d7f0f4');
       }

@@ -730,8 +730,9 @@ resumeRun = function () {
 };
 const specialSnapshotRun = snapshotRun;
 snapshotRun = function () {
+  const previous = save.resume;
   specialSnapshotRun();
-  if (save.resume && G.world?.specialEncounters) {
+  if (save.resume && save.resume !== previous && G.world?.specialEncounters) {
     save.resume.world.specialEncounters = deepCopy(G.world.specialEncounters);
     save.resume.world.specialEncounterVersion =
       G.world.specialEncounterVersion || ROOM_ENCOUNTER_VERSION;

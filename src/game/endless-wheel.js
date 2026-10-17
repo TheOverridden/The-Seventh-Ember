@@ -1119,7 +1119,6 @@ function endlessWheelOffer(floor) {
     return;
   }
   hide('pause');
-  hide('endlessOath');
   setState('paused');
   T('endlessWheel').dataset.phase = p.status || 'waiting';
   setTxt(

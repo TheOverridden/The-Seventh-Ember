@@ -10,92 +10,13 @@ const ENDLESS_MUTATIONS = [
   { key: 'storm', name: 'STAR STORM', desc: 'Hostile projectiles travel faster.' },
   { key: 'exposed', name: 'OPEN WOUND', desc: 'You and the dungeon both deal more damage.' },
 ];
-const ENDLESS_OATHS = [
-  { id: 'teeth', name: 'OATH OF TEETH', gift: '+20% damage', price: 'Enemy hits deal +18% damage' },
-  { id: 'ash', name: 'OATH OF ASH', gift: '+30% essence', price: 'Resting Flames heal 35% less' },
-  {
-    id: 'motion',
-    name: 'OATH OF MOTION',
-    gift: '+12% speed and faster Dash',
-    price: 'Enemies move and act 10% faster',
-  },
-  {
-    id: 'glassOath',
-    name: 'OATH OF GLASS',
-    gift: '+14% critical chance',
-    price: 'Lose 18% maximum health',
-  },
-  {
-    id: 'crowns',
-    name: 'OATH OF CROWNS',
-    gift: '+25% damage to guardians',
-    price: 'Guardians gain 25% maximum health',
-  },
-  {
-    id: 'stars',
-    name: 'OATH OF STARS',
-    gift: 'Better Epic and Mythic odds',
-    price: 'Enemy projectiles travel 20% faster',
-  },
-];
+
 const endlessMutation = (f) =>
   ENDLESS_MUTATIONS[Math.floor(Math.max(0, f - 51) / 5) % ENDLESS_MUTATIONS.length];
 const oathRank = (id) => Math.min(16, G.run?.endlessOaths?.[id] || 0);
-function endlessUI() {
-  if (T('endlessOath')) return;
-  const style = document.createElement('style');
-  style.textContent = `#endlessOath{z-index:145;background:radial-gradient(circle at 50% 30%,#24172dbb,#050711f2);padding:18px;overflow:auto}.endless-shell{width:min(900px,96vw);margin:auto;text-align:center;border:1px solid #bc8ee677;background:#0b101cee;padding:26px;box-shadow:0 0 90px #8b52c022;position:relative}.endless-shell:before{content:'';position:absolute;inset:7px;border:1px solid #d1adff22;pointer-events:none}.endless-kicker{font:10px system-ui;letter-spacing:.32em;color:#b998d2}.endless-shell h2{font:clamp(27px,5vw,45px) Georgia;color:#ead7ff;margin:12px}.endless-shell>p{color:#aeb6c9;font:13px/1.7 system-ui}.oath-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0 14px}.oath-card{min-height:210px;color:#ded9e9;border:1px solid #8869a9;background:linear-gradient(155deg,#171426,#0b101b);padding:20px 14px;cursor:pointer;transition:.18s transform,.18s border-color}.oath-card:hover,.oath-card:focus{transform:translateY(-4px);border-color:#e5c5ff;outline:none}.oath-card strong{display:block;font:18px Georgia;color:#f0dfff;margin:22px 0}.oath-card span,.oath-card small{display:block;font:12px/1.55 system-ui}.oath-card span{color:#a8e5c8}.oath-card small{color:#e39da8;margin-top:12px}.endless-mutation{color:#d0a9ed!important}#endlessRecord{color:#d8b8ee;border:1px solid #8c6ca166;padding:7px 13px;margin-top:8px;font:10px system-ui;letter-spacing:.1em}@media(max-width:700px){.oath-grid{grid-template-columns:1fr}.oath-card{min-height:130px}}`;
-  document.head.appendChild(style);
-  const panel = document.createElement('div');
-  panel.id = 'endlessOath';
-  panel.className = 'ov';
-  panel.innerHTML = `<div class="endless-shell"><div class="endless-kicker">ENDLESS DESCENT · BINDING CHOICE</div><h2>Choose an Oath</h2><p>The deeper path gives something and takes something. Oaths stack and last until this descent ends.</p><p class="endless-mutation" id="endlessMutation"></p><div class="oath-grid" id="oathGrid"></div></div>`;
-  document.body.appendChild(panel);
-}
-endlessUI();
-function endlessOathChoices(milestone) {
-  const start = Math.floor((milestone - 51) / 10) % ENDLESS_OATHS.length;
-  return [ENDLESS_OATHS[start], ENDLESS_OATHS[(start + 2) % 6], ENDLESS_OATHS[(start + 4) % 6]];
-}
-function offerEndlessOath(milestone) {
-  if (!G.run?.infinite || G.run.endlessOathChosen?.includes(milestone)) return;
-  G.run.endlessOathPending = milestone;
-  G.run.endlessOaths = G.run.endlessOaths || {};
-  G.run.endlessOathChosen = G.run.endlessOathChosen || [];
-  hide('pause');
-  setState('paused');
-  const m = endlessMutation(G.floor);
-  T('endlessMutation').textContent = G.floor + ' · ' + m.name + ' — ' + m.desc;
-  const grid = T('oathGrid');
-  grid.replaceChildren();
-  for (const oath of endlessOathChoices(milestone)) {
-    const b = document.createElement('button');
-    b.className = 'oath-card';
-    b.innerHTML = `<em>◆</em><strong>${oath.name}</strong><span>${oath.gift}</span><small>${oath.price}</small>`;
-    on(b, 'click', () => chooseEndlessOath(oath.id));
-    grid.appendChild(b);
-  }
-  show('endlessOath');
-  grid.firstChild?.focus({ preventScroll: true });
-  saveNow();
-}
-function chooseEndlessOath(id) {
-  const run = G.run,
-    oath = ENDLESS_OATHS.find((o) => o.id === id);
-  if (!run?.infinite || !oath || !run.endlessOathPending) return;
-  run.endlessOaths = run.endlessOaths || {};
-  run.endlessOaths[id] = (run.endlessOaths[id] || 0) + 1;
-  run.endlessOathChosen = run.endlessOathChosen || [];
-  run.endlessOathChosen.push(run.endlessOathPending);
-  run.endlessOathPending = 0;
-  hide('endlessOath');
-  recalc();
-  setState('playing');
-  G.player.hitCd = Math.max(G.player.hitCd, 1);
-  toast(oath.name, oath.gift.toLowerCase() + ' · ' + oath.price.toLowerCase());
-  sfx('mythic');
-  saveNow();
-}
+
+const LEGACY_ENDLESS_OATH_IDS = new Set(['teeth', 'ash', 'motion', 'glassOath', 'crowns', 'stars']);
+
 function remixEndlessFloor() {
   if (!G.run?.infinite || G.floor <= 50 || !G.world) return;
   const f = G.floor,

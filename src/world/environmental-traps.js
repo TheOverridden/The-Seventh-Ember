@@ -823,8 +823,9 @@ drawProps = function (ctx) {
 };
 const terrainSnapshotRun = snapshotRun;
 snapshotRun = function () {
+  const previous = save.resume;
   terrainSnapshotRun();
-  if (save.resume && G.world?.terrainTraps) {
+  if (save.resume && save.resume !== previous && G.world?.terrainTraps) {
     save.resume.world.terrainTraps = deepCopy(G.world.terrainTraps);
     save.resume.world.terrainTrapVersion = TERRAIN_TRAP_VERSION;
   }

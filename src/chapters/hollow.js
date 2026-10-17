@@ -612,14 +612,6 @@ function setupHollowFloor(f) {
   for (let ri = 1; ri < w.rooms.length; ri++) {
     const r = w.rooms[ri];
     if (bossFloorAt(f) && r === w.exit) continue;
-    const roster =
-      f >= 6
-        ? gardenRoster(f)
-        : f === 1
-          ? ['gateSentry', 'gateHound']
-          : f === 2
-            ? ['gateSentry', 'gateHound', 'gateLantern']
-            : ['gateSentry', 'gateHound', 'gateLantern', 'gateShield'];
     const n = encounterPlan[ri].count;
     for (let i = 0; i < n; i++) {
       let pos;

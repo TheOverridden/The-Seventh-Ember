@@ -271,11 +271,7 @@ for (const branch of MASTERY_BRANCHES) {
 TREE_NODES.splice(0, TREE_NODES.length, ...MASSIVE_TREE);
 for (const id of Object.keys(NODE_BY_ID)) delete NODE_BY_ID[id];
 for (const n of TREE_NODES) NODE_BY_ID[n.id] = n;
-BRANCH_ENDS.splice(
-  0,
-  BRANCH_ENDS.length,
-  ...MASTERY_BRANCHES.map((b) => ({ id: b.ids[11], t: b.name, dx: 0, dy: 0 }))
-);
+
 let MASTERY_TOTAL = TREE_NODES.reduce((sum, n) => sum + n.cost, 0);
 const masteryParents = (n) =>
   (n.reqs?.length ? n.reqs : n.req ? [n.req] : []).map((id) => NODE_BY_ID[id]).filter(Boolean);
@@ -509,7 +505,7 @@ selectNode = function (n) {
   refreshTreeEss();
 };
 
-drawTree = function (t) {
+function drawTree(t) {
   if (!treeCtx) {
     const cv = T('treeCv'),
       d = Math.min(devicePixelRatio || 1, 2);
@@ -705,7 +701,7 @@ drawTree = function (t) {
   }
   x.restore();
   x.imageSmoothingEnabled = true;
-};
+}
 
 function drawPixelFloorDetails(ctx) {
   const w = G.world;

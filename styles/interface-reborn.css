@@ -332,71 +332,6 @@ body.ui-reborn #menuStats b {
   font-size: 17px;
   color: #ead4aa;
 }
-body.ui-reborn .menu-orbit {
-  position: fixed;
-  z-index: 1;
-  right: clamp(5vw, 10vw, 13vw);
-  top: 50%;
-  width: min(40vw, 540px);
-  aspect-ratio: 1;
-  transform: translateY(-50%);
-  border: 1px solid #dab96822;
-  border-radius: 50%;
-  pointer-events: none;
-  box-shadow:
-    0 0 0 21px #8fcbd00a,
-    0 0 0 22px #8fcbd01f,
-    0 0 110px #88c7cf0d;
-}
-body.ui-reborn .menu-orbit::before,
-body.ui-reborn .menu-orbit::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  inset: 12%;
-  border: 1px dashed #d8b76a30;
-  animation: tseOrbit 80s linear infinite;
-}
-body.ui-reborn .menu-orbit::after {
-  inset: 29%;
-  border-style: solid;
-  border-color: #8ed0d332;
-  animation-direction: reverse;
-  animation-duration: 42s;
-}
-body.ui-reborn .menu-orbit i {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 7px;
-  height: 7px;
-  background: var(--ember);
-  box-shadow: 0 0 16px var(--ember);
-  transform-origin: 0 0;
-}
-body.ui-reborn .menu-orbit i:nth-child(1) {
-  transform: rotate(35deg) translateX(50%);
-}
-body.ui-reborn .menu-orbit i:nth-child(2) {
-  transform: rotate(164deg) translateX(50%);
-}
-body.ui-reborn .menu-orbit i:nth-child(3) {
-  transform: rotate(278deg) translateX(50%);
-}
-body.ui-reborn .menu-orbit b {
-  position: absolute;
-  inset: 45%;
-  transform: rotate(45deg);
-  border: 1px solid #f0d28a4f;
-  background: #07101a66;
-  box-shadow: 0 0 45px #f0c86f1f;
-}
-@keyframes tseOrbit {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 body.ui-reborn .plate {
   border: 1px solid #b9cad132;
   border-radius: 0 11px 0 11px;
@@ -714,10 +649,6 @@ body.ui-reborn .volume-control b {
     padding-left: 48px;
     padding-right: 48px;
   }
-  body.ui-reborn .menu-orbit {
-    right: 2vw;
-    width: 44vw;
-  }
   body.ui-reborn #topC {
     width: calc(100vw - 480px);
   }
@@ -805,13 +736,6 @@ body.ui-reborn .volume-control b {
   }
   body.ui-reborn .menu-btns .btn {
     min-height: 49px;
-  }
-  body.ui-reborn .menu-orbit {
-    top: 128px;
-    right: 50%;
-    width: 260px;
-    transform: translate(50%, -50%);
-    opacity: 0.22;
   }
   body.ui-reborn #menuStats {
     gap: 2px;
@@ -976,12 +900,6 @@ body.ui-reborn .volume-control b {
   body.ui-reborn h1.title {
     font-size: 48px;
     margin-bottom: 18px;
-  }
-  body.ui-reborn .menu-orbit {
-    right: 2vw;
-    top: 50%;
-    width: 35vw;
-    opacity: 0.55;
   }
   body.ui-reborn #topL {
     width: 175px;

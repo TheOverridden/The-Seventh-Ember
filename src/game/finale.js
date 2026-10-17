@@ -596,8 +596,7 @@ function encounterAttack(b) {
 function authoredBossAI(b, dt, d, dx, dy) {
   if (!b.introduced) return;
   const s = b.bs,
-    p = G.player,
-    a = arenaBounds();
+    p = G.player;
   s.events = s.events || [];
   s.history = s.history || [];
   s.sample = (s.sample || 0) - dt;
@@ -1907,14 +1906,16 @@ floorName = function (f) {
 };
 const depthSnapshot = snapshotRun;
 snapshotRun = function () {
-  const state = G.state;
+  const state = G.state,
+    previous = save.resume;
   if (state === 'ending') G.state = 'paused';
   try {
     depthSnapshot();
   } finally {
     G.state = state;
   }
-  if (save.resume && G.run && state === 'ending') save.resume.ending = true;
+  if (save.resume && save.resume !== previous && G.run && state === 'ending')
+    save.resume.ending = true;
 };
 const depthValidate = validateSave;
 validateSave = function (raw) {

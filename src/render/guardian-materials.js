@@ -258,7 +258,7 @@
     oldRegent(c, b, frame);
     const blade = b.twinRole === 'blade',
       p = (blade ? REGENT_BLADE_FRAMES : REGENT_BELL_FRAMES)[frame],
-      [hipX, hipY, headX, headY, turn, arm, backArm, leftFoot, rightFoot, hemA, hemB] = p,
+      [hipX, hipY, headX, headY, turn, arm, , , , hemA, hemB] = p,
       duet = b.bs?.duet,
       facing =
         duet?.kind === 'handover'

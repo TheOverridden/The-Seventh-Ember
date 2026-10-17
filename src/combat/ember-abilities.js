@@ -495,15 +495,6 @@ killBoss = function (b) {
   beforeCombat.killBoss(b);
   if (b.warden) {
     unlockArmory('bladeEcho');
-    let xp = 0;
-    G.picks = G.picks.filter((o) => {
-      if (d2(o.x, o.y, b.x, b.y) > 130 ** 2) return true;
-      if (o.kind === 'xp') xp += o.val;
-      else if (o.kind === 'ess') addEss(o.val);
-      else if (o.kind === 'heart') G.player.hp = Math.min(G.player.maxHp, G.player.hp + o.val);
-      return false;
-    });
-    if (xp) gainXP(xp);
     updateHUD(0);
     saveNow();
   }

@@ -645,8 +645,7 @@ function beginEnemyDash(e, a, speed, time, trail = false, bounces = 0) {
 }
 function executeLateSpecial(e) {
   const p = G.player,
-    a = e.specialA,
-    d = e.specialDistance || 1;
+    a = e.specialA;
   e.specialPulse = 0.45;
   if (e.type === 'rippleLeech') beginEnemyDash(e, a, 455, 0.38);
   else if (e.type === 'pumpCrawler') {

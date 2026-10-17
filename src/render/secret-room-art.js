@@ -1,5 +1,4 @@
 const secretArtRooms = new Map();
-const SECRET_ROOM_ART_REVIEW = 5;
 function secretArtPixel(c, x, y, w, h, color) {
   c.fillStyle = color;
   c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
@@ -1024,8 +1023,7 @@ function detailInteriorScroll(c, x, y, w, h, sealed = false) {
       px(x + 8, y + 5 + line * 7, w - 18 - (line % 2) * 5, 2, '#ad966a');
 }
 function detailInteriorCushion(c, x, y, w, h, green = false) {
-  const px = (a, b, d, e, f) => secretArtPixel(c, a, b, d, e, f),
-    pale = green ? '#a2b495' : '#c89976',
+  const pale = green ? '#a2b495' : '#c89976',
     mid = green ? '#678473' : '#996a58',
     low = green ? '#425e53' : '#654736';
   secretArtOval(c, x + w / 2 + 2, y + h, w / 2 + 3, 5, '#283027');

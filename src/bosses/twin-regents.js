@@ -506,7 +506,6 @@ drawLateBossBody = function (ctx, b) {
   regentDanceBody(ctx, b);
   if (b.bossKey !== 'regents') return;
   const c = b.bs?.duet,
-    t = save.motion ? 0 : G.tAll,
     beat = c ? Math.max(0, 1 - ((c.clock * 2.4) % 1)) : 0;
   ctx.save();
   ctx.translate(b.x, b.y);

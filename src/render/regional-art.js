@@ -1274,9 +1274,9 @@ function drawLateRoomBase(ctx, o, key, v) {
   lateProp(ctx, key, v, 0, Math.min(9, H * 0.12), 1, o.seed * 19 + v);
   ctx.restore();
 }
-drawLateDecor = function (ctx, o) {
+function drawLateDecor(ctx, o) {
   drawLateRoomBase(ctx, o, o.type, lateVariant());
-};
+}
 
 function drawLateTileCharacter(ctx) {
   const w = G.world,

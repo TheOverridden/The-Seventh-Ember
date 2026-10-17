@@ -145,7 +145,6 @@ validateSave = function (raw) {
 };
 const beforeLateResume = resumeRun;
 resumeRun = function () {
-  const pending = save.resume ? deepCopy(save.resume) : null;
   beforeLateResume();
   if (!G.run) return;
   if (G.floor >= 11 && G.floor <= 50 && G.world.region !== 'late') {

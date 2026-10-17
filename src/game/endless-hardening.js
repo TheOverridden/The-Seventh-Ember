@@ -370,8 +370,9 @@ updateHUD = function (dt) {
 };
 const ascensionSnapshot = snapshotRun;
 snapshotRun = function () {
+  const previous = save.resume;
   ascensionSnapshot();
-  if (save.resume && G.run?.infinite && G.world) {
+  if (save.resume && save.resume !== previous && G.run?.infinite && G.world) {
     save.resume.world.endlessDifficultyVersion = ENDLESS_DIFFICULTY_VERSION;
     save.resume.world.endlessThreat = G.world.endlessThreat || endlessDifficulty().threat;
     save.resume.world.endlessPressure = deepCopy(G.world.endlessPressure || { t: 5.5, step: 0 });
@@ -390,8 +391,7 @@ validateCheckpoint = function (r) {
   if (o !== undefined && (typeof o !== 'object' || Array.isArray(o))) fail();
   if (o)
     for (const [id, n] of Object.entries(o))
-      if (!ENDLESS_OATHS.some((q) => q.id === id) || !Number.isInteger(n) || n < 0 || n > 100000)
-        fail();
+      if (!LEGACY_ENDLESS_OATH_IDS.has(id) || !Number.isInteger(n) || n < 0 || n > 100000) fail();
   if (
     c !== undefined &&
     (!Array.isArray(c) ||
@@ -445,17 +445,4 @@ resumeRun = function () {
       : { t: 5.5, step: 0 };
   updateHUD(0);
   saveNow();
-};
-
-const ascensionBlocking = anyBlockingOverlay;
-anyBlockingOverlay = function () {
-  return !!T('endlessOath')?.classList.contains('open') || ascensionBlocking();
-};
-const ascensionEsc = onEscKey;
-onEscKey = function () {
-  if (T('endlessOath')?.classList.contains('open')) {
-    T('oathGrid')?.firstChild?.focus({ preventScroll: true });
-    return;
-  }
-  return ascensionEsc();
 };

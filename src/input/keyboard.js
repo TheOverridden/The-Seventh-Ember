@@ -184,7 +184,16 @@ addEventListener(
       return;
     }
     if (!event.repeat && !wasHeld && !keyboard.blocked.has(event.code)) keyboard.pressed.add(event);
-    else keyboard.rejected.add(event);
+    else {
+      keyboard.rejected.add(event);
+      if (
+        typeof G !== 'undefined' &&
+        G.state === 'playing' &&
+        !anyBlockingOverlay() &&
+        Object.values(keyboardPreferences().bindings).some((pair) => pair.includes(event.code))
+      )
+        event.preventDefault();
+    }
   },
   true
 );

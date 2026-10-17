@@ -1382,14 +1382,15 @@ syncWeaponHUD = function () {
 };
 const secretSnapshotBase = snapshotRun;
 snapshotRun = function () {
-  const state = G.state;
+  const state = G.state,
+    previous = save.resume;
   if (state === 'secret') G.state = 'paused';
   try {
     secretSnapshotBase();
   } finally {
     G.state = state;
   }
-  if (save.resume && G.world) {
+  if (save.resume && save.resume !== previous && G.world) {
     save.resume.world.secretRoom = deepCopy(G.world.secretRoom ?? null);
   }
 };

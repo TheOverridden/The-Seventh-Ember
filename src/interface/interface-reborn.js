@@ -1,5 +1,5 @@
 'use strict';
-const TSE_UI = { version: 3, lastRegion: '', resizeTimer: 0 };
+const TSE_UI = { lastRegion: '', resizeTimer: 0 };
 
 function tseUiRange(id, label, detail, value) {
   const row = document.createElement('label');
@@ -73,13 +73,6 @@ function tseUiViewport() {
 }
 function tseUiDecorate() {
   document.body.classList.add('ui-reborn');
-  if (!document.querySelector('.menu-orbit')) {
-    const orbit = document.createElement('div');
-    orbit.className = 'menu-orbit';
-    orbit.setAttribute('aria-hidden', 'true');
-    orbit.innerHTML = '<i></i><i></i><i></i><b></b>';
-    T('menu')?.append(orbit);
-  }
   for (const overlay of document.querySelectorAll('.ov')) overlay.classList.add('tse-surface');
 }
 

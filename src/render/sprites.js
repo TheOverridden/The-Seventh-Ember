@@ -85,7 +85,9 @@ function drawSpr(name, x, y, scale, rot, alpha, tOff) {
   if (!s) return;
   scale = scale || 1;
   alpha = alpha === undefined ? 1 : alpha;
-  const ctx = G.ctx;
+  const ctx = G.ctx,
+    previousAlpha = ctx.globalAlpha,
+    previousSmoothing = ctx.imageSmoothingEnabled;
   const fr = s.frames.length > 1 ? Math.floor((G.tAll + (tOff || 0)) * s.fps) % s.frames.length : 0;
   const img = s.frames[fr];
   const dw = s.W * s.sc * scale,
@@ -99,8 +101,8 @@ function drawSpr(name, x, y, scale, rot, alpha, tOff) {
     ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
     ctx.restore();
   } else ctx.drawImage(img, x - dw / 2, y - dh / 2, dw, dh);
-  ctx.globalAlpha = 1;
-  ctx.imageSmoothingEnabled = true;
+  ctx.globalAlpha = previousAlpha;
+  ctx.imageSmoothingEnabled = previousSmoothing;
 }
 const ICON_PX = {
   sw: [
@@ -231,16 +233,6 @@ function iconImg(name, col) {
   ICON_CACHE[k] = c;
   return c;
 }
-const NODE_ICON = {
-  m: 'sw',
-  v: 'hp',
-  f: 'fr',
-  s: 'bt',
-  c: 'ey',
-  g: 'mg',
-  d: 'ft',
-  a: 'gm',
-};
 const TP = 18;
 const TILE_PAL = [
   {

@@ -466,8 +466,7 @@ drawBullets = function (ctx) {
   ctx.restore();
 };
 function comboDrawField(ctx, f) {
-  const p = G.player,
-    age = f.age,
+  const age = f.age,
     u = clamp(age / f.max, 0, 1),
     fieldAlpha = combatVisualAlpha('friendly'),
     glowAlpha = combatVisualAlpha('glow'),

@@ -716,7 +716,7 @@ drawTorches = function (ctx) {
   }
 };
 
-drawGardenDecor = function (ctx, o, t) {
+function drawGardenDecor(ctx, o, t) {
   ctx.imageSmoothingEnabled = false;
   if (o.type === 'moss') {
     for (let i = 0; i < 10; i++) {
@@ -809,7 +809,7 @@ drawGardenDecor = function (ctx, o, t) {
     ctx.fillRect(-27, -4, 8, 5);
     ctx.fillRect(19, -16, 8, 5);
   }
-};
+}
 
 const beforeEnvironmentHollowFloor = drawHollowFloor;
 drawHollowFloor = function (ctx) {

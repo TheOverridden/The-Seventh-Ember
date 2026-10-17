@@ -432,7 +432,7 @@ function controllerRefreshPrompts() {
             '  Delete · ' +
             controllerButtonName(1) +
             '  Cancel · D-pad / stick  Navigate'
-          : ['levelup', 'endlessWheel', 'endlessOath', 'wickGift'].includes(scope.id) ||
+          : ['levelup', 'endlessWheel', 'wickGift'].includes(scope.id) ||
               (scope.id === 'finale' && T('endingResults')?.hidden)
             ? controllerButtonName(0) + '  Choose · D-pad / stick  Navigate · Right stick  Scroll'
             : scope.id === 'guardianSanctuary'

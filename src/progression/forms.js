@@ -1355,8 +1355,7 @@ drawBullets = function (ctx) {
   ctx.globalCompositeOperation = 'lighter';
   for (const b of G.bullets) {
     if (!b.emberForm || b.melee) continue;
-    const a = Math.atan2(b.vy, b.vx),
-      speed = Math.max(1, Math.hypot(b.vx, b.vy));
+    const a = Math.atan2(b.vy, b.vx);
     ctx.save();
     ctx.translate(b.x, b.y);
     ctx.rotate(a);

@@ -727,7 +727,6 @@ function updateEnemies(dt) {
   }
 }
 function bossAI(b, dt, d, dx, dy) {
-  const p = G.player;
   if (!G.bossActive) {
     G.bossActive = true;
     T('bossname').textContent = b.name;

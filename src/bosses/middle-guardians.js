@@ -716,8 +716,7 @@ function fireMidEvent(b, e) {
     });
 }
 function startBellMove(b, kind) {
-  const m = b.bs.mid,
-    p = G.player,
+  const p = G.player,
     target = midArenaPoint(p.x + (p.vigilVX || 0) * 0.3, p.y + (p.vigilVY || 0) * 0.3, 58);
   if (kind === 'toll')
     beginMidMove(
@@ -1426,7 +1425,6 @@ updateHUD = function (dt) {
   const b = G.boss;
   if (!b?.introduced || !MID_GUARDIAN_KEYS.has(b.bossKey)) return;
   const s = b.bs,
-    m = s.mid || { phase: 0 },
     n = midGuardianPieces(b).length;
   if (s.mode === 'shift') {
     setTxt(

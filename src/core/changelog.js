@@ -2,6 +2,19 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101701,
+    date: 'OCTOBER 17, 2026',
+    title: 'CLEANUP AND REPAIRS',
+    intro: 'Safer campaign checkpoints and repairs to guardian hits and held controls.',
+    changes: [
+      'Saving during Guardian Practice, Boss Rush, or Hearth Trials no longer replaces secret-room or trap data in a suspended campaign.',
+      'Hits blocked by a guardian’s protection no longer create Starstitch pins or trigger thread damage on nearby enemies. Normal hits keep their blessing effects.',
+      'Holding movement or dash keys no longer lets browser scrolling or default button actions through during combat.',
+      'Removed superseded room and Skill Tree renderers, unused echo artifact drawings, the retired Endless Oath card menu, duplicate reward handling, and hidden title-screen decoration. Existing Endless bonuses and older save compatibility are preserved.',
+      'Sprite drawing now restores the surrounding canvas settings after each sprite. Current artwork, music, saves, and permanent progress carry over.',
+    ],
+  },
+  {
     version: 2026101602,
     date: 'OCTOBER 16, 2026',
     title: 'A SIMPLER PIXEL STYLE',
