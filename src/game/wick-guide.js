@@ -7,6 +7,7 @@ const wickGuide = {
   menuLocks: new Map(),
   layout: '',
   portraitAt: 0,
+  replayStep: null,
 };
 const wickGuidePanel = document.createElement('div');
 wickGuidePanel.id = 'wickGuide';
@@ -33,6 +34,19 @@ wickStartHint.innerHTML =
   '<canvas id="wickStartPortrait" width="48" height="48" aria-hidden="true"></canvas>' +
   '<p><b>WICK</b>Come on. Let’s get you moving.</p>';
 T('btnStart').after(wickStartHint);
+const wickTourButton = document.createElement('button');
+wickTourButton.id = 'btnWickTour';
+wickTourButton.type = 'button';
+wickTourButton.className = 'btn';
+wickTourButton.hidden = true;
+wickTourButton.textContent = 'WICK’S HOMEPAGE TOUR';
+T('btnHowClose').before(wickTourButton);
+on(T('btnHow'), 'click', () => {
+  wickTourButton.hidden = G.state !== 'menu' || !wickGuideData().complete;
+});
+on(wickTourButton, 'click', () => {
+  if (G.state === 'menu' && !wickGuideStartOnly()) wickGuideLaunch(true);
+});
 
 function wickGuideStartOnly() {
   if (G.state !== 'menu') return false;
@@ -81,13 +95,27 @@ function wickGuideNavigate(fn) {
     wickGuide.internal--;
   }
 }
+function wickGuideStep() {
+  return wickGuide.replayStep ?? wickGuideData().step;
+}
+function wickGuideSetStep(step) {
+  if (wickGuide.replayStep !== null) wickGuide.replayStep = step;
+  else wickGuideUpdate({ step }, 'wick-tour-step');
+}
+function wickGuideHomepageAction() {
+  if (wickGuide.mode !== 'tour') return null;
+  const id = { 0: 'btnTree', 4: 'btnGuardianArchive', 6: 'btnHearth' }[wickGuideStep()];
+  return id ? T(id) : null;
+}
 function wickGuideTargets() {
   if (!wickGuide.mode) return [];
   const next = T('wickGuideNext'),
-    step = wickGuideData().step;
+    step = wickGuideStep(),
+    entry = wickGuideHomepageAction();
   if (wickGuide.mode === 'rush') return [next, T('btnBossRush')];
-  if (step === 1) return [...T('treeNodes').querySelectorAll('[data-node]')];
-  if (step === 2) return [next, T('btnUnlock')].filter((el) => !el.disabled);
+  if (entry) return [entry, next];
+  if (step === 2) return [...T('treeNodes').querySelectorAll('[data-node]')];
+  if (step === 3) return [next, T('btnUnlock')].filter((el) => !el.disabled);
   return [next];
 }
 function wickGuideLock() {
@@ -121,20 +149,30 @@ function wickGuideDrawPortrait(canvas, time) {
   );
 }
 function wickGuidePosition() {
-  if (!wickGuide.mode || !wickGuide.target?.isConnected) return;
-  const raw = wickGuide.target.getBoundingClientRect(),
+  if (!wickGuide.mode) return;
+  const raw = wickGuide.target?.isConnected ? wickGuide.target.getBoundingClientRect() : null,
     width = innerWidth,
     height = innerHeight,
-    left = clamp(raw.left - 8, 4, width - 4),
-    top = clamp(raw.top - 8, 4, height - 4),
-    right = clamp(raw.right + 8, left, width - 4),
-    bottom = clamp(raw.bottom + 8, top, height - 4),
+    visible =
+      !!raw &&
+      raw.width > 0 &&
+      raw.height > 0 &&
+      raw.right > 0 &&
+      raw.bottom > 0 &&
+      raw.left < width &&
+      raw.top < height,
+    left = visible ? clamp(raw.left - 8, 4, width - 4) : 0,
+    top = visible ? clamp(raw.top - 8, 4, height - 4) : 0,
+    right = visible ? clamp(raw.right + 8, left, width - 4) : 0,
+    bottom = visible ? clamp(raw.bottom + 8, top, height - 4) : 0,
     card = T('wickGuideCard'),
     cw = card.offsetWidth,
     ch = card.offsetHeight,
     signature = [left, top, right, bottom, width, height, cw, ch].join(',');
   if (signature === wickGuide.layout) return;
   wickGuide.layout = signature;
+  T('wickGuideShade').classList.toggle('wick-guide-fullshade', !visible);
+  T('wickGuideSpotlight').hidden = !visible;
   const rects = [
     [0, 0, width, top],
     [0, bottom, width, height - bottom],
@@ -183,18 +221,19 @@ function wickGuideDetail() {
 }
 function wickGuideRender() {
   wickGuideRestore(wickGuide.locks);
-  const data = wickGuideData();
+  wickGuideRestoreMenu();
+  const step = wickGuideStep();
   wickGuideNavigate(() => {
     hearthClose();
     closeTree();
-    for (const id of ['dead', 'guardianArchive', 'bossRushPanel', 'menu']) hide(id);
+    for (const id of ['dead', 'howto', 'guardianArchive', 'bossRushPanel', 'menu']) hide(id);
     if (wickGuide.mode === 'tour') {
-      if (data.step <= 2) openTree('menu');
-      else if (data.step === 3) openGuardianArchive();
-      else {
+      if (step >= 1 && step <= 3) openTree('menu');
+      else if (step === 5) openGuardianArchive();
+      else if (step === 7 || step === 8) {
         show('menu');
-        hearthOpen(data.step === 4 ? 'room' : 'trials');
-      }
+        hearthOpen(step === 7 ? 'room' : 'trials');
+      } else show('menu');
     } else show('menu');
   });
   let title, text, button;
@@ -207,8 +246,14 @@ function wickGuideRender() {
   } else {
     const steps = [
       [
+        'Start with the Skill Tree',
+        'Before you go down again, let me show you around. This button opens the Skill Tree. You spend Essence there, and the upgrades stay with you when you die. Go on, open it.',
+        'OPEN THE SKILL TREE',
+        T('btnTree'),
+      ],
+      [
         'Keep your Essence',
-        'You went out. Your Essence didn’t. Spend it here in the Skill Tree. These upgrades stay with you.',
+        'Here’s how much Essence you have. The blue shards level you up during a descent. Essence is what you bring back here to spend.',
         'SHOW ME THE SIGILS',
         T('treeEss'),
       ],
@@ -221,14 +266,26 @@ function wickGuideRender() {
       [
         'Permanent upgrades',
         wickGuideDetail(),
-        'SHOW ME THE ARCHIVE',
+        'BACK TO THE HOMEPAGE',
         document.querySelector('.tree-inspector'),
+      ],
+      [
+        'Find the Archive here',
+        'The Archive is here on the homepage. Once you reach a guardian, you can practice its fight here without risking your saved descent. Let’s have a look.',
+        'OPEN THE ARCHIVE',
+        T('btnGuardianArchive'),
       ],
       [
         'Guardian Archive',
         'Reach a guardian and their fight appears here. You can practice without losing your saved descent. If the records are empty, keep going downstairs.',
-        'TAKE ME TO THE HEARTH',
+        'BACK TO THE HOMEPAGE',
         T('guardianArchiveGrid'),
+      ],
+      [
+        'The Hearth is here',
+        'This one takes you to the Hearth. It’s your room: furnishings, new looks for your Ember, and a board of separate combat trials.',
+        'OPEN THE HEARTH',
+        T('btnHearth'),
       ],
       [
         'Your Hearth',
@@ -239,33 +296,61 @@ function wickGuideRender() {
       [
         'The Trial Board',
         'These are separate fights with their own rules. Clear them to earn things for your room and new looks for your Ember. Your descent stays safe.',
-        'BACK TO THE MENU',
+        'BACK TO THE HOMEPAGE',
         T('hearthTrialsPanel'),
       ],
+      [
+        'Memories',
+        'If you want another look at a memory you found downstairs, open Memories here. You can watch it again without having to find the room.',
+        'GOT IT',
+        T('btnMemories'),
+      ],
+      [
+        'Achievements',
+        'Your achievements are tracked here across all your descents. Open it to see what you’ve earned and what’s left.',
+        'GOT IT',
+        T('btnAchievements'),
+      ],
+      [
+        'Settings and controls',
+        'Settings & Save has your sound levels, control bindings, and save backups. The Music and Sound buttons beside it are quick mutes. If you forget a control, How to Play is up above. You can ask me for this tour again there, too.',
+        'ONE LAST THING',
+        T('btnSettings'),
+      ],
+      [
+        'Back downstairs',
+        save.resume
+          ? 'Continue Descent picks up your saved run. Begin Descent starts a fresh one. That’s the tour. I’ll leave you to it.'
+          : 'Begin Descent starts your next run. The Essence upgrades you bought come with you. That’s the tour. Ready when you are.',
+        'FINISH TOUR',
+        wickGuideStartAction(),
+      ],
     ];
-    [title, text, button, wickGuide.target] = steps[data.step];
+    [title, text, button, wickGuide.target] = steps[step];
   }
   T('wickGuideTitle').textContent = title;
   T('wickGuideText').textContent = text;
   T('wickGuideProgress').textContent =
-    wickGuide.mode === 'rush' ? 'NEWLY UNLOCKED' : data.step + 1 + ' / 6';
+    wickGuide.mode === 'rush' ? 'NEWLY UNLOCKED' : step + 1 + ' / ' + (WICK_GUIDE_LAST_STEP + 1);
   T('wickGuideNext').textContent = button;
-  T('wickGuideNext').disabled = wickGuide.mode === 'tour' && data.step === 1;
+  T('wickGuideNext').disabled = wickGuide.mode === 'tour' && step === 2;
   wickGuidePanel.hidden = false;
   document.body.classList.add('wick-guiding');
+  wickGuide.target?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
   wickGuideLock();
   wickGuide.layout = '';
   wickGuidePosition();
   wickGuideDrawPortrait(T('wickGuidePortrait'), save.motion ? 0 : G.tAll);
   const focus =
-    data.step === 1 && wickGuide.mode === 'tour'
+    step === 2 && wickGuide.mode === 'tour'
       ? T('treeNodes').querySelector('[data-node="awaken"]')
-      : T('wickGuideNext');
+      : wickGuideHomepageAction() || T('wickGuideNext');
   focus?.focus({ preventScroll: true });
 }
 function wickGuideStop() {
   wickGuideRestore(wickGuide.locks);
   wickGuide.mode = '';
+  wickGuide.replayStep = null;
   wickGuidePanel.hidden = true;
   wickGuide.target = null;
   wickGuide.layout = '';
@@ -273,12 +358,15 @@ function wickGuideStop() {
   clearInput();
   controllerRelease();
 }
-function wickGuideLaunch() {
-  if (wickGuide.mode || !wickGuideData().tourStarted || wickGuideData().complete) return;
+function wickGuideLaunch(replay = false) {
+  const data = wickGuideData();
+  if (wickGuide.mode || (!replay && (!data.tourStarted || data.complete))) return;
+  if (replay && (G.state !== 'menu' || !data.complete)) return;
   wickGuideRestoreMenu();
   wickGuideNavigate(() => backToMenu());
   storyQueue = storyQueue.filter((id) => !['firstDeath', 'firstSigil'].includes(id));
   storyData().seen.firstDeath = true;
+  wickGuide.replayStep = replay ? 0 : null;
   wickGuide.mode = 'tour';
   wickGuideRender();
   saveNow('wick-tour-open');
@@ -292,19 +380,19 @@ function wickGuideAdvance() {
     openBossRush();
     return;
   }
-  const data = wickGuideData();
-  if (data.step < WICK_GUIDE_LAST_STEP) {
-    wickGuideUpdate({ step: data.step + 1 }, 'wick-tour-step');
+  const step = wickGuideStep();
+  if (step < WICK_GUIDE_LAST_STEP) {
+    wickGuideSetStep(step + 1);
     wickGuideRender();
   } else {
-    wickGuideUpdate({ complete: true }, 'wick-tour-complete');
+    if (wickGuide.replayStep === null) wickGuideUpdate({ complete: true }, 'wick-tour-complete');
     wickGuideStop();
     wickGuideNavigate(() => {
       hearthClose();
       backToMenu();
     });
     wickGuideSyncMenu();
-    T('btnStart').focus({ preventScroll: true });
+    wickGuideStartAction().focus({ preventScroll: true });
   }
 }
 function wickGuideCheck() {
@@ -338,6 +426,13 @@ for (const type of ['pointerdown', 'click', 'dblclick'])
   addEventListener(
     type,
     (event) => {
+      const entry = wickGuideHomepageAction();
+      if (type === 'click' && entry && (event.target === entry || entry.contains(event.target))) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        wickGuideAdvance();
+        return;
+      }
       if (!wickGuide.mode || wickGuideAllowed(event.target)) return;
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -356,13 +451,16 @@ addEventListener(
     if (event.code === 'Tab') {
       event.preventDefault();
       event.stopImmediatePropagation();
+      if (!targets.length) return;
       const index = targets.indexOf(document.activeElement),
         next = (index + (event.shiftKey ? -1 : 1) + targets.length) % targets.length;
       targets[next]?.focus({ preventScroll: true });
       return;
     }
     if (['Enter', 'Space'].includes(event.code) && targets.includes(document.activeElement)) {
+      event.preventDefault();
       event.stopImmediatePropagation();
+      if (!event.repeat) document.activeElement.click();
       return;
     }
     event.preventDefault();
@@ -425,9 +523,9 @@ die = function () {
 };
 on(T('treeNodes'), 'click', (event) => {
   const button = event.target.closest('[data-node]');
-  if (button && wickGuide.mode === 'tour' && !wickGuide.internal && wickGuideData().step === 1) {
+  if (button && wickGuide.mode === 'tour' && !wickGuide.internal && wickGuideStep() === 2) {
     selectNode(NODE_BY_ID[button.dataset.node]);
-    wickGuideUpdate({ step: 2 }, 'wick-sigil-selected');
+    wickGuideSetStep(3);
     wickGuideRender();
   }
 });

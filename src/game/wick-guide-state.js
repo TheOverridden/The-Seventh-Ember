@@ -1,6 +1,6 @@
 'use strict';
-const WICK_GUIDE_VERSION = 1;
-const WICK_GUIDE_LAST_STEP = 5;
+const WICK_GUIDE_VERSION = 2;
+const WICK_GUIDE_LAST_STEP = 12;
 
 function cleanWickGuide(raw, contextSave = {}) {
   const record = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : null;
@@ -18,9 +18,13 @@ function cleanWickGuide(raw, contextSave = {}) {
     ].some((key) => Number.isFinite(contextSave[key]) && contextSave[key] > 0) ||
     Object.values(contextSave.nodes || {}).some((owned) => owned === true);
   const complete = record?.complete === true,
-    step = Number.isFinite(record?.step)
+    savedStep = Number.isFinite(record?.step)
       ? Math.max(0, Math.min(WICK_GUIDE_LAST_STEP, Math.floor(record.step)))
       : 0,
+    step =
+      record && !(record.version >= WICK_GUIDE_VERSION)
+        ? [0, 2, 3, 4, 6, 8][Math.min(5, savedStep)]
+        : savedStep,
     tourStarted = record?.tourStarted === true || complete || step > 0;
   return {
     version: WICK_GUIDE_VERSION,

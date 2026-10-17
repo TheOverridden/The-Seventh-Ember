@@ -10,6 +10,16 @@
 #wickGuide [hidden] {
   display: none !important;
 }
+#btnWickTour {
+  width: 100%;
+  margin: 0 0 12px;
+}
+body.wick-guiding #menu *,
+body.wick-guiding #menu *::before,
+body.wick-guiding #menu *::after {
+  animation: none !important;
+  transition: none !important;
+}
 body.wick-start-only #menu button[hidden],
 body.wick-start-only #menu a[hidden],
 body.wick-start-only #menu .audiorow,

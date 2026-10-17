@@ -2,6 +2,17 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101702,
+    date: 'OCTOBER 17, 2026',
+    title: 'WICK’S HOMEPAGE TOUR',
+    intro: 'Wick shows you where things are, as well as what they do.',
+    changes: [
+      'After your first fall, Wick points out the Skill Tree, Guardian Archive, and Hearth buttons on the homepage before taking you inside each one.',
+      'The tour also explains Memories, Achievements, sound and save settings, and starting or continuing a descent. Highlighted buttons work with mouse, keyboard, and controller.',
+      'Completed the tour already? Open How to Play from the homepage and choose Wick’s Homepage Tour to see it again. Unfinished tours resume from their saved step, and completed tutorials stay complete.',
+    ],
+  },
+  {
     version: 2026101701,
     date: 'OCTOBER 17, 2026',
     title: 'CLEANUP AND REPAIRS',
