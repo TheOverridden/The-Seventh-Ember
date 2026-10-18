@@ -2,6 +2,17 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026101801,
+    date: 'OCTOBER 18, 2026',
+    title: 'THE TEN-FLOOR DEMO',
+    intro: 'A separate demo and safe progress transfers into the full game.',
+    changes: [
+      'The replayable demo covers the Hollow Gate and Rootbound Gardens, ending after the Hollow Matriarch with an aftermath scene and the trailer.',
+      'Its separate profile includes 60 blessings, 15 combinations, three evolutions, early Skill Tree upgrades, two additional Forms, selected trials, and guardian practice.',
+      'Demo progress can be exported and merged through Settings & Save in the full game. Purchased upgrades, earned cosmetics, and discoveries carry over; Essence transfers once per demo profile. Existing campaign and Boss Rush checkpoints stay in place.',
+    ],
+  },
+  {
     version: 2026101702,
     date: 'OCTOBER 17, 2026',
     title: 'WICK’S HOMEPAGE TOUR',

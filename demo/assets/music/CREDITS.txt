@@ -1,0 +1,9 @@
+The Seventh Ember
+
+Instrument recordings: VSCO 2 Community Edition, Versilian Studios.
+Instrument samples are distributed under CC0 1.0. See LICENSE.txt.
+
+The game uses stereo recordings for strings, woodwinds, brass, harp,
+marimba, glockenspiel, xylophone, snare, timpani, cymbals, and gong.
+The original twelve themes have expanded arrangements, alongside
+sixteen additional pieces. See track-list.json for the current score.

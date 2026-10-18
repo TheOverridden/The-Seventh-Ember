@@ -1,0 +1,19 @@
+{
+  "edition": "demo",
+  "release": 2026101801,
+  "floors": [
+    1,
+    10
+  ],
+  "guardians": 2,
+  "blessings": 60,
+  "combinations": 15,
+  "evolutions": 3,
+  "purchasableSigils": 33,
+  "trials": 3,
+  "trialTiers": 5,
+  "achievements": 15,
+  "songs": 10,
+  "includesTrailer": true,
+  "steamAppId": null
+}

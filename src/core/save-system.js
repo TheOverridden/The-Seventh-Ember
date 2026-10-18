@@ -421,38 +421,47 @@ function saveNow(reason = 'auto') {
     emergencyGood = false,
     active = manifest?.active === 0 ? 0 : 1,
     next = active === 0 ? 1 : 0;
-  try {
-    emergencyGood =
-      verifiedSet(SAVE_EMERGENCY_KEY, emergencyPacked) &&
-      !!parseSaveEnvelope(localStorage.getItem(SAVE_EMERGENCY_KEY), 'emergency', 10);
-  } catch (_) {}
+  const transferCommit = reason === 'demo-progress-import';
+  if (!transferCommit)
+    try {
+      emergencyGood =
+        verifiedSet(SAVE_EMERGENCY_KEY, emergencyPacked) &&
+        !!parseSaveEnvelope(localStorage.getItem(SAVE_EMERGENCY_KEY), 'emergency', 10);
+    } catch (_) {}
   try {
     fullGood =
       verifiedSet(SAVE_SLOT_KEYS[next], packed) &&
       !!parseSaveEnvelope(localStorage.getItem(SAVE_SLOT_KEYS[next]), 'slot-' + next, 40 - next);
   } catch (_) {}
-  try {
-    const primaryText = JSON.stringify(payload);
-    primaryGood = verifiedSet(SAVE_KEY, primaryText);
-    if (primaryGood) {
-      const metadata = {
-        schema: SAVE_SCHEMA,
-        seq,
-        savedAt: envelope.savedAt,
-        checksum: saveHash(primaryText),
-      };
-      try {
-        primaryGood = verifiedSet(SAVE_PRIMARY_META_KEY, JSON.stringify(metadata));
-      } catch (_) {
-        primaryGood = false;
+  if (!transferCommit || fullGood)
+    try {
+      const primaryText = JSON.stringify(payload);
+      primaryGood = verifiedSet(SAVE_KEY, primaryText);
+      if (primaryGood) {
+        const metadata = {
+          schema: SAVE_SCHEMA,
+          seq,
+          savedAt: envelope.savedAt,
+          checksum: saveHash(primaryText),
+        };
+        try {
+          primaryGood = verifiedSet(SAVE_PRIMARY_META_KEY, JSON.stringify(metadata));
+        } catch (_) {
+          primaryGood = false;
+        }
+        if (!primaryGood)
+          primaryGood =
+            verifiedSet(SAVE_KEY, packed) &&
+            !!parseSaveEnvelope(readSaveValue(SAVE_KEY), 'primary', 60);
       }
-      if (!primaryGood)
-        primaryGood =
-          verifiedSet(SAVE_KEY, packed) &&
-          !!parseSaveEnvelope(readSaveValue(SAVE_KEY), 'primary', 60);
-    }
-  } catch (_) {}
+    } catch (_) {}
   if (fullGood || primaryGood) {
+    if (transferCommit)
+      try {
+        emergencyGood =
+          verifiedSet(SAVE_EMERGENCY_KEY, emergencyPacked) &&
+          !!parseSaveEnvelope(readSaveValue(SAVE_EMERGENCY_KEY), 'emergency', 10);
+      } catch (_) {}
     try {
       const nextManifest = {
         schema: SAVE_SCHEMA,

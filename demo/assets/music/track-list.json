@@ -1,0 +1,102 @@
+[
+  {
+    "id": "01_Ash_at_the_Door",
+    "title": "Ash at the Door",
+    "region": "hollow",
+    "key": "D minor",
+    "bpm": 72,
+    "meter": "4/4",
+    "duration": 213.333,
+    "file": "assets/music/01_Ash_at_the_Door.ogg"
+  },
+  {
+    "id": "02_Moss_Has_Teeth",
+    "title": "Moss Has Teeth",
+    "region": "garden",
+    "key": "A minor",
+    "bpm": 108,
+    "meter": "6/8",
+    "duration": 213.333,
+    "file": "assets/music/02_Moss_Has_Teeth.ogg"
+  },
+  {
+    "id": "12_Moth_Counts_Twice",
+    "title": "Moth Counts Twice",
+    "region": "moth",
+    "key": "A harmonic minor",
+    "bpm": 128,
+    "meter": "7/4",
+    "duration": 210,
+    "file": "assets/music/12_Moth_Counts_Twice.ogg"
+  },
+  {
+    "id": "13_Before_the_First_Bell",
+    "title": "Before the First Bell",
+    "region": "hollow",
+    "key": "E minor",
+    "bpm": 78,
+    "meter": "4/4",
+    "duration": 196.923,
+    "file": "assets/music/13_Before_the_First_Bell.ogg"
+  },
+  {
+    "id": "14_Roots_Under_Rain",
+    "title": "Roots Under Rain",
+    "region": "garden",
+    "key": "G major",
+    "bpm": 108,
+    "meter": "6/8",
+    "duration": 213.333,
+    "file": "assets/music/14_Roots_Under_Rain.ogg"
+  },
+  {
+    "id": "24_No_Refunds_After_Dawn",
+    "title": "No Refunds After Dawn",
+    "region": "moth",
+    "key": "C major",
+    "bpm": 116,
+    "meter": "4/4",
+    "duration": 198.621,
+    "file": "assets/music/24_No_Refunds_After_Dawn.ogg"
+  },
+  {
+    "id": "25_A_House_Remembered",
+    "title": "A House Remembered",
+    "region": "memory",
+    "key": "G major",
+    "bpm": 62,
+    "meter": "3/4",
+    "duration": 232.258,
+    "file": "assets/music/25_A_House_Remembered.ogg"
+  },
+  {
+    "id": "26_Dust_in_the_Sunlight",
+    "title": "Dust in the Sunlight",
+    "region": "memory",
+    "key": "C major",
+    "bpm": 66,
+    "meter": "4/4",
+    "duration": 232.727,
+    "file": "assets/music/26_Dust_in_the_Sunlight.ogg"
+  },
+  {
+    "id": "27_The_Bell_Does_Not_Yield",
+    "title": "The Bell Does Not Yield",
+    "region": "guardian",
+    "key": "E minor",
+    "bpm": 148,
+    "meter": "4/4",
+    "duration": 207.568,
+    "file": "assets/music/27_The_Bell_Does_Not_Yield.ogg"
+  },
+  {
+    "id": "28_Keep_the_Flame",
+    "title": "Keep the Flame",
+    "region": "guardian",
+    "key": "A minor",
+    "bpm": 144,
+    "meter": "4/4",
+    "duration": 213.333,
+    "file": "assets/music/28_Keep_the_Flame.ogg"
+  }
+]

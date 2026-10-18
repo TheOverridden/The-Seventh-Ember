@@ -30,6 +30,10 @@ The Hearth contains room customization, a Trial Board, and optional Vow Bindings
 
 Open `index.html` in a modern browser or serve this directory with any static web server. GitHub Pages can host the directory directly.
 
+The separate ten-floor demo is published at `demo/`. It has an isolated profile and ends after the Hollow Matriarch. Its build includes 60 blessings, 15 combinations, three evolutions, 33 purchasable early sigils, five available Forms, and three selected trials. The main game remains at the root URL.
+
+Demo progress files can be reviewed and merged through Settings & Save. Permanent unlocks, earned cosmetics, and discoveries carry over, with Essence credited once per demo profile. The merge preserves existing campaign and Boss Rush checkpoints. Demo backups and full-game backups remain separate.
+
 ## Source style
 
 JavaScript, CSS, and HTML use the formatting settings in `.prettierrc.json`. Keep names descriptive, retain stored IDs when refactoring, and put shared behavior in the module that owns it. The formatter is a development tool; the game has no runtime dependency on it.
