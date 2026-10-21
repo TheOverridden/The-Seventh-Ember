@@ -99,13 +99,21 @@ const HEARTH_DECOR = [
   ['snow', 'Quiet Snow', 'window'],
   ['sunrise', 'First Dawn', 'window'],
 ].map(([id, name, slot]) => ({ id, name, slot }));
+const HEARTH_MUSIC_LEGACY = {
+  '13_Before_the_First_Bell': '13_Title_Screen',
+  '25_A_House_Remembered': '25_Echoes',
+  '26_Dust_in_the_Sunlight': '26_Pause_Menu',
+  '14_Roots_Under_Rain': '14_Rootbound_Gardens_II',
+  '28_Keep_the_Flame': '28_Guardian_Battles_II',
+  '24_No_Refunds_After_Dawn': '24_Moth_Shop_II',
+};
 const HEARTH_MUSIC = [
-  ['13_Before_the_First_Bell', 'Before the First Bell'],
-  ['25_A_House_Remembered', 'A House Remembered'],
-  ['26_Dust_in_the_Sunlight', 'Dust in the Sunlight'],
-  ['14_Roots_Under_Rain', 'Roots Under Rain'],
-  ['28_Keep_the_Flame', 'Keep the Flame'],
-  ['24_No_Refunds_After_Dawn', 'No Refunds After Dawn'],
+  ['13_Title_Screen', 'Title Screen'],
+  ['25_Echoes', 'Echoes'],
+  ['26_Pause_Menu', 'Pause Menu'],
+  ['14_Rootbound_Gardens_II', 'Rootbound Gardens II'],
+  ['28_Guardian_Battles_II', 'Guardian Battles II'],
+  ['24_Moth_Shop_II', 'Moth’s Shop II'],
 ];
 let hearthRevision = 0,
   hearthDirty = false,
@@ -162,7 +170,10 @@ function cleanHearth(raw, rush = save.bossRush) {
     if (p) h[key] = p.id;
   }
   if (hearthCoreUnlocked(raw.core, rush)) h.core = raw.core;
-  if (HEARTH_MUSIC.some((m) => m[0] === raw.music)) h.music = raw.music;
+  const music = Object.hasOwn(HEARTH_MUSIC_LEGACY, raw.music)
+    ? HEARTH_MUSIC_LEGACY[raw.music]
+    : raw.music;
+  if (HEARTH_MUSIC.some((m) => m[0] === music)) h.music = music;
   h.trials = cleanHearthTrials(raw.trials);
   const choices = [
     ...HEARTH_DECOR.map((item) => 'decor:' + item.id),

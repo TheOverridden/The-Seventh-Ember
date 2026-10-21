@@ -1564,10 +1564,10 @@ const hearthTrialTrack = tseRecordedTrack;
 tseRecordedTrack = function () {
   if (isHearthTrial())
     return hearthTrial.paused || hearthTrial.result
-      ? '26_Dust_in_the_Sunlight'
+      ? '26_Pause_Menu'
       : hearthTrial.id === 'guardian'
-        ? '28_Keep_the_Flame'
-        : '16_Copper_Teeth';
+        ? '28_Guardian_Battles_II'
+        : '16_Ember_Foundry_II';
   return hearthTrialTrack();
 };
 const hearthTrialInit = init;

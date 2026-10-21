@@ -2,6 +2,16 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026102001,
+    date: 'OCTOBER 20, 2026',
+    title: 'MUSIC NAMES',
+    intro: 'Track names now match their places and roles in the game.',
+    changes: [
+      'Renamed all 28 tracks for their regions, guardian fights, menus, memories, and Moth’s shop. Hearth selections, audio filenames, and track metadata use the same names.',
+      'The full game and demo retain the same recordings and loops. Existing Hearth music selections carry over to their renamed tracks.',
+    ],
+  },
+  {
     version: 2026101801,
     date: 'OCTOBER 18, 2026',
     title: 'THE TEN-FLOOR DEMO',
@@ -317,7 +327,7 @@ const THE_SEVENTH_EMBER_CHANGELOG = [
     title: 'MUSIC AT THE THRESHOLD',
     intro: 'The menus and pause screen have their own music.',
     changes: [
-      'Before the First Bell accompanies the title screen and its menus. Dust in the Sunlight plays while the descent is paused, including settings and collections opened from pause.',
+      'Title Screen accompanies the title screen and its menus. Pause Menu plays while the descent is paused, including settings and collections opened from pause.',
       'Audio prepares when the game loads and begins with the first click, tap, or key when the browser requires an interaction. You can hear the menu without starting a run.',
       'Themes crossfade between menus, pause, and the dungeon. Returning to the descent resumes its previous piece from the saved position.',
       'Returning from a hidden tab restores the pause theme, and music volume and mute preferences continue to apply everywhere.',
@@ -354,13 +364,13 @@ const THE_SEVENTH_EMBER_CHANGELOG = [
     title: 'DIFFERENT ROOMS, DIFFERENT VOICES',
     intro: 'Six themes change key, four gather pace, and the Back Room band takes a stranger turn.',
     changes: [
-      'Flooded Bellworks moves to E minor, while The Sluice Opens takes a brighter turn in F major.',
-      'Copper Teeth now runs in B minor, and Ink Between the Lines has a new C minor melody.',
-      'A House Remembered moves to G major. The Bell Does Not Yield gains an E minor theme and a different bass progression.',
+      'Drowned Reservoir I moves to E minor, while Drowned Reservoir II takes a brighter turn in F major.',
+      'Ember Foundry II now runs in B minor, and Buried Archive II has a new C minor melody.',
+      'Echoes moves to G major. Guardian Battles I gains an E minor theme and a different bass progression.',
       'Each of these six pieces has a revised melody, chord progression, and accompaniment pattern.',
-      'Copper Teeth, Siege at Blackstone, The Bell Does Not Yield, and Two Blades, One Vow have faster arrangements, with the recorded instruments kept at their natural pitch.',
-      'The faster pieces gain individual drum patterns, quieter ghost notes, marching-snare rolls, and cymbal arrivals. Copper Teeth has syncopated accents, the Twins use paired responses, Siege has longer marching rolls, and The Bell has shorter, sharper fills.',
-      'Moth Counts Twice becomes a crooked seven-beat tune with marimba, oboe, low bassoon replies, short brass notes, and chromatic flourishes. No Refunds After Dawn gains swung eighths, playful exchanges, and brief pauses over a steady four-beat groove.',
+      'Ember Foundry II, Black Citadel II, Guardian Battles I, and Twin Regents have faster arrangements, with the recorded instruments kept at their natural pitch.',
+      'The faster pieces gain individual drum patterns, quieter ghost notes, marching-snare rolls, and cymbal arrivals. Ember Foundry II has syncopated accents, Twin Regents uses paired responses, Black Citadel II has longer marching rolls, and Guardian Battles I has shorter, sharper fills.',
+      'Moth’s Shop I becomes a crooked seven-beat tune with marimba, oboe, low bassoon replies, short brass notes, and chromatic flourishes. Moth’s Shop II gains swung eighths, playful exchanges, and brief pauses over a steady four-beat groove.',
     ],
   },
   {
@@ -369,7 +379,7 @@ const THE_SEVENTH_EMBER_CHANGELOG = [
     title: 'A STEADIER PULSE',
     intro: 'The chamber score returns with clearer harmony and a steadier rhythm.',
     changes: [
-      'Ash at the Door now has a calm four-beat pulse in D minor, with harp, oboe, held strings, and restrained percussion.',
+      'The Hollow Gate now has a calm four-beat pulse in D minor, with harp, oboe, held strings, and restrained percussion.',
       'Snare patterns follow the beat, fills lead into phrases, and cymbal crashes land at phrase entrances.',
       'Bass lines and arpeggios follow each chord. Most pieces use familiar major or minor keys and four-beat, waltz, or compound rhythms.',
       'Uneven rhythms remain in the Foundry, Observatory, Endless, and the Back Room, where their patterns are deliberate.',

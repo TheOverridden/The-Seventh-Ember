@@ -1,27 +1,22 @@
 'use strict';
 
 const TSE_RECORDED_POOLS = Object.freeze({
-  title: ['13_Before_the_First_Bell'],
-  pause: ['26_Dust_in_the_Sunlight'],
-  hollow: ['01_Ash_at_the_Door', '13_Before_the_First_Bell'],
-  garden: ['02_Moss_Has_Teeth', '14_Roots_Under_Rain'],
-  reservoir: ['03_Flooded_Bellworks', '15_The_Sluice_Opens'],
-  foundry: ['04_Slagline_Seven', '16_Copper_Teeth'],
-  observatory: ['05_Parallax_Bloom', '17_A_Window_Without_Sky'],
-  archive: ['06_The_Pale_Minuet', '18_Ink_Between_the_Lines'],
-  court: ['07_Two_Blades_One_Vow', '19_The_Empty_Ballroom'],
-  choir: ['08_Breathless_Choir', '20_Bells_Above_the_Wind'],
-  citadel: ['09_Blackstone_Procession', '21_Siege_at_Blackstone'],
-  heart: ['10_The_Seventh_Dawn', '22_The_Room_That_Kept_the_Light'],
-  endless: [
-    '11_Stair_Without_End',
-    '23_The_Weight_Below',
-    '16_Copper_Teeth',
-    '21_Siege_at_Blackstone',
-  ],
-  moth: ['12_Moth_Counts_Twice', '24_No_Refunds_After_Dawn'],
-  memory: ['25_A_House_Remembered', '26_Dust_in_the_Sunlight'],
-  guardian: ['27_The_Bell_Does_Not_Yield', '28_Keep_the_Flame'],
+  title: ['13_Title_Screen'],
+  pause: ['26_Pause_Menu'],
+  hollow: ['01_Hollow_Gate', '13_Title_Screen'],
+  garden: ['02_Rootbound_Gardens_I', '14_Rootbound_Gardens_II'],
+  reservoir: ['03_Drowned_Reservoir_I', '15_Drowned_Reservoir_II'],
+  foundry: ['04_Ember_Foundry_I', '16_Ember_Foundry_II'],
+  observatory: ['05_Shattered_Observatory_I', '17_Shattered_Observatory_II'],
+  archive: ['06_Buried_Archive_I', '18_Buried_Archive_II'],
+  court: ['07_Twin_Regents', '19_Silent_Court'],
+  choir: ['08_Choir_Spire_I', '20_Choir_Spire_II'],
+  citadel: ['09_Black_Citadel_I', '21_Black_Citadel_II'],
+  heart: ['10_First_Keeper', '22_Heart_of_the_Star'],
+  endless: ['11_Endless_I', '23_Endless_II', '16_Ember_Foundry_II', '21_Black_Citadel_II'],
+  moth: ['12_Moth_Shop_I', '24_Moth_Shop_II'],
+  memory: ['25_Echoes', '26_Pause_Menu'],
+  guardian: ['27_Guardian_Battles_I', '28_Guardian_Battles_II'],
 });
 
 const TSE_RECORDED_SCORE = {
@@ -67,7 +62,7 @@ function tseRecordedRegion() {
 
 function tseRecordedTrack() {
   if (G.state === 'ending' || (G.bossActive && tseRecordedRegion() === 'heart'))
-    return '10_The_Seventh_Dawn';
+    return '10_First_Keeper';
   const region = tseRecordedRegion(),
     pool = TSE_RECORDED_POOLS[region] || TSE_RECORDED_POOLS.title;
   let variation = save.totalRuns || 0;
@@ -203,7 +198,7 @@ async function tseRecordedLoad(key) {
   }
   const entry = { buffer: null, promise: null };
   entry.promise = (async () => {
-    const response = await fetch('assets/music/' + key + '.ogg?v=2026100602', {
+    const response = await fetch('assets/music/' + key + '.ogg?v=2026102001', {
       credentials: 'same-origin',
     });
     if (!response.ok) throw new Error('Music ' + response.status);
@@ -228,7 +223,7 @@ function tseRecordedNative(deck, key) {
     deck.media = AC.createMediaElementSource(deck.audio);
     deck.media.connect(deck.gain);
   }
-  deck.audio.src = 'assets/music/' + key + '.ogg?v=2026100602';
+  deck.audio.src = 'assets/music/' + key + '.ogg?v=2026102001';
   deck.audio.load();
   const restore = () => {
     if (deck.audio.duration > deck.offset) deck.audio.currentTime = deck.offset;
@@ -359,7 +354,7 @@ function applyAudioSettings() {
 }
 
 function endingMusic() {
-  if (AC && save.music) tseRecordedSwitch('10_The_Seventh_Dawn', true);
+  if (AC && save.music) tseRecordedSwitch('10_First_Keeper', true);
 }
 const tseRecordedSetState = setState;
 setState = function (state) {

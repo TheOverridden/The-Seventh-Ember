@@ -1,102 +1,112 @@
 [
   {
-    "id": "01_Ash_at_the_Door",
-    "title": "Ash at the Door",
+    "id": "01_Hollow_Gate",
+    "title": "The Hollow Gate",
     "region": "hollow",
     "key": "D minor",
     "bpm": 72,
     "meter": "4/4",
     "duration": 213.333,
-    "file": "assets/music/01_Ash_at_the_Door.ogg"
+    "file": "assets/music/01_Hollow_Gate.ogg"
   },
   {
-    "id": "02_Moss_Has_Teeth",
-    "title": "Moss Has Teeth",
+    "id": "02_Rootbound_Gardens_I",
+    "title": "Rootbound Gardens I",
     "region": "garden",
     "key": "A minor",
     "bpm": 108,
     "meter": "6/8",
     "duration": 213.333,
-    "file": "assets/music/02_Moss_Has_Teeth.ogg"
+    "file": "assets/music/02_Rootbound_Gardens_I.ogg"
   },
   {
-    "id": "12_Moth_Counts_Twice",
-    "title": "Moth Counts Twice",
+    "id": "12_Moth_Shop_I",
+    "title": "Moth’s Shop I",
     "region": "moth",
     "key": "A harmonic minor",
     "bpm": 128,
     "meter": "7/4",
     "duration": 210,
-    "file": "assets/music/12_Moth_Counts_Twice.ogg"
+    "file": "assets/music/12_Moth_Shop_I.ogg"
   },
   {
-    "id": "13_Before_the_First_Bell",
-    "title": "Before the First Bell",
+    "id": "13_Title_Screen",
+    "title": "Title Screen",
     "region": "hollow",
     "key": "E minor",
     "bpm": 78,
     "meter": "4/4",
     "duration": 196.923,
-    "file": "assets/music/13_Before_the_First_Bell.ogg"
+    "file": "assets/music/13_Title_Screen.ogg"
   },
   {
-    "id": "14_Roots_Under_Rain",
-    "title": "Roots Under Rain",
+    "id": "14_Rootbound_Gardens_II",
+    "title": "Rootbound Gardens II",
     "region": "garden",
     "key": "G major",
     "bpm": 108,
     "meter": "6/8",
     "duration": 213.333,
-    "file": "assets/music/14_Roots_Under_Rain.ogg"
+    "file": "assets/music/14_Rootbound_Gardens_II.ogg"
   },
   {
-    "id": "24_No_Refunds_After_Dawn",
-    "title": "No Refunds After Dawn",
+    "id": "16_Ember_Foundry_II",
+    "title": "Ember Foundry II",
+    "region": "foundry",
+    "key": "B minor",
+    "bpm": 138,
+    "meter": "4/4",
+    "duration": 194.783,
+    "file": "assets/music/16_Ember_Foundry_II.ogg"
+  },
+  {
+    "id": "24_Moth_Shop_II",
+    "title": "Moth’s Shop II",
     "region": "moth",
     "key": "C major",
     "bpm": 116,
     "meter": "4/4",
     "duration": 198.621,
-    "file": "assets/music/24_No_Refunds_After_Dawn.ogg"
+    "file": "assets/music/24_Moth_Shop_II.ogg"
   },
   {
-    "id": "25_A_House_Remembered",
-    "title": "A House Remembered",
+    "id": "25_Echoes",
+    "title": "Echoes",
     "region": "memory",
     "key": "G major",
     "bpm": 62,
     "meter": "3/4",
     "duration": 232.258,
-    "file": "assets/music/25_A_House_Remembered.ogg"
+    "file": "assets/music/25_Echoes.ogg"
   },
   {
-    "id": "26_Dust_in_the_Sunlight",
-    "title": "Dust in the Sunlight",
+    "id": "26_Pause_Menu",
+    "title": "Pause Menu",
     "region": "memory",
     "key": "C major",
     "bpm": 66,
     "meter": "4/4",
     "duration": 232.727,
-    "file": "assets/music/26_Dust_in_the_Sunlight.ogg"
+    "file": "assets/music/26_Pause_Menu.ogg"
   },
   {
-    "id": "27_The_Bell_Does_Not_Yield",
-    "title": "The Bell Does Not Yield",
+    "id": "27_Guardian_Battles_I",
+    "title": "Guardian Battles I",
     "region": "guardian",
     "key": "E minor",
     "bpm": 148,
     "meter": "4/4",
     "duration": 207.568,
-    "file": "assets/music/27_The_Bell_Does_Not_Yield.ogg"
+    "file": "assets/music/27_Guardian_Battles_I.ogg"
   },
   {
-    "id": "28_Keep_the_Flame",
-    "title": "Keep the Flame",
+    "id": "28_Guardian_Battles_II",
+    "title": "Guardian Battles II",
     "region": "guardian",
     "key": "A minor",
     "bpm": 144,
     "meter": "4/4",
     "duration": 213.333,
-    "file": "assets/music/28_Keep_the_Flame.ogg"
+    "file": "assets/music/28_Guardian_Battles_II.ogg"
   }
 ]

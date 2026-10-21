@@ -1,282 +1,282 @@
 [
   {
-    "id": "01_Ash_at_the_Door",
-    "title": "Ash at the Door",
+    "id": "01_Hollow_Gate",
+    "title": "The Hollow Gate",
     "region": "hollow",
     "key": "D minor",
     "bpm": 72,
     "meter": "4/4",
     "duration": 213.333,
-    "file": "assets/music/01_Ash_at_the_Door.ogg"
+    "file": "assets/music/01_Hollow_Gate.ogg"
   },
   {
-    "id": "02_Moss_Has_Teeth",
-    "title": "Moss Has Teeth",
+    "id": "02_Rootbound_Gardens_I",
+    "title": "Rootbound Gardens I",
     "region": "garden",
     "key": "A minor",
     "bpm": 108,
     "meter": "6/8",
     "duration": 213.333,
-    "file": "assets/music/02_Moss_Has_Teeth.ogg"
+    "file": "assets/music/02_Rootbound_Gardens_I.ogg"
   },
   {
-    "id": "03_Flooded_Bellworks",
-    "title": "Flooded Bellworks",
+    "id": "03_Drowned_Reservoir_I",
+    "title": "Drowned Reservoir I",
     "region": "reservoir",
     "key": "E minor",
     "bpm": 64,
     "meter": "4/4",
     "duration": 240.0,
-    "file": "assets/music/03_Flooded_Bellworks.ogg"
+    "file": "assets/music/03_Drowned_Reservoir_I.ogg"
   },
   {
-    "id": "04_Slagline_Seven",
-    "title": "Slagline Seven",
+    "id": "04_Ember_Foundry_I",
+    "title": "Ember Foundry I",
     "region": "foundry",
     "key": "D minor",
     "bpm": 114,
     "meter": "7/8",
     "duration": 206.316,
-    "file": "assets/music/04_Slagline_Seven.ogg"
+    "file": "assets/music/04_Ember_Foundry_I.ogg"
   },
   {
-    "id": "05_Parallax_Bloom",
-    "title": "Parallax Bloom",
+    "id": "05_Shattered_Observatory_I",
+    "title": "Shattered Observatory I",
     "region": "observatory",
     "key": "C major",
     "bpm": 86,
     "meter": "11/8",
     "duration": 184.186,
-    "file": "assets/music/05_Parallax_Bloom.ogg"
+    "file": "assets/music/05_Shattered_Observatory_I.ogg"
   },
   {
-    "id": "06_The_Pale_Minuet",
-    "title": "The Pale Minuet",
+    "id": "06_Buried_Archive_I",
+    "title": "Buried Archive I",
     "region": "archive",
     "key": "D minor",
     "bpm": 104,
     "meter": "3/4",
     "duration": 221.538,
-    "file": "assets/music/06_The_Pale_Minuet.ogg"
+    "file": "assets/music/06_Buried_Archive_I.ogg"
   },
   {
-    "id": "07_Two_Blades_One_Vow",
-    "title": "Two Blades, One Vow",
+    "id": "07_Twin_Regents",
+    "title": "Twin Regents",
     "region": "court",
     "key": "G minor",
     "bpm": 144,
     "meter": "6/8",
     "duration": 200.0,
-    "file": "assets/music/07_Two_Blades_One_Vow.ogg"
+    "file": "assets/music/07_Twin_Regents.ogg"
   },
   {
-    "id": "08_Breathless_Choir",
-    "title": "Breathless Choir",
+    "id": "08_Choir_Spire_I",
+    "title": "Choir Spire I",
     "region": "choir",
     "key": "A minor",
     "bpm": 60,
     "meter": "4/4",
     "duration": 256.0,
-    "file": "assets/music/08_Breathless_Choir.ogg"
+    "file": "assets/music/08_Choir_Spire_I.ogg"
   },
   {
-    "id": "09_Blackstone_Procession",
-    "title": "Blackstone Procession",
+    "id": "09_Black_Citadel_I",
+    "title": "Black Citadel I",
     "region": "citadel",
     "key": "G minor",
     "bpm": 96,
     "meter": "4/4",
     "duration": 200.0,
-    "file": "assets/music/09_Blackstone_Procession.ogg"
+    "file": "assets/music/09_Black_Citadel_I.ogg"
   },
   {
-    "id": "10_The_Seventh_Dawn",
-    "title": "The Seventh Dawn",
+    "id": "10_First_Keeper",
+    "title": "First Keeper",
     "region": "heart",
     "key": "A minor",
     "bpm": 96,
     "meter": "4/4",
     "duration": 240.0,
-    "file": "assets/music/10_The_Seventh_Dawn.ogg"
+    "file": "assets/music/10_First_Keeper.ogg"
   },
   {
-    "id": "11_Stair_Without_End",
-    "title": "Stair Without End",
+    "id": "11_Endless_I",
+    "title": "Endless I",
     "region": "endless",
     "key": "A minor",
     "bpm": 122,
     "meter": "13/8",
     "duration": 255.738,
-    "file": "assets/music/11_Stair_Without_End.ogg"
+    "file": "assets/music/11_Endless_I.ogg"
   },
   {
-    "id": "12_Moth_Counts_Twice",
-    "title": "Moth Counts Twice",
+    "id": "12_Moth_Shop_I",
+    "title": "Moth’s Shop I",
     "region": "moth",
     "key": "A harmonic minor",
     "bpm": 128,
     "meter": "7/4",
     "duration": 210.0,
-    "file": "assets/music/12_Moth_Counts_Twice.ogg"
+    "file": "assets/music/12_Moth_Shop_I.ogg"
   },
   {
-    "id": "13_Before_the_First_Bell",
-    "title": "Before the First Bell",
+    "id": "13_Title_Screen",
+    "title": "Title Screen",
     "region": "hollow",
     "key": "E minor",
     "bpm": 78,
     "meter": "4/4",
     "duration": 196.923,
-    "file": "assets/music/13_Before_the_First_Bell.ogg"
+    "file": "assets/music/13_Title_Screen.ogg"
   },
   {
-    "id": "14_Roots_Under_Rain",
-    "title": "Roots Under Rain",
+    "id": "14_Rootbound_Gardens_II",
+    "title": "Rootbound Gardens II",
     "region": "garden",
     "key": "G major",
     "bpm": 108,
     "meter": "6/8",
     "duration": 213.333,
-    "file": "assets/music/14_Roots_Under_Rain.ogg"
+    "file": "assets/music/14_Rootbound_Gardens_II.ogg"
   },
   {
-    "id": "15_The_Sluice_Opens",
-    "title": "The Sluice Opens",
+    "id": "15_Drowned_Reservoir_II",
+    "title": "Drowned Reservoir II",
     "region": "reservoir",
     "key": "F major",
     "bpm": 72,
     "meter": "4/4",
     "duration": 213.333,
-    "file": "assets/music/15_The_Sluice_Opens.ogg"
+    "file": "assets/music/15_Drowned_Reservoir_II.ogg"
   },
   {
-    "id": "16_Copper_Teeth",
-    "title": "Copper Teeth",
+    "id": "16_Ember_Foundry_II",
+    "title": "Ember Foundry II",
     "region": "foundry",
     "key": "B minor",
     "bpm": 138,
     "meter": "4/4",
     "duration": 194.783,
-    "file": "assets/music/16_Copper_Teeth.ogg"
+    "file": "assets/music/16_Ember_Foundry_II.ogg"
   },
   {
-    "id": "17_A_Window_Without_Sky",
-    "title": "A Window Without Sky",
+    "id": "17_Shattered_Observatory_II",
+    "title": "Shattered Observatory II",
     "region": "observatory",
     "key": "C major",
     "bpm": 76,
     "meter": "4/4",
     "duration": 202.105,
-    "file": "assets/music/17_A_Window_Without_Sky.ogg"
+    "file": "assets/music/17_Shattered_Observatory_II.ogg"
   },
   {
-    "id": "18_Ink_Between_the_Lines",
-    "title": "Ink Between the Lines",
+    "id": "18_Buried_Archive_II",
+    "title": "Buried Archive II",
     "region": "archive",
     "key": "C minor",
     "bpm": 82,
     "meter": "3/4",
     "duration": 210.732,
-    "file": "assets/music/18_Ink_Between_the_Lines.ogg"
+    "file": "assets/music/18_Buried_Archive_II.ogg"
   },
   {
-    "id": "19_The_Empty_Ballroom",
-    "title": "The Empty Ballroom",
+    "id": "19_Silent_Court",
+    "title": "The Silent Court",
     "region": "court",
     "key": "A minor",
     "bpm": 90,
     "meter": "3/4",
     "duration": 192.0,
-    "file": "assets/music/19_The_Empty_Ballroom.ogg"
+    "file": "assets/music/19_Silent_Court.ogg"
   },
   {
-    "id": "20_Bells_Above_the_Wind",
-    "title": "Bells Above the Wind",
+    "id": "20_Choir_Spire_II",
+    "title": "Choir Spire II",
     "region": "choir",
     "key": "F major",
     "bpm": 90,
     "meter": "6/8",
     "duration": 256.0,
-    "file": "assets/music/20_Bells_Above_the_Wind.ogg"
+    "file": "assets/music/20_Choir_Spire_II.ogg"
   },
   {
-    "id": "21_Siege_at_Blackstone",
-    "title": "Siege at Blackstone",
+    "id": "21_Black_Citadel_II",
+    "title": "Black Citadel II",
     "region": "citadel",
     "key": "D minor",
     "bpm": 140,
     "meter": "4/4",
     "duration": 219.429,
-    "file": "assets/music/21_Siege_at_Blackstone.ogg"
+    "file": "assets/music/21_Black_Citadel_II.ogg"
   },
   {
-    "id": "22_The_Room_That_Kept_the_Light",
-    "title": "The Room That Kept the Light",
+    "id": "22_Heart_of_the_Star",
+    "title": "The Heart of the Star",
     "region": "heart",
     "key": "C major",
     "bpm": 74,
     "meter": "4/4",
     "duration": 259.459,
-    "file": "assets/music/22_The_Room_That_Kept_the_Light.ogg"
+    "file": "assets/music/22_Heart_of_the_Star.ogg"
   },
   {
-    "id": "23_The_Weight_Below",
-    "title": "The Weight Below",
+    "id": "23_Endless_II",
+    "title": "Endless II",
     "region": "endless",
     "key": "G minor",
     "bpm": 136,
     "meter": "4/4",
     "duration": 225.882,
-    "file": "assets/music/23_The_Weight_Below.ogg"
+    "file": "assets/music/23_Endless_II.ogg"
   },
   {
-    "id": "24_No_Refunds_After_Dawn",
-    "title": "No Refunds After Dawn",
+    "id": "24_Moth_Shop_II",
+    "title": "Moth’s Shop II",
     "region": "moth",
     "key": "C major",
     "bpm": 116,
     "meter": "4/4",
     "duration": 198.621,
-    "file": "assets/music/24_No_Refunds_After_Dawn.ogg"
+    "file": "assets/music/24_Moth_Shop_II.ogg"
   },
   {
-    "id": "25_A_House_Remembered",
-    "title": "A House Remembered",
+    "id": "25_Echoes",
+    "title": "Echoes",
     "region": "memory",
     "key": "G major",
     "bpm": 62,
     "meter": "3/4",
     "duration": 232.258,
-    "file": "assets/music/25_A_House_Remembered.ogg"
+    "file": "assets/music/25_Echoes.ogg"
   },
   {
-    "id": "26_Dust_in_the_Sunlight",
-    "title": "Dust in the Sunlight",
+    "id": "26_Pause_Menu",
+    "title": "Pause Menu",
     "region": "memory",
     "key": "C major",
     "bpm": 66,
     "meter": "4/4",
     "duration": 232.727,
-    "file": "assets/music/26_Dust_in_the_Sunlight.ogg"
+    "file": "assets/music/26_Pause_Menu.ogg"
   },
   {
-    "id": "27_The_Bell_Does_Not_Yield",
-    "title": "The Bell Does Not Yield",
+    "id": "27_Guardian_Battles_I",
+    "title": "Guardian Battles I",
     "region": "guardian",
     "key": "E minor",
     "bpm": 148,
     "meter": "4/4",
     "duration": 207.568,
-    "file": "assets/music/27_The_Bell_Does_Not_Yield.ogg"
+    "file": "assets/music/27_Guardian_Battles_I.ogg"
   },
   {
-    "id": "28_Keep_the_Flame",
-    "title": "Keep the Flame",
+    "id": "28_Guardian_Battles_II",
+    "title": "Guardian Battles II",
     "region": "guardian",
     "key": "A minor",
     "bpm": 144,
     "meter": "4/4",
     "duration": 213.333,
-    "file": "assets/music/28_Keep_the_Flame.ogg"
+    "file": "assets/music/28_Guardian_Battles_II.ogg"
   }
 ]

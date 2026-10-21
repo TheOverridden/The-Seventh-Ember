@@ -1,6 +1,6 @@
 {
   "edition": "demo",
-  "release": 2026101801,
+  "release": 2026102001,
   "floors": [
     1,
     10
@@ -13,7 +13,7 @@
   "trials": 3,
   "trialTiers": 5,
   "achievements": 15,
-  "songs": 10,
+  "songs": 11,
   "includesTrailer": true,
   "steamAppId": null
 }
