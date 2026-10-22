@@ -2,6 +2,15 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026102202,
+    date: 'OCTOBER 22, 2026',
+    title: 'SAVE RECOVERY',
+    intro: 'Combat stays stopped until an outdated window reloads.',
+    changes: [
+      'The save-conflict notice freezes the game simulation, including when an in-progress floor transition finishes behind it.',
+    ],
+  },
+  {
     version: 2026102201,
     date: 'OCTOBER 22, 2026',
     title: 'HEALTH AND SAVE FIXES',

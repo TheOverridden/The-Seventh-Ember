@@ -1034,8 +1034,8 @@ function loop(now) {
     if (save.quality === 'light' || fpsE < 33) G.partScale = 0.4;
     else if (fpsE > 52) G.partScale = 1;
   }
-  hollowTick(dt);
-  if (G.state === 'playing') update(dt);
+  if (!saveConflicted) hollowTick(dt);
+  if (G.state === 'playing' && !saveConflicted) update(dt);
   else if (G.state === 'dying') {
     updateFx(dt);
     G.cam.shake = Math.max(0, G.cam.shake - dt * 1.8);
