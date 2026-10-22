@@ -1370,11 +1370,7 @@ chooseCard = function (i) {
     return;
   if (s.wishRemaining > 1) {
     s.wishTakenIds.push(card.id);
-    if (card.consumable) cardHeal(G.player.maxHp * 0.15);
-    else G.run.up[card.id] = (G.run.up[card.id] || 0) + 1;
-    if (card.id === 'hp') G.player.hp += 25;
-    recalc();
-    addChip(card);
+    applyBlessing(card);
     sfx('buy');
     if (card.r === 3) {
       G.run.mythicsFound = (G.run.mythicsFound || 0) + 1;

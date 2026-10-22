@@ -51,7 +51,7 @@ const MYTHIC_FALLBACK = {
   w: 1,
   icon: 'heart',
   name: 'Emberglow',
-  ds: 'Restore 15% health',
+  ds: 'Restore 15% health, at least 25 HP',
   consumable: true,
 };
 function buildCards() {

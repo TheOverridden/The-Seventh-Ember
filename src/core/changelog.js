@@ -2,6 +2,17 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026102201,
+    date: 'OCTOBER 22, 2026',
+    title: 'HEALTH AND SAVE FIXES',
+    intro: 'Fixes for bonus health, healing cards, and saves shared between windows.',
+    changes: [
+      'Secret-room health upgrades, Hearth of the World, and Boss Rush Heart boons no longer lose current health when your stats recalculate. Health reductions and Heart Binding still apply.',
+      'Emberglow now heals correctly in the demo and never becomes an invalid blessing rank. Its description includes the existing minimum of 25 HP. Seventh Wish uses the same healing rules.',
+      'An outdated game window stays paused when another window saves newer progress. A reload button brings you to the newer save, including when Wick’s tour was open.',
+    ],
+  },
+  {
     version: 2026102001,
     date: 'OCTOBER 20, 2026',
     title: 'MUSIC NAMES',

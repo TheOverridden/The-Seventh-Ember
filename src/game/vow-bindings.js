@@ -39,7 +39,11 @@ startRun = function () {
 };
 const vowRecalc = recalc;
 recalc = function () {
+  const player = G.player,
+    health = player?.hp;
   const out = vowRecalc();
+  if (player && player === G.player && Number.isFinite(health))
+    player.hp = Math.min(health, player.maxHp);
   applyHearthBindings();
   return out;
 };

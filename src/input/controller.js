@@ -123,6 +123,7 @@ function controllerVisible(el) {
   );
 }
 function controllerScope() {
+  if (saveConflicted && T('saveConflict')) return T('saveConflict');
   if (controller.textEntry && controllerVisible(T('controllerKeyboard')))
     return T('controllerKeyboard');
   if (G.state === 'echo' && controllerVisible(T('memoryStage'))) return T('memoryStage');

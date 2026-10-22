@@ -332,24 +332,6 @@ useRestingFlame = function (o) {
   saveNow();
 };
 
-const ascensionChooseCard = chooseCard;
-chooseCard = function (i) {
-  const o = G.state === 'levelup' && G.cardPool?.[i];
-  if (!o?.consumable) return ascensionChooseCard(i);
-  cardHeal(Math.max(25, Math.ceil(G.player.maxHp * 0.15)), 'EMBERGLOW');
-  sfx('buy');
-  G.pendingLevels = Math.max(0, G.pendingLevels - 1);
-  G.cardPool = null;
-  if (G.pendingLevels > 0) triggerLevelup();
-  else {
-    hide('levelup');
-    setState('playing');
-    G.player.hitCd = Math.max(G.player.hitCd, 0.8);
-    nova(G.player.x, G.player.y, 150, 30);
-  }
-  saveNow();
-};
-
 const ascensionHUD = updateHUD;
 updateHUD = function (dt) {
   ascensionHUD(dt);

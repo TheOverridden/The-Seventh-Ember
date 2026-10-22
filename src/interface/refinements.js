@@ -79,6 +79,7 @@ function clearInput() {
 }
 function anyBlockingOverlay() {
   return (
+    saveConflicted ||
     G.skillsOpen ||
     ['howto', 'settings', 'confirmRun'].some((id) => T(id).classList.contains('open'))
   );

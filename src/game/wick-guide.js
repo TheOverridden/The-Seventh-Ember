@@ -49,7 +49,7 @@ on(wickTourButton, 'click', () => {
 });
 
 function wickGuideStartOnly() {
-  if (G.state !== 'menu') return false;
+  if (G.state !== 'menu' || saveConflicted) return false;
   const data = wickGuideData();
   return data.menuLocked && !data.tourStarted && !data.complete;
 }
@@ -397,6 +397,7 @@ function wickGuideAdvance() {
 }
 function wickGuideCheck() {
   if (
+    saveConflicted ||
     wickGuide.mode ||
     G.state === 'boot' ||
     T('bootScreen') ||

@@ -261,13 +261,19 @@ function openLevelup(free) {
   buildCards();
   show('levelup');
 }
+function applyBlessing(card) {
+  if (card.consumable) {
+    cardHeal(Math.max(25, Math.ceil(G.player.maxHp * 0.15)), card.name.toUpperCase());
+    return;
+  }
+  G.run.up[card.id] = (G.run.up[card.id] || 0) + 1;
+  if (card.id === 'hp') G.player.hp += 25;
+  recalc();
+  addChip(card);
+}
 function chooseCard(i) {
   if (G.state !== 'levelup' || !G.cardPool || !G.cardPool[i]) return;
-  const o = G.cardPool[i];
-  G.run.up[o.id] = (G.run.up[o.id] || 0) + 1;
-  if (o.id === 'hp') G.player.hp += 25;
-  recalc();
-  addChip(o);
+  applyBlessing(G.cardPool[i]);
   sfx('buy');
   G.pendingLevels = Math.max(0, G.pendingLevels - 1);
   G.cardPool = null;
@@ -346,6 +352,7 @@ function victory() {
 }
 function pauseGame(onOff) {
   if (G.state !== 'playing' && G.state !== 'paused') return;
+  if (!onOff && saveConflicted) return;
   if (onOff && G.state === 'playing') {
     G.paused = true;
     setState('paused');

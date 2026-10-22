@@ -98,9 +98,28 @@ function manifestIdentity(manifest) {
 
 function blockStaleSave(message) {
   saveConflicted = true;
+  if (typeof wickGuideStop === 'function') wickGuideStop();
   if (G.state === 'playing') pauseGame(true);
   storageMessage = message;
   syncSaveStatus();
+  if (!T('saveConflict')) {
+    const overlay = document.createElement('div');
+    overlay.id = 'saveConflict';
+    overlay.className = 'ov open';
+    overlay.style.zIndex = '10000';
+    overlay.setAttribute('role', 'alertdialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'saveConflictTitle');
+    overlay.setAttribute('aria-describedby', 'saveConflictText');
+    overlay.innerHTML =
+      '<div class="panel"><h2 id="saveConflictTitle">PROGRESS CHANGED</h2>' +
+      '<p id="saveConflictText">Another window saved newer progress. Reload this window to use that save before continuing.</p>' +
+      '<button id="saveConflictReload" class="btn primary" type="button">RELOAD GAME</button></div>';
+    document.body.appendChild(overlay);
+    on(T('saveConflictReload'), 'click', () => location.reload());
+    clearInput();
+    T('saveConflictReload').focus();
+  }
   return false;
 }
 
@@ -508,6 +527,7 @@ syncSaveStatus = function () {
 
 const verifiedResetEverything = resetEverything;
 resetEverything = function () {
+  T('saveConflict')?.remove();
   for (const key of [
     SAVE_KEY,
     SAVE_PRIMARY_META_KEY,
@@ -539,3 +559,17 @@ addEventListener('storage', (event) => {
 });
 
 document.documentElement.dataset.saveSystem = 'ready-v3';
+addEventListener(
+  'keydown',
+  (event) => {
+    if (!saveConflicted || event.ctrlKey || event.metaKey || event.altKey || event.code === 'F5')
+      return;
+    const button = T('saveConflictReload');
+    if (event.target !== button || !['Enter', 'Space'].includes(event.code)) {
+      event.preventDefault();
+      button?.focus();
+    }
+    event.stopImmediatePropagation();
+  },
+  true
+);
