@@ -2,6 +2,15 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026110201,
+    date: 'NOVEMBER 2, 2026',
+    title: 'THE EMBER ICON',
+    intro: 'The default Ember is now the game’s icon.',
+    changes: [
+      'Browser tabs and Windows app icons now show the default player and its orbiting shards, rendered from the same character drawing used in the game.',
+    ],
+  },
+  {
     version: 2026102202,
     date: 'OCTOBER 22, 2026',
     title: 'SAVE RECOVERY',
