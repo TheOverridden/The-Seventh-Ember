@@ -204,6 +204,17 @@ function installSpecialEncounters() {
       (room.x === w.exit?.x && room.y === w.exit?.y && room.w === w.exit?.w && room.h === w.exit?.h)
   );
   if (exitIndex >= 0) w.exit = w.rooms[exitIndex];
+  const guardianNeighbors = bossFloorAt(G.floor)
+    ? w.rooms.flatMap((r, i) =>
+        w.exit &&
+        r.x < w.exit.x + w.exit.w + 2 &&
+        r.x + r.w + 2 > w.exit.x &&
+        r.y < w.exit.y + w.exit.h + 2 &&
+        r.y + r.h + 2 > w.exit.y
+          ? [i]
+          : []
+      )
+    : [];
   const restored = Array.isArray(w.specialEncounters);
   if (restored && w.secretRoom === undefined) w.secretRoom = null;
   if (!restored && typeof planSecretRoom === 'function') planSecretRoom(w, G.floor);
@@ -216,6 +227,7 @@ function installSpecialEncounters() {
       w.storyRoom,
       w.secretRoom?.roomIndex,
       ...(w.echoSanctuaries || []),
+      ...guardianNeighbors,
     ]);
   const kept = [...existing]
     .sort(
@@ -253,6 +265,7 @@ function installSpecialEncounters() {
       w.secretRoom?.roomIndex,
       ...(w.echoSanctuaries || []),
       ...kept.map((sc) => sc.roomIndex),
+      ...guardianNeighbors,
     ]),
     allCandidates = w.rooms
       .map((r, i) => ({
@@ -298,12 +311,15 @@ function installSpecialEncounters() {
     w.specialEncounters.push(sc);
     configureSpecialEncounter(sc);
   }
+  if (w.sealed)
+    for (const p of w.region === 'late' ? w.lateDoors || [] : w.arenaDoors || [])
+      w.grid[p.y * w.W + p.x] = 2;
   if (typeof refreshEnvironmentalTraps === 'function') refreshEnvironmentalTraps(w);
 }
 function sealSpecialEncounter(sc, on) {
   const w = G.world,
     r = specialEncounterRoom(sc);
-  if (!w || !r) return;
+  if (!w || (on && !r)) return;
   if (on && (!sc.sealTiles || !sc.sealTiles.length)) {
     sc.sealTiles = [];
     const seen = new Set(),

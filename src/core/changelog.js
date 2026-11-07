@@ -2,6 +2,16 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026110601,
+    date: 'NOVEMBER 6, 2026',
+    title: 'GUARDIAN ROOM FIX',
+    intro: 'Guardian chambers and arena events no longer overlap.',
+    changes: [
+      'Guardian chambers now reserve their full space before other rooms are placed, preventing overlapping fights and blocked exits.',
+      'Resuming an affected run removes the conflicting arena seal while preserving the guardian fight and your progress.',
+    ],
+  },
+  {
     version: 2026110201,
     date: 'NOVEMBER 2, 2026',
     title: 'THE EMBER ICON',

@@ -1,6 +1,7 @@
 function genFloor(f) {
   const W = 88,
-    H = 68;
+    H = 68,
+    guardianFloor = bossFloorAt(f);
   let grid = null,
     rooms = null,
     tries = 0;
@@ -8,8 +9,9 @@ function genFloor(f) {
     grid = new Uint8Array(W * H);
     rooms = [];
     for (let a = 0; a < 100 && rooms.length < 11; a++) {
-      const rw = irand(8, 14),
-        rh = irand(7, 12);
+      const reserveGuardian = guardianFloor && rooms.length === 0,
+        rw = reserveGuardian ? 17 : irand(8, 14),
+        rh = reserveGuardian ? 15 : irand(7, 12);
       const rx = irand(2, W - rw - 2),
         ry = irand(2, H - rh - 2);
       let ok = true;
@@ -24,6 +26,17 @@ function genFloor(f) {
       rooms.push({ x: rx, y: ry, w: rw, h: rh, cx: rx + (rw >> 1), cy: ry + (rh >> 1) });
     }
     if (rooms.length >= 9) break;
+  }
+  const guardianRoom = guardianFloor ? rooms[0] : null;
+  if (guardianRoom) {
+    let spawnIndex = 1;
+    for (let i = 2; i < rooms.length; i++)
+      if (
+        d2(rooms[i].cx, rooms[i].cy, guardianRoom.cx, guardianRoom.cy) >
+        d2(rooms[spawnIndex].cx, rooms[spawnIndex].cy, guardianRoom.cx, guardianRoom.cy)
+      )
+        spawnIndex = i;
+    [rooms[0], rooms[spawnIndex]] = [rooms[spawnIndex], rooms[0]];
   }
   const carve = (x, y) => {
     for (let j = -1; j <= 0; j++)
@@ -78,22 +91,15 @@ function genFloor(f) {
   }
   link(rooms[irand(0, rooms.length - 1)], rooms[irand(0, rooms.length - 1)]);
   link(rooms[irand(0, rooms.length - 1)], rooms[irand(0, rooms.length - 1)]);
-  let exit = rooms[0],
+  let exit = guardianRoom || rooms[0],
     bd = -1;
   for (const r of rooms) {
+    if (guardianRoom) break;
     const d = d2(r.cx, r.cy, rooms[0].cx, rooms[0].cy);
     if (d > bd) {
       bd = d;
       exit = r;
     }
-  }
-  if (bossFloorAt(f)) {
-    exit.x = clamp(exit.cx - 8, 2, W - 18);
-    exit.y = clamp(exit.cy - 7, 2, H - 16);
-    exit.w = 17;
-    exit.h = 15;
-    for (let y = exit.y; y < exit.y + exit.h; y++)
-      for (let x = exit.x; x < exit.x + exit.w; x++) grid[y * W + x] = 1;
   }
   for (const r of rooms) {
     if (r === rooms[0] || r === exit) continue;
