@@ -218,7 +218,7 @@ function installSpecialEncounters() {
   const restored = Array.isArray(w.specialEncounters);
   if (restored && w.secretRoom === undefined) w.secretRoom = null;
   if (!restored && typeof planSecretRoom === 'function') planSecretRoom(w, G.floor);
-  const target = SPECIAL_ROOMS_PER_FLOOR - (w.secretRoom ? 1 : 0),
+  const target = SPECIAL_ROOMS_PER_FLOOR - (w.secretRoom ? 1 : 0) - (w.descentEventSlots || 0),
     existing = restored ? w.specialEncounters : [],
     unique = new Set(),
     protectedRooms = new Set([
@@ -228,6 +228,7 @@ function installSpecialEncounters() {
       w.secretRoom?.roomIndex,
       ...(w.echoSanctuaries || []),
       ...guardianNeighbors,
+      ...(w.descentReserved || []),
     ]);
   const kept = [...existing]
     .sort(
@@ -266,6 +267,7 @@ function installSpecialEncounters() {
       ...(w.echoSanctuaries || []),
       ...kept.map((sc) => sc.roomIndex),
       ...guardianNeighbors,
+      ...(w.descentReserved || []),
     ]),
     allCandidates = w.rooms
       .map((r, i) => ({

@@ -167,9 +167,9 @@ achievementSeries('exploration', 'marks', [
   ['marksAll', 'The Seven Marks', 7, 'Recover all seven Seventh Marks.'],
 ]);
 achievementSeries('exploration', 'echoes', [
-  ['echo1', 'Someone Was Here', 1, 'Witness a memory to its end.'],
-  ['echo5', 'Listening to the Rooms', 5, 'Witness five different memories to their end.'],
-  ['echo15', 'Voices in the Stone', 15, 'Witness fifteen different memories to their end.'],
+  ['echo1', 'A Hand With That', 1, 'Finish a story repair or help a resident.'],
+  ['echo5', 'Getting Things Working', 5, 'Finish five different story repairs or resident requests.'],
+  ['echo15', 'Ready to Leave', 15, 'Finish fifteen different story repairs or resident requests.'],
 ]);
 achievementSeries('endless', 'depth', [
   ['depth1', 'Past the Dawn', 1, 'Reach Endless depth 1.'],

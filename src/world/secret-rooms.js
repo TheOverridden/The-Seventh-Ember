@@ -39,10 +39,10 @@ const SECRET_ROOM_TYPES = {
     reward: 'Risk three Marks for an Epic or Mythic prize',
   },
   echo: {
-    name: 'THE ECHO SANCTUARY',
-    verb: 'LISTEN',
-    line: 'The room remembers a sound the Archive missed.',
-    reward: 'A Seventh Mark may be hidden here',
+    name: 'THE LAMPLIGHTER’S STORE',
+    verb: 'OPEN THE SUPPLY CUPBOARD',
+    line: 'Dry shelves, spare oil, and a cupboard that still closes properly.',
+    reward: 'A Rare blessing, seven Marks, and a supply of Essence',
   },
   cartographer: {
     name: 'THE CARTOGRAPHER’S ROOM',

@@ -12,7 +12,7 @@ The Seventh Ember is a modular browser roguelike with a fifty-floor campaign, pe
 - `src/render/` owns sprites, environment art, the Ember, and the world interface.
 - `src/chapters/`, `src/enemies/`, and `src/bosses/` contain encounter-specific behavior.
 - `src/progression/` contains blessings, rarity, forms, and the permanent skill tree.
-- `src/story/` contains the Living Archive state, the dialogue collection, and fifty silent memories.
+- `src/story/` contains the Journal, resident encounters, repair progress, dialogue, and the campaign ending.
 - `assets/music/` contains twenty-eight recorded pieces, with longer arrangements and continuous loop boundaries. Regional alternates, memories, Guardian encounters, and Endless use separate selections. Hosted playback uses looping audio buffers and keeps a small cache; local files use the browser media transport.
 - `src/input/`, `src/combat/`, `src/audio/`, and `src/interface/` contain focused supporting systems.
 
@@ -20,7 +20,7 @@ The Seventh Ember is a modular browser roguelike with a fifty-floor campaign, pe
 
 Scripts load in dependency order at the bottom of `index.html`. Each directory owns a distinct part of the game while sharing the same browser runtime.
 
-The Living Archive records actions and discoveries. Echo rooms remain enemy-free, restore their surroundings, and tell their stories through staged actions. Players can move inside a memory, watch it finish, leave early, or replay it from the Memories menu. Conversations with Wick and the Guardians are kept separately in `src/story/story-copy.js`.
+The Journal records repairs, resident requests, and discoveries across ten regions. Present-day residents occupy quiet rooms, animate while talking and working, and appear at the Hearth as the story progresses. Conversations with Wick and the Guardians are kept in `src/story/story-copy.js`; chapter content and persistent story flow are in `descent-content.js` and `descent-engine.js`. Older memory progress remains compatible with saved achievements.
 
 The Achievements screen tracks 115 milestones across seven categories. Recorded progress receives credit when a save loads, and achievements are included in exported backups.
 

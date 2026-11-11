@@ -185,8 +185,8 @@ function bossRushAdaptiveModel(model, build) {
     hitCap: Math.min(0.15, model.hitCap * balance.hitCap),
   };
 }
-function bossRushBlessingBuild() {
-  return {
+function bossRushBlessingBuild(comboId = bossRushSelectedCombo()) {
+  const up = {
     ...modeBlessingBuild(14),
     dmg: 8,
     rate: 7,
@@ -198,6 +198,9 @@ function bossRushBlessingBuild() {
     ironAsh: 1,
     bossWard: 1,
   };
+  for (const [id, rank] of Object.entries(bossRushComboBlessings(comboId)))
+    up[id] = Math.max(up[id] || 0, rank);
+  return up;
 }
 function applyBossRushReload() {
   if (G.run?.mode !== 'rush' || !G.player) return;
@@ -259,7 +262,7 @@ function installGuardianModes() {
   const archive = document.createElement('div');
   archive.id = 'guardianArchive';
   archive.className = 'ov guardian-overlay';
-  archive.innerHTML = `<div class="guardian-shell"><header><div><span class="guardian-kicker">THE ROOMS THAT REMEMBER</span><h2>GUARDIAN ARCHIVE</h2><p>Practice any guardian you have reached. Archive fights grant no essence and never alter your saved descent.</p></div><button class="guardian-x" id="guardianArchiveClose" aria-label="Close Guardian Archive">×</button></header><div class="guardian-difficulty" role="group" aria-label="Practice difficulty"><button data-practice-difficulty="standard" class="selected"><b>TRUE FORM</b><small>The campaign encounter</small></button><button data-practice-difficulty="ascendant"><b>ASCENDANT</b><small>+35% health · +15% damage</small></button></div><div id="guardianArchiveProgress"></div><div id="guardianArchiveGrid" class="guardian-grid"></div></div>`;
+  archive.innerHTML = `<div class="guardian-shell"><header><div><span class="guardian-kicker">THE ROOMS THAT REMEMBER</span><h2>GUARDIAN ARCHIVE</h2><p>Practice any guardian you have reached. Archive fights grant no essence and never alter your saved descent.</p></div><button class="guardian-x" id="guardianArchiveClose" aria-label="Close Guardian Archive">×</button></header><div class="guardian-difficulty" role="group" aria-label="Practice difficulty"><button data-practice-difficulty="standard" class="selected"><b>TRUE FORM</b><small>The full encounter · practice balance</small></button><button data-practice-difficulty="ascendant"><b>ASCENDANT</b><small>+35% health · +15% damage</small></button></div><div id="guardianArchiveProgress"></div><div id="guardianArchiveGrid" class="guardian-grid"></div></div>`;
   document.body.appendChild(archive);
   const rush = document.createElement('div');
   rush.id = 'bossRushPanel';
@@ -363,9 +366,9 @@ function renderGuardianArchive() {
             (rec.wins === 1 ? '' : 'S')
           : 'NO PRACTICE CLEAR';
     const button = document.createElement('button');
-    button.textContent = !open ? 'LOCKED' : ascLocked ? 'ASCENDANT LOCKED' : 'PRACTICE';
+    button.textContent = !open ? 'LOCKED' : ascLocked ? 'ASCENDANT LOCKED' : 'CHOOSE BUILD';
     button.disabled = !open || ascLocked;
-    on(button, 'click', () => startGuardianPractice(g.key, guardianPracticeDifficulty));
+    on(button, 'click', () => openGuardianPracticeBuild(g.key, guardianPracticeDifficulty));
     card.append(cv, floor, h, p, record, button);
     grid.appendChild(card);
     drawGuardianArchivePortrait(cv, g, !open);
@@ -532,6 +535,7 @@ function cleanGuardianSession(raw) {
     defeated,
     hits: Math.floor(num(raw.hits, 0, 99999)),
     boons,
+    comboId: cleanBossRushComboId(raw.comboId),
     lastFloor: GUARDIAN_ROSTER[index].floor,
     elapsed: num(raw.elapsed, 0, 1e7),
     fightElapsed: num(raw.fightElapsed, 0, 1e6),
@@ -565,6 +569,7 @@ function snapshotGuardianSession() {
     defeated: gm.defeated,
     hits: gm.hits,
     boons: gm.boons,
+    comboId: gm.rushComboId,
     lastFloor: gm.lastFloor,
     elapsed: G.run.t,
     fightElapsed: Math.max(0, G.run.t - gm.fightStart),
@@ -580,6 +585,7 @@ function restoreGuardianProgress(session) {
   gm.defeated = session.defeated;
   gm.hits = session.hits;
   gm.boons = deepCopy(session.boons);
+  gm.rushComboId = session.comboId;
   gm.lastFloor = session.lastFloor;
   gm.sessionState = session.status;
   gm.secret = session.secret;
@@ -592,7 +598,7 @@ function resumeBossRush() {
   const session = cleanGuardianSession(save.guardianSession);
   if (!session) return;
   hide('bossRushPanel');
-  createGuardianModeRun('rush', session.lastFloor, session.difficulty);
+  createGuardianModeRun('rush', session.lastFloor, session.difficulty, session.comboId);
   restoreGuardianProgress(session);
   if (session.status === 'sanctuary') {
     setState('paused');
@@ -612,12 +618,14 @@ function resumeBossRush() {
   }
   saveNow();
 }
-function createGuardianModeRun(mode, floor, difficulty) {
+function createGuardianModeRun(mode, floor, difficulty, comboId) {
   guardianModeToken++;
   clearInput();
   META = computeMeta();
-  const tier = mode === 'rush' ? 14 : Math.ceil(floor / 5) + 2,
-    up = mode === 'rush' ? bossRushBlessingBuild() : modeBlessingBuild(tier);
+  const rushComboId =
+      mode === 'rush' ? cleanBossRushComboId(comboId ?? bossRushSelectedCombo()) : null,
+    tier = mode === 'rush' ? 14 : Math.ceil(floor / 5) + 2,
+    up = mode === 'rush' ? bossRushBlessingBuild(rushComboId) : guardianPracticeBlessings(floor);
   G.run = {
     level: Math.max(4, tier * 3),
     xp: 0,
@@ -642,6 +650,7 @@ function createGuardianModeRun(mode, floor, difficulty) {
       defeated: 0,
       fightStart: 0,
       boons: {},
+      rushComboId,
       lastFloor: floor,
     },
   };
@@ -735,6 +744,8 @@ function applyGuardianModeBoons() {
     p.dmg *= bossRushBalance().playerDamage;
     applyBossRushReload();
   }
+  if (G.run.mode === 'practice')
+    p.dmg *= G.run.guardianMode.difficulty === 'ascendant' ? 1.22 : 1.32;
   p.speed *= 1 + 0.09 * (q.step || 0);
   p.dashCd *= Math.pow(0.86, q.step || 0);
   p.pierce += q.wells || 0;
@@ -747,11 +758,11 @@ function startGuardianPractice(key, difficulty = 'standard') {
   createGuardianModeRun('practice', g.floor, difficulty);
   startGuardianModeFight(g.floor);
 }
-function startBossRush(difficulty = 'standard') {
+function startBossRush(difficulty = 'standard', comboId = bossRushSelectedCombo()) {
   guardianArchiveData();
   if (!(save.campaignMedal || save.victories > 0)) return;
   if (difficulty === 'nightfall' && !save.bossRush.nightfallUnlocked) return;
-  createGuardianModeRun('rush', 5, difficulty);
+  createGuardianModeRun('rush', 5, difficulty, comboId);
   startGuardianModeFight(5);
 }
 function startGuardianModeFight(floor, resuming = false) {
@@ -780,19 +791,23 @@ function startGuardianModeFight(floor, resuming = false) {
   const mode = G.run.mode,
     diff = gm.difficulty,
     idx = gm.index,
-    hpMul = mode === 'practice' ? (diff === 'ascendant' ? 1.22 : 0.88) : 1,
+    hpMul = mode === 'practice' ? (diff === 'ascendant' ? 1.35 : 1) : 1,
     dmgMul =
       mode === 'practice'
         ? diff === 'ascendant'
           ? 1.15
           : 1
-        : (1 + idx * 0.04) * (diff === 'nightfall' ? 1.2 : 1) * bossRushBalance(diff).damage,
-    playerDmgMul = mode === 'practice' ? (diff === 'ascendant' ? 1.22 : 1.32) : 1;
-  G.player.dmg *= playerDmgMul;
+        : (1 + idx * 0.04) * (diff === 'nightfall' ? 1.2 : 1) * bossRushBalance(diff).damage;
   for (const b of bosses) {
-    b.max = mode === 'rush' ? bossRushGuardianHealth(b) : Math.round(b.max * hpMul);
+    b.max =
+      mode === 'rush'
+        ? bossRushGuardianHealth(b)
+        : Math.round((ARCHIVE_PRACTICE_HEALTH[g.key] || b.max) * hpMul);
     b.hp = b.max;
-    b.dmg = Math.max(1, Math.round(b.dmg * dmgMul));
+    b.dmg = Math.max(
+      1,
+      Math.round((mode === 'practice' ? ARCHIVE_PRACTICE_DAMAGE[g.key] || b.dmg : b.dmg) * dmgMul)
+    );
     if (diff === 'nightfall') b.spd *= 1.07;
   }
   const a = arenaBounds(),
@@ -1026,7 +1041,7 @@ function guardianResultPrimaryAction() {
   if (!isGuardianMode()) return;
   const gm = G.run.guardianMode,
     action = T('guardianResultPrimary').dataset.action;
-  if (action === 'rush') startBossRush(gm.difficulty);
+  if (action === 'rush') startBossRush(gm.difficulty, gm.rushComboId);
   else startGuardianPractice(GUARDIAN_ROSTER[gm.index].key, gm.difficulty);
 }
 function startNextGuardianPractice() {

@@ -166,6 +166,17 @@ function adaptiveModel(tier, mastery, build, mode = 'campaign') {
     budget: ADAPTIVE_BUDGET[i],
     hitCap: ADAPTIVE_HIT_CAP[i],
   };
+  if (mode === 'practice')
+    return {
+      ...model,
+      need: 0,
+      deficit: 0,
+      hp: 1,
+      damage: 1,
+      tempo: 1,
+      budget: Math.max(0.06, model.budget),
+      hitCap: Math.max(0.08, model.hitCap),
+    };
   return mode === 'rush' && typeof bossRushAdaptiveModel === 'function'
     ? bossRushAdaptiveModel(model, build)
     : model;
@@ -201,11 +212,13 @@ function applyAdaptiveGuardian(b, profile, mastery) {
     mastery,
     need: model.need,
     deficit: model.deficit,
-    power: profile.power,
+    power: adaptiveMode() === 'practice' ? 1 : profile.power,
     tempo: model.tempo,
     budget: model.budget,
     hitCap: model.hitCap,
-    counterT: adaptiveCounterInterval(tier, profile.power) * 0.68,
+    counterT:
+      adaptiveCounterInterval(tier, adaptiveMode() === 'practice' ? 1 : profile.power) *
+      (adaptiveMode() === 'practice' ? 1 : 0.68),
     counterStep: 0,
     shieldUntil: 0,
     gate: 0,

@@ -240,7 +240,7 @@ function wickGuideRender() {
   if (wickGuide.mode === 'rush') {
     title = 'Boss Rush is open';
     text =
-      'You’ve opened Boss Rush. Same guardians, one after another. Your skills and Forms come with you, and you get a breather between fights.';
+      'Boss Rush is open. Pick a combination before you start; its blessings stay for the whole run. Your skills and Forms come too, and there’s a rest between fights.';
     button = 'SHOW ME';
     wickGuide.target = T('btnBossRush');
   } else {
@@ -277,7 +277,7 @@ function wickGuideRender() {
       ],
       [
         'Guardian Archive',
-        'Reach a guardian and their fight appears here. You can practice without losing your saved descent. If the records are empty, keep going downstairs.',
+        'Choose a build before you go in. Practice leaves your saved descent alone. If the list’s empty, you haven’t reached a guardian yet.',
         'BACK TO THE HOMEPAGE',
         T('guardianArchiveGrid'),
       ],
@@ -300,8 +300,8 @@ function wickGuideRender() {
         T('hearthTrialsPanel'),
       ],
       [
-        'Memories',
-        'If you want another look at a memory you found downstairs, open Memories here. You can watch it again without having to find the room.',
+        'Journal',
+        'Your current job is written here, along with the people you have met and what has changed. Have a look if you have been away for a while.',
         'GOT IT',
         T('btnMemories'),
       ],
@@ -443,6 +443,7 @@ for (const type of ['pointerdown', 'click', 'dblclick'])
 addEventListener(
   'keydown',
   (event) => {
+    if (event.target?.closest?.('#descentTaskPanel')) return;
     const first = wickGuideStartOnly() && !T('changelog').classList.contains('open');
     if ((!wickGuide.mode && !first) || event.ctrlKey || event.altKey || event.metaKey) return;
     clearInput();

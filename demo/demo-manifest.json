@@ -1,10 +1,11 @@
 {
   "edition": "demo",
-  "release": 2026110201,
+  "release": 2026111103,
   "floors": [
     1,
     10
   ],
+  "storyChapters": 2,
   "guardians": 2,
   "blessings": 60,
   "combinations": 15,

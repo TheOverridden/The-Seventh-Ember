@@ -2,6 +2,21 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    'version': 2026111103,
+    'date': 'NOVEMBER 11, 2026',
+    'title': 'THE DESCENT',
+    'intro': 'New residents, a Journal, and chosen builds for guardian fights.',
+    'changes': [
+      'Meet Oren and Nell, help with repairs across all ten regions, and see the results at the Hearth. The Journal replaces the old Echo collection and keeps track of your work.',
+      'The story has revised guardian conversations, animated residents, detailed repair scenes, and a new campaign ending. The Keeper’s final conversation plays after your rewards are collected.',
+      'Guardian Archive offers six preset builds, blessing combinations, and up to twelve custom blessings with adjustable ranks. Practice has stronger starting builds and fixed guardian scaling.',
+      'Choose one blessing combination before Boss Rush or Nightfall. Its full-rank blessings stay with the run through rests, checkpoints, and retries.',
+      'The ten-floor demo includes the first two story chapters, a new conclusion at the Hearth, the approved trailer, and Archive build selection.',
+      'Wick keeps his single-flame artwork, animated portraits, and tab icon. His tutorial now explains the Archive and Boss Rush build choices.',
+      'Existing skills, Essence, achievements, campaign progress, and Rush checkpoints are preserved. Older Echo achievements retain their earned credit.',
+    ],
+  },
+  {
     version: 2026111102,
     date: 'NOVEMBER 11, 2026',
     title: 'WICK’S TAB ICON',
