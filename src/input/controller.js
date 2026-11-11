@@ -312,7 +312,6 @@ function controllerBack(scope) {
       memories: 'memoriesClose',
       chapterClear: 'chapterExplore',
       confirmRun: 'btnCancelRun',
-      changelog: 'changelogClose',
       burdenLedger: 'burdenLedgerClose',
       secretRoom: 'secretLeave',
       finale: 'endingFinish',

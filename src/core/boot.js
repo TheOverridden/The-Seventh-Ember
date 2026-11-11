@@ -18,7 +18,6 @@ function finishBoot() {
 try {
   installGuardianModes();
   init();
-  showTheSeventhEmberUpdates();
 } finally {
   finishBoot();
 }

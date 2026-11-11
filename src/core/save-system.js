@@ -1,10 +1,8 @@
 document.documentElement.dataset.saveSystem = 'loading';
 const SAVE_SCHEMA = 3;
 const PROGRESSION_RESET_MARKER = 'the_seventh_ember_progression_reset_20260914';
-const CHANGELOG_SEEN_KEY = 'the_seventh_ember_changelog_seen';
 const LEGACY_SAVE_KEY = ['void', 'fall_save_v1'].join('');
 const LEGACY_RESET_MARKER = ['void', 'fall_progression_reset_20260914'].join('');
-const LEGACY_CHANGELOG_KEY = ['void', 'fall_changelog_seen'].join('');
 const SAVE_SLOT_KEYS = [SAVE_KEY + '_slot_a', SAVE_KEY + '_slot_b'];
 const SAVE_EMERGENCY_KEY = SAVE_KEY + '_emergency';
 const SAVE_MANIFEST_KEY = SAVE_KEY + '_manifest';
@@ -132,7 +130,6 @@ function migrateLegacyStorage() {
     [LEGACY_SAVE_KEY + '_manifest', SAVE_MANIFEST_KEY],
     [LEGACY_SAVE_KEY + '_primary_meta', SAVE_PRIMARY_META_KEY],
     [LEGACY_RESET_MARKER, PROGRESSION_RESET_MARKER],
-    [LEGACY_CHANGELOG_KEY, CHANGELOG_SEEN_KEY],
   ];
   let moved = 0;
   for (const [oldKey, newKey] of pairs) {

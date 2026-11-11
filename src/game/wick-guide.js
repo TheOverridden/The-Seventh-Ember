@@ -84,7 +84,7 @@ function wickGuideSyncMenu() {
       wickGuide.menuLocks.set(el, { hidden: el.hidden, inert: el.inert });
     el.hidden = el.inert = true;
   }
-  if (T('menu').classList.contains('open') && !T('changelog').classList.contains('open'))
+  if (T('menu').classList.contains('open'))
     action.focus({ preventScroll: true });
 }
 function wickGuideNavigate(fn) {
@@ -401,8 +401,7 @@ function wickGuideCheck() {
     wickGuide.mode ||
     G.state === 'boot' ||
     T('bootScreen') ||
-    dialogue ||
-    T('changelog').classList.contains('open')
+    dialogue
   )
     return;
   const data = wickGuideData();
@@ -444,7 +443,7 @@ addEventListener(
   'keydown',
   (event) => {
     if (event.target?.closest?.('#descentTaskPanel')) return;
-    const first = wickGuideStartOnly() && !T('changelog').classList.contains('open');
+    const first = wickGuideStartOnly();
     if ((!wickGuide.mode && !first) || event.ctrlKey || event.altKey || event.metaKey) return;
     clearInput();
     const targets = first
@@ -573,8 +572,7 @@ anyBlockingOverlay = function () {
 };
 const wickGuideEscape = onEscKey;
 onEscKey = function () {
-  if (wickGuide.mode || (wickGuideStartOnly() && !T('changelog').classList.contains('open')))
-    return;
+  if (wickGuide.mode || wickGuideStartOnly()) return;
   return wickGuideEscape();
 };
 const wickGuideScope = controllerScope;

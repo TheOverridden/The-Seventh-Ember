@@ -41,7 +41,3 @@ JavaScript, CSS, and HTML use the formatting settings in `.prettierrc.json`. Kee
 ## Release direction
 
 Keep editable source in a private repository before commercial release. A later build step can bundle and minify these files for the public web version and package the same build as a desktop application for Steam.
-
-## Publishing a player update
-
-Every published update must add one immutable entry to `src/core/changelog.js` with a version number higher than the previous entry. Players automatically see only entries newer than the newest one they have dismissed. Keep older entries unchanged so returning players never receive the same notes twice.
