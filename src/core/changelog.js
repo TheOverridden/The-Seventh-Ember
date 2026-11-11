@@ -2,6 +2,15 @@
 
 const THE_SEVENTH_EMBER_CHANGELOG = [
   {
+    version: 2026111102,
+    date: 'NOVEMBER 11, 2026',
+    title: 'WICK’S TAB ICON',
+    intro: 'Wick appears on the browser tab.',
+    changes: [
+      'Browser tabs use fresh Wick favicon files at 16px and 32px. The default icon fallback also uses Wick.',
+    ],
+  },
+  {
     version: 2026110601,
     date: 'NOVEMBER 6, 2026',
     title: 'GUARDIAN ROOM FIX',
