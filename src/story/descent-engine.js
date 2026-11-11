@@ -6,6 +6,7 @@ let descentPending = null,
   descentClock = 0;
 const descentEndingState = { endingReplay: false };
 const descentEndingWalk = { x: 318, y: 281 };
+const descentNotice = { key: '', remaining: 0, until: 0 };
 function descentRecentText(text) {
   for (const c of DESCENT_CHAPTERS) {
     if (
@@ -37,6 +38,8 @@ function cleanDescentData(raw) {
       taken: q.taken === true,
       by: q.by === 'resident' ? 'resident' : 'player',
       met: q.met === true,
+      mainRewarded: q.mainRewarded === true || (q.mainRewarded === undefined && q.main === true),
+      helpRewarded: q.helpRewarded === true || (q.helpRewarded === undefined && q.help === true),
     };
   }
   for (const id of ['oren', 'nell', 'mara']) out.residents[id] = raw?.residents?.[id] === true;
@@ -101,9 +104,45 @@ function descentQuietRoom(index) {
     if (Array.isArray(w[key])) w[key] = w[key].filter((e) => !descentInside(r, e));
   if (Array.isArray(w.traps)) w.traps = w.traps.filter((e) => !descentInside(r, e));
 }
+function descentClearWorksite(e) {
+  const w = G.world;
+  const overlaps = (o) => o.x > e.x - 122 && o.x < e.x + 116 && o.y > e.y - 118 && o.y < e.y + 82;
+  for (const key of ['props', 'hollowDecor', 'lateDecor', 'torches'])
+    if (Array.isArray(w[key])) w[key] = w[key].filter((o) => !o.descent && !overlaps(o));
+  for (const key of ['fixtures', 'lateFixtures']) {
+    for (const fixture of w[key] || []) {
+      if (!overlaps(fixture)) continue;
+      const r = w.rooms[e.roomIndex];
+      const positions = [];
+      for (let y = r.y; y < r.y + r.h; y++)
+        for (let x = r.x; x < r.x + r.w; x++) {
+          const point = { x: (x + 0.5) * TILE, y: (y + 0.5) * TILE };
+          if (overlaps(point)) continue;
+          const pos = safePosition(w, point.x, point.y, 18);
+          if (
+            pos &&
+            descentInside(r, pos) &&
+            !overlaps(pos) &&
+            ![...(w.fixtures || []), ...(w.lateFixtures || [])].some(
+              (other) => other !== fixture && d2(pos.x, pos.y, other.x, other.y) < 48 ** 2
+            )
+          )
+            positions.push(pos);
+        }
+      positions.sort(
+        (a, b) => d2(a.x, a.y, fixture.x, fixture.y) - d2(b.x, b.y, fixture.x, fixture.y)
+      );
+      if (positions[0]) {
+        fixture.x = positions[0].x;
+        fixture.y = positions[0].y;
+      }
+    }
+  }
+}
 function descentInstallFloor() {
   const w = G.world,
     c = descentChapter();
+  if (Array.isArray(w?.torches)) w.torches = w.torches.filter((torch) => !torch.descent);
   if (!w || !c || !G.run || G.run.infinite || isGuardianMode() || isHearthTrial()) return;
   prepareEchoSanctuaries();
   const old = Array.isArray(w.descentEvents) ? w.descentEvents : [];
@@ -131,7 +170,9 @@ function descentInstallFloor() {
         candidates.sort(
           (a, b) =>
             Number(w.specialEncounters?.some((sc) => sc.roomIndex === b.i)) -
-              Number(w.specialEncounters?.some((sc) => sc.roomIndex === a.i)) || a.i - b.i
+              Number(w.specialEncounters?.some((sc) => sc.roomIndex === a.i)) ||
+            Math.min(b.r.w, b.r.h) - Math.min(a.r.w, a.r.h) ||
+            a.i - b.i
         );
         const q = optional
           ? candidates[0]
@@ -140,7 +181,7 @@ function descentInstallFloor() {
         index = q.i;
       }
       const r = w.rooms[index],
-        pos = safePosition(w, r.cx * TILE + 18, r.cy * TILE + 18, 20);
+        pos = safePosition(w, (r.x + r.w / 2) * TILE, (r.y + r.h / 2) * TILE, 20);
       if (!pos || !descentInside(r, pos)) return;
       if (optional) {
         for (const sc of (w.specialEncounters || []).filter((sc) => sc.roomIndex === index))
@@ -159,6 +200,7 @@ function descentInstallFloor() {
         y: pos.y,
         npc: optional ? c.optionalNpc : c.npc,
         prop: optional ? c.optionalProp : c.prop,
+        artScale: Math.min(1, (r.w * TILE - 38) / 216, (r.h * TILE - 40) / 190),
         optional,
         phase: done
           ? optional
@@ -175,11 +217,13 @@ function descentInstallFloor() {
       };
       w.descentEvents.push(e);
       descentQuietRoom(index);
-      w.props = (w.props || []).filter((p) => d2(p.x, p.y, e.x, e.y) > 115 ** 2);
-      if (!w.torches.some((t) => t.descent === e.id))
-        w.torches.push({ x: e.x - 20, y: e.y - 35, s: 0, descent: e.id });
+      descentClearWorksite(e);
     };
-  if (G.floor === c.mainFloor || (G.floor > c.mainFloor && !record.main))
+  if (
+    G.floor === c.mainFloor ||
+    (G.floor > c.mainFloor &&
+      (!record.main || old.some((e) => !e.optional && e.chapterId === c.id)))
+  )
     make(
       false,
       old.find((e) => !e.optional)
@@ -251,6 +295,15 @@ function descentOpenTask(e) {
     : e.phase === 'complete'
       ? c.mainSummary
       : c.objective;
+  const detail = descentTaskDetails(e);
+  if (!['helped', 'complete'].includes(e.phase)) T('descentTaskText').textContent = detail.request;
+  T('descentTaskWho').textContent = 'WITH ' + (e.npc === 'wick' ? 'WICK' : e.npc.toUpperCase());
+  T('descentTaskImpact').textContent = detail.impact;
+  T('descentTaskReward').textContent = ['helped', 'complete'].includes(e.phase)
+    ? 'Finished · the change is kept'
+    : '◆ ' + Math.round(detail.reward * (META.ess || 1)) + ' Essence · one-time reward';
+  T('descentTaskPanel').dataset.chapter = c.id;
+  paintDescentTask(e, descentClock);
   const actions = T('descentTaskActions');
   actions.replaceChildren();
   if (!['helped', 'complete'].includes(e.phase)) {
@@ -262,7 +315,10 @@ function descentOpenTask(e) {
     if (e.optional && !descentData().chapters[c.id].taken) {
       const supply = document.createElement('button');
       supply.className = 'btn';
-      supply.textContent = 'Take the supplies · +' + (c.immediateReward || 12) + ' Essence';
+      supply.textContent =
+        'Take the supplies · +' +
+        Math.round((c.immediateReward || 12) * (META.ess || 1)) +
+        ' Essence';
       supply.onclick = () => descentTakeSupplies(e);
       actions.append(supply);
     }
@@ -282,6 +338,7 @@ function descentLeaveTask() {
   saveNow('story-task');
 }
 function descentBeginAction(e) {
+  if (!e || descentAction || G.dead || ['helped', 'complete'].includes(e.phase)) return;
   hide('descentTaskPanel');
   descentPending = null;
   descentAction = { id: e.id, time: 0, duration: 2.5, from: 'playing' };
@@ -309,6 +366,7 @@ function descentCancelAction() {
 function descentFinishAction(e) {
   const c = DESCENT_CHAPTERS.find((c) => c.id === e.chapterId),
     record = descentData().chapters[c.id];
+  if (record[e.optional ? 'help' : 'main']) return;
   e.active = false;
   e.progress = 1;
   if (e.optional) {
@@ -322,6 +380,11 @@ function descentFinishAction(e) {
     record.met = true;
     e.phase = 'complete';
     descentNote(c.mainSummary);
+  }
+  const paid = e.optional ? 'helpRewarded' : 'mainRewarded';
+  if (!record[paid]) {
+    record[paid] = true;
+    addEss(descentTaskDetails(e).reward);
   }
   descentAction = null;
   T('descentActionLabel').hidden = true;
@@ -419,6 +482,26 @@ function descentRenderJournal() {
     p.textContent = text;
     list.append(p);
   }
+  const finished = document.createElement('section');
+  finished.className = 'descent-finished-work';
+  for (const c of DESCENT_CHAPTERS) {
+    const record = d.chapters[c.id];
+    for (const optional of [false, true]) {
+      if (!(optional ? record.help : record.main)) continue;
+      const entry = document.createElement('article');
+      const name = document.createElement('strong');
+      const result = document.createElement('p');
+      name.textContent = optional ? c.optionalTitle : c.title;
+      result.textContent = optional ? c.helpSummary : c.mainSummary;
+      entry.append(name, result);
+      finished.append(entry);
+    }
+  }
+  if (finished.children.length) {
+    const heading = document.createElement('h3');
+    heading.textContent = 'Work finished';
+    list.append(heading, finished);
+  }
   if (d.endingSeen) {
     const b = document.createElement('button');
     b.className = 'btn';
@@ -510,10 +593,38 @@ function descentTick(dt) {
       descentActionText(e) + ' · ' + Math.round(e.progress * 100) + '%';
     if (e.progress >= 1) descentFinishAction(e);
   }
+  if (T('descentTaskPanel')?.classList.contains('open')) {
+    const event = descentEvent(descentPending);
+    if (event) paintDescentTask(event, descentClock);
+  }
   const panel = T('descentObjective');
   if (panel) {
-    panel.hidden = G.state !== 'playing' || G.run?.infinite || isGuardianMode() || isHearthTrial();
-    if (!panel.hidden) panel.textContent = descentCurrentObjective();
+    const text = descentCurrentObjective(),
+      key = G.floor + ':' + text;
+    if (G.run && key !== descentNotice.key) {
+      descentNotice.key = key;
+      descentNotice.remaining = 2.4;
+      descentNotice.until = performance.now() + 2400;
+      panel.textContent = text;
+    }
+    descentNotice.remaining = Math.max(
+      0,
+      Math.min(descentNotice.remaining - dt, (descentNotice.until - performance.now()) / 1000)
+    );
+    const fighting =
+      G.bossActive ||
+      G.enemies?.some(
+        (e) => !e.dead && G.player && d2(e.x, e.y, G.player.x, G.player.y) < 300 ** 2
+      );
+    panel.hidden =
+      descentNotice.remaining <= 0 ||
+      G.state !== 'playing' ||
+      fighting ||
+      fieldNoteT > 0 ||
+      G.run?.infinite ||
+      isGuardianMode() ||
+      isHearthTrial();
+    panel.style.opacity = String(Math.min(1, descentNotice.remaining / 0.35));
   }
 }
 
@@ -556,7 +667,7 @@ function descentUI() {
   make(
     'descentTaskPanel',
     'ov descent-interaction',
-    `<section class="panel"><span class="eyebrow">THE DESCENT</span><h2 id="descentTaskTitle"></h2><p id="descentTaskText"></p><div class="descent-task-actions" id="descentTaskActions"></div><button class="btn subtle" id="descentTaskClose">Leave for now</button></section>`
+    `<section class="panel"><div class="descent-task-art"><canvas id="descentTaskArt" width="256" height="176" aria-hidden="true"></canvas><span id="descentTaskWho" class="eyebrow"></span></div><div class="descent-task-copy"><h2 id="descentTaskTitle"></h2><p id="descentTaskText"></p><p id="descentTaskImpact" class="descent-task-impact"></p><div id="descentTaskReward" class="descent-task-reward"></div><div class="descent-task-actions" id="descentTaskActions"></div><button class="btn subtle" id="descentTaskClose">Leave for now</button></div></section>`
   );
   T('descentTaskPanel').setAttribute('role', 'dialog');
   T('descentTaskPanel').setAttribute('aria-modal', 'true');
@@ -641,6 +752,7 @@ snapshotRun = function () {
 };
 const descentOldSetup = setupFloor;
 setupFloor = function (f) {
+  descentNotice.key = '';
   descentAction = null;
   descentPending = null;
   T('descentActionLabel') && (T('descentActionLabel').hidden = true);

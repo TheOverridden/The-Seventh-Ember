@@ -1,6 +1,5 @@
-const SECRET_ROOM_VERSION = 4;
-const SECRET_SEARCH_RANGE = 86;
-const SECRET_LISTEN_SECONDS = 1.35;
+const SECRET_ROOM_VERSION = 5;
+const SECRET_SEARCH_RANGE = 64;
 const SECRET_ROOM_TYPES = {
   cache: {
     name: 'THE HIDDEN CACHE',
@@ -384,7 +383,6 @@ function anchorSecretRoom(s, w = G.world) {
     s.x = site.x;
     s.y = site.y;
     s.version = SECRET_ROOM_VERSION;
-    s.inspected = !!(s.sealReady || s.listen > 0 || s.seals > 0);
   }
   return s;
 }
@@ -433,10 +431,6 @@ function planSecretRoom(w = G.world, f = G.floor) {
     purchased: [],
     wagerResolved: false,
     entered: 0,
-    inspected: false,
-    listen: 0,
-    seals: 0,
-    sealReady: false,
   };
   rememberSecretType(run, f, type);
   run.secretFloorGap = 0;
@@ -444,9 +438,6 @@ function planSecretRoom(w = G.world, f = G.floor) {
 }
 function currentSecret() {
   return anchorSecretRoom(G.world?.secretRoom) || null;
-}
-function secretDistance(s = currentSecret()) {
-  return s && G.player ? Math.sqrt(d2(G.player.x, G.player.y, s.x, s.y)) : Infinity;
 }
 function revealSecret(s = currentSecret()) {
   if (!s || s.discovered) return false;
@@ -464,52 +455,30 @@ function revealSecret(s = currentSecret()) {
   return true;
 }
 function secretNear(range = SECRET_SEARCH_RANGE) {
-  const s = currentSecret();
-  if (!s || secretDistance(s) >= range || !G.player) return null;
-  const r = G.world.rooms[s.roomIndex];
-  return roomHasPoint(r, G.player.x, G.player.y) && los(G.world, G.player.x, G.player.y, s.x, s.y)
-    ? s
-    : null;
+  const s = currentSecret(),
+    p = G.player,
+    wall = s && secretWallPosition(s);
+  if (!wall || !p || !roomHasPoint(G.world.rooms[s.roomIndex], p.x, p.y)) return null;
+  const dx = p.x - wall.x,
+    dy = p.y - wall.y,
+    depth = dx * wall.nx + dy * wall.ny,
+    along = dx * wall.ny - dy * wall.nx;
+
+  if (depth < TILE / 2 || depth > range || Math.abs(along) > TILE + 20) return null;
+  const nearest = clamp(along, -TILE + 1, TILE - 1),
+    x = wall.x + wall.nx * TILE + wall.ny * nearest,
+    y = wall.y + wall.ny * TILE - wall.nx * nearest;
+  return los(G.world, p.x, p.y, x, y) ? s : null;
 }
-function secretRoomClear(s = currentSecret()) {
-  if (!s || !G.world?.rooms) return false;
-  const r = G.world.rooms[s.roomIndex];
-  return !G.enemies.some(
-    (e) =>
-      !e.dead &&
-      !e.isBoss &&
-      e.x > r.x * TILE &&
-      e.x < (r.x + r.w) * TILE &&
-      e.y > r.y * TILE &&
-      e.y < (r.y + r.h) * TILE
+function secretPassageSealed(s) {
+  return (
+    !!G.run?.guardianMode ||
+    !!(G.world?.sealed && roomHasPoint(G.world.exit, G.player.x, G.player.y)) ||
+    !!G.world?.specialEncounters?.some(
+      (sc) => sc.roomIndex === s.roomIndex && sc.active && !sc.complete
+    ) ||
+    !!(s.trialStarted && !s.trialComplete)
   );
-}
-function secretFlareReveal() {
-  const s = secretNear();
-  if (
-    !s ||
-    s.discovered ||
-    (s.seals || 0) >= 3 ||
-    !s.inspected ||
-    !s.sealReady ||
-    !secretRoomClear(s)
-  )
-    return false;
-  const wall = secretWallPosition(s);
-  if (wall && d2(G.player.x, G.player.y, wall.x, wall.y) > (MELEE.reach + 4) ** 2) return false;
-  const angle = Math.atan2((wall?.y ?? s.y) - G.player.y, (wall?.x ?? s.x) - G.player.x);
-  if (Math.abs(angleDiff(angle, G.player.meleeAngle)) > MELEE.halfArc) return false;
-  s.seals = Math.min(3, (s.seals || 0) + 1);
-  const k = s.seals - 1,
-    x = wall ? wall.x + Math.cos(wall.angle) * [-22, 4, 22][k] : s.x,
-    y = wall ? wall.y + Math.sin(wall.angle) * [-22, 4, 22][k] : s.y;
-  burst(x, y, 6, SECRET_REGIONS[s.region].dust, 55, 0.35, 2, false);
-  if (s.seals < 3)
-    fieldNote(s.seals === 1 ? 'One catch breaks. Two left.' : 'One catch left.', 1.7);
-  else fieldNote('It’s loose. Give it a push with Use.', 2.6);
-  sfx('secretCatch');
-  saveNow();
-  return true;
 }
 function secretMarks(n, label) {
   const run = secretRun();
@@ -888,7 +857,7 @@ function renderSecretRoom() {
           : 'UNREAD';
 }
 function enterSecretRoom(s = currentSecret()) {
-  if (!s || !s.discovered) return;
+  if (!s || !s.discovered || secretPassageSealed(s)) return;
   s.opened = true;
   s.entered = (s.entered || 0) + 1;
   if (s.type === 'shop') {
@@ -1082,17 +1051,6 @@ function drawSecretWallTexture(ctx, s) {
     px(-26, 10, 4, 2, p.dust);
     px(24, -10, 4, 2, p.dust);
   }
-  for (let i = 0; i < 3; i++) {
-    const x = [-22, 4, 22][i];
-    px(x, 6, 4, 4, stone.wc);
-    if (i < (s.seals || 0)) {
-      px(x - 2, 8, 8, 2, stone.mo);
-      px(x + 2, 10, 2, 4, stone.mo);
-    } else if (s.sealReady) {
-      px(x, 6, 2, 2, p.hot);
-      px(x + 2, 8, 2, 2, p.dust);
-    } else px(x, 6, 2, 2, stone.wb);
-  }
 }
 function drawSecretEntrance(ctx) {
   const s = currentSecret(),
@@ -1202,84 +1160,18 @@ function drawSecretMinimap() {
   x.fillRect(ox + tx * scale - 2, oy + ty * scale - 2, 4, 4);
   x.restore();
 }
-function inspectSecretRoom(s) {
-  if (!s.inspected) {
-    s.inspected = true;
-    s.listen = 0;
-    s.listenX = G.player.x;
-    s.listenY = G.player.y;
-    sfx('secretTap');
-    saveNow();
-  }
-  if ((s.seals || 0) >= 3) revealSecret(s);
-  else if (s.sealReady)
-    fieldNote('Aim Flare at the wall. ' + (3 - (s.seals || 0)) + ' catches left.', 2.6);
-  else fieldNote('That part sounds hollow. Stay still and listen.', 2.4);
-}
-function listenAtSecretRoom(s, dt) {
-  if (!s.inspected || s.sealReady) return;
-  const p = G.player,
-    moved = Math.hypot(p.x - (s.listenX ?? p.x), p.y - (s.listenY ?? p.y));
-  s.listenX = p.x;
-  s.listenY = p.y;
-  if (secretDistance(s) < SECRET_SEARCH_RANGE && moved < 1.2)
-    s.listen = Math.min(SECRET_LISTEN_SECONDS, (s.listen || 0) + dt);
-  else s.listen = Math.max(0, (s.listen || 0) - dt * 0.6);
-  if (s.listen >= SECRET_LISTEN_SECONDS) {
-    s.sealReady = true;
-    fieldNote('Three catches lift from the stone. Aim Flare at them.', 3.2);
-    sfx('secretTap');
-    saveNow();
-  }
-}
-
-const secretBeginMelee = beginMelee;
-beginMelee = function () {
-  const started = secretBeginMelee(),
-    s = secretNear();
-  if (
-    started &&
-    s?.sealReady &&
-    !s.discovered &&
-    (s.seals || 0) < 3 &&
-    secretRoomClear(s) &&
-    document.body.classList.contains('touch') &&
-    !(touchInput.aimActive && touchInput.aimPower > 0.18)
-  ) {
-    const wall = secretWallPosition(s);
-    G.player.meleeAngle = Math.atan2(wall.y - G.player.y, wall.x - G.player.x);
-  }
-  return started;
-};
-const secretStrikeMelee = strikeMelee;
-strikeMelee = function () {
-  const out = secretStrikeMelee();
-  secretFlareReveal();
-  return out;
-};
 const secretUpdateBase = update;
 update = function (dt) {
-  if (G.state === 'playing' && !G.descending) {
+  if (G.state === 'playing' && !G.descending && interactQueued) {
     const s = secretNear();
     if (s) {
-      if (s.discovered && interactQueued) {
-        interactQueued = false;
+      interactQueued = false;
+      if (secretPassageSealed(s)) {
+        fieldNote('Finish the sealed encounter before entering the passage.', 2.4);
+      } else {
+        revealSecret(s);
         enterSecretRoom(s);
         return;
-      }
-      if (!s.discovered) {
-        if (secretRoomClear(s)) {
-          listenAtSecretRoom(s, dt);
-          if (interactQueued) {
-            interactQueued = false;
-            inspectSecretRoom(s);
-            return;
-          }
-        } else if (interactQueued) {
-          interactQueued = false;
-          fieldNote('Too much noise. Clear the room, then check the stone.', 2.8);
-          return;
-        }
       }
     }
   }
@@ -1330,55 +1222,20 @@ updateHUD = function (dt) {
   key.style.display = '';
   secretUpdateHUDBase(dt);
   const s = G.player && G.state === 'playing' ? secretNear() : null,
-    searching =
-      s && (s.discovered || (secretRoomClear(s) && (s.inspected || secretDistance(s) <= 68)));
+    searching = s && !secretPassageSealed(s);
   document.body.classList.toggle('secret-searching', !!searching);
   if (!searching) return;
-  const wall = secretWallPosition(s),
-    inReach = d2(G.player.x, G.player.y, wall.x, wall.y) <= (MELEE.reach + 4) ** 2;
-  if (s.inspected && !s.discovered && (s.seals || 0) < 3) {
-    if (s.sealReady) {
-      key.dataset.keyboardAction = 'flare';
-      key.textContent = touch ? 'FLARE' : keyLabel('flare');
-    } else key.style.display = 'none';
-  }
   T('promptTxt').textContent = s.discovered
     ? 'ENTER THE HIDDEN PASSAGE'
-    : !s.inspected
-      ? 'EXAMINE THE UNEVEN STONE'
-      : (s.seals || 0) >= 3
-        ? 'PUSH THE LOOSE STONE'
-        : s.sealReady
-          ? inReach
-            ? 'FLARE THE CATCHES · ' + (3 - (s.seals || 0)) + ' LEFT'
-            : 'MOVE CLOSER · FLARE THE CATCHES'
-          : 'LISTENING · KEEP STILL · ' +
-            Math.floor(clamp((s.listen || 0) / SECRET_LISTEN_SECONDS, 0, 1) * 100) +
-            '%';
+    : 'OPEN THE HIDDEN PASSAGE';
   T('prompt').classList.add('on');
-  if (!s.discovered && !save.secretSearchTip) {
-    save.secretSearchTip = true;
-    fieldNote('Some walls sound hollow. Examine unusual stone with Use.', 4.5);
-    saveNow();
-  }
 };
 const secretSyncWeaponHUDBase = syncWeaponHUD;
 syncWeaponHUD = function () {
   secretSyncWeaponHUDBase();
   const s = secretNear();
-  if (
-    typeof setPrecisionTouchButton !== 'function' ||
-    !s ||
-    (!s.discovered && !secretRoomClear(s)) ||
-    (!s.inspected && !s.discovered && secretDistance(s) > 68)
-  )
-    return;
-  setPrecisionTouchButton(
-    'touchEnter',
-    1,
-    s.discovered ? 'ENTER' : !s.inspected ? 'EXAMINE' : (s.seals || 0) >= 3 ? 'PUSH' : 'USE',
-    s.inspected && !s.sealReady ? 'LISTEN' : 'READY'
-  );
+  if (typeof setPrecisionTouchButton !== 'function' || !s || secretPassageSealed(s)) return;
+  setPrecisionTouchButton('touchEnter', 1, s.discovered ? 'ENTER' : 'OPEN', 'READY');
 };
 const secretSnapshotBase = snapshotRun;
 snapshotRun = function () {
@@ -1515,7 +1372,6 @@ validateSave = function (raw) {
         .filter((id) => SEVENTH_MARKS.some((m) => m.id === id))
         .filter((id, i, a) => a.indexOf(id) === i)
     : [];
-  clean.secretSearchTip = raw?.secretSearchTip === true;
   return clean;
 };
 const secretBlockingBase = anyBlockingOverlay;
@@ -1532,27 +1388,10 @@ onEscKey = function () {
 };
 const secretSfxBase = sfx;
 sfx = function (name, a) {
-  if (
-    ![
-      'secretReveal',
-      'secretOpen',
-      'secretClaim',
-      'secretBuy',
-      'secretMark',
-      'secretTap',
-      'secretCatch',
-    ].includes(name)
-  )
+  if (!['secretReveal', 'secretOpen', 'secretClaim', 'secretBuy', 'secretMark'].includes(name))
     return secretSfxBase(name, a);
   if (!AC || !save.sfx) return;
-  if (name === 'secretTap') {
-    thump(130, 70, 0.12, 0.042);
-    air(0.12, 0.014, 460, 180, 0.7, 0, 'lowpass');
-  } else if (name === 'secretCatch') {
-    thump(185, 95, 0.08, 0.032);
-    bell(620, 0.18, 0.009, 0.015, true);
-    air(0.13, 0.012, 780, 220, 0.8, 0, 'lowpass');
-  } else if (name === 'secretReveal') {
+  if (name === 'secretReveal') {
     thump(88, 38, 0.42, 0.05);
     air(0.7, 0.025, 180, 1280, 0.7, 0, 'bandpass');
     bell(392, 0.55, 0.012, 0.18, true);
@@ -1573,4 +1412,4 @@ sfx = function (name, a) {
 on(T('secretAction'), 'click', secretPrimaryAction);
 on(T('secretLeave'), 'click', closeSecretRoom);
 secretMarkList();
-document.documentElement.dataset.secretRooms = 'v4';
+document.documentElement.dataset.secretRooms = 'v5';

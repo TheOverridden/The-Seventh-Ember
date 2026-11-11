@@ -299,11 +299,10 @@ function toast(txt, sub) {
   const el = document.createElement('div');
   el.className = 'toast';
   el.innerHTML = txt + (sub ? `<span class="sub">${sub}</span>` : '');
-  w.appendChild(el);
-  while (w.children.length > 2) w.removeChild(w.firstChild);
+  w.replaceChildren(el);
   setTimeout(() => {
     if (el.parentNode) el.parentNode.removeChild(el);
-  }, 3400);
+  }, 2400);
 }
 
 const ETYPES = {

@@ -392,7 +392,20 @@ const STORY_DIALOGUES = {
   wickPointerAfter: [
     'The pointer',
     'An open gate',
-    [['Wick', 'It picks a target. Hit that one first.']],
+    [
+      [
+        'Wick',
+        'I’ll mark something nearby you can actually hit. If there’s a lock keeping a guardian safe, that comes first.',
+      ],
+      [
+        'Wick',
+        'Your hits do a little more to the marked one. Bring it down and you get one Ember Bolt charge back. You still have to aim.',
+      ],
+      [
+        'Wick',
+        'Once it’s quiet, I’ll point toward an open gate we’ve already found. I’m not guessing where the walls go.',
+      ],
+    ],
   ],
 };
 for (const [id, [title, where, lines]] of Object.entries(STORY_DIALOGUES))

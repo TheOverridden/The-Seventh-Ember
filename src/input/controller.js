@@ -386,7 +386,6 @@ function controllerRefreshPrompts() {
     const text = T('promptTxt')?.textContent || '',
       flare =
         prompt.dataset.keyboardAction === 'flare' ||
-        /FLARE THE CATCHES/.test(text) ||
         prompt.textContent === 'K' ||
         prompt.textContent === 'FLARE';
     prompt.textContent = controllerButtonName(bindings[flare ? 'flare' : 'use']);

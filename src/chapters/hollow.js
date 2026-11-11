@@ -252,12 +252,12 @@ function hollowTick(dt) {
     return;
   }
   if (chapterBannerT > 0 && G.state === 'playing') {
-    chapterBannerT -= dt;
+    chapterBannerT = Math.min(chapterBannerT, 2.5) - dt;
     T('chapterBanner').classList.toggle('visible', chapterBannerT > 0.65);
   }
   if (fieldNoteT > 0 && G.state === 'playing') {
     fieldNoteT -= dt;
-    T('fieldNote').classList.toggle('visible', fieldNoteT > 0);
+    T('fieldNote').classList.toggle('visible', fieldNoteT > 0.3);
   }
   if (
     storyQueue.length &&
@@ -269,10 +269,19 @@ function hollowTick(dt) {
     if (!storyData().seen[id]) beginDialogue(id);
   }
 }
-function fieldNote(text, duration = 4) {
+function fieldNote(text, duration = 2.4) {
   T('fieldNote').textContent = text;
-  fieldNoteT = duration;
+  fieldNoteT = Math.min(2.4, Math.max(0, Number(duration) || 2.4));
   T('fieldNote').classList.add('visible');
+  const sequence = (fieldNote.sequence = (fieldNote.sequence || 0) + 1);
+  setTimeout(
+    () => {
+      if (fieldNote.sequence !== sequence) return;
+      fieldNoteT = 0;
+      T('fieldNote').classList.remove('visible');
+    },
+    Math.max(0, fieldNoteT - 0.3) * 1000
+  );
 }
 function announceHollowFloor() {
   if (G.world?.region !== 'hollow') return;
@@ -281,7 +290,7 @@ function announceHollowFloor() {
     G.floor >= 6 ? 'CHAPTER II · THE ROOTBOUND GARDENS' : 'CHAPTER I · THE HOLLOW GATE';
   T('chapterPlace').textContent = f.name;
   T('chapterHint').textContent = f.hint;
-  chapterBannerT = 4;
+  chapterBannerT = 2.5;
   T('chapterBanner').classList.add('visible');
 }
 function renderMemories() {

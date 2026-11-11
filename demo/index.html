@@ -17,7 +17,7 @@
       content="A free, replayable ten-floor demo of The Seventh Ember. Explore two regions, defeat two guardians, and build a lasting flame."
     />
     <meta name="application-name" content="The Seventh Ember" />
-    <link rel="stylesheet" href="demo.css?v=2026111104">
+    <link rel="stylesheet" href="demo.css?v=2026111105">
 
 
 
@@ -44,7 +44,7 @@
 
 
 
-<script src="boot-art.js?v=2026111104"></script></head>
+<script src="boot-art.js?v=2026111105"></script></head>
   <body>
     <div id="bootScreen" role="status" aria-label="Opening The Seventh Ember">
       <div class="boot-content">
@@ -318,13 +318,14 @@
       <section class="wick-gift-shell">
         <div class="wick-gift-kicker">A FAVOR FROM WICK</div>
         <div class="wick-gift-emblem" aria-hidden="true">
-          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><b></b>
+          <canvas id="wickGiftPortrait" width="128" height="128" aria-hidden="true"></canvas>
         </div>
         <h2 id="wickGiftTitle">Wick’s Pointer</h2>
         <div class="wick-gift-rarity">SECRET BLESSING · EPIC</div>
         <p>
-          <strong>Something important is always marked.</strong> Marked enemies take 18% more
-          ability damage and return one Ember Bolt charge when defeated.
+          <strong>Wick marks a nearby threat you can hit.</strong> Your attacks deal 18% more damage
+          to the marked enemy. Defeating it restores one Ember Bolt charge. When the room is clear,
+          Wick points toward a discovered open gate.
         </p>
         <button class="btn primary" id="wickGiftTake">TAKE IT AND CONTINUE</button>
       </section>
@@ -690,5 +691,8 @@
 
 
 
-  <script src="game.js?v=2026111104"></script></body>
+
+
+
+  <script src="game.js?v=2026111105"></script></body>
 </html>

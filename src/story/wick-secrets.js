@@ -15,7 +15,7 @@
       name: 'Wick’s Pointer',
       requirement: 'Try Wick’s patience near an open portal',
       detail:
-        'Marks the room’s greatest threat. Marked enemies take more damage and return one Ember Bolt charge.',
+        'Wick marks a nearby threat you can hit: +18% damage, and its defeat restores one Ember Bolt charge. He points toward a discovered open gate when the room is clear.',
     },
   });
   const card = {
@@ -26,7 +26,7 @@
     minFloor: 1,
     icon: 'target',
     name: 'Wick’s Pointer',
-    ds: 'Marks the greatest threat · +18% damage · marked defeats restore one charge',
+    ds: 'Wick marks a nearby, visible threat · +18% damage · marked defeats restore one charge',
     unlock: 'wickPointer',
   };
   POOL.push(card);
@@ -37,14 +37,30 @@
     returnQueued = false,
     returning = false,
     targetClock = 0;
+  const companion = {
+    x: NaN,
+    y: NaN,
+    px: NaN,
+    py: NaN,
+    vx: 0,
+    vy: 0,
+    side: -1,
+    sideT: 0,
+    acquired: 0,
+    happy: 0,
+    hit: 0,
+  };
 
   function portalTileSeen() {
     const p = G.portal,
       w = G.world;
-    if (!p || !w) return false;
+    if (!p || !w || !G.player) return false;
     const x = Math.floor(p.x / TILE),
       y = Math.floor(p.y / TILE),
-      seen = !!w.reveal?.[y * w.W + x];
+      seen =
+        !!w.reveal?.[y * w.W + x] &&
+        d2(G.player.x, G.player.y, p.x, p.y) <= 480 ** 2 &&
+        los(w, G.player.x, G.player.y, p.x, p.y);
     if (seen && !p.discovered) {
       p.discovered = true;
       saveNow('portal-found');
@@ -53,6 +69,8 @@
   }
   function realInteractionNear() {
     if (!G.player) return false;
+    if (typeof secretNear === 'function' && secretNear()) return true;
+    if (typeof nearestDescentEvent === 'function' && nearestDescentEvent()) return true;
     const p = G.player;
     if (G.portal && d2(p.x, p.y, G.portal.x, G.portal.y) < 90 ** 2) return true;
     const fixtures = G.world?.region === 'late' ? G.world?.lateFixtures : G.world?.fixtures;
@@ -133,6 +151,7 @@
     clearInput();
     setState('wick-gift');
     show('wickGift');
+    drawWickPortrait(T('wickGiftPortrait'), G.tAll, { happy: true });
     sfx('mythicReveal');
     T('wickGiftTake').focus({ preventScroll: true });
   }
@@ -153,106 +172,218 @@
   function pointerActive() {
     return !!(G.run?.up?.wickPointer && G.player && G.world);
   }
+  function pointerRoom(x, y) {
+    return (
+      G.world.rooms?.findIndex(
+        (r) =>
+          x >= r.x * TILE && x < (r.x + r.w) * TILE && y >= r.y * TILE && y < (r.y + r.h) * TILE
+      ) ?? -1
+    );
+  }
+  function pointerRange() {
+    return Math.min(480, BASE.bulletSpd * 1.15 + 14);
+  }
+  function localThreat(e) {
+    if (!e || e.dead || !Number.isFinite(e.x) || !Number.isFinite(e.y)) return false;
+    if ((e.lateBoss || e.warden || e.matriarch) && !e.introduced) return false;
+    if (solidPx(G.world, e.x, e.y)) return false;
+    const p = G.player,
+      distance = d2(p.x, p.y, e.x, e.y),
+      room = pointerRoom(p.x, p.y),
+      enemyRoom = pointerRoom(e.x, e.y);
+    if (distance > (pointerRange() + Math.min(40, e.r || 0)) ** 2) return false;
+    if (G.world.rooms?.length && (room !== enemyRoom || (room < 0 && distance > 180 ** 2)))
+      return false;
+    return los(G.world, p.x, p.y, e.x, e.y);
+  }
+  function attackable(e) {
+    if (!localThreat(e)) return false;
+    const s = e.bs;
+    return !(
+      e.invulnerable ||
+      s?.invulnerable ||
+      s?.mid?.invulnerable ||
+      s?.mid?.bellWater?.submerged ||
+      s?.mode === 'submerge' ||
+      s?.mode === 'shift' ||
+      s?.duet?.mode === 'shift'
+    );
+  }
   function targetScore(e) {
     let score = 0;
-    if (e.mechanism) score += 1400;
-    if (e.midPiece || e.type === 'gardenNest') score += 1250;
+    if (e.mechanism || e.midPiece) score += 2600;
+    if (e.type === 'gardenNest') score += 1350;
     if (e.isBoss) score += 1000;
     if (e.elite) score += 420;
-    score += (e.dmg || 0) * 6 + (e.max || e.maxHp || 0) * 0.025;
+    if (e.action === 'windup' || e.bs?.mode === 'windup' || e.phase === 2) score += 180;
+    score += Math.min(100, e.dmg || 0) * 6 + Math.min(200, (e.max || e.maxHp || 0) * 0.025);
     score -= Math.sqrt(d2(G.player.x, G.player.y, e.x, e.y)) * 0.18;
     return score;
   }
   function markedTarget() {
-    return G.enemies.find((e) => !e.dead && e.uid === G.run?.wickPointerUid) || null;
+    const target = G.enemies.find((e) => e.uid && e.uid === G.run?.wickPointerUid);
+    return target && attackable(target) ? target : null;
   }
   function chooseTarget() {
     if (!pointerActive()) return null;
-    const live = G.enemies.filter((e) => !e.dead);
-    if (!live.length) {
-      G.run.wickPointerUid = 0;
-      return null;
+    const current = markedTarget();
+    let best = current,
+      score = current ? targetScore(current) : -Infinity;
+    for (const e of G.enemies) {
+      if (!e.uid || !attackable(e)) continue;
+      const value = targetScore(e);
+      if (value > score) {
+        score = value;
+        best = e;
+      }
     }
-    live.sort((a, b) => targetScore(b) - targetScore(a));
-    G.run.wickPointerUid = live[0].uid;
-    return live[0];
+    if (current && best !== current && score < targetScore(current) + 160) best = current;
+    if (G.run.wickPointerUid !== (best?.uid || 0)) companion.acquired = 0.24;
+    G.run.wickPointerUid = best?.uid || 0;
+    return best;
   }
-  function drawPointer(ctx) {
-    if (!pointerActive() || G.dead) return;
+  function portalDirection() {
+    if (!G.portal?.active || !G.portal.discovered) return null;
+    const room = pointerRoom(G.player.x, G.player.y),
+      occupied = G.enemies.some(
+        (e) => !e.dead && (room >= 0 ? pointerRoom(e.x, e.y) === room : localThreat(e))
+      );
+    return occupied ? null : G.portal;
+  }
+  function resetCompanion() {
+    companion.x = companion.y = NaN;
+    companion.px = companion.py = NaN;
+    companion.vx = companion.vy = companion.sideT = 0;
+    companion.acquired = companion.happy = companion.hit = 0;
+    companion.side = -1;
+  }
+  function updateCompanion(dt) {
+    if (!pointerActive()) {
+      resetCompanion();
+      return;
+    }
     const p = G.player,
       t = save.motion ? 0 : G.tAll,
       target = markedTarget(),
-      orbit = t * 0.72,
-      fx = p.x + Math.cos(orbit) * 31,
-      fy = p.y - 11 + Math.sin(orbit) * 13;
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    for (let i = 0; i < 7; i++) {
-      const a = -t * 2.1 + (i * TAU) / 7,
-        rr = 9 + Math.sin(t * 3 + i) * 1.2,
-        x = fx + Math.cos(a) * rr,
-        y = fy + Math.sin(a) * rr * 0.7;
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(a + Math.PI / 4);
-      ctx.fillStyle = i % 2 ? '#d88943' : '#ffd990';
-      ctx.globalAlpha = 0.7;
-      ctx.fillRect(-1, -2, 2, 4);
-      ctx.fillStyle = '#fff2bd';
-      ctx.globalAlpha = 0.9;
-      ctx.fillRect(0, -2, 1, 2);
-      ctx.restore();
-    }
-    ctx.save();
-    ctx.translate(fx, fy);
-    ctx.fillStyle = '#e96330';
-    ctx.globalAlpha = 0.86;
-    ctx.beginPath();
-    ctx.moveTo(0, -7);
-    ctx.bezierCurveTo(6, -2, 6, 5, 0, 8);
-    ctx.bezierCurveTo(-6, 5, -5, -1, 0, -7);
-    ctx.fill();
-    ctx.fillStyle = '#ffe29c';
-    ctx.globalAlpha = 0.95;
-    ctx.beginPath();
-    ctx.moveTo(0, -3);
-    ctx.bezierCurveTo(3, 0, 3, 4, 0, 5);
-    ctx.bezierCurveTo(-3, 3, -2, 0, 0, -3);
-    ctx.fill();
-    ctx.restore();
-    if (target) {
-      const r = target.r + 12 + Math.sin(t * 4) * 2;
-      ctx.translate(target.x, target.y);
-      ctx.rotate(Math.PI / 4);
-      ctx.strokeStyle = '#ffd887';
-      ctx.globalAlpha = 0.9;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(-r * 0.72, -r * 0.72, r * 1.44, r * 1.44);
-      ctx.rotate(-Math.PI / 4);
-      for (let i = 0; i < 7; i++) {
-        const a = (i * TAU) / 7 + t * 0.2;
-        ctx.fillStyle = i % 2 ? '#f5a65b' : '#ffe4a0';
-        ctx.fillRect(Math.cos(a) * (r + 5) - 1, Math.sin(a) * (r + 5) - 1, 3, 3);
+      look = target || portalDirection(),
+      moveX = Number.isFinite(companion.px) ? (p.x - companion.px) / Math.max(dt, 0.001) : 0,
+      moveY = Number.isFinite(companion.py) ? (p.y - companion.py) / Math.max(dt, 0.001) : 0,
+      walking = Math.hypot(moveX, moveY) > 20;
+    companion.px = p.x;
+    companion.py = p.y;
+    companion.sideT = Math.max(0, companion.sideT - dt);
+    companion.acquired = Math.max(0, companion.acquired - dt);
+    companion.happy = Math.max(0, companion.happy - dt);
+    companion.hit = Math.max(0, companion.hit - dt);
+    if (!companion.sideT) {
+      const side =
+        walking && Math.abs(moveX) > 20
+          ? moveX > 0
+            ? -1
+            : 1
+          : look && Math.abs(look.x - p.x) > 40
+            ? look.x > p.x
+              ? -1
+              : 1
+            : companion.side;
+      if (side !== companion.side) {
+        companion.side = side;
+        companion.sideT = 0.8;
       }
-    } else if (G.portal) {
-      const a = Math.atan2(G.portal.y - fy, G.portal.x - fx),
-        x = fx + Math.cos(a) * 17,
-        y = fy + Math.sin(a) * 17;
-      ctx.translate(x, y);
+    }
+    let gx = p.x + companion.side * 27,
+      gy = p.y - 29 + Math.sin(t * 2.7) * 2;
+    if (solidPx(G.world, gx, gy) || !los(G.world, p.x, p.y, gx, gy)) {
+      gx = p.x;
+      gy = solidPx(G.world, p.x, p.y - 24) ? p.y : p.y - 24;
+    }
+    if (
+      !Number.isFinite(companion.x) ||
+      d2(companion.x, companion.y, p.x, p.y) > 180 ** 2 ||
+      save.motion
+    ) {
+      companion.x = gx;
+      companion.y = gy;
+      companion.vx = companion.vy = 0;
+      return;
+    }
+    const step = Math.min(dt, 0.1),
+      decay = Math.exp(-11 * step);
+    for (const [axis, velocity, goal] of [
+      ['x', 'vx', gx],
+      ['y', 'vy', gy],
+    ]) {
+      const offset = companion[axis] - goal,
+        c = companion[velocity] + 11 * offset;
+      companion[axis] = goal + (offset + c * step) * decay;
+      companion[velocity] = (companion[velocity] - 11 * c * step) * decay;
+    }
+    if (solidPx(G.world, companion.x, companion.y)) {
+      companion.x = gx;
+      companion.y = gy;
+      companion.vx = companion.vy = 0;
+    }
+  }
+  function drawPointer(ctx) {
+    if (!pointerActive() || G.dead || !Number.isFinite(companion.x)) return;
+    const p = G.player,
+      t = save.motion ? 0 : G.tAll,
+      target = markedTarget(),
+      guide = target ? null : portalDirection(),
+      look = target || guide || p,
+      fx = companion.x,
+      fy = companion.y - (save.motion ? 0 : Math.sin(companion.happy * 7) * companion.happy * 3);
+    ctx.save();
+    drawWickCharacter(ctx, fx, fy, 30, t, {
+      lookX: (look.x - fx) / 100,
+      lookY: (look.y - fy) / 100,
+      moving: Math.hypot(companion.vx, companion.vy) > 35,
+      alert: !!target,
+      happy: companion.happy > 0,
+    });
+    if (target) {
+      const r = Math.round((target.r || 12) + 9 + (save.motion ? 0 : companion.acquired * 25)),
+        corner = Math.max(5, Math.min(10, r * 0.32));
+      ctx.translate(Math.round(target.x), Math.round(target.y));
+      ctx.beginPath();
+      for (const sx of [-1, 1])
+        for (const sy of [-1, 1]) {
+          ctx.moveTo(sx * (r - corner), sy * r);
+          ctx.lineTo(sx * r, sy * r);
+          ctx.lineTo(sx * r, sy * (r - corner));
+        }
+      ctx.strokeStyle = '#322016';
+      ctx.lineWidth = 4;
+      ctx.globalAlpha = 0.85;
+      ctx.stroke();
+      ctx.strokeStyle = companion.hit > 0 ? '#fff3c7' : '#ffd887';
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = save.motion ? 0.95 : 0.86 + Math.sin(t * 3) * 0.08;
+      ctx.stroke();
+    } else if (guide && d2(p.x, p.y, guide.x, guide.y) > 90 ** 2) {
+      const a = Math.atan2(guide.y - fy, guide.x - fx);
+      ctx.translate(Math.round(fx + Math.cos(a) * 23), Math.round(fy + Math.sin(a) * 23));
       ctx.rotate(a + Math.PI / 2);
       ctx.fillStyle = '#ffd887';
-      ctx.globalAlpha = 0.9;
+      ctx.globalAlpha = 0.82;
       ctx.beginPath();
-      ctx.moveTo(0, -6);
-      ctx.lineTo(5, 5);
-      ctx.lineTo(0, 2);
-      ctx.lineTo(-5, 5);
+      ctx.moveTo(0, -4);
+      ctx.lineTo(4, 3);
+      ctx.lineTo(0, 1);
+      ctx.lineTo(-4, 3);
       ctx.closePath();
       ctx.fill();
     }
     ctx.restore();
   }
 
+  const baseHollowTick = hollowTick;
+  hollowTick = function (dt) {
+    const out = baseHollowTick(dt);
+    if (gift.classList.contains('open'))
+      drawWickPortrait(T('wickGiftPortrait'), G.tAll, { happy: true });
+    return out;
+  };
   const baseUpdate = update;
   update = function (dt) {
     pressWindow = Math.max(0, pressWindow - dt);
@@ -287,9 +418,10 @@
       portalTileSeen();
       targetClock -= dt;
       if (pointerActive() && (targetClock <= 0 || !markedTarget())) {
-        targetClock = 0.4;
+        targetClock = 0.18;
         chooseTarget();
       }
+      updateCompanion(dt);
     }
     return out;
   };
@@ -302,18 +434,22 @@
   };
   const baseDamageEnemy = damageEnemy;
   damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
-    if (pointerActive() && e && !e.dead && e.uid === G.run.wickPointerUid) dmg *= 1.18;
+    if (pointerActive() && e && e.uid === G.run.wickPointerUid && attackable(e)) {
+      dmg *= 1.18;
+      companion.hit = 0.14;
+    }
     return baseDamageEnemy(e, dmg, ang, crit, kb, kind);
   };
   const baseKillEnemy = killEnemy;
   killEnemy = function (e) {
-    const marked = pointerActive() && e && !e.dead && e.uid === G.run.wickPointerUid,
+    const marked = pointerActive() && e && e.uid === G.run.wickPointerUid && attackable(e),
       ammo = G.player?.ammo || 0;
     baseKillEnemy(e);
     if (marked && e.dead && G.player) {
       G.player.ammo = Math.min(G.player.magSize, G.player.ammo + 1);
       G.run.wickPointerUid = 0;
       targetClock = 0;
+      companion.happy = 0.7;
       if (G.player.ammo > ammo)
         addText(G.player.x, G.player.y - 25, '+1 EMBER CHARGE', '#ffd98b', 11);
     }
@@ -339,6 +475,8 @@
     returnQueued = false;
     returning = false;
     targetClock = 0;
+    resetCompanion();
+    if (G.run) G.run.wickPointerUid = 0;
     recall.hidden = true;
     return baseSetupFloor(f);
   };
@@ -348,6 +486,7 @@
     pressWindow = 0;
     returnQueued = false;
     returning = false;
+    resetCompanion();
     recall.hidden = true;
     hide('wickGift');
     return baseBackToMenu();

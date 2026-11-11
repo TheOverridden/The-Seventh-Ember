@@ -500,7 +500,7 @@ body:not(.play) #lowvig {
   text-shadow: 0 0 12px rgba(255, 200, 120, 0.6);
   animation:
     toastin 0.4s cubic-bezier(0.2, 1.4, 0.4, 1),
-    toastout 0.5s ease 2.7s forwards;
+    toastout 0.4s ease 2s forwards;
 }
 .toast .sub {
   display: block;
@@ -8067,74 +8067,6 @@ body:not(.play) #portalRecall {
   font: 800 9px system-ui;
   letter-spacing: 0.3em;
 }
-.wick-gift-emblem {
-  position: relative;
-  width: 104px;
-  height: 104px;
-  margin: 18px auto 10px;
-  filter: drop-shadow(0 0 22px #eb742e66);
-}
-.wick-gift-emblem::before,
-.wick-gift-emblem::after {
-  content: '';
-  position: absolute;
-  inset: 24px;
-  border: 1px solid #f0b66599;
-  rotate: 45deg;
-}
-.wick-gift-emblem::after {
-  inset: 35px;
-  border-color: #ffe3aa77;
-  animation: wickGiftPulse 1.5s ease-in-out infinite;
-}
-.wick-gift-emblem b {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 18px;
-  height: 27px;
-  translate: -50% -50%;
-  border-radius: 58% 42% 55% 45%;
-  background: radial-gradient(
-    circle at 50% 62%,
-    #fff7da 0 14%,
-    #ffc76e 15% 40%,
-    #de5729 41% 67%,
-    transparent 69%
-  );
-  filter: drop-shadow(0 0 7px #f47d36);
-}
-.wick-gift-emblem i {
-  --a: 0deg;
-  position: absolute;
-  left: 49px;
-  top: 9px;
-  width: 7px;
-  height: 13px;
-  background: linear-gradient(#ffdda0, #9c4f27);
-  clip-path: polygon(50% 0, 100% 38%, 70% 100%, 18% 78%, 0 32%);
-  transform-origin: 3px 43px;
-  transform: rotate(var(--a));
-  animation: wickGiftOrbit 5s linear infinite;
-}
-.wick-gift-emblem i:nth-child(2) {
-  --a: 51.43deg;
-}
-.wick-gift-emblem i:nth-child(3) {
-  --a: 102.86deg;
-}
-.wick-gift-emblem i:nth-child(4) {
-  --a: 154.29deg;
-}
-.wick-gift-emblem i:nth-child(5) {
-  --a: 205.72deg;
-}
-.wick-gift-emblem i:nth-child(6) {
-  --a: 257.15deg;
-}
-.wick-gift-emblem i:nth-child(7) {
-  --a: 308.58deg;
-}
 .wick-gift-shell h2 {
   margin: 0;
   color: #fff0cd;
@@ -8169,26 +8101,13 @@ body:not(.play) #portalRecall {
     0 0 0 5px #3d2518,
     0 0 24px #e08a3048;
 }
-@keyframes wickGiftOrbit {
-  to {
-    rotate: 360deg;
-  }
-}
-@keyframes wickGiftPulse {
-  50% {
-    inset: 31px;
-    opacity: 0.5;
-  }
-}
+
 @media (max-width: 700px) {
   #portalRecall {
     bottom: 82px;
   }
   .wick-gift-shell {
     padding: 30px 22px 25px;
-  }
-  .wick-gift-emblem {
-    margin-top: 12px;
   }
 }
 body.touch #portalRecall {
@@ -8204,10 +8123,17 @@ body.touch #portalRecall .portal-key {
   display: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  .wick-gift-emblem::after,
-  .wick-gift-emblem i {
-    animation: none;
-  }
+}
+
+.wick-gift-emblem {
+  width: 128px;
+  height: 128px;
+  margin: 12px auto 8px;
+}
+#wickGiftPortrait {
+  width: 128px;
+  height: 128px;
+  image-rendering: pixelated;
 }
 
 #secretRoom {
@@ -13585,10 +13511,120 @@ body.descent-story .dialogue-footer button:focus-visible {
   outline-offset: 4px;
 }
 body.descent-story #descentObjective {
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: 104px;
+  width: min(420px, calc(100vw - 80px));
+  transform: translateX(-50%);
+  text-align: center;
+  padding: 10px 16px;
   font:
     12px/1.6 system-ui,
     sans-serif;
   letter-spacing: 0.02em;
+}
+body.descent-story #descentTaskPanel > .panel {
+  display: grid;
+  grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
+  width: min(900px, calc(100vw - 48px));
+  padding: 0;
+  border: 1px solid #a9905d;
+  clip-path: polygon(
+    0 12px,
+    12px 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 calc(100% - 12px)
+  );
+}
+body.descent-story #descentTaskPanel > .panel:before {
+  display: none;
+}
+body.descent-story .descent-task-art {
+  display: grid;
+  align-content: center;
+  padding: 22px 17px 14px;
+  background: #121f18;
+  border-right: 1px solid #8f805633;
+  min-width: 0;
+}
+body.descent-story #descentTaskArt {
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+body.descent-story #descentTaskWho {
+  margin: 13px 0 0;
+  text-align: center;
+  font: 700 9px/1.6 system-ui;
+  letter-spacing: 0.18em;
+  color: #cfbd85;
+}
+body.descent-story .descent-task-copy {
+  padding: 25px 25px 18px;
+}
+body.descent-story #descentTaskPanel .descent-task-impact {
+  border-left: 2px solid #aa945c;
+  padding: 9px 0 9px 13px;
+  margin: 14px 0;
+  color: #e1d7b5;
+  font:
+    13px/1.6 Georgia,
+    serif;
+}
+body.descent-story .descent-task-reward {
+  color: #d9bb7d;
+  font: 11px/1.6 system-ui;
+  margin: 13px 0;
+}
+body.descent-story .descent-finished-work {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+body.descent-story .descent-finished-work article {
+  padding: 12px 15px;
+  border: 1px solid #8c825333;
+  background: #111e174d;
+}
+body.descent-story .descent-finished-work strong {
+  color: #d7c699;
+  font:
+    15px/1.4 Georgia,
+    serif;
+}
+body.descent-story .descent-finished-work p {
+  margin: 5px 0 0;
+  font: 11px/1.55 system-ui;
+}
+@media (max-height: 650px) and (min-width: 820px) {
+  body.descent-story .descent-task-copy {
+    padding: 17px 21px 13px;
+  }
+  body.descent-story #descentTaskPanel h2 {
+    font-size: 23px;
+  }
+  body.descent-story #descentTaskPanel .descent-task-impact {
+    margin: 9px 0;
+  }
+}
+@media (max-width: 800px) {
+  body.descent-story #descentTaskPanel > .panel {
+    grid-template-columns: minmax(0, 34%) minmax(0, 1fr);
+  }
+  body.descent-story .descent-task-copy {
+    padding: 18px;
+  }
+  body.descent-story .descent-task-art {
+    padding: 13px 10px;
+  }
+  body.descent-story .descent-finished-work {
+    grid-template-columns: 1fr;
+  }
 }
 body.descent-story #descentActionLabel {
   position: fixed;
@@ -13763,6 +13799,10 @@ body.descent-story #endingText {
   body.descent-story .descent-progress > i {
     transition: none;
   }
+}
+body.descent-story #descentTaskPanel > section.panel {
+  max-width: 900px;
+  padding: 0;
 }
 
 #guardianBuildPanel {

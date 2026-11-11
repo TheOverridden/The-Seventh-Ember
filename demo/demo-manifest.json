@@ -1,13 +1,13 @@
 {
   "edition": "demo",
-  "release": 2026111104,
+  "release": 2026111105,
   "floors": [
     1,
     10
   ],
   "storyChapters": 2,
   "guardians": 2,
-  "blessings": 60,
+  "blessings": 61,
   "combinations": 15,
   "evolutions": 3,
   "purchasableSigils": 33,

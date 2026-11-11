@@ -30,7 +30,7 @@ function descentPixel(ctx, x, y, width, height, color) {
     Math.round(x),
     Math.round(y),
     Math.max(0, Math.round(width)),
-    Math.max(0, Math.round(height)),
+    Math.max(0, Math.round(height))
   );
 }
 
@@ -62,7 +62,7 @@ function descentLine(ctx, x1, y1, x2, y2, width, color) {
       y1 + ((y2 - y1) * i) / count - width / 2,
       width,
       width,
-      color,
+      color
     );
 }
 
@@ -116,7 +116,7 @@ function descentPlant(ctx, x, y, t, growth = 1) {
         [x + sway + side * 8, ly],
         [x + sway + side * 3, ly + 3],
       ],
-      k % 2 ? 'leafLight' : 'leaf',
+      k % 2 ? 'leafLight' : 'leaf'
     );
     p(x + sway + side * 3, ly, 2, 1, 'leafLight');
   }
@@ -378,7 +378,7 @@ function drawDescentProp(ctx, event, time = 0) {
           [x - 10, y + 17],
           [x - 7, y + 13],
         ],
-        'brass',
+        'brass'
       );
       p(x - 4, y + 4, 2, 9, 'brassLight');
       p(x - 10, y + 16, 20, 3, 'brassDark');
@@ -483,7 +483,7 @@ function descentFrame(ctx, x, y, opened, t, index = 0, empty = false) {
       x,
       y - 22 - (opened ? Math.sin(t * 2 + index) * 2 : 0),
       t + index,
-      opened ? 1 : 0.55,
+      opened ? 1 : 0.55
     );
 }
 
@@ -511,8 +511,8 @@ function drawDescentResident(ctx, event, time = 0, mode = 'idle') {
   const t = typeof save !== 'undefined' && save.motion ? 0 : time,
     active = event.progress > 0 && event.progress < 1,
     pose = active ? 'work' : mode,
-    x = event.x - 50,
-    y = event.y + 15;
+    x = event.x - 82,
+    y = event.y + 43;
   if (event.npc === 'oren' || event.npc === 'nell') {
     if (typeof ResidentArt === 'undefined') return;
     descentShadow(ctx, x, y, 23);
@@ -523,11 +523,16 @@ function drawDescentResident(ctx, event, time = 0, mode = 'idle') {
       event.npc,
       pose,
       Math.floor(t * (pose === 'walk' ? 10 : pose === 'work' ? 8 : pose === 'talk' ? 6 : 4)) % 16,
-      1,
+      1
     );
     ctx.restore();
   } else {
-    descentWick(ctx, x, y - 20 + Math.sin(t * 2.4) * 2, t, 0.9);
+    drawWickCharacter(ctx, x, y - 27, 30, t, {
+      moving: mode === 'walk',
+      speaking: mode === 'talk',
+      lookX: 1,
+      lookY: 0,
+    });
     descentPixel(ctx, x - 8, y - 12, 16, 2, '#7e613135');
   }
 }
@@ -582,7 +587,7 @@ function descentArtSprite(ctx, key, x, y, height, t, alpha = 1) {
     Math.round(x - (sprite.W * scale) / 2),
     Math.round(y - height),
     Math.round(sprite.W * scale),
-    Math.round(height),
+    Math.round(height)
   );
   ctx.restore();
   return true;
@@ -635,7 +640,7 @@ function drawHearthResidents(ctx, time = 0) {
         'nell',
         chapters.garden.help ? 'work' : 'idle',
         Math.floor(t * (chapters.garden.help ? 8 : 4)) % 16,
-        1,
+        1
       );
       ctx.restore();
     }
@@ -677,7 +682,7 @@ function descentEndingWall(ctx, light = false) {
         23,
         light
           ? ['#747b63', '#7f8266', '#696e58'][(row + col + 30) % 3]
-          : ['#303b32', '#374136', '#29342e'][(row + col + 30) % 3],
+          : ['#303b32', '#374136', '#29342e'][(row + col + 30) % 3]
       );
       p(x + 3, y, 53, 2, light ? '#a4a385' : '#4e5845');
     }
@@ -766,7 +771,7 @@ function descentEndingOutside(ctx, t, walk) {
       [640, 179],
       [0, 179],
     ],
-    '#8c9f82',
+    '#8c9f82'
   );
   for (let i = 0; i < 7; i++) {
     const x = 192 + i * 57,
@@ -802,7 +807,7 @@ function descentEndingOutside(ctx, t, walk) {
         [x + 6, y + 29],
         [x - 8, y + 29],
       ],
-      i % 3 ? '#697f5c' : '#72875f',
+      i % 3 ? '#697f5c' : '#72875f'
     );
     p(x + 3, y + 7, 14, 6, '#84976a');
     p(x + 15, y - 2, 17, 4, '#84976a');
@@ -828,7 +833,7 @@ function descentEndingOutside(ctx, t, walk) {
       [219, 195],
       [164, 200],
     ],
-    '#8e9d69',
+    '#8e9d69'
   );
   descentPoly(
     ctx,
@@ -838,7 +843,7 @@ function descentEndingOutside(ctx, t, walk) {
       [556, 360],
       [115, 360],
     ],
-    '#aaa782',
+    '#aaa782'
   );
   descentPoly(
     ctx,
@@ -848,7 +853,7 @@ function descentEndingOutside(ctx, t, walk) {
       [139, 360],
       [115, 360],
     ],
-    '#929878',
+    '#929878'
   );
   for (let row = 0; row < 7; row++) {
     const y = 176 + row * 27,
@@ -870,7 +875,7 @@ function descentEndingOutside(ctx, t, walk) {
       [323, 207],
       [305, 203],
     ],
-    '#6e845b',
+    '#6e845b'
   );
   descentPoly(
     ctx,
@@ -882,7 +887,7 @@ function descentEndingOutside(ctx, t, walk) {
       [394, 297],
       [375, 287],
     ],
-    '#6e845b',
+    '#6e845b'
   );
   p(400, 279, 13, 3, '#687b58');
   p(382, 272, 12, 2, '#a7b17e');
@@ -1078,7 +1083,7 @@ function drawDescentEnding(ctx, step, time = 0, walk = null) {
           78 + i * 96 + (124 + i * 14 - (78 + i * 96)) * ease,
           187 + (275 + (i % 2) * 13 - 187) * ease + Math.sin(t * 2 + i) * 2,
           t + i,
-          0.82,
+          0.82
         );
       }
     }
@@ -1169,7 +1174,7 @@ function drawDescentDemoEnding(ctx, elapsedOrData = 0, still = false) {
         prop: 'nursery',
         phase: drain > 0.6 ? 'complete' : 'introduced',
       },
-      t,
+      t
     );
     ctx.restore();
     if (typeof ResidentArt !== 'undefined') {
