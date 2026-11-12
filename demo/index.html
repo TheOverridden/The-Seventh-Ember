@@ -8,7 +8,12 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>The Seventh Ember — Demo</title>
-    <link rel="icon" type="image/x-icon" sizes="16x16 24x24 32x32 48x48 64x64 128x128 256x256" href="assets/icons/wick-tab-20261111.ico" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      sizes="16x16 24x24 32x32 48x48 64x64 128x128 256x256"
+      href="assets/icons/wick-tab-20261111.ico"
+    />
     <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/wick-tab-32-20261111.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/wick-tab-16-20261111.png" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -17,7 +22,7 @@
       content="A free, replayable ten-floor demo of The Seventh Ember. Explore two regions, defeat two guardians, and build a lasting flame."
     />
     <meta name="application-name" content="The Seventh Ember" />
-    <link rel="stylesheet" href="demo.css?v=2026111105">
+    <link rel="stylesheet" href="demo.css?v=2026111201">
 
 
 
@@ -43,8 +48,7 @@
 
 
 
-
-<script src="boot-art.js?v=2026111105"></script></head>
+  <script src="boot-art.js?v=2026111201"></script></head>
   <body>
     <div id="bootScreen" role="status" aria-label="Opening The Seventh Ember">
       <div class="boot-content">
@@ -186,8 +190,7 @@
         <div class="audiorow">
           <button class="btn" id="btnMusic"><i data-lucide="music"></i>MUSIC</button
           ><button class="btn" id="btnSfx"><i data-lucide="volume-2"></i>SOUND</button
-          ><button class="btn" id="btnSettings">SETTINGS & SAVE</button
-          ><button class="btn" id="btnMemories">MEMORIES</button>
+          ><button class="btn" id="btnSettings">SETTINGS & SAVE</button>
         </div>
         <div id="campaignMedal" hidden>◆ FIRST DAWN · CAMPAIGN COMPLETE</div>
         <div id="menuStats"></div>
@@ -340,7 +343,6 @@
           <button class="btn primary" id="btnResume"><i data-lucide="play"></i>RESUME</button>
           <button class="btn" id="btnSaveExit">SAVE & RETURN</button
           ><button class="btn" id="btnPauseSettings">SETTINGS</button
-          ><button class="btn" id="btnPauseMemories">MEMORIES</button
           ><button class="btn danger" id="btnAbandon"><i data-lucide="home"></i>END RUN</button>
         </div>
       </div>
@@ -552,22 +554,6 @@
         </div>
       </section>
     </div>
-    <div id="memories" class="ov">
-      <div class="panel memories-panel">
-        <div class="memories-heading">
-          <div>
-            <span class="eyebrow">THINGS THAT STAY</span>
-            <h2>Journal</h2>
-          </div>
-          <button class="btn" id="memoriesClose">BACK</button>
-        </div>
-        <p class="memories-intro">Conversations and traces recovered in the depths.</p>
-        <div id="memoryList"></div>
-        <div id="memoryEmpty">Nothing yet. Take the first step.</div>
-        <h3 class="armory-heading">Earned blessings</h3>
-        <div id="armoryList"></div>
-      </div>
-    </div>
     <div id="chapterClear" class="ov">
       <div class="panel chapter-clear-panel">
         <div class="chapter-seal" id="chapterSeal" aria-hidden="true">Ⅰ</div>
@@ -694,5 +680,5 @@
 
 
 
-  <script src="game.js?v=2026111105"></script></body>
+  <script src="game.js?v=2026111201"></script></body>
 </html>

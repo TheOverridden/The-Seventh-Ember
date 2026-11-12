@@ -13,7 +13,10 @@ const ONBOARDING_STEPS = [
 ];
 let onboardingMoveT = 0,
   onboardingDashT = 0,
-  onboardingDeadShown = false;
+  onboardingDeadShown = false,
+  onboardingCoachT = 0,
+  onboardingCoachGapT = 0;
+const onboardingShown = new Set();
 function cleanOnboarding(raw, totalRuns = 0) {
   const out = { version: ONBOARDING_VERSION };
   if (!raw && totalRuns >= 3) {
@@ -37,45 +40,54 @@ function learnOnboarding(id) {
   if (data[id]) return;
   data[id] = true;
   saveNow();
-  if (T('onboardingCoach')?.dataset.step === id) hideOnboardingCoach();
 }
 function onboardingTouch() {
   return document.body.classList.contains('touch');
+}
+function onboardingInputMode() {
+  return controllerInput.active ? 'controller' : onboardingTouch() ? 'touch' : 'keyboard';
+}
+function onboardingBinding(action, touchLabel) {
+  const controllerAction = action === 'reload' ? 'rekindle' : action === 'interact' ? 'use' : action;
+  return onboardingInputMode() === 'controller'
+    ? controllerButtonName(controllerPreferences().bindings[controllerAction])
+    : onboardingTouch()
+      ? touchLabel
+      : keyLabel(action);
 }
 const ONBOARDING_COPY = {
   move: [
     'MOVE FIRST',
     () =>
-      onboardingTouch()
-        ? 'Drag the left ember-ring to move.'
-        : 'Move with ' +
-          ['up', 'left', 'down', 'right'].map((action) => keyLabel(action, 0)).join(' / ') +
-          '.',
+      onboardingInputMode() === 'controller'
+        ? 'Left stick moves. Right stick aims. ' + controllerButtonName(9) + ' pauses.'
+        : onboardingTouch()
+          ? 'Left ember-ring moves. Right ember-ring aims and fires. Tap PAUSE for a break.'
+          : 'Move with ' +
+            ['up', 'left', 'down', 'right'].map((action) => keyLabel(action, 0)).join(' / ') +
+            '. Mouse aims. ' + keyLabel('pause') + ' pauses.',
   ],
   bolt: [
     'EMBER BOLT',
     () =>
-      onboardingTouch()
-        ? 'Hold the right ember-ring toward the creature.'
-        : 'Aim with the mouse and hold click, or hold ' + keyLabel('bolt') + '.',
+      onboardingInputMode() === 'controller'
+        ? 'Aim with the right stick. Hold ' + onboardingBinding('bolt') + ' to fire.'
+        : onboardingTouch()
+          ? 'Hold the right ember-ring toward the creature.'
+          : 'Aim with the mouse and hold click, or hold ' + keyLabel('bolt') + '.',
   ],
   flare: [
     'FLARE',
     () =>
-      onboardingTouch()
-        ? 'Tap FLARE when a creature gets close. It hits much harder.'
-        : 'Press ' +
-          keyLabel('flare') +
-          ' or right-click when a creature gets close. Flare hits much harder.',
+      'Flare hits harder up close. ' +
+      (onboardingInputMode() === 'keyboard'
+        ? 'Press ' + onboardingBinding('flare') + ' or right-click.'
+        : 'Press ' + onboardingBinding('flare', 'FLARE') + '.'),
   ],
   dash: [
     'DASH THROUGH DANGER',
     () =>
-      onboardingTouch()
-        ? 'Tap DASH as an attack reaches you. You cannot be hurt during the burst.'
-        : 'Press ' +
-          keyLabel('dash') +
-          ' as an attack reaches you. You cannot be hurt during the burst.',
+      'Press ' + onboardingBinding('dash', 'DASH') + ' to dash safely through an attack.',
   ],
   kindled: [
     'DASH COUNTER',
@@ -85,18 +97,12 @@ const ONBOARDING_COPY = {
   rekindle: [
     'REKINDLE',
     () =>
-      onboardingTouch()
-        ? 'Your six bolts are nearly spent. Tap REKINDLE now, or it will begin automatically at empty.'
-        : 'Your six bolts are nearly spent. Press ' +
-          keyLabel('reload') +
-          ' now, or Rekindle begins automatically at empty.',
+      'Low on Bolts? Press ' + onboardingBinding('reload', 'REKINDLE') + '. Rekindle is automatic at empty.',
   ],
   interact: [
     'THE RESTING FLAME',
     () =>
-      onboardingTouch()
-        ? 'Stand near the flame and tap USE to recover health.'
-        : 'Stand near the flame and press ' + keyLabel('interact') + ' to recover health.',
+      'Near the resting flame, press ' + onboardingBinding('interact', 'USE') + ' to recover health.',
   ],
   blessing: [
     'CHOOSE WHAT CHANGES',
@@ -118,14 +124,31 @@ document.body.append(coach);
 function hideOnboardingCoach() {
   coach.classList.remove('visible');
   coach.dataset.step = '';
+  onboardingCoachT = 0;
 }
 function showOnboardingCoach(id) {
-  if (onboardingData()[id] || coach.dataset.step === id) return;
+  if (onboardingData()[id] || onboardingShown.has(id)) return;
   const copy = ONBOARDING_COPY[id];
+  onboardingShown.add(id);
   coach.dataset.step = id;
+  onboardingCoachT = 2;
   T('onboardingTitle').textContent = copy[0];
   T('onboardingText').textContent = copy[1]();
   coach.classList.add('visible');
+  positionOnboardingCoach();
+}
+function positionOnboardingCoach() {
+  coach.style.visibility = '';
+  const map = T('mm')?.getBoundingClientRect(),
+    box = coach.getBoundingClientRect();
+  if (
+    map &&
+    box.left < map.right &&
+    box.right > map.left &&
+    box.top < map.bottom &&
+    box.bottom > map.top
+  )
+    coach.style.visibility = 'hidden';
 }
 function nearEnemy(range) {
   const p = G.player;
@@ -143,7 +166,8 @@ function nearEnemy(range) {
   );
 }
 function onboardingWanted() {
-  const d = onboardingData(),
+  const learned = onboardingData(),
+    d = Object.fromEntries(ONBOARDING_STEPS.map((id) => [id, learned[id] || onboardingShown.has(id)])),
     p = G.player;
   if (!p || G.floor > 5) return '';
   if (!d.move) return 'move';
@@ -176,6 +200,20 @@ function tickOnboarding(dt) {
     onboardingDashT += dt;
     if (onboardingDashT > 0.025) learnOnboarding('dash');
   } else onboardingDashT = 0;
+  if (coach.dataset.step) {
+    onboardingCoachT -= dt;
+    if (onboardingCoachT > 0) {
+      const copy = ONBOARDING_COPY[coach.dataset.step][1]();
+      if (T('onboardingText').textContent !== copy) T('onboardingText').textContent = copy;
+      positionOnboardingCoach();
+      return;
+    }
+    hideOnboardingCoach();
+    onboardingCoachGapT = 0.8;
+    return;
+  }
+  onboardingCoachGapT = Math.max(0, onboardingCoachGapT - dt);
+  if (onboardingCoachGapT > 0) return;
   const wanted = onboardingWanted();
   if (wanted) showOnboardingCoach(wanted);
   else hideOnboardingCoach();
@@ -188,6 +226,8 @@ const onboardingStart = startRun;
 startRun = function () {
   onboardingMoveT = onboardingDashT = 0;
   onboardingDeadShown = false;
+  onboardingShown.clear();
+  onboardingCoachGapT = 0;
   hideOnboardingCoach();
   return onboardingStart();
 };

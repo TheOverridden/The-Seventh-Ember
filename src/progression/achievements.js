@@ -168,7 +168,12 @@ achievementSeries('exploration', 'marks', [
 ]);
 achievementSeries('exploration', 'echoes', [
   ['echo1', 'A Hand With That', 1, 'Finish a story repair or help a resident.'],
-  ['echo5', 'Getting Things Working', 5, 'Finish five different story repairs or resident requests.'],
+  [
+    'echo5',
+    'Getting Things Working',
+    5,
+    'Finish five different story repairs or resident requests.',
+  ],
   ['echo15', 'Ready to Leave', 15, 'Finish fifteen different story repairs or resident requests.'],
 ]);
 achievementSeries('endless', 'depth', [
@@ -499,7 +504,7 @@ function installAchievements() {
   pause.id = 'btnPauseAchievements';
   pause.className = 'btn';
   pause.textContent = 'ACHIEVEMENTS';
-  T('btnPauseMemories').after(pause);
+  T('btnPauseSettings').after(pause);
   on(pause, 'click', openAchievements);
   const panel = document.createElement('div');
   panel.id = 'achievements';

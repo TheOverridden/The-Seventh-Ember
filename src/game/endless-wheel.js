@@ -831,7 +831,7 @@ function endlessWheelBuildUI() {
   pauseButton.type = 'button';
   pauseButton.className = 'btn endless-weight-pause';
   pauseButton.textContent = 'THE WEIGHT';
-  T('btnPauseMemories')?.after(pauseButton);
+  T('btnPauseSettings')?.after(pauseButton);
   const sparks = overlay.querySelector('.wheel-sparks');
   for (let i = 0; i < 34; i++) {
     const s = document.createElement('i');

@@ -636,7 +636,7 @@ function resetEverything() {
     'levelup',
     'skills',
     'howto',
-    'memories',
+
     'chapterClear',
   ])
     hide(id);
@@ -743,7 +743,7 @@ function wireRefinements() {
   on(T('btnResetEverything'), 'click', () =>
     confirmAction(
       'RESET EVERYTHING?',
-      'This erases all progress: the current run, essence, Skill Tree, ability blessings, records, memories, and settings. All dialogue will play again. This cannot be undone.',
+      'This erases all progress: the current run, essence, Skill Tree, ability blessings, records, story progress, and settings. All dialogue will play again. This cannot be undone.',
       'YES, RESET EVERYTHING',
       resetEverything
     )

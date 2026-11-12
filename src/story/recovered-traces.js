@@ -15,48 +15,6 @@ function nearestTrace() {
   return best;
 }
 
-renderMemories = function () {
-  const list = T('memoryList');
-  list.replaceChildren();
-  const seen = storyData().seen;
-  const conversations = Object.keys(HOLLOW_SCENES).filter(
-    (id) => seen[id] && !HOLLOW_SCENES[id].echo && !HOLLOW_SCENES[id].hidden && !TRACE_RECORDS[id]
-  );
-  const traces = Object.keys(TRACE_RECORDS).filter((id) => seen[id]);
-  T('memoryEmpty').hidden = conversations.length + traces.length > 0;
-  const heading = (text) => {
-    const h = document.createElement('div');
-    h.className = 'memory-section';
-    h.textContent = text;
-    list.appendChild(h);
-  };
-  if (conversations.length) {
-    heading('Conversations');
-    for (const id of conversations) {
-      const s = HOLLOW_SCENES[id],
-        b = document.createElement('button');
-      b.className = 'memory-entry';
-      b.innerHTML = `<span><strong>${s.title}</strong><small>${s.where}</small></span><span>RECALL →</span>`;
-      on(b, 'click', () => beginDialogue(id, true, 0, 'paused'));
-      list.appendChild(b);
-    }
-  }
-  if (traces.length) {
-    heading('Memories');
-    for (const id of traces) {
-      const r = TRACE_RECORDS[id],
-        b = document.createElement('button');
-      b.className = 'memory-entry trace-entry';
-      b.innerHTML = `<span><strong>${r.title}</strong><small>${r.place}</small></span><span class="trace-action">WATCH →</span>`;
-      on(b, 'click', () => {
-        hide('memories');
-        openTrace(id, true);
-      });
-      list.appendChild(b);
-    }
-  }
-};
-
 const LATE_BOSS_SPEAKERS = new Map([
   ['The Bellkeeper', 'bellkeeper'],
   ['The Ember Colossus', 'colossus'],

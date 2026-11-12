@@ -5,6 +5,8 @@ const wickGuide = {
   target: null,
   locks: new Map(),
   menuLocks: new Map(),
+  pauseLocks: new Map(),
+  guards: new Map(),
   layout: '',
   portraitAt: 0,
   replayStep: null,
@@ -50,8 +52,36 @@ on(wickTourButton, 'click', () => {
 
 function wickGuideStartOnly() {
   if (G.state !== 'menu' || saveConflicted) return false;
+  return wickGuideFirstDescentLocked();
+}
+function wickGuideFirstDescentLocked() {
+  if (saveConflicted) return false;
   const data = wickGuideData();
   return data.menuLocked && !data.tourStarted && !data.complete;
+}
+function wickGuidePauseAllowed(el) {
+  return ['btnResume', 'btnSaveExit', 'btnAbandon'].includes(el?.id);
+}
+function wickGuideRestorePause() {
+  for (const [el, value] of wickGuide.pauseLocks)
+    if (el.isConnected) {
+      el.hidden = value.hidden;
+      el.inert = value.inert;
+    }
+  wickGuide.pauseLocks.clear();
+}
+function wickGuideSyncPause() {
+  if (!wickGuideFirstDescentLocked()) {
+    wickGuideRestorePause();
+    return;
+  }
+  const controls = [...T('pause').querySelectorAll('button,a[href],input,select'), T('buildHud')];
+  for (const el of controls) {
+    if (!el || wickGuidePauseAllowed(el)) continue;
+    if (!wickGuide.pauseLocks.has(el))
+      wickGuide.pauseLocks.set(el, { hidden: el.hidden, inert: el.inert });
+    el.hidden = el.inert = true;
+  }
 }
 function wickGuideStartAction() {
   return T(save.resume ? 'btnContinue' : 'btnStart');
@@ -300,12 +330,6 @@ function wickGuideRender() {
         T('hearthTrialsPanel'),
       ],
       [
-        'Journal',
-        'Your current job is written here, along with the people you have met and what has changed. Have a look if you have been away for a while.',
-        'GOT IT',
-        T('btnMemories'),
-      ],
-      [
         'Achievements',
         'Your achievements are tracked here across all your descents. Open it to see what you’ve earned and what’s left.',
         'GOT IT',
@@ -363,6 +387,7 @@ function wickGuideLaunch(replay = false) {
   if (wickGuide.mode || (!replay && (!data.tourStarted || data.complete))) return;
   if (replay && (G.state !== 'menu' || !data.complete)) return;
   wickGuideRestoreMenu();
+  wickGuideRestorePause();
   wickGuideNavigate(() => backToMenu());
   storyQueue = storyQueue.filter((id) => !['firstDeath', 'firstSigil'].includes(id));
   storyData().seen.firstDeath = true;
@@ -426,6 +451,16 @@ for (const type of ['pointerdown', 'click', 'dblclick'])
   addEventListener(
     type,
     (event) => {
+      if (wickGuideFirstDescentLocked()) {
+        const locked = event.target?.closest?.(
+          '#btnTree,#btnGuardianArchive,#btnHearth,#btnBossRush,#btnForms,#btnAchievements,#btnSettings,#btnHow,#btnCombos,#buildHud,#pause button,#pause a[href],#pause input,#pause select'
+        );
+        if (locked && !wickGuidePauseAllowed(locked)) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return;
+        }
+      }
       const entry = wickGuideHomepageAction();
       if (type === 'click' && entry && (event.target === entry || entry.contains(event.target))) {
         event.preventDefault();
@@ -475,6 +510,7 @@ on(T('wickGuideNext'), 'click', wickGuideAdvance);
 
 const wickGuideInit = init;
 init = function () {
+  wickGuideInstallGuards();
   const out = wickGuideInit();
   const rush = T('btnBossRush');
   if (rush && !rush.dataset.wickGuide) {
@@ -485,6 +521,7 @@ init = function () {
   }
   wickGuideData();
   wickGuideSyncMenu();
+  wickGuideSyncPause();
   return out;
 };
 const wickGuideRefreshMenu = refreshMenuStats;
@@ -543,29 +580,66 @@ tryBuyNode = function (node) {
   }
   return out;
 };
-for (const name of [
-  'openTree',
-  'closeTree',
-  'openGuardianArchive',
-  'closeGuardianArchive',
-  'hearthOpen',
-  'hearthClose',
-  'openBossRush',
-  'backToMenu',
-  'requestStart',
-  'resumeRun',
-]) {
-  const previous = window[name];
-  window[name] = function (...args) {
-    if (
-      !wickGuide.internal &&
-      (wickGuide.mode ||
-        (wickGuideStartOnly() && !['requestStart', 'backToMenu', 'resumeRun'].includes(name)))
-    )
-      return;
-    return previous(...args);
-  };
+function wickGuideInstallGuards() {
+  for (const name of [
+    'openTree',
+    'closeTree',
+    'openGuardianArchive',
+    'closeGuardianArchive',
+    'hearthOpen',
+    'hearthClose',
+    'openBossRush',
+    'backToMenu',
+    'requestStart',
+    'resumeRun',
+    'openSettings',
+    'openForms',
+    'openAchievements',
+    'buildOpen',
+    'openGuardianPracticeBuild',
+    'openBossRushComboPicker',
+    'startGuardianPractice',
+    'startBossRush',
+    'resumeBossRush',
+    'createGuardianModeRun',
+    'startHearthTrial',
+  ]) {
+    const previous = window[name];
+    if (typeof previous !== 'function' || previous === wickGuide.guards.get(name)) continue;
+    const guarded = function (...args) {
+      if (
+        !wickGuide.internal &&
+        (wickGuide.mode ||
+          (wickGuideFirstDescentLocked() &&
+            ![
+              'requestStart',
+              'backToMenu',
+              'resumeRun',
+              'closeTree',
+              'closeGuardianArchive',
+              'hearthClose',
+            ].includes(name)))
+      )
+        return;
+      return previous(...args);
+    };
+    wickGuide.guards.set(name, guarded);
+    window[name] = guarded;
+  }
 }
+wickGuideInstallGuards();
+const wickGuidePause = pauseGame;
+pauseGame = function (paused) {
+  const out = wickGuidePause(paused);
+  wickGuideSyncPause();
+  return out;
+};
+const wickGuideHUD = updateHUD;
+updateHUD = function (dt) {
+  const out = wickGuideHUD(dt);
+  wickGuideSyncPause();
+  return out;
+};
 const wickGuideBlocking = anyBlockingOverlay;
 anyBlockingOverlay = function () {
   return !!wickGuide.mode || wickGuideStartOnly() || wickGuideBlocking();
@@ -601,6 +675,7 @@ const wickGuideTick = hollowTick;
 hollowTick = function (dt) {
   wickGuideCheck();
   const out = wickGuideTick(dt);
+  wickGuideSyncPause();
   if (wickGuide.mode) wickGuidePosition();
   if (G.tAll - wickGuide.portraitAt > 1 / 12) {
     wickGuide.portraitAt = G.tAll;
@@ -614,6 +689,7 @@ const wickGuideReset = resetEverything;
 resetEverything = function () {
   wickGuideStop();
   wickGuideRestoreMenu();
+  wickGuideRestorePause();
   const out = wickGuideReset();
   wickGuideData();
   wickGuideSyncMenu();

@@ -286,74 +286,6 @@ body.conversing #fieldNote {
   clip-path: inset(50%);
   white-space: nowrap;
 }
-#memories {
-  z-index: 58;
-  background: #050a13ba;
-}
-.memories-panel {
-  width: min(740px, 94vw);
-  text-align: left;
-}
-.memories-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-}
-.memories-heading h2 {
-  font: 32px Georgia;
-  color: #e8d0a8;
-  margin: 8px 0 0;
-}
-.memories-heading .btn {
-  font-size: 10px;
-}
-.memories-intro {
-  font: 12px/1.7 system-ui;
-  color: #8fa1b5;
-  margin: 19px 0 22px;
-}
-.memory-entry {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  text-align: left;
-  border: 1px solid #a6a48028;
-  background: linear-gradient(100deg, #84734c0d, #0b111be0);
-  padding: 15px 18px;
-  margin-bottom: 9px;
-  border-radius: 1px 9px 1px 9px;
-  cursor: pointer;
-  color: #e5d0af;
-}
-.memory-entry:hover,
-.memory-entry:focus-visible {
-  border-color: #c0a572;
-  background: #b3924620;
-}
-.memory-entry strong {
-  font: 17px Georgia;
-  display: block;
-}
-.memory-entry small {
-  display: block;
-  margin-top: 6px;
-  color: #8b9fb6;
-  font: 10px system-ui;
-}
-.memory-entry > span:last-child {
-  color: #b6a279;
-  font: 8px system-ui;
-  letter-spacing: 0.15em;
-}
-#memoryEmpty {
-  font: 16px Georgia;
-  color: #8495aa;
-  text-align: center;
-  padding: 32px;
-}
 .chapter-clear-panel {
   width: 650px;
   text-align: center;
@@ -537,15 +469,6 @@ body.conversing #fieldNote {
   .chapter-clear-panel h2 {
     font-size: 28px;
   }
-  .memories-heading h2 {
-    font-size: 27px;
-  }
-  .memory-entry {
-    padding: 13px;
-  }
-  .memory-entry strong {
-    font-size: 15px;
-  }
 }
 
 #weaponHUD {
@@ -669,39 +592,6 @@ body.conversing #fieldNote {
 #quickControls {
   font-size: 8px;
 }
-.armory-heading {
-  font: 20px Georgia;
-  color: #d9c5a0;
-  margin: 27px 0 14px;
-}
-.armory-entry {
-  padding: 12px 14px;
-  border: 1px solid #8d9eae22;
-  background: #0b132040;
-  margin-bottom: 7px;
-  border-radius: 2px;
-}
-.armory-entry strong {
-  display: block;
-  font: 12px system-ui;
-  color: #7e91a5;
-}
-.armory-entry small {
-  display: block;
-  font: 10px/1.7 system-ui;
-  color: #6f8297;
-  margin-top: 5px;
-}
-.armory-entry.unlocked {
-  border-color: #ac935c40;
-  background: #a07b2e09;
-}
-.armory-entry.unlocked strong {
-  color: #e1c590;
-}
-.armory-entry.unlocked small {
-  color: #a4b3c1;
-}
 @media (max-width: 700px) {
   #weaponHUD {
     left: 12px;
@@ -747,9 +637,6 @@ body.conversing #fieldNote {
   .audiorow {
     max-width: 330px;
     justify-content: center;
-  }
-  .memories-panel {
-    padding: 22px;
   }
   body.touch #botC {
     bottom: 240px;
@@ -882,23 +769,6 @@ body.conversing #fieldNote {
 .chip.r2 {
   border-color: #b98aff70;
   color: #d4b9ff;
-}
-.memory-section {
-  margin: 17px 0 8px;
-  color: #8996a8;
-  font: 700 8px system-ui;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.memory-entry.trace-entry {
-  border-color: #856fa538;
-  background: #a384c808;
-}
-.memory-entry.trace-entry strong {
-  color: #c9b6df;
-}
-.memory-entry.trace-entry .trace-action {
-  color: #a88cc7;
 }
 
 #skills .tree-panel {

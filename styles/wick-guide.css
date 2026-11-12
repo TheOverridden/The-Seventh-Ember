@@ -8,7 +8,10 @@
 }
 #wickGuide[hidden],
 #wickGuide [hidden],
-#btnWickTour[hidden] {
+#btnWickTour[hidden],
+#menu [hidden],
+#pause [hidden],
+#buildHud[hidden] {
   display: none !important;
 }
 #btnWickTour {

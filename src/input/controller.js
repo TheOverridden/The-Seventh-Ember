@@ -309,7 +309,7 @@ function controllerBack(scope) {
       achievements: 'achievementClose',
       dead: 'btnDeadMainMenu',
       win: 'btnWinEnd',
-      memories: 'memoriesClose',
+
       chapterClear: 'chapterExplore',
       confirmRun: 'btnCancelRun',
       burdenLedger: 'burdenLedgerClose',

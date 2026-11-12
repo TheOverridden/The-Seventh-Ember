@@ -1,43 +1,43 @@
 #onboardingCoach {
   position: fixed;
   z-index: 19;
-  left: 26px;
-  bottom: 28px;
+  left: 50%;
+  bottom: max(100px, calc(env(safe-area-inset-bottom) + 90px));
   width: min(330px, calc(100vw - 52px));
   box-sizing: border-box;
-  padding: 15px 18px 16px 20px;
+  padding: 10px 15px 11px 16px;
   border: 1px solid #bd9a6078;
   border-left: 3px solid #e0bc78;
   background: linear-gradient(120deg, #101926f2, #080d16f5);
   box-shadow: 0 12px 45px #000b;
   color: #c9d3db;
   opacity: 0;
-  transform: translateY(12px);
+  transform: translate(-50%, 8px);
   pointer-events: none;
   transition:
-    opacity 0.25s,
-    transform 0.25s;
+    opacity 0.18s,
+    transform 0.18s;
 }
 #onboardingCoach.visible {
   opacity: 1;
-  transform: none;
+  transform: translate(-50%, 0);
 }
 #onboardingCoach span {
   display: block;
   color: #8da0b1;
   font: 7px system-ui;
   letter-spacing: 0.22em;
-  margin-bottom: 7px;
+  margin-bottom: 5px;
 }
 #onboardingCoach strong {
   display: block;
   color: #f1d7a3;
-  font: 15px Georgia;
+  font: 13px Georgia;
   letter-spacing: 0.04em;
 }
 #onboardingCoach p {
-  margin: 7px 0 0;
-  font: 12px/1.55 system-ui;
+  margin: 5px 0 0;
+  font: 12px/1.4 system-ui;
 }
 #onboardingCoach i {
   position: absolute;
@@ -70,9 +70,7 @@
 }
 @media (max-width: 700px) {
   #onboardingCoach {
-    left: 12px;
-    bottom: 150px;
-    width: calc(100vw - 24px);
+    width: min(320px, calc(100vw - 24px));
     padding: 12px 15px;
   }
   #onboardingCoach strong {
@@ -83,5 +81,18 @@
   }
   #firstDeathGuide {
     margin: 12px 0;
+  }
+}
+body.touch #onboardingCoach {
+  bottom: max(260px, calc(env(safe-area-inset-bottom) + 250px));
+}
+@media (max-height: 560px) and (orientation: landscape) {
+  body.touch #onboardingCoach {
+    bottom: max(148px, calc(env(safe-area-inset-bottom) + 138px));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #onboardingCoach {
+    transition: opacity 0.18s;
   }
 }

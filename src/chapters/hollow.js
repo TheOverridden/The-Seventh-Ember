@@ -157,7 +157,6 @@ function finishDialogue() {
   if (d.focus?.isConnected) d.focus.focus({ preventScroll: true });
   else if (G.state === 'playing') G.cv.focus({ preventScroll: true });
   saveNow();
-  if (d.replay) renderMemories();
 }
 function drawPortrait() {
   if (!dialogue) return;
@@ -293,35 +292,7 @@ function announceHollowFloor() {
   chapterBannerT = 2.5;
   T('chapterBanner').classList.add('visible');
 }
-function renderMemories() {
-  const list = T('memoryList');
-  list.replaceChildren();
-  const ids = Object.keys(HOLLOW_SCENES).filter(
-    (id) => storyData().seen[id] && !HOLLOW_SCENES[id].hidden
-  );
-  T('memoryEmpty').hidden = ids.length > 0;
-  for (const id of ids) {
-    const s = HOLLOW_SCENES[id],
-      b = document.createElement('button');
-    b.className = 'memory-entry';
-    const left = document.createElement('span'),
-      name = document.createElement('strong'),
-      where = document.createElement('small'),
-      action = document.createElement('span');
-    name.textContent = s.title;
-    where.textContent = s.where;
-    action.textContent = 'RECALL →';
-    left.append(name, where);
-    b.append(left, action);
-    b.addEventListener('click', () => beginDialogue(id, true));
-    list.appendChild(b);
-  }
-}
-function openMemories() {
-  if (G.state === 'playing') pauseGame(true);
-  renderMemories();
-  show('memories');
-}
+
 function showChapterClear() {
   const second = G.floor === 10;
   setState('chapter');
@@ -336,14 +307,7 @@ function showChapterClear() {
   sfx('victory');
 }
 function hollowKey(e) {
-  if (!dialogue) {
-    if (T('memories').classList.contains('open') && e.code === 'Escape') {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      hide('memories');
-    }
-    return;
-  }
+  if (!dialogue) return;
   if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
   e.stopImmediatePropagation();
   if (e.code === 'Tab') {
@@ -366,9 +330,7 @@ function hollowKey(e) {
 function wireHollow() {
   on(T('dialogueNext'), 'click', () => advanceDialogue());
   on(T('dialogueSkip'), 'click', finishDialogue);
-  on(T('memoriesClose'), 'click', () => hide('memories'));
-  on(T('btnMemories'), 'click', openMemories);
-  on(T('btnPauseMemories'), 'click', openMemories);
+
   on(T('chapterContinue'), 'click', () => {
     hide('chapterClear');
     setState('playing');
@@ -2036,7 +1998,7 @@ startRun = function () {
   T('conversation').hidden = true;
   document.body.classList.remove('conversing');
   hide('chapterClear');
-  hide('memories');
+
   beforeHollow.startRun();
   if (!storyData().seen.arrival) beginDialogue('arrival');
 };
@@ -2137,7 +2099,6 @@ tryBuyNode = function (n) {
   if (!owned && save.nodes[n.id]) queueStory('firstSigil');
 };
 backToMenu = function () {
-  hide('memories');
   hide('chapterClear');
   T('chapterBanner').classList.remove('visible');
   T('fieldNote').classList.remove('visible');
@@ -2146,9 +2107,7 @@ backToMenu = function () {
   beforeHollow.backToMenu();
 };
 anyBlockingOverlay = function () {
-  return (
-    beforeHollow.anyBlockingOverlay() || T('memories').classList.contains('open') || !!dialogue
-  );
+  return beforeHollow.anyBlockingOverlay() || !!dialogue;
 };
 onEscKey = function () {
   if (G.state === 'chapter') {

@@ -132,6 +132,8 @@
       p.x = pos.x;
       p.y = pos.y;
       p.kbx = p.kby = 0;
+      resetCompanion();
+      updateCompanion(0);
       p.hitCd = Math.max(p.hitCd, 1.1);
       G.cam.x = p.x - G.w / 2;
       G.cam.y = p.y - G.h / 2;
@@ -297,11 +299,7 @@
       gx = p.x;
       gy = solidPx(G.world, p.x, p.y - 24) ? p.y : p.y - 24;
     }
-    if (
-      !Number.isFinite(companion.x) ||
-      d2(companion.x, companion.y, p.x, p.y) > 180 ** 2 ||
-      save.motion
-    ) {
+    if (!Number.isFinite(companion.x)) {
       companion.x = gx;
       companion.y = gy;
       companion.vx = companion.vy = 0;
@@ -317,11 +315,6 @@
         c = companion[velocity] + 11 * offset;
       companion[axis] = goal + (offset + c * step) * decay;
       companion[velocity] = (companion[velocity] - 11 * c * step) * decay;
-    }
-    if (solidPx(G.world, companion.x, companion.y)) {
-      companion.x = gx;
-      companion.y = gy;
-      companion.vx = companion.vy = 0;
     }
   }
   function drawPointer(ctx) {

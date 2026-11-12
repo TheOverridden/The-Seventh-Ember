@@ -104,7 +104,6 @@ function closeRememberedTrace() {
   document.body.classList.remove('remembering');
 }
 function openTrace() {
-  if (typeof openDescentJournal === 'function') openDescentJournal();
   return false;
 }
 function prepareEchoSanctuaries() {

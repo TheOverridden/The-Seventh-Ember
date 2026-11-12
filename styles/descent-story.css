@@ -260,87 +260,6 @@ body.descent-story .descent-progress > i {
   background: #d6bd78;
   transition: width 0.1s linear;
 }
-body.descent-story .descent-journal {
-  width: min(870px, 92vw);
-  max-height: 88vh;
-  overflow: auto;
-  background: linear-gradient(140deg, #253026, #131d18);
-  border: 1px solid #8e8055;
-  box-shadow: 0 18px 65px #0008;
-  padding: 28px;
-}
-body.descent-story .descent-journal header {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #b2a37433;
-  padding-bottom: 18px;
-  margin-bottom: 21px;
-}
-body.descent-story .descent-journal h2 {
-  font:
-    34px/1.2 Georgia,
-    serif;
-  color: #ead5a6;
-  margin: 4px 0 0;
-}
-body.descent-story .descent-journal h3 {
-  font:
-    20px/1.3 Georgia,
-    serif;
-  color: #d9cb9f;
-  margin: 22px 0 11px;
-}
-body.descent-story .descent-journal p {
-  font:
-    13px/1.7 system-ui,
-    sans-serif;
-  color: #c5cbb7;
-}
-body.descent-story .descent-journal .descent-objective {
-  position: static;
-  width: 100%;
-  margin: 0 0 20px;
-  box-shadow: none;
-}
-body.descent-story .descent-journal ul {
-  padding-left: 20px;
-  margin: 11px 0 18px;
-}
-body.descent-story .descent-journal li {
-  color: #bbc5ac;
-  font:
-    13px/1.65 system-ui,
-    sans-serif;
-  margin: 8px 0;
-}
-body.descent-story .descent-resident-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  border: 1px solid #6e765344;
-  padding: 13px 16px;
-  background: #17251b;
-  margin: 10px 0;
-}
-body.descent-story .descent-resident-card canvas {
-  image-rendering: pixelated;
-  width: 64px;
-  height: 72px;
-  object-fit: contain;
-  flex: none;
-}
-body.descent-story .descent-resident-card strong {
-  font:
-    20px Georgia,
-    serif;
-  color: #e8d4a2;
-}
-body.descent-story .descent-resident-card p {
-  margin: 5px 0 0;
-}
-body.descent-story #descentJournal button:focus-visible,
 body.descent-story #descentTaskPanel button:focus-visible,
 body.descent-story .dialogue-footer button:focus-visible {
   outline: 2px solid #f6d69a;
@@ -417,26 +336,6 @@ body.descent-story .descent-task-reward {
   font: 11px/1.6 system-ui;
   margin: 13px 0;
 }
-body.descent-story .descent-finished-work {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-body.descent-story .descent-finished-work article {
-  padding: 12px 15px;
-  border: 1px solid #8c825333;
-  background: #111e174d;
-}
-body.descent-story .descent-finished-work strong {
-  color: #d7c699;
-  font:
-    15px/1.4 Georgia,
-    serif;
-}
-body.descent-story .descent-finished-work p {
-  margin: 5px 0 0;
-  font: 11px/1.55 system-ui;
-}
 @media (max-height: 650px) and (min-width: 820px) {
   body.descent-story .descent-task-copy {
     padding: 17px 21px 13px;
@@ -457,9 +356,6 @@ body.descent-story .descent-finished-work p {
   }
   body.descent-story .descent-task-art {
     padding: 13px 10px;
-  }
-  body.descent-story .descent-finished-work {
-    grid-template-columns: 1fr;
   }
 }
 body.descent-story #descentActionLabel {
@@ -626,9 +522,6 @@ body.descent-story #endingText {
     top: 89px;
     max-width: 45vw;
     font-size: 10px;
-  }
-  body.descent-story .descent-journal {
-    padding: 20px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

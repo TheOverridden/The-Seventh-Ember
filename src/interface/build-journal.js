@@ -378,7 +378,7 @@ updateHUD = function (dt) {
   button.id = 'btnCombos';
   button.className = 'btn';
   button.textContent = 'BUILD & COMBINATIONS';
-  T('btnPauseMemories').after(button);
+  T('btnPauseSettings').after(button);
   const hud = document.createElement('button');
   hud.id = 'buildHud';
   hud.type = 'button';

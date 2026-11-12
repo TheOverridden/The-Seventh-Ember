@@ -256,14 +256,12 @@ body.ui-reborn .sbox .k {
 }
 body.ui-reborn #settings,
 body.ui-reborn #howto,
-body.ui-reborn #memories,
 body.ui-reborn #chapterClear,
 body.ui-reborn #confirmRun {
   overflow: auto;
 }
 body.ui-reborn #settings .panel,
 body.ui-reborn #howto .panel,
-body.ui-reborn .memories-panel,
 body.ui-reborn .chapter-clear-panel,
 body.ui-reborn #confirmRun .panel {
   max-height: calc(100dvh - 24px);
@@ -407,21 +405,6 @@ body.ui-reborn #dialogueChoices button {
   border-color: color-mix(in srgb, var(--voice) 36%, transparent);
   background: #0d0d0bdc;
   color: #d8cebc;
-}
-body.ui-reborn .memory-entry,
-body.ui-reborn .armory-entry {
-  border-color: rgba(var(--region-rgb), 0.25);
-  border-radius: 0 8px 0 8px;
-  background: linear-gradient(100deg, rgba(var(--region-rgb), 0.08), #0b0b0ae8);
-}
-body.ui-reborn .memory-entry:hover,
-body.ui-reborn .memory-entry:focus-visible {
-  border-color: rgba(var(--region-rgb), 0.72);
-  background: linear-gradient(100deg, rgba(var(--region-rgb), 0.17), #100f0ded);
-}
-body.ui-reborn .memory-entry strong,
-body.ui-reborn .armory-entry.unlocked strong {
-  color: #e6d4b1;
 }
 body.ui-reborn .trace-fragment {
   border-color: var(--region);

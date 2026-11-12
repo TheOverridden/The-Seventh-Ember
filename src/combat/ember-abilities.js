@@ -355,20 +355,6 @@ function drawCombatFX(ctx) {
     }
 }
 
-function renderArmory() {
-  const list = T('armoryList');
-  list.replaceChildren();
-  for (const [id, o] of Object.entries(ARMORY)) {
-    const row = document.createElement('div');
-    row.className = 'armory-entry' + (armoryData()[id] ? ' unlocked' : '');
-    const title = document.createElement('strong'),
-      desc = document.createElement('small');
-    title.textContent = armoryData()[id] ? o.name : 'Undiscovered blessing';
-    desc.textContent = armoryData()[id] ? o.detail : o.requirement;
-    row.append(title, desc);
-    list.appendChild(row);
-  }
-}
 function wireCombat() {
   on(T('btnReload'), 'click', () => {
     if (G.state === 'playing') reloadQueued = true;
@@ -421,7 +407,7 @@ const beforeCombat = {
   validateCheckpoint,
   updateHUD,
   clearInput,
-  renderMemories,
+
   chooseCard,
 };
 fireVolley = function () {
@@ -504,10 +490,7 @@ updateHUD = function (dt) {
   syncWeaponHUD();
   if (G.boss?.warden && G.boss.introduced) setTxt('floorObjective', 'THE LAST WATCH');
 };
-renderMemories = function () {
-  beforeCombat.renderMemories();
-  renderArmory();
-};
+
 chooseCard = function (i) {
   beforeCombat.chooseCard(i);
   if (G.player && G.run) updateHUD(0);
