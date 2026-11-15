@@ -160,7 +160,7 @@ function drawDescentProp(ctx, event, time = 0) {
   ctx.translate(Math.round(event.x), Math.round(event.y));
   ctx.imageSmoothingEnabled = false;
   const p = (a, b, w, h, c) => descentPixel(ctx, a, b, w, h, c),
-    complete = ['complete', 'helped'].includes(event.phase),
+    complete = event.repaired || ['complete', 'helped'].includes(event.phase),
     working = event.progress > 0 && event.progress < 1,
     t = typeof save !== 'undefined' && save.motion ? 0 : time,
     key = String(event.prop || event.chapterId || '').toLowerCase(),

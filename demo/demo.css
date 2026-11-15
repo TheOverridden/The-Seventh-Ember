@@ -13099,8 +13099,8 @@ body.descent-story #descentTaskPanel p {
   margin: 7px 0 13px;
 }
 body.descent-story .descent-task-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 9px;
   align-items: center;
   position: relative;
@@ -13116,28 +13116,11 @@ body.descent-story .descent-task-actions button {
   letter-spacing: 0.06em;
   cursor: pointer;
 }
-body.descent-story .descent-task-actions button:last-child:not(:first-child) {
-  background: #243023;
-  color: #bbc4aa;
-  border-color: #657052;
-}
 body.descent-story .descent-interaction {
   font:
     12px/1.6 system-ui,
     sans-serif;
   color: #e5d3a4;
-}
-body.descent-story .descent-progress {
-  height: 4px;
-  background: #111b14;
-  margin: 13px 0 5px;
-  overflow: hidden;
-}
-body.descent-story .descent-progress > i {
-  display: block;
-  height: 100%;
-  background: #d6bd78;
-  transition: width 0.1s linear;
 }
 body.descent-story #descentTaskPanel button:focus-visible,
 body.descent-story .dialogue-footer button:focus-visible {
@@ -13237,24 +13220,6 @@ body.descent-story .descent-task-reward {
     padding: 13px 10px;
   }
 }
-body.descent-story #descentActionLabel {
-  position: fixed;
-  left: 50%;
-  bottom: 28px;
-  transform: translateX(-50%);
-  z-index: 58;
-  max-width: 80vw;
-  padding: 13px 24px;
-  background: #18251deb;
-  border: 1px solid #bca46a;
-  color: #eee0ba;
-  box-shadow: 0 6px 30px #0005;
-  font: 13px/1.5 system-ui;
-  letter-spacing: 0.04em;
-  text-align: center;
-  pointer-events: none;
-}
-body.descent-story #descentActionLabel[hidden],
 body.descent-story #descentObjective[hidden] {
   display: none;
 }
@@ -13403,14 +13368,60 @@ body.descent-story #endingText {
     font-size: 10px;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  body.descent-story .descent-progress > i {
-    transition: none;
-  }
-}
 body.descent-story #descentTaskPanel > section.panel {
   max-width: 900px;
   padding: 0;
+}
+body.descent-story .descent-task-actions .resident-supply {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 5px 12px;
+  width: 100%;
+  min-height: 96px;
+  padding: 13px 16px;
+  text-align: left;
+  white-space: normal;
+  background: linear-gradient(120deg, #354234, #202d24);
+  border: 1px solid #8c8a60;
+  box-shadow:
+    inset 0 1px #d9ce9e18,
+    0 4px 0 #111b14;
+}
+.resident-supply canvas {
+  grid-row: 1 / 3;
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+}
+.resident-supply strong {
+  align-self: end;
+  color: #f2d6a0;
+  font:
+    16px/1.3 Georgia,
+    serif;
+  letter-spacing: 0;
+}
+.resident-supply span {
+  align-self: start;
+  color: #d0d4bc;
+  font:
+    12px/1.5 system-ui,
+    sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+body.descent-story .descent-task-actions .resident-supply:hover,
+body.descent-story .descent-task-actions .resident-supply:focus-visible {
+  background: linear-gradient(120deg, #4a553d, #2a382b);
+  border-color: #e8d19a;
+}
+body.descent-story .descent-task-actions .resident-supply:disabled {
+  opacity: 0.45;
+}
+#descentTaskPanel [hidden] {
+  display: none !important;
 }
 
 #guardianBuildPanel {

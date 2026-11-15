@@ -1,7 +1,6 @@
 'use strict';
 const DS_DEMO = window.DS_DEMO === true;
 let descentPending = null,
-  descentAction = null,
   descentTaskReturn = 'playing',
   descentClock = 0;
 
@@ -62,10 +61,6 @@ function descentChapter(f = G.floor) {
   return DESCENT_CHAPTERS.find((c) => f >= c.from && f <= c.to) || null;
 }
 
-function descentActionText(e) {
-  const c = DESCENT_CHAPTERS.find((c) => c.id === e.chapterId);
-  return e.optional ? c.optionalAction : c.action;
-}
 function descentEvent(id) {
   return G.world?.descentEvents?.find((e) => e.id === id) || null;
 }
@@ -186,8 +181,10 @@ function descentInstallFloor() {
         w.descentEventSlots = 1;
       }
       w.descentReserved.push(index);
-      const done = optional ? record.help : record.main,
-        known = !!storyData().seen['ds-' + c.id + '-' + (optional ? 'optional' : 'intro')];
+      const done = G.run.residentStops?.[c.id + (optional ? '-help' : '-main')]?.claimed === true,
+        known =
+          (optional ? record.help : record.main) ||
+          !!storyData().seen['ds-' + c.id + '-' + (optional ? 'optional' : 'intro')];
       const e = {
         id: 'descent-' + c.id + (optional ? '-help' : '-main'),
         chapterId: c.id,
@@ -198,6 +195,7 @@ function descentInstallFloor() {
         prop: optional ? c.optionalProp : c.prop,
         artScale: Math.min(1, (r.w * TILE - 38) / 216, (r.h * TILE - 40) / 190),
         optional,
+        repaired: optional ? record.help : record.main,
         phase: done
           ? optional
             ? 'helped'
@@ -211,6 +209,7 @@ function descentInstallFloor() {
         actionT: 0,
         arrival: restore || known || save.motion ? 1 : 0,
       };
+      residentStop(e);
       w.descentEvents.push(e);
       descentQuietRoom(index);
       descentClearWorksite(e);
@@ -280,50 +279,60 @@ function descentSpeak(e) {
 }
 function descentOpenTask(e) {
   const c = DESCENT_CHAPTERS.find((c) => c.id === e.chapterId);
-  if (!c) return;
+  if (!c || !G.run) return;
+  const record = residentStop(e),
+    detail = descentTaskDetails(e),
+    repaired = descentData().chapters[c.id][e.optional ? 'help' : 'main'],
+    name = e.npc === 'wick' ? 'Wick' : e.npc === 'oren' ? 'Oren' : 'Nell';
   descentTaskReturn = G.state === 'menu' ? 'menu' : 'playing';
   descentPending = e.id;
-  T('descentTaskTitle').textContent = e.optional ? c.optionalTitle : c.title;
-  T('descentTaskText').textContent = e.optional
-    ? e.phase === 'helped'
-      ? c.helpSummary
-      : c.optionalAction
-    : e.phase === 'complete'
-      ? c.mainSummary
-      : c.objective;
-  const detail = descentTaskDetails(e);
-  if (!['helped', 'complete'].includes(e.phase)) T('descentTaskText').textContent = detail.request;
-  T('descentTaskWho').textContent = 'WITH ' + (e.npc === 'wick' ? 'WICK' : e.npc.toUpperCase());
-  T('descentTaskImpact').textContent = detail.impact;
-  T('descentTaskReward').textContent = ['helped', 'complete'].includes(e.phase)
-    ? 'Finished · the change is kept'
-    : '◆ ' + Math.round(detail.reward * (META.ess || 1)) + ' Essence · one-time reward';
+  T('descentTaskTitle').textContent = name + (e.npc === 'oren' ? '’s workbench' : '’s supplies');
+  T('descentTaskText').textContent = record.claimed
+    ? 'You have taken supplies from this stop. More will be ready on your next descent.'
+    : repaired
+      ? 'Choose what you need for the descent.'
+      : detail.request + ' Then choose what you need.';
+  T('descentTaskWho').textContent = 'WITH ' + name.toUpperCase();
+  T('descentTaskImpact').textContent = repaired ? '' : detail.impact;
+  T('descentTaskImpact').hidden = repaired;
+  T('descentTaskReward').textContent = record.claimed
+    ? 'Supplies collected this descent'
+    : 'Choose one · fresh supplies every descent';
   T('descentTaskPanel').dataset.chapter = c.id;
   paintDescentTask(e, descentClock);
   const actions = T('descentTaskActions');
   actions.replaceChildren();
-  if (!['helped', 'complete'].includes(e.phase)) {
-    const b = document.createElement('button');
-    b.className = 'btn primary';
-    b.textContent = e.optional ? c.optionalAction : c.action;
-    b.onclick = () => descentBeginAction(e);
-    actions.append(b);
-    if (e.optional && !descentData().chapters[c.id].taken) {
-      const supply = document.createElement('button');
-      supply.className = 'btn';
-      supply.textContent =
-        'Take the supplies · +' +
-        Math.round((c.immediateReward || 12) * (META.ess || 1)) +
-        ' Essence';
-      supply.onclick = () => descentTakeSupplies(e);
-      actions.append(supply);
+  if (!record.claimed)
+    for (const [index, offer] of record.offers.entries()) {
+      const button = document.createElement('button'),
+        icon = document.createElement('canvas'),
+        title = document.createElement('strong'),
+        description = document.createElement('span');
+      button.className = 'btn resident-supply';
+      icon.width = icon.height = 48;
+      icon.setAttribute('aria-hidden', 'true');
+      drawMothItem(icon.getContext('2d'), 24, 24, RESIDENT_SUPPLIES[offer.type].icon, 1);
+      title.textContent = RESIDENT_SUPPLIES[offer.type].name;
+      description.textContent = residentSupplyAvailable(offer)
+        ? residentSupplyText(offer)
+        : offer.type === 'rest'
+          ? 'Health is already full.'
+          : 'Already at maximum rank.';
+      button.disabled = !residentSupplyAvailable(offer);
+      button.append(icon, title, description);
+      button.onclick = () => takeResidentSupply(e, index);
+      actions.append(button);
     }
-  }
+  T('descentTaskClose').textContent = record.claimed
+    ? 'Return to the descent'
+    : 'Leave the supplies';
   setState('paused');
   show('descentTaskPanel');
   clearInput();
-  actions.querySelector('button')?.focus({ preventScroll: true });
-  if (!actions.children.length) T('descentTaskClose').focus({ preventScroll: true });
+  (actions.querySelector('button:not(:disabled)') || T('descentTaskClose')).focus({
+    preventScroll: true,
+  });
+  saveNow('resident-stop');
 }
 function descentLeaveTask() {
   hide('descentTaskPanel');
@@ -333,73 +342,7 @@ function descentLeaveTask() {
   G.cv?.focus({ preventScroll: true });
   saveNow('story-task');
 }
-function descentBeginAction(e) {
-  if (!e || descentAction || G.dead || ['helped', 'complete'].includes(e.phase)) return;
-  hide('descentTaskPanel');
-  descentPending = null;
-  descentAction = { id: e.id, time: 0, duration: 2.5, from: 'playing' };
-  e.progress = 0;
-  e.active = true;
-  G.bullets = [];
-  G.ebul = [];
-  clearInput();
-  setState('storyAction');
-  T('descentActionLabel').textContent = descentActionText(e);
-  T('descentActionLabel').hidden = false;
-}
-function descentCancelAction() {
-  const e = descentEvent(descentAction?.id);
-  if (e) {
-    e.active = false;
-    e.progress = 0;
-  }
-  descentAction = null;
-  T('descentActionLabel').hidden = true;
-  setState('playing');
-  clearInput();
-  saveNow('story-interrupted');
-}
-function descentFinishAction(e) {
-  const c = DESCENT_CHAPTERS.find((c) => c.id === e.chapterId),
-    record = descentData().chapters[c.id];
-  if (record[e.optional ? 'help' : 'main']) return;
-  e.active = false;
-  e.progress = 1;
-  if (e.optional) {
-    record.help = true;
-    e.phase = 'helped';
-    if (e.npc !== 'wick') descentData().residents[e.npc] = true;
-  } else {
-    record.main = true;
-    record.by = 'player';
-    record.met = true;
-    e.phase = 'complete';
-  }
-  const paid = e.optional ? 'helpRewarded' : 'mainRewarded';
-  if (!record[paid]) {
-    record[paid] = true;
-    addEss(descentTaskDetails(e).reward);
-  }
-  descentAction = null;
-  T('descentActionLabel').hidden = true;
-  setState('playing');
-  saveNow('story-complete');
-  beginDialogue('ds-' + c.id + '-' + (e.optional ? 'helped' : 'after'), false, 0, 'playing');
-}
-function descentTakeSupplies(e) {
-  const c = DESCENT_CHAPTERS.find((c) => c.id === e.chapterId),
-    r = descentData().chapters[c.id];
-  if (r.taken || r.help) return;
-  r.taken = true;
-  e.phase = 'taken';
-  addEss(c.immediateReward || 12);
 
-  hide('descentTaskPanel');
-  descentPending = null;
-  setState('playing');
-  clearInput();
-  saveNow('story-supplies');
-}
 function descentGuardianComplete() {
   const c = descentChapter();
   if (!c) return;
@@ -412,7 +355,7 @@ function descentGuardianComplete() {
   if (c.id === 'gate') descentData().residents.mara = true;
   for (const e of G.world?.descentEvents || [])
     if (!e.optional) {
-      e.phase = 'complete';
+      e.repaired = true;
       e.progress = 1;
     }
 }
@@ -449,13 +392,13 @@ function descentDrawWorld(ctx) {
       descentClock,
       arriving
         ? 'walk'
-        : e.active
+        : e.workUntil > descentClock
           ? 'work'
           : dialogue?.id.startsWith('ds-' + e.chapterId)
             ? 'talk'
             : 'idle'
     );
-    if (d2(e.x - 30, e.y + 18, G.player.x, G.player.y) < 115 ** 2 && !dialogue && !descentAction) {
+    if (d2(e.x - 30, e.y + 18, G.player.x, G.player.y) < 115 ** 2 && !dialogue) {
       ctx.fillStyle = '#dec792';
       ctx.font = '11px system-ui';
       ctx.textAlign = 'center';
@@ -492,19 +435,6 @@ function descentTick(dt) {
     for (const e of G.world?.descentEvents || [])
       if (e.arrival < 1 && (e.arrival > 0 || descentEventVisible(e)))
         e.arrival = save.motion ? 1 : clamp(e.arrival + dt / 1.1, 0, 1);
-  if (descentAction) {
-    const e = descentEvent(descentAction.id);
-    if (!e || G.dead) {
-      descentCancelAction();
-      return;
-    }
-    descentAction.time += dt;
-    e.progress = clamp(descentAction.time / descentAction.duration, 0, 1);
-    e.actionT = descentAction.time;
-    T('descentActionLabel').textContent =
-      descentActionText(e) + ' · ' + Math.round(e.progress * 100) + '%';
-    if (e.progress >= 1) descentFinishAction(e);
-  }
   if (T('descentTaskPanel')?.classList.contains('open')) {
     const event = descentEvent(descentPending);
     if (event) paintDescentTask(event, descentClock);
@@ -559,7 +489,6 @@ function descentUI() {
   T('descentTaskPanel').setAttribute('aria-modal', 'true');
   T('descentTaskPanel').setAttribute('aria-labelledby', 'descentTaskTitle');
   make('descentObjective', 'descent-objective', '').hidden = true;
-  make('descentActionLabel', 'descent-action', '').hidden = true;
 
   T('descentTaskClose').onclick = descentLeaveTask;
   T('endingCanvas').width = 640;
@@ -569,11 +498,7 @@ function descentUI() {
     'keydown',
     (event) => {
       if (event.code !== 'Escape') return;
-      if (descentAction) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        descentCancelAction();
-      } else if (T('descentTaskPanel').classList.contains('open')) {
+      if (T('descentTaskPanel').classList.contains('open')) {
         event.preventDefault();
         event.stopImmediatePropagation();
         descentLeaveTask();
@@ -598,13 +523,7 @@ validateSave = function (raw) {
 };
 const descentOldSnapshot = snapshotRun;
 snapshotRun = function () {
-  const state = G.state;
-  if (state === 'storyAction') G.state = 'paused';
-  try {
-    descentOldSnapshot();
-  } finally {
-    G.state = state;
-  }
+  descentOldSnapshot();
   if (save.resume && G.world?.descentEvents && G.run && !G.dead) {
     save.resume.world.descentEvents = deepCopy(
       G.world.descentEvents.map((e) => ({
@@ -621,9 +540,7 @@ snapshotRun = function () {
 const descentOldSetup = setupFloor;
 setupFloor = function (f) {
   descentNotice.key = '';
-  descentAction = null;
   descentPending = null;
-  T('descentActionLabel') && (T('descentActionLabel').hidden = true);
   const out = descentOldSetup(f);
   descentInstallFloor();
   saveNow('story-floor');
@@ -631,7 +548,6 @@ setupFloor = function (f) {
 };
 const descentOldResume = resumeRun;
 resumeRun = function () {
-  descentAction = null;
   descentPending = null;
   const out = descentOldResume();
   if (G.run) {
@@ -661,6 +577,8 @@ finishDialogue = function () {
     descentPending = null;
     if (e && e.phase === 'introduced') descentOpenTask(e);
   }
+  if (id?.startsWith('ds-') && !dialogue && G.state === 'playing' && G.pendingLevels > 0)
+    triggerLevelup();
 };
 const descentOldBefore = hollowBeforeUpdate;
 hollowBeforeUpdate = function (dt) {
@@ -676,7 +594,6 @@ hollowBeforeUpdate = function (dt) {
 };
 const descentOldUpdate = update;
 update = function (dt) {
-  if (G.state === 'storyAction') return;
   if (interactQueued && G.state === 'playing' && !anyBlockingOverlay()) {
     const e = nearestDescentEvent();
     if (e) {
@@ -703,7 +620,9 @@ updateHUD = function (dt) {
   if (G.state === 'playing' && !G.bossActive) {
     const e = nearestDescentEvent();
     if (e) {
-      T('promptTxt').textContent = 'TALK TO ' + (e.npc === 'wick' ? 'WICK' : e.npc.toUpperCase());
+      T('promptTxt').textContent =
+        (residentStop(e).claimed ? 'TALK TO ' : 'SUPPLIES · ') +
+        (e.npc === 'wick' ? 'WICK' : e.npc.toUpperCase());
       T('prompt').classList.add('on');
     }
   }
@@ -749,16 +668,12 @@ drawHearthRoom = function (ctx, t) {
 };
 const descentOldBlocking = anyBlockingOverlay;
 anyBlockingOverlay = function () {
-  return (
-    !!descentAction || T('descentTaskPanel')?.classList.contains('open') || descentOldBlocking()
-  );
+  return T('descentTaskPanel')?.classList.contains('open') || descentOldBlocking();
 };
 const descentOldBack = backToMenu;
 backToMenu = function () {
-  descentAction = null;
   descentPending = null;
   for (const id of ['descentTaskPanel']) T(id)?.classList.remove('open');
-  T('descentActionLabel') && (T('descentActionLabel').hidden = true);
   return descentOldBack();
 };
 if (!DS_DEMO) {

@@ -529,11 +529,12 @@ function spawnHearthTrialEnemy(type, point, serial) {
     trialRole: role,
     trialFlame:
       hearthTrialProtectsFlames() &&
-      (['guard', 'rush'].includes(role) || (role === 'ranged' && serial % 2 === 0)),
+      (hearthTrial.id === 'twinFlames' ||
+        ['guard', 'rush'].includes(role) ||
+        (role === 'ranged' && serial % 2 === 0)),
     flameIndex: 0,
   });
-  if (e.trialFlame && hearthTrial.id === 'twinFlames')
-    e.flameIndex = hearthTrial.flameSpawned++ % 2;
+  assignHearthTrialFlame(e);
   if (e.ai === 'late') e.specialCd = (1.3 + (serial % 4) * 0.3) / (1 + settings.pressure * 0.18);
   CREATURE_MOTION.set(e, {
     x: e.x,

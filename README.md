@@ -20,7 +20,7 @@ The Seventh Ember is a modular browser roguelike with a fifty-floor campaign, pe
 
 Scripts load in dependency order at the bottom of `index.html`. Each directory owns a distinct part of the game while sharing the same browser runtime.
 
-Residents offer repairs and requests across ten regions. Their work changes the dungeon and Hearth, and task completion persists across descents. Conversations and chapter content are kept in `src/story/`. Older memory progress remains compatible with saved achievements.
+Residents offer supply stops across ten regions. Each stop has two seeded choices and can be claimed once per descent; its offers and claim are included in the checkpoint. First-time visits also advance the permanent repairs and Hearth details. Conversations and chapter content are kept in `src/story/`. Older memory progress remains compatible with saved achievements.
 
 The Achievements screen tracks 115 milestones across seven categories. Recorded progress receives credit when a save loads, and achievements are included in exported backups.
 

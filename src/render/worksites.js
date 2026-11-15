@@ -60,7 +60,7 @@ const worksiteOldProp = drawDescentProp;
 drawDescentProp = function (ctx, event, time = 0) {
   if (!event || !Number.isFinite(event.x) || !Number.isFinite(event.y)) return;
   const t = typeof save !== 'undefined' && save.motion ? 0 : time;
-  const done = ['complete', 'helped'].includes(event.phase),
+  const done = event.repaired || ['complete', 'helped'].includes(event.phase),
     progress = done ? 1 : Math.max(0, Math.min(1, event.progress || 0)),
     u = progress * progress * (3 - 2 * progress),
     id = event.chapterId;

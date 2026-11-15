@@ -92,7 +92,34 @@ function hearthTrialProtectsFlames() {
   return ['defense', 'twinFlames'].includes(hearthTrial?.id);
 }
 function hearthTrialTarget(e) {
-  return e.trialFlame ? hearthTrial.flames[e.flameIndex || 0] : G.player;
+  if (!e.trialFlame) return G.player;
+  return hearthTrial.flames[e.flameIndex] || hearthTrial.flames[0];
+}
+function assignHearthTrialFlame(e) {
+  const q = hearthTrial;
+  if (!e.trialFlame) return;
+  if (q.id !== 'twinFlames') {
+    e.flameIndex = 0;
+    return;
+  }
+  const pressure = q.flames.map(
+    (flame, index) =>
+      G.enemies.filter(
+        (other) => other !== e && !other.dead && other.trialFlame && other.flameIndex === index
+      ).length
+  );
+  const least = Math.min(...pressure);
+  const candidates = q.flames
+    .map((flame, index) => ({ index, distance: d2(e.x, e.y, flame.x, flame.y) }))
+    .filter((flame) => pressure[flame.index] === least);
+  candidates.sort(
+    (a, b) =>
+      a.distance - b.distance ||
+      ((a.index + q.flameSpawned) % q.flames.length) -
+        ((b.index + q.flameSpawned) % q.flames.length)
+  );
+  e.flameIndex = candidates[0].index;
+  q.flameSpawned++;
 }
 function hearthTrialObjectivesMet() {
   const q = hearthTrial;
