@@ -198,6 +198,52 @@ function hearthGuardianRecover(e, duration = null) {
   e.trialMode = 'rest';
   burst(e.x, e.y - 25, 7, HEARTH_CRUCIBLE_PALETTE.hot, 90, 0.35, 2, true);
 }
+function hearthGuardianExposed(e) {
+  const c = e.crucible;
+  return (
+    c.mode === 'recover' ||
+    (c.mode === 'attack' && c.kind === 'relay' && c.t >= c.ventAt && c.t <= c.ventEnd)
+  );
+}
+function hearthGuardianHammerPoint(h, time = h.t) {
+  const age = time - h.warning,
+    spin = h.a - Math.PI / 2,
+    clock = h.stepAt + time,
+    orbit = (save.motion ? 0 : clock) * (h.owner.phase === 2 ? 1.3 : 0.8) + (h.index * TAU) / 3,
+    rest = {
+      x: h.owner.x + Math.cos(orbit) * 61,
+      y:
+        h.owner.y +
+        Math.sin(orbit) * 61 * 0.48 -
+        11 +
+        (save.motion ? 0 : Math.sin(clock * 3.2) * 2),
+      rotation: orbit + Math.PI / 2,
+    };
+  if (age < 0) {
+    const u = smoothBoss(clamp(time / h.warning, 0, 1));
+    return {
+      x: h.x,
+      y: h.y - u * 18,
+      rotation: h.startRotation + hearthGuardianAngle(spin, h.startRotation) * u,
+    };
+  }
+  if (age < h.outTime) {
+    const u = clamp(age / h.outTime, 0, 1);
+    return {
+      x: lerp(h.x, h.endX, u),
+      y: lerp(h.y - 18, h.endY, u) - Math.sin(u * Math.PI) * 14,
+      rotation: spin + age * 12,
+    };
+  }
+  const landedRotation = spin + h.outTime * 12;
+  if (age < h.outTime + h.hold) return { x: h.endX, y: h.endY, rotation: landedRotation };
+  const u = smoothBoss(clamp((age - h.outTime - h.hold) / h.returnTime, 0, 1));
+  return {
+    x: lerp(h.endX, rest.x, u),
+    y: lerp(h.endY, rest.y, u),
+    rotation: landedRotation + hearthGuardianAngle(rest.rotation, landedRotation) * u,
+  };
+}
 function hearthGuardianBeginAttack(e) {
   const p = G.player,
     q = hearthTrial,
@@ -206,17 +252,23 @@ function hearthGuardianBeginAttack(e) {
     patterns =
       q.tier === 0
         ? e.phase
-          ? ['charge', 'cleave', 'triphammer', 'rivets', 'sweep', 'quench']
-          : ['charge', 'cleave', 'rivets', 'charge']
+          ? ['relay', 'cleave', 'triphammer', 'charge', 'sweep', 'quench']
+          : ['charge', 'relay', 'cleave', 'rivets']
         : q.tier === 1
           ? e.phase
-            ? ['charge', 'cleave', 'triphammer', 'sweep', 'rivets', 'quench']
-            : ['charge', 'cleave', 'sweep', 'rivets', 'quench']
+            ? ['relay', 'cleave', 'triphammer', 'sweep', 'charge', 'quench']
+            : ['charge', 'relay', 'sweep', 'cleave', 'quench']
           : e.phase === 2
-            ? ['judgment', 'charge', 'triphammer', 'sweep', 'forging', 'quench', 'rivets']
+            ? ['judgment', 'relay', 'charge', 'triphammer', 'sweep', 'forging', 'quench']
             : e.phase
-              ? ['charge', 'forging', 'triphammer', 'sweep', 'cleave', 'rivets', 'quench']
-              : ['charge', 'forging', 'sweep', 'cleave', 'rivets', 'quench'];
+              ? ['relay', 'forging', 'triphammer', 'sweep', 'charge', 'rivets', 'quench']
+              : ['charge', 'relay', 'forging', 'sweep', 'cleave', 'quench'];
+  const heldArms = hearthGuardianPose(
+    e,
+    save.motion ? 0 : c.step,
+    hearthGuardianExposed(e),
+    save.motion ? 0 : Math.sin(c.step * 3.2) * 2
+  ).satellites;
   c.kind = patterns[c.serial++ % patterns.length];
   if (distance > 250 && c.kind === 'cleave') c.kind = 'charge';
   if (distance < 130 && c.kind === 'rivets') c.kind = 'cleave';
@@ -229,7 +281,41 @@ function hearthGuardianBeginAttack(e) {
   c.leadHammer = c.serial % 3;
   e.trialAngle = c.a;
   e.trialMode = 'attack';
-  if (c.kind === 'charge') {
+  if (c.kind === 'relay') {
+    const count = q.tier === 0 && !e.phase ? 2 : 3,
+      arms = [];
+    for (let i = 0; i < count; i++) {
+      const lead = hearthGuardianLeadPoint(e, 0.22 + q.tier * 0.05),
+        a = Math.atan2(lead.y - e.y, lead.x - e.x) + (i - (count - 1) / 2) * 0.44,
+        reach = clamp(Math.hypot(lead.x - e.x, lead.y - e.y), 150, 340),
+        point = safePosition(G.world, e.x + Math.cos(a) * reach, e.y + Math.sin(a) * reach, 24);
+      if (!point) continue;
+      const h = hearthGuardianHazard(e, 'hammer', {
+        index: i,
+        x: e.x + heldArms[i].x,
+        y: e.y + heldArms[i].y + 22,
+        startRotation: heldArms[i].rotation,
+        stepAt: c.step,
+        endX: point.x,
+        endY: point.y,
+        a,
+        warning: [0.9, 0.8, 0.72][q.tier] + i * 0.46,
+        outTime: [0.54, 0.5, 0.46][q.tier],
+        hold: [1.75, 1.65, 1.5][q.tier] + (q.tier === 2 ? (count - 1 - i) * 0.3 : 0),
+        returnTime: [0.68, 0.62, 0.56][q.tier],
+        radius: 14,
+        damage: Math.round(e.dmg * 0.92),
+      });
+      if (h) {
+        h.life = h.outTime + h.hold + h.returnTime;
+        arms.push(h);
+      }
+    }
+    c.ventAt = arms.length ? Math.max(...arms.map((h) => h.warning + h.outTime)) : 0.9;
+    c.ventEnd = arms.length ? Math.min(...arms.map((h) => h.warning + h.outTime + h.hold)) : 2;
+    c.duration = arms.length ? Math.max(...arms.map((h) => h.warning + h.life)) + 0.2 : 2.5;
+    for (const h of arms) h.life = c.duration - h.warning + 0.05;
+  } else if (c.kind === 'charge') {
     c.warning = [0.9, 0.85, 0.79][q.tier];
     c.lockAt = c.warning - [0.4, 0.38, 0.35][q.tier];
     c.dashDuration = 0.5;
@@ -240,6 +326,7 @@ function hearthGuardianBeginAttack(e) {
     c.originX = e.x;
     c.originY = e.y;
     c.dashBlocked = false;
+    c.slagDistance = 0;
     e.trialMode = 'chargeWind';
   } else if (c.kind === 'cleave') {
     c.warning = [0.88, 0.83, 0.77][q.tier];
@@ -313,6 +400,20 @@ function hearthGuardianDash(e, dt, a, speed, blockedKey) {
     p = G.player,
     prev = hearthTrial.guardianPreviousPlayer || p;
   c[blockedKey] = moveEnt(G.world, e, Math.cos(a) * speed * dt, Math.sin(a) * speed * dt);
+  if (e.phase > 0 || hearthTrial.tier > 0) {
+    c.slagDistance = (c.slagDistance || 0) + Math.hypot(e.x - x, e.y - y);
+    if (c.slagDistance >= 48) {
+      c.slagDistance %= 48;
+      hearthGuardianHazard(e, 'slag', {
+        x,
+        y,
+        warning: 0.55,
+        life: 2.6,
+        radius: 19,
+        damage: Math.round(e.dmg * 0.65),
+      });
+    }
+  }
   e.trialMode = 'dash';
   e.trialAngle = a;
   if (hearthGuardianSegmentsTouch(x, y, e.x, e.y, prev.x, prev.y, p.x, p.y, e.r + p.r))
@@ -363,7 +464,13 @@ function tickHearthTrialGuardian(e, dt) {
     0,
     Math.min(5, (c.pressure || 0) + dt * (distance > 225 && sideways > 100 ? 1 : -0.7))
   );
-  if (nextPhase > e.phase && ['approach', 'recover'].includes(c.mode)) {
+  if (nextPhase > e.phase && c.mode !== 'temper') {
+    c.temperArms = hearthGuardianPose(
+      e,
+      save.motion ? 0 : c.step,
+      hearthGuardianExposed(e),
+      save.motion ? 0 : Math.sin(c.step * 3.2) * 2
+    ).satellites;
     e.phase = nextPhase;
     e.cruciblePhase = nextPhase + 1;
     c.mode = 'temper';
@@ -380,6 +487,7 @@ function tickHearthTrialGuardian(e, dt) {
   if (c.mode === 'temper') {
     if (c.t >= c.duration) {
       c.mode = 'approach';
+      c.temperArms = null;
       c.t = 0;
       c.duration = 0.45;
       e.trialMode = 'walk';
@@ -414,7 +522,13 @@ function tickHearthTrialGuardian(e, dt) {
     if (c.t >= c.duration) hearthGuardianBeginAttack(e);
     return;
   }
-  if (c.kind === 'charge') {
+  if (c.kind === 'relay') {
+    e.trialMode = hearthGuardianExposed(e) ? 'vent' : 'attack';
+    if (tier === 2 && e.phase === 2)
+      hearthGuardianOnce(c, 'relayVent', c.ventEnd + 0.1, () =>
+        hearthGuardianFan(e, 0.58, 3, 0.23)
+      );
+  } else if (c.kind === 'charge') {
     if (c.t < c.lockAt) {
       const lead = Math.max(
           0.35,
@@ -532,7 +646,7 @@ function tickHearthTrialGuardian(e, dt) {
 }
 function hearthGuardianDamage(e, amount, kind = 'shot') {
   if (!e?.crucible || e.dead) return amount;
-  const exposed = e.crucible.mode === 'recover',
+  const exposed = hearthGuardianExposed(e),
     multiplier = exposed
       ? 1.6
       : e.crucible.mode === 'temper'
@@ -587,7 +701,24 @@ function tickHearthGuardianHazards(dt) {
     if (h.kind === 'lane') continue;
     if (h.t > h.warning + h.life && before > h.warning + h.life) continue;
     let hit = false;
-    if (h.kind === 'sector' || h.kind === 'pillar') {
+    if (h.kind === 'hammer') {
+      if (before > h.warning + h.outTime + h.hold + h.returnTime) continue;
+      const a = hearthGuardianHammerPoint(h, before),
+        b = hearthGuardianHammerPoint(h);
+      hit = hearthGuardianSegmentsTouch(
+        a.x,
+        a.y,
+        b.x,
+        b.y,
+        prev.x,
+        prev.y,
+        p.x,
+        p.y,
+        h.radius + p.r
+      );
+    } else if (h.kind === 'slag') {
+      hit = hearthGuardianPointDistance(h.x, h.y, prev.x, prev.y, p.x, p.y) <= h.radius + p.r;
+    } else if (h.kind === 'sector' || h.kind === 'pillar') {
       const n = Math.max(1, Math.ceil(Math.hypot(p.x - prev.x, p.y - prev.y) / 5));
       for (let i = 0; i <= n && !hit; i++) {
         const px = prev.x + (p.x - prev.x) * (i / n),
@@ -677,7 +808,36 @@ function drawHearthGuardianHazards(ctx) {
     if (h.kind === 'lane') continue;
     if (h.kind === 'fan' && !warning) continue;
     ctx.fillStyle = '#ed9a52';
-    if (h.kind === 'beam' || h.kind === 'fan') {
+    if (h.kind === 'hammer') {
+      const point = hearthGuardianHammerPoint(h),
+        age = h.t - h.warning;
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = '#101713';
+      ctx.fillRect(Math.round(point.x) - 15, Math.round(point.y) - 4, 30, 8);
+      if (warning) {
+        ctx.globalAlpha = 0.4 + progress * 0.3;
+        ctx.fillStyle = '#cda36b';
+        for (const side of [-1, 1])
+          ctx.fillRect(Math.round(h.endX) + side * 12, Math.round(h.endY) - 2, 4, 3);
+      } else if (age >= h.outTime && age < h.outTime + h.hold) {
+        const ready = clamp((age - h.outTime - h.hold + 0.35) / 0.35, 0, 1);
+        ctx.globalAlpha = 0.3 + ready * 0.6;
+        ctx.fillStyle = '#ffd29b';
+        ctx.fillRect(Math.round(point.x) - 3, Math.round(point.y) - 8, 6, 3);
+      }
+    } else if (h.kind === 'slag') {
+      const fade = warning ? progress : Math.min(1, (h.warning + h.life - h.t) / 0.6);
+      ctx.globalAlpha = fade;
+      ctx.fillStyle = '#22231e';
+      ctx.fillRect(h.x - 18, h.y - 5, 36, 10);
+      ctx.fillRect(h.x - 11, h.y - 9, 22, 18);
+      ctx.fillStyle = warning ? '#8e653d' : '#c5793e';
+      ctx.fillRect(h.x - 15, h.y, 12, 2);
+      ctx.fillRect(h.x - 4, h.y - 3, 15, 2);
+      ctx.fillStyle = warning ? '#baa176' : '#ffd399';
+      ctx.fillRect(h.x - 3, h.y - 2, 5, 2);
+      ctx.fillRect(h.x + 9, h.y - 1, 5, 1);
+    } else if (h.kind === 'beam' || h.kind === 'fan') {
       const angle =
         h.kind === 'beam'
           ? h.a + h.turn * Math.max(0, Math.min(1, (h.t - h.warning) / h.life))
@@ -807,27 +967,7 @@ function hearthGuardianLink(ctx, ax, ay, bx, by, color, width = 4) {
       width
     );
 }
-function hearthGuardianHammer(ctx, x, y, a, raised, palette) {
-  ctx.save();
-  ctx.translate(Math.round(x), Math.round(y));
-  ctx.rotate(a);
-  ctx.fillStyle = palette.dark;
-  ctx.fillRect(-8, -4, 30, 10);
-  ctx.fillRect(7, -18, 22, 34);
-  ctx.fillStyle = palette.iron;
-  ctx.fillRect(-6, -2, 24, 6);
-  ctx.fillStyle = palette.bronze;
-  ctx.fillRect(10, -15, 16, 28);
-  ctx.fillStyle = palette.edge;
-  ctx.fillRect(11, -14, 15, 4);
-  ctx.fillRect(22, -10, 4, 20);
-  ctx.fillStyle = raised ? palette.hot : palette.shadow;
-  ctx.fillRect(12, -4, 9, 8);
-  ctx.fillStyle = palette.light;
-  ctx.fillRect(12, -12, 3, 3);
-  ctx.fillRect(12, 7, 3, 3);
-  ctx.restore();
-}
+
 function hearthGuardianPose(e, t, open, bob) {
   const c = e.crucible,
     hazards = (hearthTrial?.guardianHazards || []).filter((h) => h.owner === e),
@@ -853,13 +993,39 @@ function hearthGuardianPose(e, t, open, bob) {
     brace,
     vent: beam || fan ? 1 : attack && c.kind === 'quench' ? Math.min(1, c.t / 0.82) : 0,
     satellites: Array.from({ length: 3 }, (_, i) => {
-      const orbitA = t * (e.phase === 2 ? 1.3 : 0.8) + (i * Math.PI * 2) / 3,
+      const orbitA =
+          (save.motion ? 0 : c.step) * (e.phase === 2 ? 1.3 : 0.8) + (i * Math.PI * 2) / 3,
         settleT = Math.max(0, Math.min(1, c.t / 0.2)),
         settle = attack ? settleT * settleT * (3 - 2 * settleT) : 1;
       let a = orbitA,
-        radius = open ? 76 : 61,
+        radius = 61 + (c.mode === 'recover' ? 15 * smoothBoss(clamp(c.t / 0.3, 0, 1)) : 0),
         lift = 0,
         raised = false;
+      if (c.mode === 'temper' && c.temperArms?.[i]) {
+        const from = c.temperArms[i],
+          u = smoothBoss(clamp(c.t / c.duration, 0, 1));
+        return {
+          a: orbitA,
+          rotation: from.rotation + hearthGuardianAngle(orbitA + Math.PI / 2, from.rotation) * u,
+          x: lerp(from.x, Math.cos(orbitA) * 61, u),
+          y: lerp(from.y, Math.sin(orbitA) * 61 * 0.48 - 33 + bob, u),
+          raised: true,
+        };
+      }
+      if (attack && c.kind === 'relay') {
+        const h = hazards.find((h) => h.kind === 'hammer' && h.index === i);
+        if (h) {
+          const point = hearthGuardianHammerPoint(h),
+            age = h.t - h.warning;
+          return {
+            a: Math.atan2(point.y - e.y, point.x - e.x),
+            x: point.x - e.x,
+            y: point.y - e.y - 22,
+            rotation: point.rotation,
+            raised: age < 0 || age > h.outTime + h.hold - 0.35,
+          };
+        }
+      }
       if (chargeWind || (attack && c.kind === 'charge' && e.trialMode === 'dash')) {
         a = chargeA + (i - 1) * 0.52;
         radius = 62 + brace * 10;
@@ -937,169 +1103,448 @@ function hearthGuardianPose(e, t, open, bob) {
     }),
   };
 }
+const crucibleBodyFrames = new Map(),
+  crucibleHammerFrames = new Map();
+function crucibleBodyFrame(phase, opening, heat) {
+  const key = phase + ':' + opening + ':' + heat;
+  if (crucibleBodyFrames.has(key)) return crucibleBodyFrames.get(key);
+  const cv = document.createElement('canvas');
+  cv.width = 114;
+  cv.height = 148;
+  const x = cv.getContext('2d');
+  x.translate(57, 117);
+  const p = (a, b, w, h, c) => hearthPixel(x, a, b, w, h, c),
+    poly = (points, c) => secretArtPoly(x, points, c),
+    iron = '#3d4845',
+    dark = '#161f1e',
+    bronze = '#8e754f',
+    edge = '#c9ab76',
+    fire = phase === 2 ? '#fff0bb' : phase ? '#ffd18a' : '#f59e51';
+  poly(
+    [
+      [-28, -83],
+      [-39, -72],
+      [-44, -49],
+      [-39, -20],
+      [-28, 1],
+      [-22, 15],
+      [22, 15],
+      [29, 1],
+      [40, -20],
+      [44, -49],
+      [38, -72],
+      [27, -83],
+    ],
+    dark
+  );
+  poly(
+    [
+      [-26, -79],
+      [-35, -68],
+      [-39, -48],
+      [-34, -22],
+      [-25, -3],
+      [-20, 9],
+      [20, 9],
+      [25, -3],
+      [35, -22],
+      [39, -48],
+      [34, -68],
+      [25, -79],
+    ],
+    iron
+  );
+  poly(
+    [
+      [-34, -63],
+      [-25, -69],
+      [-25, -23],
+      [-17, -8],
+      [-21, 5],
+      [-30, -8],
+      [-37, -31],
+    ],
+    '#687168'
+  );
+  poly(
+    [
+      [26, -68],
+      [34, -62],
+      [38, -38],
+      [30, -9],
+      [21, 5],
+      [17, -8],
+      [25, -26],
+    ],
+    '#2c3734'
+  );
+  for (const side of [-1, 1]) {
+    poly(
+      [
+        [side * 29, -70],
+        [side * 36, -63],
+        [side * 39, -51],
+        [side * 32, -48],
+        [side * 26, -55],
+      ],
+      '#878b76'
+    );
+    p(side * 31 - 2, -65, 4, 3, edge);
+    p(side * 35 - 2, -54, 4, 3, '#a59267');
+    p(side * 36 - 3, -44, 6, 18, dark);
+    p(side * 36 - 2, -43, 4, 15, bronze);
+    p(side * 36 - 1, -42, 1, 13, edge);
+    for (let i = 0; i < 3; i++) p(side * 30 - 3, -36 + i * 7, 6, 3, '#101c18');
+    p(side * 30 - 2, -35 + (heat % 2), 3, 1, phase ? fire : '#c48144');
+    poly(
+      [
+        [side * 30, -25],
+        [side * 36, -21],
+        [side * 29, -5],
+        [side * 18, 9],
+        [side * 13, 1],
+        [side * 24, -12],
+      ],
+      bronze
+    );
+    p(side * 27 - 3, -14, 5, 2, edge);
+    p(side * 21 - 2, 0, 4, 2, '#dfc18c');
+  }
+  poly(
+    [
+      [-30, -81],
+      [-22, -91],
+      [-16, -96],
+      [17, -96],
+      [25, -90],
+      [31, -81],
+      [26, -72],
+      [-26, -72],
+    ],
+    dark
+  );
+  poly(
+    [
+      [-27, -82],
+      [-20, -89],
+      [-14, -92],
+      [14, -92],
+      [22, -88],
+      [28, -82],
+      [23, -76],
+      [-23, -76],
+    ],
+    bronze
+  );
+  p(-22, -86, 44, 3, edge);
+  p(-15, -91, 30, 2, '#b49563');
+  p(-24, -79, 48, 3, '#514a35');
+  p(-18, -84, 36, 5, '#151f1a');
+  for (let i = 0; i < 7; i++) {
+    p(-16 + i * 5, -83, 3, 3, i % 2 ? fire : '#ab6236');
+  }
+  for (const side of [-1, 1]) {
+    p(side * 23 - 4, -99, 9, 15, dark);
+    p(side * 23 - 3, -99, 7, 12, '#6b7259');
+    p(side * 23 - 2, -99, 2, 11, edge);
+    p(side * 23 - 4, -101, 9, 3, bronze);
+    p(side * 23 - 3, -101, 7, 1, '#e8c992');
+    p(side * 23 - 1, -105 - ((heat + side + 4) % 3), 2, 5, '#987b4b');
+  }
+  p(-15, -74, 30, 9, '#15201b');
+  p(-13, -72, 26, 5, '#6e6746');
+  for (const a of [-9, 0, 9]) {
+    p(a - 2, -71, 4, 3, fire);
+    p(a - 1, -71, 2, 1, '#fff2c5');
+  }
+  poly(
+    [
+      [-22, -61],
+      [-15, -66],
+      [15, -66],
+      [23, -59],
+      [25, -27],
+      [17, -13],
+      [-16, -13],
+      [-25, -27],
+    ],
+    '#101a15'
+  );
+  poly(
+    [
+      [-18, -59],
+      [-12, -62],
+      [13, -62],
+      [19, -56],
+      [21, -29],
+      [14, -17],
+      [-13, -17],
+      [-20, -29],
+    ],
+    '#723e26'
+  );
+  p(-14, -54, 28, 29, '#c9652e');
+  p(-10, -60, 20, 38, fire);
+  p(-5, -53 - heat, 9, 36 + heat, '#ffe7a1');
+  p(-2, -49, 5, 24, '#fff5cc');
+  for (let i = 0; i < 5; i++) {
+    p(-14 + i * 6, -24 - (i % 2) * 3, 3, 3, fire);
+  }
+  const slide = opening * 4;
+  for (const side of [-1, 1]) {
+    const ax = side < 0 ? -22 - slide : 5 + slide;
+    poly(
+      [
+        [ax, -62],
+        [ax + 17, -62],
+        [ax + 19, -53],
+        [ax + 19, -28],
+        [ax + 15, -16],
+        [ax, -21],
+      ],
+      dark
+    );
+    poly(
+      [
+        [ax + 2, -59],
+        [ax + 15, -59],
+        [ax + 16, -52],
+        [ax + 16, -29],
+        [ax + 12, -20],
+        [ax + 2, -24],
+      ],
+      '#5d674f'
+    );
+    p(ax + 3, -59, 11, 2, edge);
+    p(ax + 3, -56, 2, 28, '#a38e5f');
+    for (let i = 0; i < 4; i++) {
+      p(ax + 6, -51 + i * 7, 8, 2, '#26392e');
+      p(ax + 6, -50 + i * 7, 7, 1, '#7f8a65');
+    }
+    p(ax + 11, -37, 3, 3, bronze);
+    p(ax + 11, -37, 2, 1, '#e8c58a');
+  }
+  poly(
+    [
+      [-24, 1],
+      [-14, 9],
+      [14, 9],
+      [25, 0],
+      [28, 6],
+      [18, 20],
+      [-18, 20],
+      [-28, 7],
+    ],
+    dark
+  );
+  poly(
+    [
+      [-23, 3],
+      [-12, 12],
+      [12, 12],
+      [23, 3],
+      [24, 7],
+      [15, 16],
+      [-14, 16],
+      [-24, 7],
+    ],
+    bronze
+  );
+  p(-13, 10, 26, 3, edge);
+  p(-14, 16, 28, 3, '#3c4937');
+  for (const ax of [-15, 15]) {
+    p(ax - 2, 4, 4, 4, edge);
+    p(ax - 1, 5, 2, 2, '#fff0be');
+  }
+  if (phase) {
+    for (const [a, b] of [
+      [-32, -48],
+      [31, -24],
+      [-17, -79],
+      [11, 6],
+    ]) {
+      p(a, b, 2, 7, fire);
+      p(a + 2, b + 6, 4, 2, fire);
+    }
+  }
+  if (phase === 2) {
+    p(20, -70, 2, 13, fire);
+    p(22, -59, 8, 2, fire);
+    p(-27, -9, 2, 8, fire);
+  }
+  crucibleBodyFrames.set(key, cv);
+  return cv;
+}
+function crucibleHammerFrame(hot) {
+  if (crucibleHammerFrames.has(hot)) return crucibleHammerFrames.get(hot);
+  const cv = document.createElement('canvas');
+  cv.width = 54;
+  cv.height = 48;
+  const c = cv.getContext('2d'),
+    p = (a, b, w, h, col) => hearthPixel(c, a, b, w, h, col),
+    poly = (points, col) => secretArtPoly(c, points, col);
+  poly(
+    [
+      [3, 18],
+      [23, 18],
+      [23, 5],
+      [39, 3],
+      [49, 10],
+      [51, 33],
+      [43, 42],
+      [23, 39],
+      [23, 28],
+      [3, 28],
+    ],
+    '#161f1e'
+  );
+  p(6, 21, 20, 4, '#82714d');
+  p(6, 21, 18, 1, '#cbb27e');
+  poly(
+    [
+      [25, 8],
+      [38, 6],
+      [46, 12],
+      [48, 31],
+      [41, 38],
+      [26, 35],
+    ],
+    '#697769'
+  );
+  poly(
+    [
+      [26, 9],
+      [38, 7],
+      [44, 12],
+      [29, 15],
+      [29, 31],
+      [26, 34],
+    ],
+    '#b19a65'
+  );
+  poly(
+    [
+      [29, 16],
+      [45, 13],
+      [47, 30],
+      [40, 35],
+      [30, 32],
+    ],
+    '#3e5145'
+  );
+  p(27, 9, 9, 2, '#f0d29a');
+  p(45, 16, 2, 14, '#94a37b');
+  p(32, 19, 9, 11, '#15241d');
+  p(34, 21, 5, 7, hot ? '#ffd796' : '#8b6c3f');
+  if (hot) p(35, 22, 3, 5, '#fff1c3');
+  p(29, 13, 3, 3, '#ead09d');
+  p(30, 31, 3, 3, '#bfa471');
+  p(40, 11, 3, 3, '#d5bd88');
+  p(42, 30, 3, 3, '#b1a376');
+  p(4, 18, 3, 10, '#42513e');
+  p(4, 18, 2, 2, '#c8b17a');
+  crucibleHammerFrames.set(hot, cv);
+  return cv;
+}
+function hearthGuardianHammer(ctx, x, y, a, raised, palette) {
+  ctx.save();
+  ctx.translate(Math.round(x), Math.round(y));
+  ctx.rotate(a);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(crucibleHammerFrame(raised), -38, -23);
+  ctx.restore();
+}
+function crucibleArm(ctx, part, front) {
+  const ax = part.x * 0.3,
+    ay = part.y * 0.45 - 25;
+  hearthGuardianLink(ctx, ax, ay, part.x, part.y, '#161f1e', front ? 7 : 5);
+  hearthGuardianLink(ctx, ax, ay, part.x, part.y, front ? '#8c7b52' : '#526148', 2);
+  const distance = Math.hypot(part.x - ax, part.y - ay),
+    links = Math.max(1, Math.ceil(distance / 10));
+  ctx.fillStyle = '#b7a373';
+  for (let i = 1; i < links; i++) {
+    const u = i / links;
+    ctx.fillRect(Math.round(lerp(ax, part.x, u)) - 1, Math.round(lerp(ay, part.y, u)) - 1, 3, 2);
+  }
+  hearthGuardianHammer(ctx, part.x, part.y, part.rotation, part.raised, HEARTH_CRUCIBLE_PALETTE);
+}
 function drawHearthTrialGuardian(ctx, e) {
   if (e.dead || !e.crucible) return;
   const c = e.crucible,
-    palette = HEARTH_CRUCIBLE_PALETTE,
-    t = save.motion ? 0 : G.tAll,
-    hot = c.mode === 'attack' || c.mode === 'temper',
-    open = c.mode === 'recover' || c.mode === 'temper',
-    stride = save.motion ? 0 : Math.sin(c.step * 7) * (c.mode === 'approach' ? 5 : 1.5),
+    t = save.motion ? 0 : c.step,
+    exposed = hearthGuardianExposed(e),
+    vent = exposed
+      ? c.mode === 'recover'
+        ? smoothBoss(clamp(c.t / 0.22, 0, 1))
+        : 1
+      : c.mode === 'temper'
+        ? 1
+        : 0,
     bob = save.motion ? 0 : Math.sin(t * 3.2) * 2,
-    phaseColor = e.phase === 2 ? '#fff1c3' : e.phase ? '#ffb86c' : palette.ember,
-    pose = hearthGuardianPose(e, t, open, bob);
+    pose = hearthGuardianPose(e, t, exposed, bob),
+    opening = Math.round(vent * 4),
+    heat = Math.floor(t * 7) % 4;
   ctx.save();
   ctx.translate(Math.round(e.x), Math.round(e.y));
   ctx.imageSmoothingEnabled = false;
-  ctx.fillStyle = '#080b12aa';
-  ctx.fillRect(-53, 27, 106, 12);
-  ctx.fillRect(-39, 39, 78, 4);
-  const satellites = pose.satellites;
-  for (const s of satellites.filter((part) => Math.sin(part.a) < 0)) {
-    hearthGuardianLink(ctx, s.x * 0.35, s.y * 0.5 - 20, s.x, s.y, palette.shadow, 5);
-    hearthGuardianHammer(ctx, s.x, s.y, s.rotation, s.raised, palette);
-  }
-  for (const [side, lift] of [
-    [-1, stride],
-    [1, -stride],
-  ]) {
-    const hipX = side * 25,
-      kneeX = side * 44,
-      kneeY = 12 + lift + pose.brace * 4,
-      footX = side * 50,
-      footY = 30;
-    hearthGuardianLink(ctx, hipX, -1, kneeX, kneeY, palette.dark, 12);
-    hearthGuardianLink(ctx, kneeX, kneeY, footX, footY, palette.dark, 11);
-    hearthGuardianLink(ctx, hipX, -1, kneeX, kneeY, palette.bronze, 6);
-    hearthGuardianLink(ctx, kneeX, kneeY, footX, footY, palette.iron, 6);
-    ctx.fillStyle = palette.edge;
-    ctx.fillRect(kneeX - 5, kneeY - 4, 10, 8);
-    ctx.fillStyle = palette.shadow;
-    ctx.fillRect(footX - 12, footY - 1, 25, 9);
-    ctx.fillStyle = palette.edge;
-    ctx.fillRect(footX - 11, footY, 22, 3);
-  }
-  hearthGuardianLink(ctx, 0, 4, 0, 36, palette.dark, 15);
-  hearthGuardianLink(ctx, -1, 6, -1, 33, palette.bronze, 7);
-  ctx.fillStyle = palette.dark;
-  ctx.fillRect(-15, 32, 31, 12);
-  ctx.fillStyle = palette.bronze;
-  ctx.fillRect(-13, 34, 27, 7);
-  ctx.fillStyle = palette.edge;
-  ctx.fillRect(-12, 34, 25, 3);
-  ctx.save();
-  ctx.translate(Math.round(pose.bodyX), Math.round(bob + pose.bodyY));
-  ctx.fillStyle = palette.dark;
-  ctx.fillRect(-29, -69, 58, 81);
-  ctx.fillRect(-39, -57, 78, 57);
-  ctx.fillRect(-33, -62, 66, 66);
-  ctx.fillRect(-23, 12, 46, 6);
-  ctx.fillStyle = palette.iron;
-  ctx.fillRect(-26, -64, 52, 71);
-  ctx.fillRect(-34, -52, 68, 49);
-  ctx.fillStyle = palette.shadow;
-  ctx.fillRect(-30, -55, 15, 47);
-  ctx.fillRect(18, -55, 12, 47);
-  ctx.fillStyle = palette.bronze;
-  ctx.fillRect(-32, -55, 5, 46);
-  ctx.fillRect(26, -55, 6, 46);
-  ctx.fillRect(-25, -65, 50, 8);
-  ctx.fillRect(-29, -7, 58, 9);
-  ctx.fillRect(-20, 5, 40, 8);
-  ctx.fillStyle = palette.edge;
-  ctx.fillRect(-25, -65, 49, 3);
-  ctx.fillRect(-32, -55, 3, 42);
-  ctx.fillRect(-29, -7, 57, 3);
-  ctx.fillStyle = palette.light;
-  for (const [x, y] of [
-    [-25, -52],
-    [25, -52],
-    [-25, -14],
-    [25, -14],
-  ])
-    ctx.fillRect(x - 2, y - 2, 4, 4);
-  ctx.fillStyle = palette.dark;
-  ctx.fillRect(-19, -91, 38, 24);
-  ctx.fillRect(-25, -83, 50, 9);
-  ctx.fillStyle = palette.bronze;
-  ctx.fillRect(-16, -88, 32, 19);
-  ctx.fillRect(-22, -81, 44, 5);
-  ctx.fillStyle = palette.edge;
-  ctx.fillRect(-16, -88, 31, 3);
-  ctx.fillRect(-22, -81, 43, 2);
-  ctx.fillStyle = '#221d21';
-  for (let x = -10; x <= 8; x += 9) ctx.fillRect(x, -85, 4, 11);
-  ctx.fillStyle = phaseColor;
-  for (let x = -10; x <= 8; x += 9) ctx.fillRect(x, -81, 3, 5);
-  const shimmer = save.motion ? 0 : Math.floor(t * 9) % 3;
-  ctx.globalAlpha = hot ? 0.8 : 0.42;
-  ctx.fillStyle = palette.ember;
-  ctx.fillRect(-9, -96 - shimmer * 2, 6, 8 + shimmer * 2);
-  ctx.fillRect(3, -101 + shimmer * 2, 6, 12 - shimmer * 2);
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = '#100f15';
-  ctx.fillRect(-20, -54, 40, 42);
-  ctx.fillRect(-25, -46, 50, 26);
-  ctx.fillStyle = '#703c2c';
-  ctx.fillRect(-17, -51, 34, 37);
-  ctx.fillRect(-21, -42, 42, 20);
-  ctx.fillStyle = phaseColor;
-  ctx.fillRect(-10, -49, 20, 31);
-  ctx.fillRect(-16, -41, 32, 16);
-  ctx.fillRect(-5, -55 - shimmer, 10, 43 + shimmer);
-  ctx.fillStyle = pose.vent ? palette.core : palette.hot;
-  ctx.fillRect(-7, -45, 14, 23);
-  ctx.fillRect(-11, -38, 22, 10);
-  ctx.fillStyle = palette.core;
-  ctx.fillRect(-4, -41, 8, 17);
-  ctx.fillRect(-7, -36, 14, 7);
-  const shutter = open ? 24 : 8 + pose.vent * 5;
+  ctx.fillStyle = '#0b151075';
+  ctx.fillRect(-56, 29, 112, 10);
+  ctx.fillRect(-42, 39, 84, 5);
+  for (const part of pose.satellites.filter((p) => Math.sin(p.a) < 0))
+    crucibleArm(ctx, part, false);
+  hearthGuardianLink(ctx, 0, 1, 0, 36, '#161f1e', 16);
+  hearthGuardianLink(ctx, -1, 2, -1, 32, '#899575', 7);
+  ctx.fillStyle = '#25392c';
+  ctx.fillRect(-17, 32, 34, 12);
+  ctx.fillStyle = '#b39a68';
+  ctx.fillRect(-15, 33, 30, 4);
   for (const side of [-1, 1]) {
-    const x = side < 0 ? -16 - shutter : 8 + shutter;
-    ctx.fillStyle = palette.dark;
-    ctx.fillRect(x - 2, -54, 16, 42);
-    ctx.fillStyle = palette.bronze;
-    ctx.fillRect(x, -52, 12, 38);
-    ctx.fillStyle = palette.edge;
-    ctx.fillRect(x, -52, 3, 38);
-    ctx.fillRect(x, -52, 12, 3);
-    ctx.fillStyle = palette.shadow;
-    ctx.fillRect(x + 5, -44, 4, 22);
+    const walking = c.mode === 'approach' && !save.motion,
+      step = walking ? Math.sin(t * 5 + (side < 0 ? Math.PI : 0)) : 0,
+      kneeX = side * 39,
+      kneeY = 9 + Math.max(0, step) * 4 + pose.brace * 3,
+      footX = side * 49 + (walking ? Math.round(step * 2) : 0),
+      footY = 31 - Math.max(0, step) * 4;
+    hearthGuardianLink(ctx, side * 23, -4, kneeX, kneeY, '#161f1e', 14);
+    hearthGuardianLink(ctx, kneeX, kneeY, footX, footY, '#161f1e', 12);
+    hearthGuardianLink(ctx, side * 23, -4, kneeX, kneeY, '#899367', 7);
+    hearthGuardianLink(ctx, kneeX, kneeY, footX, footY, '#65765a', 7);
+    ctx.fillStyle = '#4a5741';
+    ctx.fillRect(kneeX - 7, kneeY - 6, 14, 12);
+    ctx.fillStyle = '#b2a574';
+    ctx.fillRect(kneeX - 5, kneeY - 5, 10, 3);
+    ctx.fillStyle = '#d8c18c';
+    ctx.fillRect(kneeX - 2, kneeY - 1, 4, 4);
+    ctx.fillStyle = '#192a20';
+    ctx.fillRect(footX - 15, footY - 1, 31, 12);
+    ctx.fillStyle = '#839071';
+    ctx.fillRect(footX - 13, footY, 26, 7);
+    ctx.fillStyle = '#d1b783';
+    ctx.fillRect(footX - 12, footY, 24, 2);
+    for (let i = 0; i < 3; i++) {
+      ctx.fillStyle = '#293d2c';
+      ctx.fillRect(footX - 9 + i * 8, footY + 5, 3, 5);
+    }
   }
-  if (e.phase > 0) {
-    ctx.fillStyle = phaseColor;
-    ctx.fillRect(-29, -26, 3, 12);
-    ctx.fillRect(28, -39, 3, 11);
-    ctx.fillRect(-9, 7, 19, 3);
-  }
-  if (e.phase === 2) {
-    ctx.fillRect(-22, -60, 4, 9);
-    ctx.fillRect(18, -16, 10, 3);
-    ctx.fillStyle = palette.ember;
-    ctx.fillRect(-35, -34, 5, 8);
-    ctx.fillRect(31, -48, 5, 8);
-  }
-  ctx.restore();
-  for (const s of satellites.filter((part) => Math.sin(part.a) >= 0)) {
-    hearthGuardianLink(ctx, s.x * 0.35, s.y * 0.5 - 20, s.x, s.y, palette.dark, 7);
-    hearthGuardianLink(ctx, s.x * 0.35, s.y * 0.5 - 20, s.x, s.y, palette.bronze, 3);
-    ctx.fillStyle = palette.edge;
-    ctx.fillRect(Math.round(s.x) - 5, Math.round(s.y) - 4, 10, 8);
-    hearthGuardianHammer(ctx, s.x, s.y, s.rotation, s.raised, palette);
-  }
-  if (open) {
-    ctx.fillStyle = '#ffe7b3';
-    ctx.globalAlpha = 0.7;
-    ctx.fillRect(-3, 49, 6, 6);
-    ctx.fillRect(-12, 51, 5, 2);
-    ctx.fillRect(7, 51, 5, 2);
+  ctx.drawImage(
+    crucibleBodyFrame(e.phase, opening, heat),
+    Math.round(pose.bodyX) - 57,
+    Math.round(pose.bodyY + bob) - 117
+  );
+  for (const part of pose.satellites.filter((p) => Math.sin(p.a) >= 0))
+    crucibleArm(ctx, part, true);
+  if (exposed) {
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = '#ffdc9c';
+    ctx.fillRect(-16, 46, 32, 2);
+    ctx.fillRect(-9, 48, 18, 2);
     ctx.globalAlpha = 1;
   }
   if (e.hitT > 0) {
-    ctx.globalAlpha = 0.45;
-    ctx.fillStyle = '#fff1c3';
-    ctx.fillRect(-20, -55 + bob, 40, 3);
-    ctx.fillRect(-3, -47 + bob, 6, 25);
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = '#fff2ca';
+    ctx.fillRect(-28, -65 + bob, 10, 2);
+    ctx.fillRect(19, -30 + bob, 9, 2);
     ctx.globalAlpha = 1;
   }
   ctx.restore();

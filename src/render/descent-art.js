@@ -618,7 +618,7 @@ function descentArtEmber(ctx, x, y, t, scale = 1) {
   ctx.restore();
 }
 
-function drawHearthResidents(ctx, time = 0) {
+function drawHearthResidents(ctx, time = 0, showPeople = false) {
   const data = typeof descentData === 'function' ? descentData() : null;
   if (!data) return;
   const chapters = data.chapters || {},
@@ -630,8 +630,8 @@ function drawHearthResidents(ctx, time = 0) {
       descentCrate(ctx, 184, 334, 31, 16, true);
     }
     if (chapters.observatory?.help || chapters.archive?.help)
-      descentPlant(ctx, 146, 280, t + 3, 0.6);
-    if (typeof ResidentArt !== 'undefined') {
+      descentPlant(ctx, 150, 151, t + 3, 0.6);
+    if (showPeople && typeof ResidentArt !== 'undefined') {
       descentShadow(ctx, 157, 327, 23);
       ctx.save();
       ctx.translate(133, 273);
@@ -651,7 +651,7 @@ function drawHearthResidents(ctx, time = 0) {
     if (chapters.foundry?.help) descentLamp(ctx, 475, 290, t, true, 0.7);
     descentPixel(ctx, 445, 291, 18, 2, 'metalLight');
     descentPixel(ctx, 459, 287, 3, 8, 'brass');
-    if (typeof ResidentArt !== 'undefined') {
+    if (showPeople && typeof ResidentArt !== 'undefined') {
       descentShadow(ctx, 410, 322, 24);
       ctx.save();
       ctx.translate(386, 268);
@@ -988,7 +988,7 @@ function drawDescentEnding(ctx, step, time = 0, walk = null) {
     if (typeof hearthBuildRoom === 'function') ctx.drawImage(hearthBuildRoom(), 0, 0);
     else descentEndingWall(ctx);
     if (typeof hearthFlame === 'function') hearthFlame(ctx, 326, 219, t, 1.08);
-    drawHearthResidents(ctx, t);
+    drawHearthResidents(ctx, t, true);
     descentArtEmber(ctx, 326, 302, t, 1);
     descentWick(ctx, 289, 289, t, 1);
     descentPixel(ctx, 581, 268, 31, 3, '#d5c98e');

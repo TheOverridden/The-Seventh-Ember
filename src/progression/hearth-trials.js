@@ -68,8 +68,7 @@ const HEARTH_TRIALS = [
     name: 'Guardian Trial',
     family: 'meteor',
     rule: 'Defeat the Crucible, the living forge that judges the Hearth’s challengers.',
-    detail:
-      'Bolt, Flare, and Dash. Break the Crucible’s furnace core between its attack sequences.',
+    detail: 'Watch the returning hammers. Get close and use Flare when the furnace shutters open.',
     rewards: [['royal', 'sunrise', 'rain'], ['dawn'], ['dawn']],
   },
   {

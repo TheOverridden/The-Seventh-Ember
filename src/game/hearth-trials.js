@@ -930,8 +930,7 @@ function syncHearthTrialHUD() {
     defense: 'Intercept enemies and shots before they reach the central flame.',
     constellation:
       'Touch the three broken stars, then finish every wave. Bolt places pins; Flare collapses them.',
-    guardian:
-      'The bronze arms show the next strike. Dash through furnace sweeps; attack the open core during recovery.',
+    guardian: 'Thrown hammers return. Strike the open furnace core; Dash crosses its sweeps.',
     ...Object.fromEntries(Object.entries(HEARTH_TRIAL_RULES).map(([id, rule]) => [id, rule.hint])),
   };
   setTxt('trialHint', hints[q.id]);

@@ -393,29 +393,32 @@ drawDescentProp = function (ctx, event, time = 0) {
 };
 
 const worksiteHearthResidents = drawHearthResidents;
-drawHearthResidents = function (ctx, time = 0) {
-  worksiteHearthResidents(ctx, time);
+drawHearthResidents = function (ctx, time = 0, showPeople = false) {
+  const t = save.motion ? 0 : time;
+  worksiteHearthResidents(ctx, t, showPeople);
   const data = descentData(),
     chapters = data.chapters;
   if (chapters.archive?.help) {
-    descentPixel(ctx, 203, 305, 20, 12, 'metalDark');
-    descentPixel(ctx, 204, 305, 18, 3, 'metalLight');
-    descentPixel(ctx, 210, 311, 7, 2, 'brass');
+    descentPixel(ctx, 339, 102, 20, 12, 'metalDark');
+    descentPixel(ctx, 340, 102, 18, 3, 'metalLight');
+    descentPixel(ctx, 346, 108, 7, 2, 'brass');
   }
   if (chapters.court?.help) {
-    descentPixel(ctx, 332, 207, 37, 29, 'woodDark');
-    worksitePaper(ctx, 336, 211, 29, 20, true);
-    descentPixel(ctx, 343, 217, 13, 1, 'brassDark');
-    descentPixel(ctx, 355, 217, 1, 8, 'brassDark');
+    descentPixel(ctx, 143, 185, 34, 41, 'woodDark');
+    worksitePaper(ctx, 146, 188, 28, 34, true);
+    descentPixel(ctx, 153, 196, 13, 1, 'brassDark');
+    descentPixel(ctx, 165, 196, 1, 16, 'brassDark');
   }
-  if (chapters.heart?.help) descentLamp(ctx, 564, 272, time, true, 0.8);
+  if (chapters.heart?.help) descentLamp(ctx, 564, 272, t, true, 0.8);
   if (chapters.gate?.main) {
-    descentPixel(ctx, 291, 242, 87, 16, 'metalDark');
-    descentPixel(ctx, 293, 243, 83, 2, 'metal');
+    descentPixel(ctx, 403, 155, 24, 57, 'metalDark');
+    descentPixel(ctx, 404, 156, 22, 2, 'metal');
     for (let i = 0; i < 6; i++) {
       const id = ['gate', 'reservoir', 'foundry', 'archive', 'choir', 'citadel'][i];
-      descentPixel(ctx, 298 + i * 13, 248, 7, 6, chapters[id]?.main ? '#d4ba77' : '#344536');
-      if (chapters[id]?.main) descentPixel(ctx, 300 + i * 13, 249, 2, 3, '#f1dda2');
+      const x = 407 + (i % 2) * 10,
+        y = 164 + Math.floor(i / 2) * 13;
+      descentPixel(ctx, x, y, 6, 6, chapters[id]?.main ? '#d4ba77' : '#344536');
+      if (chapters[id]?.main) descentPixel(ctx, x + 1, y + 1, 2, 3, '#f1dda2');
     }
   }
 };
