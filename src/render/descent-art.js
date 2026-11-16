@@ -627,7 +627,7 @@ function drawHearthResidents(ctx, time = 0, showPeople = false) {
     if (chapters.garden.help) {
       descentPlant(ctx, 171, 310, t, 0.9);
       descentPlant(ctx, 197, 311, t + 1.7, chapters.reservoir?.main ? 1.1 : 0.4);
-      descentCrate(ctx, 184, 334, 31, 16, true);
+      hearthRoomCrate(ctx, 184, 334, 31, 16, true);
     }
     if (chapters.observatory?.help || chapters.archive?.help)
       descentPlant(ctx, 150, 151, t + 3, 0.6);
@@ -646,8 +646,8 @@ function drawHearthResidents(ctx, time = 0, showPeople = false) {
     }
   }
   if (chapters.reservoir?.main || chapters.reservoir?.help) {
-    descentWorkBench(ctx, 455, 298);
-    if (chapters.reservoir.help) descentCrate(ctx, 465, 319, 29, 16, true);
+    hearthRoomWorkbench(ctx, 455, 298);
+    if (chapters.reservoir.help) hearthRoomCrate(ctx, 465, 319, 29, 16, true);
     if (chapters.foundry?.help) descentLamp(ctx, 475, 290, t, true, 0.7);
     descentPixel(ctx, 445, 291, 18, 2, 'metalLight');
     descentPixel(ctx, 459, 287, 3, 8, 'brass');
@@ -665,7 +665,7 @@ function drawHearthResidents(ctx, time = 0, showPeople = false) {
     descentPixel(ctx, 510, 229, 5, 8, '#d8cc8c');
     descentPixel(ctx, 507, 244, 11, 2, 'brassDark');
   }
-  if (chapters.citadel?.help) descentCrate(ctx, 548, 326, 43, 25, false);
+  if (chapters.citadel?.help) hearthRoomCrate(ctx, 548, 326, 43, 25, false);
 }
 
 function descentEndingWall(ctx, light = false) {
