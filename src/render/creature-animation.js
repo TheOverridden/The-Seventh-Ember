@@ -384,8 +384,8 @@ function creatureSurfaceImage(source, type) {
         sameBelow =
           original[i] === original[i + width * 4] &&
           original[i + 1] === original[i + width * 4 + 1];
-      if (sameAbove && !sameBelow) shade(x, y, -0.07);
-      else if (!sameAbove && sameBelow) shade(x, y, 0.065);
+      if (sameAbove && !sameBelow) shade(x, y, -0.1);
+      else if (!sameAbove && sameBelow) shade(x, y, 0.11);
     }
   for (const [x, y, w, h, amount] of plan)
     for (let dy = 0; dy < h; dy++)

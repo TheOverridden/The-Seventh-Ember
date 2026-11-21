@@ -114,17 +114,37 @@ function drawHealingLantern(ctx, o, t) {
   ctx.fillRect(7, -25, 1, 4);
   ctx.fillStyle = '#6c8c8666';
   ctx.fillRect(-8, -17, 4, 1);
-  const flameH = Math.round((lit ? 22 : 13) * flick),
-    fy = -12 - flameH,
-    tip = save.motion ? 0 : Math.round(Math.sin(t * 4.3 + o.x * 0.01) * 1.3);
-  ctx.fillStyle = lit ? '#d94e27' : '#70432d';
-  ctx.fillRect(-7, fy + 8, 14, flameH - 5);
-  ctx.fillStyle = lit ? '#ff913f' : '#a2764f';
-  ctx.fillRect(-5, fy + 4, 10, flameH - 6);
-  ctx.fillStyle = lit ? '#ffd477' : '#c2a66e';
-  ctx.fillRect(-3 + tip, fy, 6, Math.max(3, flameH - 5));
-  ctx.fillStyle = lit ? '#fff5c7' : '#dbc991';
-  ctx.fillRect(-1 + tip, fy + 5, 3, Math.max(2, flameH - 10));
+  const lift = lit ? 1 : 0.59;
+  const lean = save.motion ? 0 : Math.round(Math.sin(t * 4.7 + o.x * 0.01) * 2);
+  const rows = [
+    [2, 1],
+    [1, 3],
+    [0, 4],
+    [-1, 5],
+    [-2, 7],
+    [-3, 8],
+    [-4, 10],
+    [-6, 13],
+    [-7, 14],
+    [-6, 12],
+    [-5, 9],
+  ];
+  for (const [i, [left, width]] of rows.entries()) {
+    const x = left + Math.round(lean * (1 - i / rows.length));
+    const top = -16 - Math.round((rows.length - i) * 2.2 * lift * flick);
+    const bottom = -16 - Math.round((rows.length - i - 1) * 2.2 * lift * flick);
+    const span = lit ? width : Math.max(1, Math.round(width * 0.67));
+    ctx.fillStyle = lit ? '#df692e' : '#825139';
+    ctx.fillRect(x, top, span, bottom - top);
+    if (span > 3) {
+      ctx.fillStyle = lit ? '#ffb251' : '#b58b56';
+      ctx.fillRect(x + 1, top, span - 2, bottom - top);
+    }
+    if (span > 6 && i < 10) {
+      ctx.fillStyle = lit ? '#fff1aa' : '#d2b579';
+      ctx.fillRect(x + 3, top, span - 5, bottom - top);
+    }
+  }
   ctx.fillStyle = '#321c18';
   ctx.fillRect(-8, -14, 16, 4);
   ctx.fillStyle = '#b7864d';

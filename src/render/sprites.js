@@ -80,6 +80,33 @@ function glowImg(name, x, y, r, alpha) {
   ctx.drawImage(c, x - r, y - r, r * 2, r * 2);
   ctx.restore();
 }
+
+function paintInteriorAtmosphere(ctx, width, height, x, y, warm, cool) {
+  ctx.save();
+  const shade = ctx.createRadialGradient(x, y, 65, x, y, width * 0.62);
+  shade.addColorStop(0, '#100e1200');
+  shade.addColorStop(0.48, '#0d101416');
+  shade.addColorStop(1, '#09090dc0');
+  ctx.fillStyle = shade;
+  ctx.fillRect(0, 0, width, height);
+  ctx.globalCompositeOperation = 'screen';
+  for (const [ox, oy, rx, ry, color] of [
+    [x - 72, y - 78, 119, 108, cool],
+    [x + 12, y + 42, 191, 72, warm],
+  ]) {
+    ctx.save();
+    ctx.translate(ox, oy);
+    ctx.scale(rx, ry);
+    const light = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+    light.addColorStop(0, color + '29');
+    light.addColorStop(0.49, color + '13');
+    light.addColorStop(1, color + '00');
+    ctx.fillStyle = light;
+    ctx.fillRect(-1, -1, 2, 2);
+    ctx.restore();
+  }
+  ctx.restore();
+}
 function drawSpr(name, x, y, scale, rot, alpha, tOff) {
   const s = SPR[name];
   if (!s) return;
@@ -301,6 +328,174 @@ let FLOORT = [],
   WALLTOP = [],
   WALLFACE = [],
   AOT = null;
+const DUNGEON_MATERIALS = {
+  gate: ['#151c22', '#303942', '#7f9298', '#9e8968', '#454d55'],
+  garden: ['#111e1b', '#2d4437', '#829672', '#7a9063', '#455b46'],
+  reservoir: ['#122126', '#2a4048', '#76a1a3', '#7ac2bd', '#405b62'],
+  foundry: ['#1d1515', '#45322e', '#a0785f', '#bc6e45', '#5c4135'],
+  observatory: ['#1a1b2a', '#343449', '#9aacc2', '#8a90b9', '#51526a'],
+  archive: ['#201b16', '#423a30', '#a39475', '#9f845d', '#5b4d3e'],
+  court: ['#201820', '#413139', '#b08894', '#ab705e', '#5d4650'],
+  choir: ['#191c29', '#30374d', '#8d9ab5', '#8b81a7', '#444c64'],
+  citadel: ['#1b1718', '#3a2d2f', '#9c8170', '#a7644d', '#5b4140'],
+  heart: ['#231a19', '#443530', '#ad9679', '#b58654', '#604d3b'],
+};
+const dungeonSurfaceCache = new Map();
+
+function dungeonSurfaces(world) {
+  const key =
+    world.region === 'late'
+      ? world.lateKey
+      : world.region === 'hollow'
+        ? G.floor <= 5
+          ? 'gate'
+          : 'garden'
+        : '';
+  const palette = DUNGEON_MATERIALS[key];
+  if (!palette) return null;
+  const cached = dungeonSurfaceCache.get(key);
+  if (cached && !cached.floor[0].getContext('2d').isContextLost?.()) return cached;
+  const [mortar, stone, edge, accent, wall] = palette;
+  const size = 24;
+  const make = (paint) => {
+    const tile = document.createElement('canvas');
+    tile.width = tile.height = size;
+    const c = tile.getContext('2d');
+    const px = (x, y, w, h, color) => {
+      c.fillStyle = color;
+      c.fillRect(x, y, w, h);
+    };
+    paint(px);
+    return tile;
+  };
+  const slabs = [
+    [[0, 0, 24, 24]],
+    [
+      [0, 0, 24, 13],
+      [0, 14, 24, 10],
+    ],
+    [
+      [0, 0, 15, 24],
+      [16, 0, 8, 24],
+    ],
+    [
+      [0, 0, 24, 9],
+      [0, 10, 9, 14],
+      [10, 10, 14, 14],
+    ],
+  ];
+  const grain = (px, seed, color, spread) => {
+    for (let i = 0; i < spread; i++) {
+      const value = (((i + 5) * 1597334677) ^ ((seed + 1) * 3812015801)) >>> 0;
+      const x = 2 + (value % 19),
+        y = 2 + ((value >>> 12) % 20);
+      px(x, y, i % 5 === 0 ? 3 : 1, 1, i % 3 === 0 ? color + '39' : '#08090d30');
+    }
+  };
+  const floor = Array.from({ length: 8 }, (_, n) =>
+    make((px) => {
+      px(0, 0, size, size, mortar);
+      for (const [x, y, w, h] of slabs[n >> 1]) {
+        px(x, y, w - 1, h - 1, stone);
+        px(x + 1, y + 1, w - 2, 1, edge + '27');
+        px(x + 1, y + h - 2, w - 2, 1, '#07070930');
+      }
+      if (!(n & 1)) px(1, 1, 22, 22, '#06070817');
+      grain(px, n, edge, 11);
+      if (n % 2) {
+        if (key === 'reservoir' || key === 'garden') {
+          px(2, 16, 10, 3, accent + '25');
+          px(4, 15, 14, 1, edge + '43');
+          px(5, 18, 4, 1, accent + '36');
+        } else if (key === 'foundry' || key === 'citadel') {
+          px(5, 5, 2, 2, '#0a10118a');
+          px(5, 5, 1, 1, edge + '86');
+          px(18, 18, 2, 2, '#0a10118a');
+          px(18, 18, 1, 1, edge + '86');
+        } else {
+          const x = n % 4 === 1 ? 8 : 15;
+          px(x, 13, 5, 1, accent + '65');
+          px(x + 4, 14, 3, 1, '#08090d60');
+        }
+      }
+    })
+  );
+  const face = Array.from({ length: 3 }, (_, n) =>
+    make((px) => {
+      px(0, 0, size, size, mortar);
+      for (let y = 3; y < 21; y += 6) {
+        const split = 6 + ((n * 7 + y) % 12);
+        for (const [x, w] of [
+          [0, split],
+          [split + 1, size - split - 1],
+        ]) {
+          px(x, y, w, 5, wall);
+          px(x, y, w, 1, edge + '48');
+          px(x + 1, y + 4, w - 1, 1, '#07070847');
+        }
+      }
+      grain(px, n + 13, edge, 8);
+      px(0, 0, 24, 2, wall);
+      px(0, 0, 24, 1, edge + 'a0');
+      px(0, 2, 24, 1, '#0b090981');
+      px(0, 21, 24, 3, '#06070a80');
+      const x = 4 + n * 6;
+      px(x, 16, 6, 2, accent + '40');
+      px(x + 2, 18, 3, 1, accent + '29');
+    })
+  );
+  const cap = Array.from({ length: 3 }, (_, n) =>
+    make((px) => {
+      px(0, 0, size, size, mortar);
+      px(0, 0, 23, 23, wall);
+      px(1, 1, 22, 1, edge + '73');
+      px(1, 2, 1, 20, edge + '32');
+      px(2, 2, 20, 18, '#0706092c');
+      px(2, 20, 20, 2, '#07060962');
+      grain(px, n + 27, edge, 12);
+      px(4 + n * 4, 12, 6, 1, accent + '76');
+      px(6 + n * 4, 13, 4, 1, '#06070a60');
+    })
+  );
+  const cavern = document.createElement('canvas');
+  cavern.width = 256;
+  cavern.height = 192;
+  const depth = cavern.getContext('2d');
+  depth.fillStyle = mortar;
+  depth.fillRect(0, 0, cavern.width, cavern.height);
+  depth.fillStyle = '#050508ad';
+  depth.fillRect(0, 0, cavern.width, cavern.height);
+  for (let i = 0; i < 19; i++) {
+    const x = (i * 83 + i * i * 7) % 234;
+    const y = (i * 43) % 188;
+    const span = 5 + ((i * 17) % 21);
+    depth.fillStyle = stone + '21';
+    depth.fillRect(x, y, span, 1);
+    if (key === 'reservoir' || key === 'garden') {
+      depth.fillStyle = accent + '1a';
+      depth.fillRect(x + 3, y + 2, Math.max(2, span - 6), 1);
+    } else if (key === 'foundry' || key === 'heart') {
+      depth.fillStyle = accent + '38';
+      depth.fillRect(x + 6, y - 1, 2, 1);
+    }
+  }
+  const bounce = document.createElement('canvas');
+  bounce.width = bounce.height = 96;
+  const lamplight = bounce.getContext('2d');
+  const color =
+    key === 'garden' || key === 'reservoir' || key === 'observatory' || key === 'choir'
+      ? accent
+      : '#db935c';
+  const pool = lamplight.createRadialGradient(48, 48, 1, 48, 48, 48);
+  pool.addColorStop(0, color + '7a');
+  pool.addColorStop(0.43, color + '32');
+  pool.addColorStop(1, color + '00');
+  lamplight.fillStyle = pool;
+  lamplight.fillRect(0, 0, 96, 96);
+  const surfaces = { floor, face, cap, cavern, bounce };
+  dungeonSurfaceCache.set(key, surfaces);
+  return surfaces;
+}
 function bakeTiles() {
   const mk = () => {
     const c = document.createElement('canvas');

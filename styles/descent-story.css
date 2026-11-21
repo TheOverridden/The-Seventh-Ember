@@ -8,9 +8,17 @@ body.descent-story #conversation .dialogue-frame {
   gap: 22px;
   width: min(900px, calc(100vw - 64px));
   padding: 22px 25px;
-  background: linear-gradient(120deg, #243027fa, #131d18fc);
-  border: 1px solid #a38c57;
-  box-shadow: 0 18px 65px #0009;
+  background:
+    radial-gradient(
+      ellipse at 12% 36%,
+      color-mix(in srgb, var(--voice, #c7b37b) 15%, transparent),
+      transparent 39%
+    ),
+    linear-gradient(120deg, #25231e, #111311 81%);
+  border: 1px solid color-mix(in srgb, var(--voice, #c7b37b) 52%, #574633);
+  box-shadow:
+    0 18px 65px #0009,
+    inset 0 2px #e8cf9c29;
   clip-path: polygon(
     0 12px,
     12px 0,
@@ -25,7 +33,10 @@ body.descent-story #conversation .dialogue-frame {
 body.descent-story #conversation .dialogue-frame:before {
   inset: 5px;
   border: 1px solid #d5c58c20;
-  background: none;
+  background:
+    linear-gradient(var(--voice, #c7b37b), transparent) 0 0 / 1px 15px no-repeat,
+    linear-gradient(90deg, var(--voice, #c7b37b), transparent) 0 0 / 28px 1px no-repeat,
+    linear-gradient(270deg, #d5c58c86, transparent) 100% 100% / 28px 1px no-repeat;
   opacity: 1;
   pointer-events: none;
 }
@@ -40,8 +51,14 @@ body.descent-story #conversation .speaker-portrait {
   justify-content: center;
   align-items: center;
   border: 1px solid #7c805b66;
-  background: #19241b;
-  box-shadow: inset 0 0 24px #0003;
+  background: radial-gradient(
+    ellipse at 50% 43%,
+    color-mix(in srgb, var(--voice, #c7b37b) 25%, #20251e),
+    #141613 68%
+  );
+  box-shadow:
+    inset 0 0 24px #0007,
+    inset 0 1px #e2c89831;
 }
 body.descent-story #speakerPortrait {
   width: 120px;

@@ -352,6 +352,7 @@ function buildBossRushArenaCanvas(w) {
       ctx.fillRect(x, y + 2, 3, 1);
     }
   }
+  paintInteriorAtmosphere(ctx, canvas.width, canvas.height, cx, cy, '#ce8a4b', '#69756f');
   return canvas;
 }
 

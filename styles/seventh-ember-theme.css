@@ -349,8 +349,8 @@ body.ui-reborn .card .ic {
   background: linear-gradient(145deg, rgba(var(--relic-rgb), 0.12), #0908078a);
 }
 body.ui-reborn .tree-head {
-  background: linear-gradient(90deg, rgba(var(--region-rgb), 0.12), #0c0c0bf2 56%);
-  border-bottom-color: rgba(var(--region-rgb), 0.22);
+  background: linear-gradient(108deg, #30271f, #181615 56%, #100f0d);
+  border-bottom-color: #b78c544d;
 }
 body.ui-reborn .tree-map {
   background: radial-gradient(
@@ -361,8 +361,10 @@ body.ui-reborn .tree-map {
   ) !important;
 }
 body.ui-reborn .tree-inspector {
-  background: linear-gradient(145deg, #17140f, #0b0b0a);
-  border-color: rgba(var(--region-rgb), 0.28);
+  background:
+    radial-gradient(ellipse at 32% 9%, #ae875321, transparent 35%),
+    linear-gradient(145deg, #211912, #0b0b0a);
+  border-color: #98734265;
   box-shadow: -20px 0 55px #0007;
 }
 body.ui-reborn .tree-inspector h3 {

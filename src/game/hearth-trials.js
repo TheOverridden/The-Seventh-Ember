@@ -1112,6 +1112,9 @@ function hearthTrialArenaSurface(world, id) {
     [, stone, shade] = HEARTH_TRIAL_COLORS[id];
   if (!ctx || ctx.isContextLost?.()) return null;
   drawHearthTrialStonework(ctx, world, stone, shade);
+  const focusX = TILE * 14.5;
+  const focusY = TILE * 10.5;
+  paintInteriorAtmosphere(ctx, canvas.width, canvas.height, focusX, focusY, stone, shade);
   surface = { id, canvas, ctx };
   hearthTrialArenaSurfaces.set(world, surface);
   canvas.addEventListener('contextlost', () => hearthTrialArenaSurfaces.delete(world));
@@ -1327,7 +1330,7 @@ render = function () {
   drawBullets(ctx);
   drawPlayer(ctx);
   drawCombatFX(ctx);
-  drawPixelEntityDetails(ctx);
+  drawTreasureGlints(ctx);
   drawParticles(ctx);
   drawTexts(ctx);
   ctx.restore();

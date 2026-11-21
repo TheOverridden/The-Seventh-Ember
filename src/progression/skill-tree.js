@@ -505,6 +505,50 @@ selectNode = function (n) {
   refreshTreeEss();
 };
 
+let treePlate;
+
+function paintTreePlate() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1240;
+  canvas.height = 980;
+  const ctx = canvas.getContext('2d');
+  const palette = ctx.createRadialGradient(620, 490, 32, 620, 490, 635);
+  palette.addColorStop(0, '#312720');
+  palette.addColorStop(0.4, '#221f23');
+  palette.addColorStop(0.74, '#141719');
+  palette.addColorStop(1, '#0b0d10');
+  ctx.fillStyle = palette;
+  ctx.fillRect(0, 0, 1240, 980);
+  for (let i = 0; i < 160; i++) {
+    const x = ((i * 613) % 1200) + 20,
+      y = ((i * 347) % 940) + 20;
+    ctx.fillStyle = i % 7 ? '#acbaa428' : '#f1cd805b';
+    ctx.fillRect(x, y, i % 11 ? 1 : 2, i % 11 ? 1 : 2);
+  }
+  ctx.translate(620, 490);
+  for (const [radius, color] of [
+    [92, '#d2b67845'],
+    [190, '#a7946c33'],
+    [288, '#a7946c29'],
+    [404, '#a7946c24'],
+  ]) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, TAU);
+    ctx.stroke();
+    for (let i = 0; i < 32; i++) {
+      const angle = (i * TAU) / 32;
+      ctx.save();
+      ctx.rotate(angle);
+      ctx.fillStyle = color;
+      ctx.fillRect(radius + 6, -1, i % 4 ? 3 : 10, 2);
+      ctx.restore();
+    }
+  }
+  return canvas;
+}
+
 function drawTree(t) {
   if (!treeCtx) {
     const cv = T('treeCv'),
@@ -519,42 +563,15 @@ function drawTree(t) {
   const x = treeCtx;
   x.clearRect(0, 0, 1240, 980);
   x.imageSmoothingEnabled = false;
-  x.fillStyle = '#070b12';
-  x.fillRect(0, 0, 1240, 980);
-  const bg = x.createRadialGradient(620, 490, 20, 620, 490, 610);
-  bg.addColorStop(0, '#17202d');
-  bg.addColorStop(0.48, '#0b111b');
-  bg.addColorStop(1, '#05080e');
-  x.fillStyle = bg;
-  x.fillRect(0, 0, 1240, 980);
-  x.globalAlpha = 0.24;
-  for (let i = 0; i < 170; i++) {
-    const px = ((i * 613) % 1220) + 10,
-      py = ((i * 347) % 960) + 10,
-      s = i % 11 === 0 ? 2 : 1;
-    x.fillStyle = i % 7 === 0 ? '#e9ca83' : '#75869c';
-    x.fillRect(px, py, s, s);
-  }
-  x.globalAlpha = 1;
-  x.save();
-  x.translate(620, 490);
-  for (let r = 92; r < 560; r += 92) {
-    x.strokeStyle = 'rgba(135,154,185,' + (r % 184 === 0 ? 0.12 : 0.055) + ')';
-    x.lineWidth = 1;
-    x.setLineDash([2, 12]);
-    x.beginPath();
-    x.arc(0, 0, r, 0, TAU);
-    x.stroke();
-  }
-  x.setLineDash([]);
-  x.restore();
+  if (!treePlate || treePlate.getContext('2d').isContextLost?.()) treePlate = paintTreePlate();
+  x.drawImage(treePlate, 0, 0);
   for (const b of MASTERY_BRANCHES) {
     for (const path of [
       [0, 1, 4, 8, 11],
       [0, 2, 5, 9, 11],
     ]) {
       const pts = [{ x: 620, y: 490 }, ...path.map((i) => NODE_BY_ID[b.ids[i]])];
-      x.strokeStyle = b.color + '12';
+      x.strokeStyle = b.color + '1d';
       x.lineWidth = 28;
       x.lineCap = 'round';
       x.beginPath();
@@ -586,9 +603,9 @@ function drawTree(t) {
       x.beginPath();
       x.moveTo(p.x, p.y);
       x.bezierCurveTo(c1x, c1y, c2x, c2y, n.x, n.y);
-      x.strokeStyle = owned ? c : open ? c + '78' : '#55627338';
-      x.lineWidth = owned ? 3 : 1.5;
-      x.setLineDash(owned ? [] : open ? [5, 5] : [2, 7]);
+      x.strokeStyle = owned ? c : open ? c + 'a0' : c + '38';
+      x.lineWidth = owned ? 3.5 : open ? 2 : 1.5;
+      x.setLineDash(owned ? [] : open ? [7, 4] : [2, 6]);
       x.lineDashOffset = -t * 18;
       x.shadowColor = owned ? c : 'transparent';
       x.shadowBlur = owned ? 8 : 0;
@@ -641,10 +658,13 @@ function drawTree(t) {
       x.shadowBlur = st === 2 ? 12 : 8 + Math.sin(t * 4 + n.x) * 3;
     }
     x.rotate(Math.PI / 4);
-    x.fillStyle = st === 2 ? c : st === 3 ? '#142333' : st === 1 ? '#111926' : '#080c14';
+    x.fillStyle = st === 2 ? c : st === 3 ? '#34271d' : st === 1 ? '#23221f' : '#121215';
     x.fillRect(-R, -R, R * 2, R * 2);
     x.shadowBlur = 0;
-    x.strokeStyle = st === 2 ? '#fff3c8' : st === 3 ? c : st === 1 ? c + '88' : '#536174';
+    x.fillStyle = st === 2 ? '#fff3c86e' : c + '36';
+    x.fillRect(-R + 2, -R + 2, 2 * R - 4, 2);
+    x.fillRect(-R + 2, -R + 3, 1, 2 * R - 6);
+    x.strokeStyle = st === 2 ? '#fff3c8' : st === 3 ? c : st === 1 ? c + 'a2' : c + '54';
     x.lineWidth = selected ? 3 : st === 2 ? 2.2 : 1.5;
     x.strokeRect(-R + 0.5, -R + 0.5, R * 2 - 1, R * 2 - 1);
     x.strokeStyle = st === 2 ? '#5b3b19' : c + '38';
@@ -653,7 +673,7 @@ function drawTree(t) {
     x.restore();
     const icon = iconImg(
         n.icon || 'st',
-        st === 2 ? '#211508' : st === 3 ? c : st === 1 ? '#aebdca' : '#536174'
+        st === 2 ? '#211508' : st === 3 ? c : st === 1 ? '#d6c9b4' : '#8e8477'
       ),
       isz = R * 1.05;
     x.drawImage(icon, n.x - isz / 2, n.y - isz / 2, isz, isz);
@@ -739,83 +759,5 @@ function drawPixelFloorDetails(ctx) {
         ctx.fillRect(tx * TILE + TILE - 5, ty * TILE + TILE - 5, 2, 2);
       }
     }
-  ctx.restore();
-}
-function drawPixelEntityDetails(ctx) {
-  const t = save.motion ? 0 : G.tAll;
-  ctx.save();
-  ctx.imageSmoothingEnabled = false;
-  for (const e of G.enemies) {
-    if (
-      e.dead ||
-      e.x < G.cam.x - 70 ||
-      e.x > G.cam.x + G.w + 70 ||
-      e.y < G.cam.y - 70 ||
-      e.y > G.cam.y + G.h + 70
-    )
-      continue;
-    const r = e.r,
-      c = e.col || '#c9a0ff';
-    ctx.fillStyle = '#ffffffa8';
-    ctx.fillRect(
-      Math.round(e.x - r * 0.36),
-      Math.round(e.y - r * 0.54),
-      Math.max(2, Math.round(r * 0.16)),
-      2
-    );
-    ctx.fillStyle = '#090b11a8';
-    ctx.fillRect(
-      Math.round(e.x + r * 0.18),
-      Math.round(e.y + r * 0.48),
-      Math.max(2, Math.round(r * 0.2)),
-      2
-    );
-    if (e.isBoss) {
-      for (let i = 0; i < 6; i++) {
-        const a = (i * TAU) / 6 + t * 0.18,
-          rr = r + 9 + (i % 2) * 3;
-        ctx.fillStyle = i % 2 ? c : '#f4dfad';
-        ctx.fillRect(
-          Math.round(e.x + Math.cos(a) * rr) - 2,
-          Math.round(e.y + Math.sin(a) * rr) - 2,
-          4,
-          4
-        );
-      }
-    } else {
-      ctx.fillStyle = e.lateRole === 'ranged' ? '#dffaff' : '#fff0b8';
-      const eyeY = Math.round(e.y - r * 0.16);
-      ctx.fillRect(Math.round(e.x - r * 0.2), eyeY, 2, 2);
-      if (e.r > 12) ctx.fillRect(Math.round(e.x + r * 0.11), eyeY, 2, 2);
-    }
-  }
-  if (G.portal) {
-    const p = G.portal,
-      c = p.active ? '#ffd786' : '#7d7465';
-    ctx.strokeStyle = c + 'aa';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 4; i++) {
-      const a = t * 0.22 + (i * TAU) / 4,
-        rr = 31;
-      ctx.strokeRect(
-        Math.round(p.x + Math.cos(a) * rr) - 2,
-        Math.round(p.y + Math.sin(a) * rr) - 2,
-        4,
-        4
-      );
-    }
-  }
-  for (const c of G.chests)
-    if (!c.opened) {
-      ctx.fillStyle = '#ffe0a0';
-      ctx.fillRect(Math.round(c.x) - 8, Math.round(c.y) - 7, 3, 2);
-      ctx.fillRect(Math.round(c.x) + 5, Math.round(c.y) - 7, 3, 2);
-    }
-  for (const b of G.bullets) {
-    ctx.fillStyle = '#fff6c9';
-    ctx.fillRect(Math.round(b.x) - 2, Math.round(b.y) - 2, 4, 4);
-    ctx.fillStyle = '#ff9d4f';
-    ctx.fillRect(Math.round(b.x - b.vx * 0.018) - 1, Math.round(b.y - b.vy * 0.018) - 1, 2, 2);
-  }
   ctx.restore();
 }

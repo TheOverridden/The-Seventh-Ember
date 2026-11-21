@@ -269,6 +269,14 @@ function secretArtRoom(c, s, material = 'stone') {
       px(x + 5, y + h - 3, w - 12, 1, material === 'deep' ? '#1e2731' : '#353c32');
       if (material === 'wood' && row % 2 === 0)
         px(x + 9, y + 4, Math.min(27, w - 18), 2, '#80603e');
+      const offset = 8 + ((tone * 19 + row * 11) % Math.max(1, w - 34));
+      if (material === 'wood') {
+        px(x + offset, y + h - 6, w / 5, 1, '#b38b563f');
+        px(x + offset + 7, y + h - 5, w / 8, 1, '#29201552');
+      } else if ((tone + row) % 3 === 1) {
+        px(x + offset, y + 5, 10, 1, '#27272740');
+        px(x + offset + 6, y + 6, 6, 1, '#cfbd9033');
+      }
     }
     y += h;
   }
@@ -396,6 +404,11 @@ function secretArtRug(c, x, y, w, h, color = '#6b3b35', trim = '#bd9b66') {
     ],
     color
   );
+  for (let dy = 11; dy < h - 9; dy += 4) {
+    const left = x + Math.round(23 - (dy / h) * 12);
+    const span = w - 2 * (left - x);
+    px(left, y + dy, span, 1, dy % 3 ? '#17141419' : '#f4ddb112');
+  }
   for (let i = 0; i < 7; i++) {
     const xx = x + 21 + ((w - 42) * i) / 6;
     px(xx, y + h - 3, 2, 7, i % 2 ? '#ae8d5b' : '#d2b17b');
@@ -3923,7 +3936,12 @@ function secretArtRoomLighting(c, s) {
       [440, 105, 88, '#f0daa1', 0.14],
     ],
   };
-  for (const light of lights[s.type] || []) secretArtGlow(c, ...light);
+  const candles = lights[s.type] || lights.cache;
+  const [x, y, , warm] = candles[0];
+  const cool = SECRET_REGIONS[s.region]?.accent || SECRET_REGIONS.gate.accent;
+  const focus = Math.round((320 * 2 + x) / 3);
+  paintInteriorAtmosphere(c, 640, 420, focus, y, warm, cool);
+  for (const light of candles) secretArtGlow(c, ...light);
 }
 function secretArtBuild(s) {
   const key = [s.type, s.region, !!s.claimed].join(':');

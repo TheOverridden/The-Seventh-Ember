@@ -6573,7 +6573,7 @@ body.ui-reborn h1.title {
   margin: 0 0 clamp(25px, 3.5vh, 38px);
   padding: 0 0 17px;
   font:
-    500 clamp(60px, 5vw, 72px) / 0.84 Georgia,
+    500 clamp(62px, 5.7vw, 89px) / 0.84 Georgia,
     serif;
   white-space: normal;
   filter: drop-shadow(0 3px 0 #150d05) drop-shadow(0 10px 20px #000a)
@@ -6645,7 +6645,7 @@ body.ui-reborn .menu-btns .btn {
     0 8px 22px #0004;
   color: #e6ddcc;
   font:
-    700 10px/1.2 Georgia,
+    700 11px/1.2 Georgia,
     serif;
   letter-spacing: 0.15em;
   overflow: hidden;
@@ -6720,6 +6720,22 @@ body.ui-reborn .menu-btns .btn.primary {
     0 12px 30px #0007,
     0 0 26px #dbad551c;
   text-shadow: 0 1px #fff3c666;
+}
+body.ui-reborn .menu-btns .btn.primary::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  width: auto;
+  height: auto;
+  pointer-events: none;
+  transform: none;
+  opacity: 1;
+  border: 1px solid #67451b45;
+  background:
+    linear-gradient(#fff2bbbd, #fff2bbbd) 0 0 / 12px 1px no-repeat,
+    linear-gradient(#fff2bbbd, #fff2bbbd) 0 0 / 1px 12px no-repeat,
+    linear-gradient(#6e441b9e, #6e441b9e) 100% 100% / 12px 1px no-repeat,
+    linear-gradient(#6e441b9e, #6e441b9e) 100% 100% / 1px 12px no-repeat;
 }
 body.ui-reborn .menu-btns .btn.primary svg {
   color: #62431a;
@@ -6867,9 +6883,9 @@ body.ui-reborn #menuStats span {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #958477;
-  font-size: 5px;
-  letter-spacing: 0.11em;
+  color: #ad9d8c;
+  font-size: 8px;
+  letter-spacing: 0.08em;
 }
 body.ui-reborn #menuStats b {
   color: #ecd6aa;
@@ -6929,7 +6945,7 @@ body.ui-reborn #menuStats b {
     min-height: 38px;
     padding-top: 8px;
     padding-bottom: 8px;
-    font-size: 8px;
+    font-size: 9px;
   }
   body.ui-reborn .menu-btns .btn.primary {
     min-height: 45px;
@@ -7654,8 +7670,8 @@ body.ui-reborn .card .ic {
   background: linear-gradient(145deg, rgba(var(--relic-rgb), 0.12), #0908078a);
 }
 body.ui-reborn .tree-head {
-  background: linear-gradient(90deg, rgba(var(--region-rgb), 0.12), #0c0c0bf2 56%);
-  border-bottom-color: rgba(var(--region-rgb), 0.22);
+  background: linear-gradient(108deg, #30271f, #181615 56%, #100f0d);
+  border-bottom-color: #b78c544d;
 }
 body.ui-reborn .tree-map {
   background: radial-gradient(
@@ -7666,8 +7682,10 @@ body.ui-reborn .tree-map {
   ) !important;
 }
 body.ui-reborn .tree-inspector {
-  background: linear-gradient(145deg, #17140f, #0b0b0a);
-  border-color: rgba(var(--region-rgb), 0.28);
+  background:
+    radial-gradient(ellipse at 32% 9%, #ae875321, transparent 35%),
+    linear-gradient(145deg, #211912, #0b0b0a);
+  border-color: #98734265;
   box-shadow: -20px 0 55px #0007;
 }
 body.ui-reborn .tree-inspector h3 {
@@ -12887,9 +12905,17 @@ body.descent-story #conversation .dialogue-frame {
   gap: 22px;
   width: min(900px, calc(100vw - 64px));
   padding: 22px 25px;
-  background: linear-gradient(120deg, #243027fa, #131d18fc);
-  border: 1px solid #a38c57;
-  box-shadow: 0 18px 65px #0009;
+  background:
+    radial-gradient(
+      ellipse at 12% 36%,
+      color-mix(in srgb, var(--voice, #c7b37b) 15%, transparent),
+      transparent 39%
+    ),
+    linear-gradient(120deg, #25231e, #111311 81%);
+  border: 1px solid color-mix(in srgb, var(--voice, #c7b37b) 52%, #574633);
+  box-shadow:
+    0 18px 65px #0009,
+    inset 0 2px #e8cf9c29;
   clip-path: polygon(
     0 12px,
     12px 0,
@@ -12904,7 +12930,10 @@ body.descent-story #conversation .dialogue-frame {
 body.descent-story #conversation .dialogue-frame:before {
   inset: 5px;
   border: 1px solid #d5c58c20;
-  background: none;
+  background:
+    linear-gradient(var(--voice, #c7b37b), transparent) 0 0 / 1px 15px no-repeat,
+    linear-gradient(90deg, var(--voice, #c7b37b), transparent) 0 0 / 28px 1px no-repeat,
+    linear-gradient(270deg, #d5c58c86, transparent) 100% 100% / 28px 1px no-repeat;
   opacity: 1;
   pointer-events: none;
 }
@@ -12919,8 +12948,14 @@ body.descent-story #conversation .speaker-portrait {
   justify-content: center;
   align-items: center;
   border: 1px solid #7c805b66;
-  background: #19241b;
-  box-shadow: inset 0 0 24px #0003;
+  background: radial-gradient(
+    ellipse at 50% 43%,
+    color-mix(in srgb, var(--voice, #c7b37b) 25%, #20251e),
+    #141613 68%
+  );
+  box-shadow:
+    inset 0 0 24px #0007,
+    inset 0 1px #e2c89831;
 }
 body.descent-story #speakerPortrait {
   width: 120px;

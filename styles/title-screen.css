@@ -83,7 +83,7 @@ body.ui-reborn h1.title {
   margin: 0 0 clamp(25px, 3.5vh, 38px);
   padding: 0 0 17px;
   font:
-    500 clamp(60px, 5vw, 72px) / 0.84 Georgia,
+    500 clamp(62px, 5.7vw, 89px) / 0.84 Georgia,
     serif;
   white-space: normal;
   filter: drop-shadow(0 3px 0 #150d05) drop-shadow(0 10px 20px #000a)
@@ -155,7 +155,7 @@ body.ui-reborn .menu-btns .btn {
     0 8px 22px #0004;
   color: #e6ddcc;
   font:
-    700 10px/1.2 Georgia,
+    700 11px/1.2 Georgia,
     serif;
   letter-spacing: 0.15em;
   overflow: hidden;
@@ -230,6 +230,22 @@ body.ui-reborn .menu-btns .btn.primary {
     0 12px 30px #0007,
     0 0 26px #dbad551c;
   text-shadow: 0 1px #fff3c666;
+}
+body.ui-reborn .menu-btns .btn.primary::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  width: auto;
+  height: auto;
+  pointer-events: none;
+  transform: none;
+  opacity: 1;
+  border: 1px solid #67451b45;
+  background:
+    linear-gradient(#fff2bbbd, #fff2bbbd) 0 0 / 12px 1px no-repeat,
+    linear-gradient(#fff2bbbd, #fff2bbbd) 0 0 / 1px 12px no-repeat,
+    linear-gradient(#6e441b9e, #6e441b9e) 100% 100% / 12px 1px no-repeat,
+    linear-gradient(#6e441b9e, #6e441b9e) 100% 100% / 1px 12px no-repeat;
 }
 body.ui-reborn .menu-btns .btn.primary svg {
   color: #62431a;
@@ -377,9 +393,9 @@ body.ui-reborn #menuStats span {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #958477;
-  font-size: 5px;
-  letter-spacing: 0.11em;
+  color: #ad9d8c;
+  font-size: 8px;
+  letter-spacing: 0.08em;
 }
 body.ui-reborn #menuStats b {
   color: #ecd6aa;
@@ -439,7 +455,7 @@ body.ui-reborn #menuStats b {
     min-height: 38px;
     padding-top: 8px;
     padding-bottom: 8px;
-    font-size: 8px;
+    font-size: 9px;
   }
   body.ui-reborn .menu-btns .btn.primary {
     min-height: 45px;

@@ -2267,6 +2267,18 @@ function hearthBuildRoom() {
       }
     }
   }
+  const windowSpill = weather === 'sunrise' ? '#fac781' : '#aec6b7';
+  for (const i of [0, 1, 2]) {
+    poly(
+      [
+        [55 + i * 33, 264],
+        [75 + i * 33, 264],
+        [100 + i * 40, 348],
+        [70 + i * 40, 348],
+      ],
+      windowSpill + (weather === 'sunrise' ? '18' : '0d')
+    );
+  }
   hearthRoomChair(ctx);
   hearthChairTailoring(ctx);
   hearthRoomFurniture(ctx);
@@ -2288,6 +2300,8 @@ function hearthBuildRoom() {
   }
   hearthRoomCraftDetails(ctx);
   if (h.crowns.includes(63)) hearthCrownTrophy(ctx);
+  const coolWindow = weather === 'sunrise' ? '#b7b67b' : '#7caaae';
+  paintInteriorAtmosphere(ctx, 640, 360, 315, 201, '#dd8849', coolWindow);
   hearthRoomCache = cv;
   return cv;
 }
