@@ -1,4 +1,221 @@
 let titleGateBackdrop;
+let titleMist;
+
+function traceTitleArch(ctx, x, top, width, bottom) {
+  const step = Math.round(width * 0.18);
+  const shoulder = Math.round(width * 0.54);
+  ctx.beginPath();
+  ctx.moveTo(x - width, bottom);
+  for (const [px, py] of [
+    [x - width, top + 49],
+    [x - width + step, top + 49],
+    [x - width + step, top + 29],
+    [x - shoulder, top + 29],
+    [x - shoulder, top + 13],
+    [x - step, top + 13],
+    [x - step, top],
+    [x + step, top],
+    [x + step, top + 13],
+    [x + shoulder, top + 13],
+    [x + shoulder, top + 29],
+    [x + width - step, top + 29],
+    [x + width - step, top + 49],
+    [x + width, top + 49],
+    [x + width, bottom],
+  ]) {
+    ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+}
+
+function paintTitlePassage(ctx, shape, rect) {
+  ctx.save();
+  traceTitleArch(ctx, 240, 57, 70, 229);
+  ctx.clip();
+  const dark = ctx.createLinearGradient(0, 68, 0, 228);
+  dark.addColorStop(0, '#100f13');
+  dark.addColorStop(0.48, '#222424');
+  dark.addColorStop(1, '#2e302a');
+  rect(170, 57, 140, 172, dark);
+
+  shape(
+    [
+      [170, 69],
+      [241, 125],
+      [241, 159],
+      [170, 220],
+    ],
+    '#1b1e1d'
+  );
+  shape(
+    [
+      [310, 76],
+      [268, 125],
+      [268, 158],
+      [310, 220],
+    ],
+    '#201d1c'
+  );
+  shape(
+    [
+      [241, 125],
+      [248, 119],
+      [265, 122],
+      [268, 130],
+      [268, 159],
+      [241, 159],
+    ],
+    '#161719'
+  );
+  shape(
+    [
+      [245, 130],
+      [252, 125],
+      [263, 127],
+      [266, 132],
+      [266, 155],
+      [245, 155],
+    ],
+    '#121417'
+  );
+  shape(
+    [
+      [247, 157],
+      [265, 157],
+      [302, 229],
+      [182, 229],
+    ],
+    '#2d302b'
+  );
+  shape(
+    [
+      [252, 155],
+      [261, 155],
+      [278, 223],
+      [213, 227],
+    ],
+    '#37372c'
+  );
+  shape(
+    [
+      [249, 160],
+      [257, 159],
+      [249, 214],
+      [228, 215],
+    ],
+    '#6a503026'
+  );
+  shape(
+    [
+      [231, 173],
+      [237, 168],
+      [232, 181],
+      [224, 182],
+    ],
+    '#54524572'
+  );
+  shape(
+    [
+      [274, 190],
+      [289, 195],
+      [295, 210],
+      [278, 205],
+    ],
+    '#14191b78'
+  );
+
+  for (const [edge, top, span, bottom] of [
+    [180, 94, 12, 209],
+    [206, 102, 9, 188],
+    [226, 116, 6, 171],
+  ]) {
+    shape(
+      [
+        [edge, top],
+        [edge + span, top + 8],
+        [edge + span, bottom - 9],
+        [edge, bottom],
+      ],
+      '#101516'
+    );
+    shape(
+      [
+        [edge + span, top + 8],
+        [edge + span + 2, top + 9],
+        [edge + span + 2, bottom - 12],
+        [edge + span, bottom - 9],
+      ],
+      '#54564683'
+    );
+  }
+  for (const [edge, top, span, bottom] of [
+    [299, 91, 9, 219],
+    [286, 109, 6, 194],
+    [274, 120, 4, 173],
+  ]) {
+    shape(
+      [
+        [edge, top],
+        [edge - span, top + 9],
+        [edge - span, bottom - 9],
+        [edge, bottom],
+      ],
+      '#131516'
+    );
+    shape(
+      [
+        [edge - span - 2, top + 9],
+        [edge - span, top + 8],
+        [edge - span, bottom - 9],
+        [edge - span - 2, bottom - 12],
+      ],
+      '#6c503b68'
+    );
+  }
+  for (const [x, y, w] of [
+    [244, 162, 20],
+    [235, 172, 31],
+    [225, 184, 43],
+    [211, 201, 53],
+    [197, 218, 74],
+  ]) {
+    rect(x, y + 1, w, 2, '#191c1b');
+    rect(x + 1, y, Math.round(w * 0.56), 1, '#77735b65');
+  }
+  const light = ctx.createRadialGradient(255, 144, 1, 255, 150, 46);
+  light.addColorStop(0, '#d79a5470');
+  light.addColorStop(0.38, '#b774423a');
+  light.addColorStop(1, '#a46e4300');
+  rect(207, 100, 95, 95, light);
+  rect(251, 151, 8, 2, '#69604b');
+  rect(253, 153, 4, 3, '#22201d');
+  ctx.restore();
+}
+
+function paintTitleMist() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 146;
+  canvas.height = 30;
+  const ctx = canvas.getContext('2d');
+  for (const [x, y, width, height] of [
+    [33, 15, 31, 7],
+    [63, 12, 40, 9],
+    [91, 16, 41, 11],
+    [118, 13, 27, 6],
+  ]) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(width, height);
+    const haze = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+    haze.addColorStop(0, '#aab8a467');
+    haze.addColorStop(0.44, '#9eaa9b33');
+    haze.addColorStop(1, '#9eaa9b00');
+    ctx.fillStyle = haze;
+    ctx.fillRect(-1, -1, 2, 2);
+    ctx.restore();
+  }
+  return canvas;
+}
 
 function paintTitleGate() {
   const art = document.createElement('canvas');
@@ -17,29 +234,9 @@ function paintTitleGate() {
     c.fill();
   };
   const arch = (x, top, width, bottom, color) => {
-    const step = Math.round(width * 0.18);
-    const shoulder = Math.round(width * 0.54);
-    shape(
-      [
-        [x - width, bottom],
-        [x - width, top + 49],
-        [x - width + step, top + 49],
-        [x - width + step, top + 29],
-        [x - shoulder, top + 29],
-        [x - shoulder, top + 13],
-        [x - step, top + 13],
-        [x - step, top],
-        [x + step, top],
-        [x + step, top + 13],
-        [x + shoulder, top + 13],
-        [x + shoulder, top + 29],
-        [x + width - step, top + 29],
-        [x + width - step, top + 49],
-        [x + width, top + 49],
-        [x + width, bottom],
-      ],
-      color
-    );
+    traceTitleArch(c, x, top, width, bottom);
+    c.fillStyle = color;
+    c.fill();
   };
 
   rect(0, 0, 480, 330, '#131211');
@@ -162,17 +359,24 @@ function paintTitleGate() {
     ],
     '#3d2c23'
   );
-  for (const [dx, dy] of [
-    [0, -6],
-    [-9, -2],
-    [9, -2],
-    [-8, 4],
-    [8, 4],
-    [-3, 6],
-    [3, 6],
-  ]) {
-    rect(239 + dx, 34 + dy, 3, 2, dx ? '#b78a55' : '#edc586');
-  }
+  shape(
+    [
+      [240, 27],
+      [246, 33],
+      [240, 40],
+      [234, 33],
+    ],
+    '#aa7b48'
+  );
+  shape(
+    [
+      [240, 30],
+      [243, 33],
+      [240, 36],
+      [237, 33],
+    ],
+    '#452e22'
+  );
 
   for (const sign of [-1, 1]) {
     const x = 240 + sign * 92;
@@ -194,23 +398,7 @@ function paintTitleGate() {
     }
   }
 
-  arch(240, 76, 59, 226, '#291c18');
-  arch(240, 94, 49, 225, '#522d21');
-  arch(240, 110, 42, 225, '#7d482d');
-  arch(240, 128, 34, 225, '#ba6d3e');
-  arch(240, 147, 27, 225, '#dd9858');
-  arch(240, 160, 19, 225, '#f4c283');
-  rect(223, 208, 34, 16, '#ffdf9d');
-  rect(239, 177, 2, 45, '#fff1b7');
-  for (const [y, half] of [
-    [170, 23],
-    [184, 31],
-    [201, 37],
-    [215, 47],
-  ]) {
-    rect(240 - half, y, 2 * half, 2, '#45291f70');
-    rect(241 - half, y + 2, 2 * half - 2, 1, '#ffce8068');
-  }
+  paintTitlePassage(c, shape, rect);
   for (const side of [-1, 1]) {
     const jamb = 240 + side * 64;
     const edge = 240 + side * 45;
@@ -288,7 +476,7 @@ function paintTitleGate() {
       [312, 308],
       [173, 308],
     ],
-    '#fdab4f1d'
+    '#caab7214'
   );
   shape(
     [
@@ -297,7 +485,7 @@ function paintTitleGate() {
       [277, 299],
       [209, 299],
     ],
-    '#ffe2a624'
+    '#c3a97f12'
   );
   shape(
     [
@@ -324,8 +512,8 @@ function paintTitleGate() {
     rect(left, y, width, 7, '#2b2420');
     rect(left + 1, y, width - 2, 2, '#856747');
     rect(left + 3, y + 5, width - 6, 2, '#150f0f');
-    rect(222 - 4 * rung, y, 36 + 8 * rung, 1, '#db9a58');
-    rect(236 - 4 * rung, y + 1, 4 + 8 * rung, 1, '#f5bc71');
+    rect(222 - 4 * rung, y, 36 + 8 * rung, 1, '#ab8558');
+    rect(236 - 4 * rung, y + 1, 4 + 8 * rung, 1, '#bf9765');
   }
 
   for (const x of [117, 362]) {
@@ -388,6 +576,7 @@ function drawMenuBg() {
   const y = portrait ? Math.round(G.h * 0.17 - 118 * scale) : (G.h - 330 * scale) / 2;
   if (!titleGateBackdrop || titleGateBackdrop.getContext('2d').isContextLost?.())
     titleGateBackdrop = paintTitleGate();
+  if (!titleMist || titleMist.getContext('2d').isContextLost?.()) titleMist = paintTitleMist();
 
   c.fillStyle = '#090707';
   c.fillRect(0, 0, G.w, G.h);
@@ -397,50 +586,31 @@ function drawMenuBg() {
   c.imageSmoothingEnabled = false;
   c.drawImage(titleGateBackdrop, 0, 0);
 
-  glowImg('ember', 240, 217, 125, 0.24);
-  glowImg('gold', 240, 208, 79, 0.29 + Math.sin(t * 1.4) * 0.048);
-  glowImg('ember', 240, 254, 96, 0.18);
-  const sealY = 162 + Math.sin(t * 1.2) * 2;
-  glowImg('ember', 240, sealY, 43, 0.31);
-  c.strokeStyle = '#ffcd7e5b';
-  c.lineWidth = 1;
-  c.beginPath();
-  c.ellipse(240, sealY, 29, 24, 0, 0, TAU);
-  c.stroke();
-  for (let i = 0; i < 7; i++) {
-    const angle = (i * TAU) / 7 - Math.PI / 2 + t * 0.22;
-    const sx = Math.round(240 + Math.cos(angle) * 29);
-    const sy = Math.round(sealY + Math.sin(angle) * 24);
-    c.fillStyle = '#51281e';
-    c.fillRect(sx - 2, sy - 2, 5, 5);
-    c.fillStyle = i === 0 ? '#ffdfa0' : '#cf9254';
-    c.fillRect(sx - 1, sy - 1, 3, 3);
-    c.fillStyle = '#ffe2a5';
-    c.fillRect(sx, sy - 1, 1, 1);
-  }
   c.save();
-  c.translate(240, Math.round(sealY));
-  c.rotate(Math.PI / 4);
-  c.fillStyle = '#d5894a';
-  c.fillRect(-5, -5, 10, 10);
-  c.fillStyle = '#ffda90';
-  c.fillRect(-4, -4, 6, 6);
-  c.fillStyle = '#fff1c4';
-  c.fillRect(-3, -3, 2, 3);
+  traceTitleArch(c, 240, 57, 70, 229);
+  c.clip();
+  glowImg('ember', 255, 146, 28, 0.31 + Math.sin(t * 2.6) * 0.05);
+  drawSpr('flame', 255, 147, 0.27, 0, 1, save.motion ? -G.tAll : 0);
+  c.globalAlpha = 0.5;
+  c.drawImage(titleMist, 203 + Math.round(Math.sin(t * 0.37) * 10), 175, 99, 22);
+  c.globalAlpha = 0.76;
+  c.drawImage(titleMist, 173 + Math.round(Math.sin(t * 0.28 + 1.7) * 9), 194, 125, 32);
   c.restore();
+  glowImg('ember', 240, 249, 84, 0.12);
   for (const bx of [117, 362]) {
     const sway = Math.sin(t * 4 + bx);
     glowImg('ember', bx, 153, 72, 0.28 + sway * 0.05);
     drawSpr('flame', bx, 151 + Math.round(sway), 0.88, 0, 1, save.motion ? -G.tAll : bx);
   }
 
-  for (let i = 0; i < 31; i++) {
+  for (let i = 0; i < 18; i++) {
     const drift = (i * 39 + t * (4 + (i % 4))) % 91;
-    const px = ((i * 67) % 201) + 139 + Math.sin(t * 0.61 + i) * ((i % 5) + 2);
+    const side = i % 2 ? -1 : 1;
+    const px = 240 + side * (61 + ((i * 17) % 75) + Math.sin(t * 0.61 + i) * 3);
     const py = 242 - drift;
     c.globalAlpha = (1 - drift / 105) * (i % 5 ? 0.31 : 0.53);
     c.fillStyle = i % 4 ? '#ef9850' : '#ffdb96';
-    c.fillRect(Math.round(px), Math.round(py), i % 5 ? 1 : 2, i % 11 ? 1 : 2);
+    c.fillRect(Math.round(px), Math.round(py), 1, 1);
   }
   c.globalAlpha = 1;
   drawHearthEmber(c, 240, 273, t);
