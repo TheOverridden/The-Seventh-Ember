@@ -676,7 +676,7 @@ const EXPANDED_CARD_ROWS = [
     68,
     'bell',
     'The Black Bell',
-    'Every twenty-five kills tolls catastrophic damage through the room',
+    'Every 25 kills, the bell deals 50% of each nearby foe’s max health, or 8% against Guardians',
   ],
   [
     'furnaceEnd',
@@ -706,7 +706,7 @@ const EXPANDED_CARD_ROWS = [
     74,
     'network',
     'The Golden Thread',
-    'Critical hits bind enemies so damage echoes through the entire group',
+    'Critical hits link the target and up to five nearby enemies. Linked foes share 35% of damage',
   ],
   [
     'onlyEmber',
@@ -1083,6 +1083,21 @@ function expansionRoomEnemies(index = expansionRoomIndex()) {
           e.y >= r.y * TILE &&
           e.y <= (r.y + r.h) * TILE
       );
+}
+function expansionEncounterEnemies(x, y) {
+  const room = expansionRoomIndex(x, y);
+  return room >= 0
+    ? expansionRoomEnemies(room)
+    : expansionLiving().filter(
+        (e) => d2(e.x, e.y, x, y) <= 240 ** 2 && los(G.world, x, y, e.x, e.y)
+      );
+}
+function expansionLoneGuardian() {
+  if (!blessingRank('onlyEmber') || !G.bossActive) return null;
+  const guardian = G.enemies.find((e) => e.isBoss && !e.dead);
+  if (!guardian) return null;
+  const foes = expansionEncounterEnemies(guardian.x, guardian.y);
+  return foes.some((e) => e !== guardian && !e.mechanism) ? null : guardian;
 }
 function expansionHeal(amount, label) {
   if (!G.player || amount <= 0) return 0;
@@ -1512,6 +1527,7 @@ beginReload = function () {
       window = 0.16 + 0.07 * rank;
     if (progress >= 1 - window) {
       p.reloadT = 0;
+      p.autoRekindle = false;
       p.ammo = p.magSize;
       p.shotT = 0;
       recordPerfectRekindle();
@@ -1607,17 +1623,6 @@ fireVolley = function () {
   }
 };
 
-function expansionFlareTargets() {
-  const p = G.player;
-  if (!p) return [];
-  return expansionLiving().filter(
-    (e) =>
-      d2(p.x, p.y, e.x, e.y) <= (MELEE.reach + e.r + 18) ** 2 &&
-      (MELEE.halfArc >= Math.PI - 0.05 ||
-        Math.abs(angleDiff(Math.atan2(e.y - p.y, e.x - p.x), p.meleeAngle)) <= MELEE.halfArc) &&
-      los(G.world, p.x, p.y, e.x, e.y)
-  );
-}
 function expansionReflectShot(radius, all = false) {
   const p = G.player;
   if (!p) return 0;
@@ -1656,10 +1661,10 @@ strikeMelee = function () {
   }
   if (blessingRank('duelistEmber') && expansionLiving().length === 1)
     mult *= 1 + 0.48 * blessingRank('duelistEmber');
-  const targets = expansionFlareTargets(),
+  const candidates = flareTargets(p).map((enemy) => ({ enemy, health: enemy.hp })),
     sever = blessingRank('severingLight');
   if (sever)
-    for (const e of targets)
+    for (const { enemy: e } of candidates)
       if (!e.isBoss) e.expSeverT = Math.max(e.expSeverT || 0, G.t + 2 + sever);
   MELEE.damage *= mult;
   try {
@@ -1668,6 +1673,9 @@ strikeMelee = function () {
     MELEE.damage = oldDamage;
     MELEE.reach = oldReach;
   }
+  const targets = candidates
+    .filter(({ enemy, health }) => enemy.hp < health)
+    .map(({ enemy }) => enemy);
   s.lastFlare = G.t;
   expansionAction('flare');
   expansionRhythm('flare');
@@ -1748,6 +1756,8 @@ strikeMelee = function () {
 const expansionDamageEnemy = damageEnemy;
 damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
   if (!e || e.dead) return;
+  if (kind === 'redThread' || kind === 'goldenThread' || kind === 'blackBell')
+    return expansionDamageEnemy(e, dmg, ang, crit, kb, kind);
   const s = expansionState(),
     p = G.player;
   let amount = dmg;
@@ -1790,8 +1800,7 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
   }
   if (e.isBoss && s?.shatteredFragments)
     amount *= 1 + s.shatteredFragments * 0.08 * blessingRank('shatteredCrown');
-  if (e.isBoss && blessingRank('onlyEmber') && !expansionLiving().some((q) => q !== e && !q.isBoss))
-    amount *= 1.75;
+  if (e.isBoss && expansionLoneGuardian() === e) amount *= 1.75;
   if (expansionFinalMatchActive()) amount *= 2;
   if (blessingRank('duelistEmber') && expansionLiving().length === 1)
     amount *= 1 + 0.22 * blessingRank('duelistEmber');
@@ -1817,38 +1826,38 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
       starstitchPin(e.x, e.y, e);
     }
   }
-  if (blessingRank('redThread') && kind !== 'redThread' && !e.dead) {
+  if (blessingRank('redThread')) {
     if (!s.redThreadSet) {
       s.redThreadSet = true;
       e.expRedThread = true;
-      const near = expansionLiving()
+      const near = expansionEncounterEnemies(e.x, e.y)
         .filter((q) => q !== e)
         .sort((a, b) => d2(a.x, a.y, e.x, e.y) - d2(b.x, b.y, e.x, e.y))
         .slice(0, 1 + blessingRank('redThread'));
       for (const q of near) q.expRedThread = true;
     }
     if (e.expRedThread)
-      for (const q of expansionLiving())
+      for (const q of expansionEncounterEnemies(e.x, e.y))
         if (q !== e && q.expRedThread)
-          expansionDamageEnemy(
+          damageEnemy(
             q,
-            amount * (0.16 + 0.08 * blessingRank('redThread')),
+            (hp - e.hp) * (0.16 + 0.08 * blessingRank('redThread')),
             ang,
             false,
             0,
             'redThread'
           );
   }
-  if (crit && blessingRank('goldenThread') && kind !== 'goldenThread') {
-    e.expGolden = true;
-    const near = expansionLiving()
-      .filter((q) => q !== e)
-      .sort((a, b) => d2(a.x, a.y, e.x, e.y) - d2(b.x, b.y, e.x, e.y))
-      .slice(0, 5);
-    for (const q of near) q.expGolden = true;
-    for (const q of expansionLiving())
-      if (q !== e && q.expGolden)
-        expansionDamageEnemy(q, amount * 0.35, ang, false, 0, 'goldenThread');
+  if (blessingRank('goldenThread') && (crit || e.expGolden)) {
+    const neighbors = expansionEncounterEnemies(e.x, e.y).filter((q) => q !== e);
+    if (crit) {
+      for (const q of expansionLiving()) q.expGolden = false;
+      e.expGolden = true;
+      neighbors.sort((a, b) => d2(a.x, a.y, e.x, e.y) - d2(b.x, b.y, e.x, e.y));
+      for (const q of neighbors.slice(0, 5)) q.expGolden = true;
+    }
+    for (const q of neighbors)
+      if (q.expGolden) damageEnemy(q, (hp - e.hp) * 0.35, ang, false, 0, 'goldenThread');
   }
 };
 
@@ -1968,16 +1977,19 @@ killEnemy = function (e) {
       color: e.col || '#ffe3a3',
     });
   }
-  if (blessingRank('blackBell') && !s.blackBellActive) {
+  if (blessingRank('blackBell') && !mechanism && !s.blackBellActive) {
     s.blackBellKills = (s.blackBellKills || 0) + 1;
     if (s.blackBellKills >= 25) {
       s.blackBellKills = 0;
       s.blackBellActive = true;
-      for (const q of expansionLiving()) {
-        const hit = q.isBoss ? q.max * 0.08 : q.max * 0.5;
-        expansionDamageEnemy(q, hit, 0, false, 0, 'blackBell');
+      try {
+        for (const q of expansionEncounterEnemies(x, y)) {
+          const hit = q.isBoss ? q.max * 0.08 : q.max * 0.5;
+          damageEnemy(q, hit, 0, false, 0, 'blackBell');
+        }
+      } finally {
+        s.blackBellActive = false;
       }
-      s.blackBellActive = false;
       burst(G.player.x, G.player.y, 55, '#b9a6ff', 340, 1, 5, true);
       toast('THE BLACK BELL', 'the room answers');
       sfx('mythic');
@@ -2176,11 +2188,7 @@ function expansionDashTick(dt) {
         by: p.y,
         t: 7,
       };
-    if (
-      blessingRank('onlyEmber') &&
-      G.bossActive &&
-      expansionLiving().filter((e) => !e.isBoss).length === 0
-    ) {
+    if (expansionLoneGuardian()) {
       s.onlyEmberDashes = (s.onlyEmberDashes || 0) + 1;
       if (s.onlyEmberDashes % 3 === 0) {
         p.meleeCdT = 0;
@@ -2467,12 +2475,7 @@ tickBlessings = function (dt) {
   }
   if (s.warmTrailT > 0) speed += 0.06 * blessingRank('warmTrail');
   if (s.unbrokenStacks) speed += 0.025 * s.unbrokenStacks * blessingRank('unbrokenStep');
-  if (
-    blessingRank('onlyEmber') &&
-    G.bossActive &&
-    expansionLiving().filter((e) => !e.isBoss).length === 0
-  )
-    speed += 0.2;
+  if (expansionLoneGuardian()) speed += 0.2;
   p.pathSpeed = (p.pathSpeed || 1) * speed;
   p.magnet = p.expansionBaseMagnet || p.magnet;
   if (blessingRank('lowLantern') && p.hp < p.maxHp * 0.35)

@@ -124,11 +124,7 @@ function beginMelee() {
   p.shotT = Math.max(p.shotT, 0.4);
   return true;
 }
-function strikeMelee() {
-  const p = G.player,
-    damage = p.dmg * MELEE.damage * (1 + 0.25 * (G.run.up.edge || 0));
-  p.meleeHitT = MELEE.swing;
-  sfx('dash');
+function flareTargets(p) {
   const targets = G.enemies.filter(
     (e) =>
       !e.dead &&
@@ -137,7 +133,15 @@ function strikeMelee() {
       los(G.world, p.x, p.y, e.x, e.y)
   );
   targets.sort((a, b) => d2(p.x, p.y, a.x, a.y) - d2(p.x, p.y, b.x, b.y));
-  for (let i = 0; i < Math.min(targets.length, MELEE.cleave.length); i++) {
+  return targets.slice(0, MELEE.cleave.length);
+}
+function strikeMelee() {
+  const p = G.player,
+    damage = p.dmg * MELEE.damage * (1 + 0.25 * (G.run.up.edge || 0));
+  p.meleeHitT = MELEE.swing;
+  sfx('dash');
+  const targets = flareTargets(p);
+  for (let i = 0; i < targets.length; i++) {
     const e = targets[i],
       a = Math.atan2(e.y - p.y, e.x - p.x),
       crit = chance(p.critC);

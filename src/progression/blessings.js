@@ -410,7 +410,7 @@ const LONG_DESCENT_BLESSINGS = [
     minFloor: 32,
     icon: 'asterisk',
     name: 'Sevenfold Flame',
-    ds: 'Every fourth cast becomes a piercing nine-Bolt fan',
+    ds: 'Every fourth cast also fires a piercing fan of nine Ember Bolts',
   },
   {
     id: 'mirrorSoul',
