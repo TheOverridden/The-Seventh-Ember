@@ -70,7 +70,7 @@ const SECRET_ROOM_TYPES = {
   shop: {
     name: 'THE BACK ROOM',
     verb: '',
-    line: 'Moth has kept the lamp on.',
+    line: '“Shut the door, would you? The good stuff’s under the counter.”',
     reward: 'Spend Marks on run-changing goods',
   },
 };

@@ -2,22 +2,22 @@
 
 const DESCENT_BEFORE_OREN = {
   'ds-gate-after': {
-    1: 'Good. I’ll leave the hatch open. We’ll need this cable.',
+    1: 'Good. Leave the hatch open. We’ll need to see where that cable goes.',
   },
   'ds-court-intro': {
-    0: 'Here’s the picture from the Observatory and the list of everyone at the Hearth.',
+    0: 'Here’s the road picture and the list of everyone at the Hearth.',
   },
   choirArrival: {
-    1: 'They carry the return signal. The Hearth cable joins them upstairs.',
+    1: 'It’s the return signal. The cable splits up there. One branch goes back to the Hearth.',
   },
   seraphBefore: {
-    1: 'The Hearth has its own supply cable. We can leave that connected.',
+    1: 'The Hearth has another power cable. We can leave that one on.',
   },
   seraphAfter: {
-    1: 'They’ll stay awake. We only need to cut the return cable.',
+    1: 'They’re all right. We only broke the line to this bell.',
   },
   keeperBefore: {
-    3: 'We can keep the Hearth running. Come up and look.',
+    3: 'The Hearth has its own supply. Come up and look. We can open the gate without putting out a lamp.',
   },
 };
 

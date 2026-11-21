@@ -34,7 +34,7 @@ wickStartHint.id = 'wickStartHint';
 wickStartHint.hidden = true;
 wickStartHint.innerHTML =
   '<canvas id="wickStartPortrait" width="48" height="48" aria-hidden="true"></canvas>' +
-  '<p><b>WICK</b>Come on. Let’s get you moving.</p>';
+  '<p><b>WICK</b>Stay close. I can light about three steps.</p>';
 T('btnStart').after(wickStartHint);
 const wickTourButton = document.createElement('button');
 wickTourButton.id = 'btnWickTour';
@@ -238,16 +238,16 @@ function wickGuideDetail() {
   const node = selectedNode || NODE_BY_ID.awaken,
     state = nodeState(node);
   if (state === 2)
-    return 'You already have this one. It stays with you when you die. Follow the lines to see what it opens next.';
+    return 'That one’s yours. It’ll still be here if I have to carry you back. Follow the branches to see what it opens.';
   if (state === 0)
     return (
-      'This one needs ' +
+      'Follow the branch back to ' +
       NODE_BY_ID[node.req].name +
-      ' first. Follow the line back. Anything you unlock here stays with you.'
+      '. You’ll need that one first.'
     );
   if (state === 1)
-    return 'You’re a little short for this one. That’s fine. The price is here. Come back with more Essence after the next descent.';
-  return 'You can afford this one. Read what it does, then unlock it if you want it. These upgrades stay when you die.';
+    return 'A little short? Leave it for now. Take a look at the price so you know how much to bring back.';
+  return 'You’ve got enough for this one. Read it over and see if it helps with whatever just got you killed.';
 }
 function wickGuideRender() {
   wickGuideRestore(wickGuide.locks);
@@ -270,26 +270,26 @@ function wickGuideRender() {
   if (wickGuide.mode === 'rush') {
     title = 'Boss Rush is open';
     text =
-      'Boss Rush is open. Pick a combination before you start; its blessings stay for the whole run. Your skills and Forms come too, and there’s a rest between fights.';
+      'They’re all waiting in there. Pick a blessing combo before you go in. It lasts the whole Rush, and you keep your skills and Form. Catch your breath between fights.';
     button = 'SHOW ME';
     wickGuide.target = T('btnBossRush');
   } else {
     const steps = [
       [
         'Start with the Skill Tree',
-        'Before you go down again, let me show you around. This button opens the Skill Tree. You spend Essence there, and the upgrades stay with you when you die. Go on, open it.',
+        'Before you go back down, open the Skill Tree. Spend that Essence you brought back. Whatever you buy here comes with you next time.',
         'OPEN THE SKILL TREE',
         T('btnTree'),
       ],
       [
         'Keep your Essence',
-        'Here’s how much Essence you have. The blue shards level you up during a descent. Essence is what you bring back here to spend.',
+        'See that number? That’s your Essence. The blue shards are XP. Those are only good while you’re downstairs.',
         'SHOW ME THE SIGILS',
         T('treeEss'),
       ],
       [
         'Pick a sigil',
-        'Pick a sigil and have a look. Start in the middle, then follow the lines out.',
+        'Start in the middle. Follow a branch and pick something you’d like to have had five minutes ago.',
         'SELECT A SIGIL',
         document.querySelector('.tree-map'),
       ],
@@ -301,51 +301,51 @@ function wickGuideRender() {
       ],
       [
         'Find the Archive here',
-        'The Archive is here on the homepage. Once you reach a guardian, you can practice its fight here without risking your saved descent. Let’s have a look.',
+        'If a guardian knocked you flat, you can have another go here. The Archive adds each fight as soon as you reach it downstairs.',
         'OPEN THE ARCHIVE',
         T('btnGuardianArchive'),
       ],
       [
         'Guardian Archive',
-        'Choose a build before you go in. Practice leaves your saved descent alone. If the list’s empty, you haven’t reached a guardian yet.',
+        'Pick a build before you go in. Your saved descent is safe while you practice. If the list’s empty, come back after you’ve reached a guardian.',
         'BACK TO THE HOMEPAGE',
         T('guardianArchiveGrid'),
       ],
       [
         'The Hearth is here',
-        'This one takes you to the Hearth. It’s your room: furnishings, new looks for your Ember, and a board of separate combat trials.',
+        'Come see the Hearth. You get a room here, and there’s a Trial Board if you’d rather keep fighting.',
         'OPEN THE HEARTH',
         T('btnHearth'),
       ],
       [
         'Your Hearth',
-        'This is your room. You can change it, and change your Ember’s shards and trail. The Trial Board is over here.',
+        'Move the furniture around if you like. You can change your shards and trail here, too. Come look at the board when you’re done.',
         'SHOW ME THE TRIALS',
         T('hearthCanvas'),
       ],
       [
         'The Trial Board',
-        'These are separate fights with their own rules. Clear them to earn things for your room and new looks for your Ember. Your descent stays safe.',
+        'Read the rule before you jump in. Some trials only let you use one ability. Win and you can earn stuff for this room or for yourself. Your descent stays safe.',
         'BACK TO THE HOMEPAGE',
         T('hearthTrialsPanel'),
       ],
       [
         'Achievements',
-        'Your achievements are tracked here across all your descents. Open it to see what you’ve earned and what’s left.',
+        'This keeps track of what you’ve done on all your descents. If you need an idea for the next one, look for an achievement you haven’t got yet.',
         'GOT IT',
         T('btnAchievements'),
       ],
       [
         'Settings and controls',
-        'Settings & Save has your sound levels, control bindings, and save backups. The Music and Sound buttons beside it are quick mutes. If you forget a control, How to Play is up above. You can ask me for this tour again there, too.',
+        'Change your controls or back up your save in Settings & Save. The two sound buttons here are quick mutes. You can find me and the controls under How to Play.',
         'ONE LAST THING',
         T('btnSettings'),
       ],
       [
         'Back downstairs',
         save.resume
-          ? 'Continue Descent picks up your saved run. Begin Descent starts a fresh one. That’s the tour. I’ll leave you to it.'
-          : 'Begin Descent starts your next run. The Essence upgrades you bought come with you. That’s the tour. Ready when you are.',
+          ? 'Continue Descent takes you back to your saved run. Begin Descent starts over at the gate. I’ll meet you downstairs.'
+          : 'Begin Descent takes you back to the gate. You’ve still got what you bought in the tree. I’ll meet you downstairs.',
         'FINISH TOUR',
         wickGuideStartAction(),
       ],
