@@ -2,17 +2,34 @@
 
 const WICK_FRAMES = new Map();
 
+const WICK_OUTLINE = [
+  [18, 18], [17, 18], [16, 18], [16, 19], [15, 19], [14, 19],
+  [14, 19], [13, 20], [12, 20], [12, 21], [11, 21], [10, 22],
+  [10, 23], [9, 23], [9, 24], [8, 24], [8, 24], [8, 24],
+  [9, 23], [9, 23], [10, 22], [11, 21], [12, 20], [14, 18],
+];
+
+const WICK_CORE = [
+  [16, 16], [15, 16], [15, 16], [14, 17], [14, 17], [13, 18],
+  [13, 18], [12, 19], [12, 20], [11, 20], [11, 21], [11, 21],
+  [11, 21], [12, 20], [12, 20], [13, 19], [14, 18], [15, 17],
+];
+
+const WICK_SMALL = [
+  [9, 9], [8, 9], [8, 9], [7, 9], [7, 10], [6, 10], [5, 11],
+  [5, 11], [4, 12], [4, 12], [4, 12], [5, 11], [6, 10], [7, 9],
+];
+
 function makeWickFrame(index = 0, small = false, pose = {}) {
   index = ((index % 12) + 12) % 12;
-  const lookX = Math.max(-1, Math.min(1, Math.round(pose.lookX || 0))),
-    lookY = Math.max(-1, Math.min(1, Math.round(pose.lookY || 0))),
-    mouth = pose.speaking ? (index % 3) + 1 : pose.happy ? 4 : 0,
-    blink = !!pose.blink,
-    lean = pose.moving ? lookX : 0,
-    key = [small ? 'small' : 'full', index, lookX, lookY, mouth, blink, lean, !!pose.alert].join(
-      '-'
-    );
+  const lookX = Math.max(-1, Math.min(1, Math.round(pose.lookX || 0)));
+  const lookY = Math.max(-1, Math.min(1, Math.round(pose.lookY || 0)));
+  const mouth = pose.speaking ? [0, 1, 2, 1][index % 4] : pose.happy ? 3 : 0;
+  const blink = !!pose.blink;
+  const lean = pose.moving ? lookX : 0;
+  const key = [small, index, lookX, lookY, mouth, blink, lean, !!pose.alert].join('-');
   if (WICK_FRAMES.has(key)) return WICK_FRAMES.get(key);
+
   const cv = document.createElement('canvas');
   cv.width = cv.height = small ? 16 : 32;
   const ctx = cv.getContext('2d');
@@ -20,95 +37,58 @@ function makeWickFrame(index = 0, small = false, pose = {}) {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, w, h);
   };
+  const flicker = [0, 1, 1, 2, 1, 0, 0, -1, -2, -1, -1, 0][index] + lean * 2;
   if (small) {
-    const rows = [
-      [8, 1],
-      [8, 1],
-      [7, 2],
-      [7, 2],
-      [6, 3],
-      [6, 4],
-      [5, 5],
-      [5, 6],
-      [4, 7],
-      [4, 7],
-      [4, 7],
-      [5, 6],
-      [5, 5],
-      [6, 3],
-    ];
-    const flick = [0, 0, 1, 0, 0, -1, 0, 0, 1, 0, -1, 0][index];
-    rows.forEach(([left, width], row) => {
-      const y = row + 1,
-        x = left + (y < 6 ? flick + lean : 0);
-      px(x, y, width, 1, '#d96c2b');
-      if (width > 2) px(x + 1, y, width - 2, 1, '#ffc45f');
-      if (y >= 8 && y <= 12) px(7, y, 2, 1, '#fff0bc');
+    WICK_SMALL.forEach(([left, right], row) => {
+      const shift = Math.round((flicker * Math.max(0, 6 - row)) / 12);
+      const y = row + 1;
+      const x = left + shift;
+      const width = right - left + 1;
+      px(x, y, width, 1, row < 6 ? '#eb8a38' : '#a5492b');
+      if (width >= 2) px(x, y, width - 1, 1, '#ffa444');
+      if (width >= 4) px(x + 1, y, width - 3, 1, row < 6 ? '#ffd481' : '#ffbd62');
+      if (width >= 6) px(7, y, row >= 11 ? 2 : 3, 1, '#ffe7a7');
     });
-    const ey = 10 + lookY;
-    px(5 + lookX, ey, 1, blink ? 1 : 2, '#70482b');
-    px(9 + lookX, ey, 1, blink ? 1 : 2, '#70482b');
-    if (mouth) px(7 + lookX, ey + 2, mouth === 4 ? 2 : 1, 1, '#956039');
+    const eyeY = 9 + lookY;
+    px(6 + lookX, eyeY, 1, blink ? 1 : 2, '#60331f');
+    px(10 + lookX, eyeY, 1, blink ? 1 : 2, '#60331f');
+    if (mouth) px(8 + lookX, eyeY + 2, 1, 1, '#8c4a25');
   } else {
-    const flick = [0, 0, 1, 1, 0, 0, -1, -1, 0, 1, 0, 0][index % 12];
-    const rows = [
-      [17, 1],
-      [16, 2],
-      [16, 2],
-      [15, 3],
-      [15, 3],
-      [14, 4],
-      [14, 4],
-      [13, 5],
-      [13, 6],
-      [12, 7],
-      [12, 7],
-      [11, 9],
-      [11, 10],
-      [10, 11],
-      [10, 12],
-      [9, 13],
-      [9, 13],
-      [9, 14],
-      [9, 14],
-      [10, 13],
-      [10, 12],
-      [11, 11],
-      [11, 10],
-      [12, 8],
-      [13, 6],
-      [14, 4],
-    ];
-    rows.forEach(([left, width], row) => {
-      const y = row + 3,
-        x = left + (y < 10 ? flick + lean : y < 15 ? lean : 0);
-      px(x, y, width, 1, '#d96c2b');
-      if (width > 2) px(x + 1, y, width - 2, 1, '#f59b3d');
-      if (width > 5) px(x + 2, y, width - 4, 1, '#ffd075');
-      if (y >= 16 && y <= 26) {
-        const hotWidth = y < 19 ? 2 : y > 24 ? 3 : 4;
-        px(15, y, hotWidth, 1, '#fff0bc');
-      }
+    WICK_OUTLINE.forEach(([left, right], row) => {
+      const shift = Math.round((flicker * Math.max(0, 14 - row)) / 14);
+      const y = row + 4;
+      const x = left + shift;
+      const width = right - left + 1;
+      const edge = row < 10 ? '#ef8737' : row < 18 ? '#c35a31' : '#9e472c';
+      px(x, y, width, 1, edge);
+      if (width >= 2) px(x, y, width - 1, 1, row < 16 ? '#ff9d43' : '#ee8239');
+      if (width >= 5) px(x + 1, y, width - 3, 1, row < 14 ? '#ffbc5b' : '#fca448');
+      if (width >= 9 && row < 22) px(x + 1, y, 1, 1, '#ffd17a');
     });
-    const ey = 21 + lookY,
-      eyesClosed = blink || (mouth === 4 && index % 4 === 0);
-    px(12 + lookX, ey, eyesClosed ? 2 : 1, eyesClosed ? 1 : 2, '#80512d');
-    px(20 + lookX, ey, eyesClosed ? 2 : 1, eyesClosed ? 1 : 2, '#80512d');
-    if (pose.alert && !eyesClosed) {
-      px(12 + lookX, ey - 2, 2, 1, '#b77a36');
-      px(19 + lookX, ey - 2, 2, 1, '#b77a36');
+    WICK_CORE.forEach(([left, right], row) => {
+      const shift = Math.round((flicker * Math.max(0, 7 - row)) / 14);
+      const x = left + shift;
+      const y = row + 9;
+      const width = right - left + 1;
+      px(x, y, width, 1, row < 12 ? '#ffda83' : '#ffcf76');
+      if (width > 2) px(x + 1, y, width - 2, 1, '#ffe5a4');
+      if (width > 6 && row >= 7 && row <= 14) px(x + 3, y, width - 6, 1, '#fff2c7');
+    });
+    const eyeY = 19 + lookY;
+    const nearEye = 13 + lookX;
+    const farEye = 19 + lookX;
+    px(nearEye, eyeY, blink ? 2 : 1, blink ? 1 : 3, '#603420');
+    px(farEye, eyeY, blink ? 2 : 1, blink ? 1 : 3, '#603420');
+    if (pose.alert && !blink) {
+      px(nearEye - 1, eyeY - 2, 2, 1, '#b56632');
+      px(farEye, eyeY - 2, 2, 1, '#b56632');
     }
-    if (mouth && mouth !== 4) {
-      px(16 + lookX, ey + 3, mouth === 2 ? 2 : 1, mouth === 3 ? 2 : 1, '#956039');
-    } else {
-      px(16 + lookX, ey + 3, 2, 1, '#b77a46');
-      if (mouth === 4) {
-        px(15 + lookX, ey + 2, 1, 1, '#b77a46');
-        px(18 + lookX, ey + 2, 1, 1, '#b77a46');
-      }
+    if (mouth) {
+      px(16 + lookX, eyeY + 4, mouth === 1 ? 1 : 2, mouth === 2 ? 2 : 1, '#8c4a25');
+      if (mouth === 3) px(18 + lookX, eyeY + 3, 1, 1, '#8c4a25');
     }
-    if (index >= 3 && index <= 5) px(16 + flick, 7, 1, 2, '#ffd075');
   }
+
   if (WICK_FRAMES.size >= 192) WICK_FRAMES.delete(WICK_FRAMES.keys().next().value);
   WICK_FRAMES.set(key, cv);
   return cv;
@@ -126,12 +106,12 @@ function drawWickCharacter(ctx, x, y, size = 32, time = 0, pose = {}) {
       !still &&
       (blinkClock > 4.48 ||
         (Math.floor(t / 4.7) % 3 === 2 && blinkClock > 0.16 && blinkClock < 0.26)),
-    frame = makeWickFrame(still ? 3 : Math.floor(t * (speaking ? 11 : 8)) % 12, size <= 20, {
+    frame = makeWickFrame(still ? 0 : Math.floor(t * 9) % 12, size <= 24, {
       ...pose,
       speaking: !still && speaking,
       blink,
     }),
-    bob = still ? 0 : Math.sin(t * (speaking ? 5 : 2.6)) * Math.min(1.5, size / 48);
+    bob = still ? 0 : Math.sin(t * 2.6) * Math.min(2, size / 36);
   ctx.save();
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(frame, Math.round(x - size / 2), Math.round(y - size / 2 + bob), size, size);
