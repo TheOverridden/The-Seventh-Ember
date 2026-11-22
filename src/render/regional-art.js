@@ -1638,24 +1638,6 @@ setupFloor = function (f) {
   if (G.run?.up.reserve) G.player.ammo = G.player.magSize;
 };
 
-const beforeMasteryMenuBg = drawMenuBg;
-drawMenuBg = function () {
-  beforeMasteryMenuBg();
-  const x = G.ctx,
-    t = save.motion ? 0 : G.tAll;
-  x.save();
-  x.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
-  x.globalCompositeOperation = 'lighter';
-  for (let i = 0; i < 18; i++) {
-    const px = G.w * (0.49 + ((i * 71) % 47) / 100),
-      py = 40 + ((i * 137) % Math.max(100, G.h - 80)),
-      a = 0.08 + 0.08 * Math.sin(t * 1.3 + i);
-    x.fillStyle = 'rgba(240,201,121,' + Math.max(0.02, a) + ')';
-    x.fillRect(Math.round(px), Math.round(py), i % 5 === 0 ? 3 : 2, i % 5 === 0 ? 3 : 2);
-  }
-  x.restore();
-};
-
 function wireMastery() {
   refreshTreeEss();
 }
