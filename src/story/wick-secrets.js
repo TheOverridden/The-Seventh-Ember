@@ -489,6 +489,17 @@
     return gift.classList.contains('open') || returning || baseBlocking();
   };
 
+  const snapshotBeforePortalRecall = snapshotRun;
+  snapshotRun = function () {
+    if (G.state !== 'returning') return snapshotBeforePortalRecall();
+    G.state = 'paused';
+    try {
+      return snapshotBeforePortalRecall();
+    } finally {
+      G.state = 'returning';
+    }
+  };
+
   on(recall, 'click', () => {
     if (canRecall()) {
       returnQueued = true;
