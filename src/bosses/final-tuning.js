@@ -9,7 +9,8 @@ Object.assign(LATE_BOSSES.paleScribe, { hp: 24500, dmg: 50 });
 
 const durableMidPiece = placeMidGuardianPiece;
 placeMidGuardianPiece = function (b, kind, slot, count, radius, hp) {
-  return durableMidPiece(b, kind, slot, count, radius, Math.round(hp * 1.5));
+  const durability = b.bossKey === 'bellkeeper' && !G.run?.infinite ? 1.12 : 1.5;
+  return durableMidPiece(b, kind, slot, count, radius, Math.round(hp * durability));
 };
 const durableMidState = midGuardianState;
 midGuardianState = function (b) {
@@ -31,7 +32,12 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
       pieces = midGuardianPieces(e).length,
       exposed = (s.exposed || 0) > 0 || !pieces;
     if (m.invulnerable || s.mode === 'shift') return;
-    const shield = { bellkeeper: 0.38, colossus: 0.55, astronomer: 0.34, scribe: 0.32 }[e.bossKey];
+    const shield = {
+      bellkeeper: G.run?.infinite ? 0.38 : 0.64,
+      colossus: 0.55,
+      astronomer: 0.34,
+      scribe: 0.32,
+    }[e.bossKey];
     if (pieces) dmg *= shield;
     const cap = e.max * (exposed ? 0.075 : 0.025);
     dmg = Math.min(dmg, cap);

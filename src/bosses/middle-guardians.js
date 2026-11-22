@@ -394,7 +394,9 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
     const pieces = midGuardianPieces(e).length;
     if (
       pieces &&
-      (e.bossKey === 'bellkeeper' || e.bossKey === 'astronomer' || e.bossKey === 'scribe')
+      ((e.bossKey === 'bellkeeper' && G.run?.infinite) ||
+        e.bossKey === 'astronomer' ||
+        e.bossKey === 'scribe')
     )
       dmg *= e.bossKey === 'bellkeeper' ? 0.58 : e.bossKey === 'astronomer' ? 0.72 : 0.68;
   }

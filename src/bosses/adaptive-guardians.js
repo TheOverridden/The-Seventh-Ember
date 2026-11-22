@@ -1,9 +1,20 @@
 'use strict';
 
 const ADAPTIVE_GUARDIAN_VERSION = 2;
-const ADAPTIVE_REQUIREMENT = [0, 0.02, 0.06, 0.1, 0.16, 0.23, 0.3, 0.37, 0.44, 0.52];
-const ADAPTIVE_BUDGET = [0.18, 0.135, 0.105, 0.08, 0.052, 0.044, 0.036, 0.03, 0.024, 0.019];
-const ADAPTIVE_HIT_CAP = [0.1, 0.08, 0.065, 0.055, 0.042, 0.036, 0.03, 0.026, 0.021, 0.017];
+const CAMPAIGN_GUARDIAN_BALANCE = [
+  { health: 1250, damage: 14, expectedDps: 57, vitality: 125, tempo: 0.9, mastery: 0 },
+  { health: 1680, damage: 17, expectedDps: 69, vitality: 125, tempo: 0.91, mastery: 0 },
+  { health: 2260, damage: 21, expectedDps: 96, vitality: 150, tempo: 0.92, mastery: 0.025 },
+  { health: 2800, damage: 27, expectedDps: 120, vitality: 150, tempo: 0.97, mastery: 0.05 },
+  { health: 3200, damage: 30, expectedDps: 160, vitality: 175, tempo: 0.98, mastery: 0.08 },
+  { health: 3700, damage: 34, expectedDps: 202, vitality: 175, tempo: 0.99, mastery: 0.12 },
+  { health: 2250, damage: 36, expectedDps: 247, vitality: 200, tempo: 1, mastery: 0.17 },
+  { health: 4850, damage: 42, expectedDps: 294, vitality: 200, tempo: 1.01, mastery: 0.22 },
+  { health: 5580, damage: 48, expectedDps: 340, vitality: 225, tempo: 1.01, mastery: 0.27 },
+  { health: 6650, damage: 54, expectedDps: 395, vitality: 225, tempo: 1.02, mastery: 0.33 },
+];
+const ADAPTIVE_BUDGET = [0.16, 0.13, 0.095, 0.07, 0.057, 0.048, 0.042, 0.036, 0.031, 0.027];
+const ADAPTIVE_HIT_CAP = [0.1, 0.08, 0.065, 0.055, 0.048, 0.044, 0.042, 0.039, 0.036, 0.034];
 
 function adaptiveClamp(v, a, b) {
   return Math.max(a, Math.min(b, v));
@@ -77,106 +88,96 @@ function adaptiveBuild(up = {}) {
       r('riftBlink') * 2 +
       r('phoenixRush') * 2,
   };
-  const totalRanks = Object.values(up).reduce(
-    (sum, v) => sum + (Number.isFinite(Number(v)) ? Math.max(0, Number(v)) : 0),
-    0
-  );
-  const mythics = [
-    'supernova',
+  const p = G.player,
+    primary = activeForm('primary').id,
+    formPower = { sunlance: 2.15, cinderburst: 1.65, starweaver: 1.24, ashDisc: 2.8 };
+  const castTime = p.shotInt + p.reloadDuration / Math.max(1, p.magSize);
+  const bolt = (p.dmg * (formPower[primary] || 1) * (1 + 0.58 * (p.proj - 1))) / castTime;
+  const boltExtras =
+    1 +
+    0.13 * r('doubleCast') +
+    0.23 * r('sevenfold') +
+    0.2 * r('twinFlame') +
+    0.14 * r('whiteStar');
+  const flare = (p.dmg * MELEE.damage * (1 + 0.25 * r('edge'))) / Math.max(0.25, MELEE.cooldown);
+  const flareExtras = 1 + 0.21 * r('bladeEcho') + 0.16 * r('echoFlare') + 0.12 * r('aftershock');
+  const procCards = [
+    'burn',
     'blackHole',
-    'sevenfold',
-    'mirrorSoul',
+    'supernova',
     'starfall',
-    'radiantDebt',
-    'dawnward',
     'worldfire',
     'voidOrbit',
-    'endless',
-  ].reduce((n, id) => n + (r(id) > 0), 0);
+    'meteorCore',
+    'stormCoil',
+    'moonShard',
+    'faultline',
+    'orbital',
+    'brightNeedle',
+    'seventhConstellation',
+    'sunspot',
+    'hailstone',
+    'sawHalo',
+    'duelistEmber',
+  ];
+  const procRanks = procCards.reduce((sum, id) => sum + r(id), 0);
+  const comboCount = BLESSING_COMBOS.filter((c) => c.cards.every((id) => r(id) > 0)).length;
+  const crit = 1 + Math.min(1, p.critC) * (1 + (META.critPower || 0));
   const offense =
-    (1 + 0.18 * r('dmg')) *
-    (1 + 0.15 * r('rate')) *
-    (1 + 0.26 * r('glass')) *
-    (1 + 0.31 * r('proj')) *
-    (1 + 0.055 * r('crit')) *
-    (1 + 0.12 * r('edge')) *
-    (1 + 0.12 * r('eliteBane')) *
-    (1 + 0.075 * r('closeQuarters')) *
-    (1 + 0.08 * r('kindleMark')) *
-    (1 + 0.1 * r('doubleCast')) *
-    (1 + 0.16 * r('whiteStar')) *
-    (1 + 0.2 * r('sevenfold')) *
-    (1 + 0.22 * r('twinFlame')) *
-    (1 + 0.3 * r('radiantDebt')) *
-    (1 + 0.13 * r('supernova'));
-  const defense =
-    (1 + 0.1 * r('hp')) *
-    (1 + 0.055 * r('regen')) *
-    (1 + 0.055 * r('ironAsh')) *
-    (1 + 0.07 * r('bossWard')) *
-    (1 + 0.055 * r('guard')) *
-    (1 + 0.09 * r('overheal')) *
-    (1 + 0.12 * r('mirrorSoul')) *
-    (1 + 0.14 * r('dawnward')) *
-    (1 + 0.1 * r('runRevive'));
-  const collection = 1 + Math.min(1.35, totalRanks * 0.026 + mythics * 0.11);
-  const power = adaptiveClamp(Math.max(offense, collection), 1, 14);
+    Math.max(bolt * boltExtras, flare * flareExtras) *
+    crit *
+    (1 + 0.35 * r('eliteBane')) *
+    (1 + 0.14 * r('fullHeart') + 0.09 * r('kindleMark') + 0.09 * r('closeQuarters')) *
+    (1 + Math.min(0.85, procRanks * 0.025 + comboCount * 0.065)) *
+    Math.pow(META.boss || 1, 0.4);
+  const armor = Math.min(0.5, (p.metaArmor || 0) + (p.cardArmor || 0) + 0.07 * r('bossWard'));
+  const defense = (p.maxHp + (p.regen || 0) * 8) / (1 - armor);
+  const power = Math.max(1, offense / 36);
   const strongest = Object.entries(scores).sort((a, b) => b[1] - a[1])[0],
     label = !strongest || strongest[1] < 0.6 ? 'balanced' : strongest[0];
   return {
     power,
-    offense: adaptiveClamp(offense, 1, 14),
-    defense: adaptiveClamp(defense, 1, 5),
-    totalRanks,
-    mythics,
+    offense,
+    defense,
     label,
     scores,
   };
 }
 function adaptiveModel(tier, mastery, build, mode = 'campaign') {
-  const i = adaptiveClamp(tier, 1, 10) - 1,
-    need = ADAPTIVE_REQUIREMENT[i],
-    deficit = Math.max(0, need - mastery),
-    lateWeight = i / 9;
-  const modeWeight = mode === 'practice' ? 0.55 : mode === 'rush' ? 0.68 : 1;
-  const tempHp = 1 + (Math.pow(build.power, 0.46) - 1) * modeWeight;
-  const hp = adaptiveClamp(
-    tempHp * (1 + deficit * (2.1 + lateWeight * 4.4) * modeWeight),
-    1,
-    mode === 'campaign' ? 7.2 : 3.8
-  );
-  const damage = adaptiveClamp(
-    1 + ((build.defense - 1) * 0.17 + deficit * (0.82 + lateWeight * 0.78)) * modeWeight,
-    1,
-    2.35
-  );
-  const tempo = adaptiveClamp(
-    1 +
-      (Math.min(0.24, (build.power - 1) * 0.026) + deficit * (0.32 + lateWeight * 0.3)) *
-        modeWeight,
-    1,
-    1.5
-  );
+  const i = adaptiveClamp(tier, 1, 10) - 1;
+  const stage = CAMPAIGN_GUARDIAN_BALANCE[i],
+    deficit = Math.max(0, stage.mastery - mastery),
+    attackRatio = Math.max(1, build.offense / stage.expectedDps),
+    vitalityRatio = build.defense / stage.vitality;
   const model = {
-    need,
+    need: stage.mastery,
     deficit,
-    hp,
-    damage,
-    tempo,
+    baseHealth: DS_DEMO ? null : stage.health,
+    baseDamage: DS_DEMO ? null : stage.damage,
+    hp: Math.pow(attackRatio, 0.74) * (1 + deficit * 1.4),
+    damage: adaptiveClamp(1 + (vitalityRatio - 1) * 0.46 + deficit * 0.28, 0.82, 1.65),
+    tempo: stage.tempo + Math.min(0.07, (attackRatio - 1) * 0.015),
     budget: ADAPTIVE_BUDGET[i],
     hitCap: ADAPTIVE_HIT_CAP[i],
+    counterInterval: tier <= 3 ? 0 : adaptiveCounterInterval(tier, build.power),
   };
-  if (mode === 'practice')
+  if (mode === 'practice') {
+    const ascendant = G.run?.guardianMode?.difficulty === 'ascendant';
+    const power = Math.max(1, build.offense / (stage.expectedDps * 0.85 + 130));
     return {
       ...model,
+      baseHealth: null,
+      baseDamage: null,
       need: 0,
       deficit: 0,
-      hp: 1,
+      hp: DS_DEMO ? 1 : 1 + (Math.pow(power, 0.65) - 1) * 0.45,
       damage: 1,
-      tempo: 1,
-      budget: Math.max(0.06, model.budget),
-      hitCap: Math.max(0.08, model.hitCap),
+      tempo: DS_DEMO ? 1 : stage.tempo + (ascendant ? 0.055 : -0.02),
+      budget: Math.max(ascendant ? 0.047 : 0.058, model.budget),
+      hitCap: Math.max(0.055, model.hitCap),
+      counterInterval: model.counterInterval * (ascendant ? 1.17 : 1.4),
     };
+  }
   return mode === 'rush' && typeof bossRushAdaptiveModel === 'function'
     ? bossRushAdaptiveModel(model, build)
     : model;
@@ -198,13 +199,13 @@ function adaptiveCurrentGroup(b) {
 function applyAdaptiveGuardian(b, profile, mastery) {
   if (!b || b.dead || G.run?.infinite || b.adapt?.version === ADAPTIVE_GUARDIAN_VERSION) return;
   const tier = adaptiveTier(b),
-    model = adaptiveModel(Math.min(10, tier), mastery, profile, adaptiveMode()),
+    mode = adaptiveMode(),
+    model = adaptiveModel(tier, mastery, profile, mode),
     ratio = adaptiveClamp(b.hp / Math.max(1, b.max), 0, 1);
-  b.max = Math.max(1, Math.round(b.max * model.hp));
+  b.max = Math.max(1, Math.round((model.baseHealth ?? b.max) * model.hp));
   b.hp = Math.max(1, Math.round(b.max * ratio));
-  b.dmg = Math.max(1, Math.round(b.dmg * model.damage));
+  b.dmg = Math.max(1, Math.round((model.baseDamage ?? b.dmg) * model.damage));
   b.spd *= 1 + Math.min(0.12, (model.tempo - 1) * 0.46);
-  b.endlessDamageCeiling = Math.min(b.endlessDamageCeiling || 1, model.hitCap);
   b.adapt = {
     version: ADAPTIVE_GUARDIAN_VERSION,
     tier,
@@ -212,13 +213,12 @@ function applyAdaptiveGuardian(b, profile, mastery) {
     mastery,
     need: model.need,
     deficit: model.deficit,
-    power: adaptiveMode() === 'practice' ? 1 : profile.power,
+    power: profile.power,
     tempo: model.tempo,
     budget: model.budget,
     hitCap: model.hitCap,
-    counterT:
-      adaptiveCounterInterval(tier, adaptiveMode() === 'practice' ? 1 : profile.power) *
-      (adaptiveMode() === 'practice' ? 1 : 0.68),
+    counterInterval: model.counterInterval,
+    counterT: model.counterInterval * 0.85,
     counterStep: 0,
     shieldUntil: 0,
     gate: 0,
@@ -226,8 +226,9 @@ function applyAdaptiveGuardian(b, profile, mastery) {
 }
 function applyAdaptiveGroup(b, announce = true) {
   if (!b || G.run?.infinite) return;
-  const group = adaptiveCurrentGroup(b),
-    profile = adaptiveBuild(G.run?.up || {}),
+  const group = adaptiveCurrentGroup(b);
+  if (!group.some((e) => e.adapt?.version !== ADAPTIVE_GUARDIAN_VERSION)) return;
+  const profile = adaptiveBuild(G.run?.up || {}),
     mastery = adaptiveMastery();
   for (const e of group) applyAdaptiveGuardian(e, profile, mastery);
   const adapted = group.filter((e) => e.adapt?.version === ADAPTIVE_GUARDIAN_VERSION);
@@ -414,28 +415,27 @@ function adaptiveCounter(b) {
 function tickAdaptiveGuardian(b, dt) {
   const a = b?.adapt;
   if (!a || G.run?.infinite || b !== G.boss || !b.introduced || G.state !== 'playing') return;
-  if (a.tier < 3 || !b.lateBoss) return;
+  if (a.tier < 3 || !b.lateBoss || a.counterInterval === 0) return;
   a.counterT -= dt;
-  a.shieldUntil = Math.max(0, a.shieldUntil || 0);
   const busy =
-    b.bs?.mode === 'shift' || G.world?.lateHazards?.some((h) => h.adaptive && h.ownerUid === b.uid);
+    ['shift', 'barrier', 'submerge', 'eclipse'].includes(b.bs?.mode) ||
+    G.world?.lateHazards?.some((h) => h.ownerUid === b.uid && (h.adaptive || h.type === 'rotor'));
   if (a.counterT <= 0 && !busy) {
     adaptiveCounter(b);
-    a.counterT = adaptiveCounterInterval(a.tier, a.power);
+    a.counterT = a.counterInterval ?? adaptiveCounterInterval(a.tier, a.power);
   }
 }
 
 function adaptivePhaseThresholds(e) {
+  if (e.warden) return [0.5, 0.22];
   if (e.bossKey === 'regents') return [];
   if (e.bossKey === 'keeper') return [0.68, 0.3];
   if (e.bossKey === 'uncounted') return [0.66, 0.33];
   return [0.5];
 }
-const adaptiveDamageEnemy = damageEnemy;
-damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
-  const a = e?.adapt;
-  if (!a || G.run?.infinite) return adaptiveDamageEnemy(e, dmg, ang, crit, kb, kind);
-  if ((a.shieldUntil || 0) > G.run.t) return;
+function limitAdaptiveDamage(e, dmg) {
+  const a = e.adapt;
+  if ((a.shieldUntil || 0) > G.run.t) return 0;
   const key = adaptiveGroupKey(e),
     budgets = G.run.adaptiveBudgets || (G.run.adaptiveBudgets = {});
   let budget = budgets[key];
@@ -457,7 +457,7 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
     );
   }
   const allowed = Math.max(0, budget.max * budget.rate - budget.spent);
-  if (allowed < 1) return;
+  if (allowed < 1) return 0;
   dmg = Math.min(dmg, allowed, e.max * a.hitCap);
   const thresholds = adaptivePhaseThresholds(e),
     threshold = thresholds[a.gate];
@@ -465,17 +465,19 @@ damageEnemy = function (e, dmg, ang, crit, kb, kind = 'shot') {
     const gateHp = e.max * threshold;
     if (e.hp > gateHp) dmg = Math.min(dmg, e.hp - gateHp);
   }
-  if (dmg <= 0) return;
-  const before = e.hp;
-  adaptiveDamageEnemy(e, dmg, ang, crit, kb, kind);
-  const dealt = Math.max(0, before - e.hp);
+  return dmg;
+}
+function recordAdaptiveDamage(e, dealt) {
+  const a = e.adapt,
+    threshold = adaptivePhaseThresholds(e)[a.gate],
+    budget = G.run.adaptiveBudgets[adaptiveGroupKey(e)];
   budget.spent += dealt;
-  if (threshold && !e.dead && e.hp <= e.max * threshold + 0.5) {
+  if (threshold && e.hp <= e.max * threshold + 1e-6) {
     a.gate++;
     a.shieldUntil = G.run.t + 0.85;
     burst(e.x, e.y, 22, '#d7b4ff', 175, 0.6, 2.8, true);
   }
-};
+}
 
 const adaptiveWardenActivation = activateWarden;
 activateWarden = function (b) {

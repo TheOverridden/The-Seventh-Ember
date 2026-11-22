@@ -570,12 +570,24 @@ function damageEnemy(e, dmg, ang, isCrit, kbMul) {
       if (dmg <= 0) return;
     }
   }
+  const adaptive = e.adapt && !G.run?.infinite;
+  if (adaptive) {
+    dmg = limitAdaptiveDamage(e, dmg);
+    if (dmg <= 0) return;
+  }
   e.hp -= dmg;
+  if (adaptive) recordAdaptiveDamage(e, dmg);
   e.hitT = 0.13;
   const kb = 150 * e.kb * (kbMul || 1);
   e.kbx += Math.cos(ang) * kb;
   e.kby += Math.sin(ang) * kb;
-  addText(e.x + rand(-8, 8), e.y - e.r - 4, dmg, isCrit ? '#ffd88a' : '#ffffff', isCrit ? 17 : 12);
+  addText(
+    e.x + rand(-8, 8),
+    e.y - e.r - 4,
+    Math.round(dmg),
+    isCrit ? '#ffd88a' : '#ffffff',
+    isCrit ? 17 : 12
+  );
   if (isCrit) burst(e.x, e.y, 4, '#ffd88a', 150, 0.3, 2, true);
   sfx('hit');
   if (e.hp <= 0) killEnemy(e);
